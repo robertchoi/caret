@@ -31,8 +31,6 @@ import { McpMarketplaceCatalog, McpServer, McpViewTab } from "../../../src/share
 import { convertTextMateToHljs } from "../utils/textMateToHljs"
 import { OpenRouterCompatibleModelInfo } from "@shared/proto/models"
 
-// CARET MODIFICATION: Added caretBanner property for Caret welcome page
-// Original backed up to: ExtensionStateContext-tsx.cline
 interface ExtensionStateContextType extends ExtensionState {
 	didHydrateState: boolean
 	showWelcome: boolean
@@ -45,7 +43,6 @@ interface ExtensionStateContextType extends ExtensionState {
 	filePaths: string[]
 	totalTasksSize: number | null
 	availableTerminalProfiles: TerminalProfile[]
-	caretBanner: string
 
 	// View state
 	showMcp: boolean
@@ -212,7 +209,6 @@ export const ExtensionStateContextProvider: React.FC<{
 	})
 	const [totalTasksSize, setTotalTasksSize] = useState<number | null>(null)
 	const [availableTerminalProfiles, setAvailableTerminalProfiles] = useState<TerminalProfile[]>([])
-	const [caretBanner] = useState<string>((window as any).caretBanner || "")
 
 	const [openAiModels, setOpenAiModels] = useState<string[]>([])
 	const [requestyModels, setRequestyModels] = useState<Record<string, ModelInfo>>({
@@ -681,7 +677,6 @@ export const ExtensionStateContextProvider: React.FC<{
 		filePaths,
 		totalTasksSize,
 		availableTerminalProfiles,
-		caretBanner,
 		showMcp,
 		mcpTab,
 		showSettings,

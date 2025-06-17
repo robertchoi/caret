@@ -1,7 +1,9 @@
 [Read this document in English](./README.en.md)
 
 # 캐럿: 당신의 AI 개발 파트너
-<img src="./assets/icons/icon.png" alt="Caret icon">
+<div align="center">
+<img src="https://github.com/aicoding-caret/caret/blob/main/caret-assets/icons/icon.png" alt="Caret icon">
+</div>
 
 Caret은 개발자와 AI 에이전트가 함께 성장하며 소프트웨어를 만들어나가는 차세대 개발 환경을 목표로 하는 VS Code 확장 프로그램입니다. AI와의 긴밀한 협력을 통해 개발 생산성을 높이고, 복잡한 문제를 해결하는 데 도움을 드립니다. ｡•ᴗ•｡💕
 
@@ -18,7 +20,9 @@ Caret은 개발자와 AI 에이전트가 함께 성장하며 소프트웨어를 
 *   **함께 만드는 오픈소스 (Apache 2.0):** Caret은 AI 시대의 개발 방향을 함께 고민하고 만들어가는 **오픈소스 프로젝트**입니다. 투명하게 공유하고, 자유롭게 기여하며, 함께 발전시켜 나갑시다!
 
 ## 왜 Cursor / Windsurf 만으로는 부족할까요?
-<img src="./docs/images/caret_feature.png" alt="Caret Features">
+<div align="center">
+<img src="./caret-docs/images/caret_feature.png" alt="Caret Features">
+</div>
 
 | SaaS AI IDE 한계 | 실무 개발에서 꼭 통제해야 하는 이유 |
 |-----------------|------------------------------------|

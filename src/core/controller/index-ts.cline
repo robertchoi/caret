@@ -1,5 +1,3 @@
-// CARET MODIFICATION: Added 'start' message handler to handleWebviewMessage. Original backed up as index-ts.cline
-// Purpose: Enable start button functionality in Caret welcome view
 import { Anthropic } from "@anthropic-ai/sdk"
 import axios from "axios"
 import { v4 as uuidv4 } from "uuid"

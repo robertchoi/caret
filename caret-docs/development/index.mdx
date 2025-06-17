@@ -5,17 +5,18 @@
 Caret은 [Cline](https://github.com/cline/cline) 프로젝트의 **Fork**로, Cline의 전체 코드베이스를 `src/`, `webview-ui/` 디렉토리에 직접 포함하여 개발합니다. 자세한 내용은 [Caret Fork 기반 아키텍처 문서](./caret-architecture-and-implementation-guide.mdx)를 반드시 참고해 주세요.
 
 ### 1.1 핵심 원칙
-- **Cline 코드 보존**: `src/`, `webview-ui/` 원본 파일은 가능한 수정하지 않음
-- **최소 진입점**: `caret-src/extension.ts`를 통해 Cline 모듈을 활용하고 확장
-- **점진적 확장**: 필요한 기능만 Caret 전용 디렉토리에서 구현
-- **업스트림 동기화**: Git merge를 통해 Cline 최신 변경사항 통합
+
+-   **Cline 코드 보존**: `src/`, `webview-ui/` 원본 파일은 가능한 수정하지 않음
+-   **최소 진입점**: `caret-src/extension.ts`를 통해 Cline 모듈을 활용하고 확장
+-   **점진적 확장**: 필요한 기능만 Caret 전용 디렉토리에서 구현
+-   **업스트림 동기화**: Git merge를 통해 Cline 최신 변경사항 통합
 
 ## 2. 디렉토리 구조
 
 ```
 caret/
 ├── src/                    # Cline 원본 소스 (Fork로 직접 포함)
-├── webview-ui/            # Cline 원본 웹뷰 UI (Fork로 직접 포함)  
+├── webview-ui/            # Cline 원본 웹뷰 UI (Fork로 직접 포함)
 ├── caret-src/             # Caret 확장 백엔드 코드
 │   ├── extension.ts       # Caret 메인 진입점
 │   ├── core/             # Caret 핵심 로직
@@ -27,9 +28,10 @@ caret/
 ```
 
 ### 2.1 Cline 코드 활용 방법
-- **직접 import**: `import { ClineProvider } from '../src/core/webview/WebviewProvider'`
-- **타입 재사용**: `import { ClineApiConfiguration } from '../src/shared/api'`
-- **서비스 확장**: Cline의 기존 서비스를 상속받아 확장
+
+-   **직접 import**: `import { ClineProvider } from '../src/core/webview/WebviewProvider'`
+-   **타입 재사용**: `import { ClineApiConfiguration } from '../src/shared/api'`
+-   **서비스 확장**: Cline의 기존 서비스를 상속받아 확장
 
 ## 3. 개발 환경 설정 및 빌드
 
@@ -48,16 +50,19 @@ cd webview-ui && npm install && cd ..
 ### 3.2 개발 빌드
 
 **전체 컴파일 (타입 검사 및 백엔드 번들링)**:
+
 ```bash
 npm run compile
 ```
 
 **웹뷰 UI 빌드**:
+
 ```bash
 npm run build:webview
 ```
 
 **개발 모드 (자동 리빌드)**:
+
 ```bash
 npm run watch        # 백엔드 watch 모드
 npm run watch:webview # 웹뷰 watch 모드 (별도 터미널)
@@ -86,38 +91,41 @@ npm run package
 ### 4.1 백엔드 확장 (`caret-src/`)
 
 **새로운 Provider 추가:**
+
 ```typescript
 // caret-src/core/providers/CaretCustomProvider.ts
-import { WebviewProvider } from '../../src/core/webview/WebviewProvider'
+import { WebviewProvider } from "../../src/core/webview/WebviewProvider"
 
 export class CaretCustomProvider extends WebviewProvider {
-    // Cline의 기본 기능을 확장
-    protected override async handleCustomMessage(message: any) {
-        // Caret 전용 로직 구현
-        return super.handleCustomMessage(message)
-    }
+	// Cline의 기본 기능을 확장
+	protected override async handleCustomMessage(message: any) {
+		// Caret 전용 로직 구현
+		return super.handleCustomMessage(message)
+	}
 }
 ```
 
 **Cline 서비스 활용:**
+
 ```typescript
 // caret-src/services/CaretApiService.ts
-import { ApiHandler } from '../../src/api/index'
-import { ClineApiConfiguration } from '../../src/shared/api'
+import { ApiHandler } from "../../src/api/index"
+import { ClineApiConfiguration } from "../../src/shared/api"
 
 export class CaretApiService {
-    constructor(private clineApi: ApiHandler) {}
-    
-    async executeCaretSpecificTask() {
-        // Cline의 API 기능을 활용하면서 Caret 고유 기능 추가
-        return await this.clineApi.createApiHandler(config)
-    }
+	constructor(private clineApi: ApiHandler) {}
+
+	async executeCaretSpecificTask() {
+		// Cline의 API 기능을 활용하면서 Caret 고유 기능 추가
+		return await this.clineApi.createApiHandler(config)
+	}
 }
 ```
 
 ### 4.2 프론트엔드 확장 (`webview-ui/src/caret/`)
 
 **새로운 Caret 컴포넌트 추가:**
+
 ```typescript
 // webview-ui/src/caret/components/CaretCustomComponent.tsx
 import React from 'react'
@@ -136,9 +144,10 @@ export const CaretCustomComponent = () => {
 ```
 
 **기존 Cline 컴포넌트와 통합:**
+
 ```typescript
 // webview-ui/src/App.tsx에서 Caret 컴포넌트 통합
-import { CaretCustomComponent } from './caret/components/CaretCustomComponent'
+import { CaretCustomComponent } from "./caret/components/CaretCustomComponent"
 
 // App 컴포넌트 내에서 조건부 렌더링으로 Caret 기능 추가
 ```
@@ -146,15 +155,16 @@ import { CaretCustomComponent } from './caret/components/CaretCustomComponent'
 ### 4.3 상태 관리 확장
 
 **ExtensionStateContext 확장:**
+
 ```typescript
 // webview-ui/src/caret/context/CaretStateContext.tsx
-import { createContext, useContext } from 'react'
-import { ExtensionStateContext } from '../context/ExtensionStateContext'
+import { createContext, useContext } from "react"
+import { ExtensionStateContext } from "../context/ExtensionStateContext"
 
 interface CaretState {
-    // Caret 전용 상태 정의
-    caretMode: 'standard' | 'advanced'
-    customSettings: Record<string, any>
+	// Caret 전용 상태 정의
+	caretMode: "standard" | "advanced"
+	customSettings: Record<string, any>
 }
 
 export const CaretStateContext = createContext<CaretState | null>(null)
@@ -214,47 +224,59 @@ node caret-scripts/caret-coverage-check.js
 
 ### 6.3 테스트 가이드 및 표준
 
-- **[종합 테스트 가이드](./testing-guide.mdx)**: 테스트 전략, 실행 방법, 커버리지 분석
-- **[테스트 작성 표준](./test-writing-standards.mdx)**: 테스트 코드 작성 규칙과 표준
-- **[TDD 가이드](./tdd-guide.mdx)**: 테스트 주도 개발 방법론과 실전 적용법
+-   **[종합 테스트 가이드](./testing-guide.mdx)**: 테스트 전략, 실행 방법, 커버리지 분석
+-   **[테스트 작성 표준](./test-writing-standards.mdx)**: 테스트 코드 작성 규칙과 표준
+-   **[TDD 가이드](./tdd-guide.mdx)**: 테스트 주도 개발 방법론과 실전 적용법
 
 ### 6.4 테스트 원칙
 
-- **Caret 전용 코드**: `caret-src/`, `webview-ui/src/caret/` 디렉토리의 모든 코드는 100% 커버리지 목표
-- **TDD 방식**: Red-Green-Refactor 사이클을 따른 테스트 주도 개발
-- **품질 우선**: 테스트 실패 시 코드 변경 금지, 근본 원인 해결 원칙
+-   **Caret 전용 코드**: `caret-src/`, `webview-ui/src/caret/` 디렉토리의 모든 코드는 100% 커버리지 목표
+-   **TDD 방식**: Red-Green-Refactor 사이클을 따른 테스트 주도 개발
+-   **품질 우선**: 테스트 실패 시 코드 변경 금지, 근본 원인 해결 원칙
 
 ### 6.5 개발 시 주의사항
 
-- **Cline 코드 수정 금지**: `src/`, `webview-ui/` 원본 파일 직접 수정 지양
-- **타입 안전성**: Cline 타입과의 호환성 유지
-- **성능 고려**: Cline 기본 성능에 영향을 주지 않도록 최적화
-- **문서 동기화**: 변경사항 발생 시 관련 문서 업데이트
+-   **Cline 코드 수정 금지**: `src/`, `webview-ui/` 원본 파일 직접 수정 지양
+-   **타입 안전성**: Cline 타입과의 호환성 유지
+-   **성능 고려**: Cline 기본 성능에 영향을 주지 않도록 최적화
+-   **문서 동기화**: 변경사항 발생 시 관련 문서 업데이트
 
 ## 7. 문서화 및 기여
 
 ### 7.1 문서 관리
-- 모든 문서는 MDX 형식으로 작성
-- `caret-docs/` 디렉토리에서 체계적 관리
-- 코드 변경 시 관련 문서 필수 업데이트
+
+-   모든 문서는 MDX 형식으로 작성
+-   `caret-docs/` 디렉토리에서 체계적 관리
+-   코드 변경 시 관련 문서 필수 업데이트
 
 ### 7.2 기여 가이드라인
-- Fork 기반 아키텍처 원칙 준수
-- 코드 리뷰 시 Cline 호환성 검토
-- 업스트림 동기화 고려한 설계
+
+-   Fork 기반 아키텍처 원칙 준수
+-   코드 리뷰 시 Cline 호환성 검토
+-   업스트림 동기화 고려한 설계
 
 ## 8. 참고 문서
 
 ### 8.1 아키텍처 및 개발
-- [Caret Fork 기반 아키텍처 가이드](./caret-architecture-and-implementation-guide.mdx)
-- [업스트림 병합 가이드](../guides/upstream-merging.mdx) 
-- [문서 작성 가이드](./documentation-guide.mdx)
-- [AI 작업 방법론 가이드](../guides/ai-work-method-guide.mdx)
+
+-   [Caret Fork 기반 아키텍처 가이드](./caret-architecture-and-implementation-guide.mdx)
+-   [업스트림 병합 가이드](../guides/upstream-merging.mdx)
+-   [문서 작성 가이드](./documentation-guide.mdx)
+-   [AI 작업 방법론 가이드](../guides/ai-work-method-guide.mdx)
+-   [링크 관리 시스템 가이드](./link-management-guide.mdx)
+-   [다국어 지원 가이드](./locale.mdx)
 
 ### 8.2 테스트 및 품질 관리
-- [종합 테스트 가이드](./testing-guide.mdx)
-- [테스트 작성 표준](./test-writing-standards.mdx)
-- [TDD 가이드](./tdd-guide.mdx)
+
+-   [종합 테스트 가이드](./testing-guide.mdx)
+-   [테스트 작성 표준](./test-writing-standards.mdx)
+-   [TDD 가이드](./tdd-guide.mdx)
+
+## 🏗️ **아키텍처 및 설계**
+
+-   **[🏛️ Caret 아키텍처 가이드](./caret-architecture-and-implementation-guide.mdx)**: Fork 기반 아키텍처 개요
+-   **[🔧 확장 아키텍처](./extension-architecture.mmd)**: VSCode 확장 구조 다이어그램
+-   **[🧩 컴포넌트 아키텍처 원칙](./component-architecture-principles.mdx)**: UI 컴포넌트 개발 원칙 및 가이드라인
 
 ---
 

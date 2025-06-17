@@ -324,7 +324,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
-		"compile": "npm run check-types && npm run lint && npm run test:webview && node esbuild.js",
+		"compile": "npm run check-types && npm run lint && npm run test:report && node esbuild.js",
 		"compile-standalone": "npm run check-types && npm run lint && node esbuild.js --standalone",
 		"postcompile-standalone": "node scripts/package-standalone.mjs",
 		"watch": "npm-run-all -p watch:*",
@@ -349,6 +349,10 @@
 		"dev:webview": "cd webview-ui && npm run dev",
 		"build:webview": "cd webview-ui && npm run build",
 		"test:webview": "cd webview-ui && npm run test",
+		"test:backend": "vitest run --config vitest.config.ts",
+		"test:backend:watch": "vitest watch --config vitest.config.ts",
+		"test:backend:coverage": "vitest run --config vitest.config.ts --coverage",
+		"test:report": "node caret-scripts/test-report.js",
 		"publish:marketplace": "vsce publish && ovsx publish",
 		"publish:marketplace:prerelease": "vsce publish --pre-release && ovsx publish --pre-release",
 		"prepare": "husky",
@@ -408,7 +412,8 @@
 		"ts-node": "^10.9.2",
 		"ts-proto": "^2.6.1",
 		"tsconfig-paths": "^4.2.0",
-		"typescript": "^5.4.5"
+		"typescript": "^5.4.5",
+		"vitest": "^2.1.8"
 	},
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.37.0",

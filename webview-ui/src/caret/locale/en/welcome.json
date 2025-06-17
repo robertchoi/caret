@@ -1,20 +1,78 @@
 {
-  "greeting": "Hello! I'm Caret, your AI development partner.",
-  "catchPhrase": "Caret is here to help you grow with AI and create amazing things. Let's make AI a true partner that understands project context and solves problems with you, going beyond a simple code generator!",
-  "coreFeatures": {
-    "header": "Start a Special 'Vibecoding' Journey with Caret!",
-    "description": "From developer-led AI orchestration and customizable workflows to transparent AI control and robust local LLM integration. Caret proposes a <strong>'Vibecoding'</strong> culture—systematically creating documents with AI and growing together based on those records, moving beyond simple conversations. <VSCodeLink href=\"{{caretGitLink}}\">Learn more on Caret GitHub</VSCodeLink>"
-  },
-  "modelFlexibility": {
-    "header": "Choose Your Model Freely, Endless Possibilities",
-    "body": "Caret isn't tied to specific vendors. Easily connect <strong>your own local sLLM via Ollama</strong>, or use various external API keys you already have, like Anthropic Claude or OpenAI. Choose the best AI for your project and style."
-  },
-  "caretAccount": {
-    "header": "Coming Soon! Caret Integrated Subscription Service (Monthly)",
-    "body": "No more complex API key setups! With the upcoming Caret Integrated Account (monthly subscription), you'll be able to use a selection of high-performance AI agents, including Google Gemini, right away. Be the first to get the latest news!"
-  },
-  "educationOffer": {
-    "header": "✨ Start Now! Free 'Vibecoding' Course & Google Gemini $300 Credit Tips!",
-    "body": "Join our <strong>open-source educational program</strong> to learn 'real Vibecoding' with Caret and experience the entire process of developing an AI blogger agent! This program is free and provides a warm guide and rich hands-on environment for your first practical steps in AI development. We also offer tips on how to use the <strong>$300 GCP credit available for 3 months</strong> for those new to the Google Gemini API. Experience the joy of AI development without worrying about costs! (Learn more about the program and Gemini credit tips <VSCodeLink href=\"{{educationLink}}\">here</VSCodeLink>)"
-  }
-} 
+	"greeting": "Hello! AI Development Partner, ^Caret.",
+	"catchPhrase": "Transform AI from a simple code generator into a true development partner that understands your project context and solves problems together!",
+	"bannerAlt": "Caret Main Banner",
+
+	"geminiOffer": {
+		"header": "✨ Google Gemini Special Launch Offer!",
+		"body": "Experience the world of AI coding with the powerful Google Gemini model! New GCP users who sign up and get a Gemini API key will receive <strong>$300 in free credits valid for 3 months</strong>. Don't miss this special opportunity! (Details: <vscode-link href=\"https://blog.naver.com/fstory97/223887376667\">here</vscode-link>)"
+	},
+
+	"coreFeatures": {
+		"header": "Start your special 'Vibe Coding' journey with Caret!",
+		"description": "Developer-led AI orchestration, customizable workflows, transparent AI control, and powerful local LLM integration. Beyond simple conversations, Caret proposes a <strong>'Vibe Coding'</strong> development culture where you systematically create documents with AI and grow together based on those records. <VSCodeLink href=\"{{caretGitLink}}\">Learn more on Caret GitHub</VSCodeLink>"
+	},
+
+	"modelFlexibility": {
+		"header": "Choose your model freely, unlimited possibilities",
+		"body": "Caret is not tied to specific vendors. <strong>Easily connect your own local sLLM through Ollama</strong> or use various external API keys you're already using like Anthropic Claude, OpenAI, and more. Choose the optimal AI for your project and style."
+	},
+
+	"caretAccount": {
+		"header": "Coming Soon! Caret Integrated Subscription Service (Monthly)",
+		"body": "No more complex API key setup! With the upcoming Caret integrated account (monthly subscription), you'll be able to use carefully selected high-performance AI agents including Google Gemini right away. Be the first to get the latest news!"
+	},
+
+	"educationOffer": {
+		"header": "✨ Start Now! Free 'Vibe Coding' Education & Google Gemini $300 Credit Tips!",
+		"body": "Join our <strong>open-source education program</strong> to learn real 'Vibe Coding' with Caret and experience the full AI blogger agent development process! This program is provided for free and offers warm guidance and a rich practice environment needed to take your first real steps in AI development. We also provide <strong>$300 GCP credit utilization tips for 3 months</strong> for those using Google Gemini API for the first time. Experience the joy of AI development without cost burden! (Education program and Gemini credit tips <VSCodeLink href=\"{{educationLink}}\">Learn more</VSCodeLink>)"
+	},
+
+	"getStarted": {
+		"header": "Get Started with Caret",
+		"body": "Welcome to Caret! This AI coding assistant helps you with development tasks. Check out our <a href=\"https://github.com/aicoding-caret/multi-post-agent/blob/main/docs/education-scenario.md#2-development-environment-setup-approximately-30-minutes\" target=\"_blank\">education program</a> to learn more about AI-assisted development.",
+		"button": "Get Started"
+	},
+
+	"community": {
+		"header": "Join the Caret Community",
+		"body": "Connect with other developers using Caret! Visit our <a href=\"https://github.com/aicoding-caret/caret\" target=\"_blank\">GitHub repository</a> to contribute, report issues, or learn from the community.",
+		"button": "Notify for Caret Account"
+	},
+
+	"apiSetup": {
+		"backButton": "← Back",
+		"title": "🔧 API Setup",
+		"description": "Set up your AI API to use Caret.",
+		"instructions": "Subscribe to Caret or set up API keys for OpenAI, Anthropic, or other AI services, or configure local LLM.",
+		"saveButton": "Save and Get Started",
+		"help": {
+			"title": "Need Help?",
+			"button": "View Documentation"
+		}
+	},
+
+	"footer": {
+		"links": {
+			"caretGithub": "Caret GitHub",
+			"basedOnCline": "Based on Cline",
+			"caretService": "Caret Service",
+			"caretiveInc": "Caretive Inc",
+			"about": "About",
+			"terms": "Terms of Service",
+			"privacy": "Privacy Policy",
+			"youthProtection": "Youth Protection Policy",
+			"support": "Support"
+		},
+		"company": {
+			"name": "Caretive INC",
+			"businessNumber": "Business Registration: 459-81-03703",
+			"address": "4F 409-681, 823 Dongtan Sunhwan-daero, Hwaseong-si, Gyeonggi-do, South Korea (Yeongcheon-dong, A-PLEX City)"
+		},
+		"copyright": {
+			"text": "© 2025 Caretive INC. All rights reserved.",
+			"builtWith": "Built with ❤️ by Caret Team",
+			"version": "Caret v1.0.0"
+		}
+	}
+}

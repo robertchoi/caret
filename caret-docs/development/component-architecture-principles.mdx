@@ -1,0 +1,269 @@
+# Caret 컴포넌트 아키텍처 원칙
+
+## 📋 **개요**
+
+Caret 프로젝트에서 UI 컴포넌트를 개발할 때 준수해야 할 아키텍처 원칙을 정의합니다. 이 원칙들은 Cline 원본 코드와의 호환성을 유지하면서도 Caret 고유의 기능을 효과적으로 구현하기 위해 수립되었습니다.
+
+## 🎯 **핵심 원칙**
+
+### **1. 원본 구조 유지 (Structure Preservation)**
+
+**원칙**: Cline 원본 컴포넌트의 구조와 패턴을 최대한 유지합니다.
+
+```typescript
+// ❌ 잘못된 예: 하드코딩된 구조
+const CaretWelcome = () => {
+  return (
+    <div style={{ padding: "20px", border: "1px solid red" }}>
+      <h2>하드코딩된 제목</h2>
+      <p>하드코딩된 내용</p>
+    </div>
+  )
+}
+
+// ✅ 올바른 예: 원본 구조 유지
+const CaretWelcome = () => {
+  const renderSection = (headerKey: string, bodyKey: string, buttonConfig?: ButtonConfig) => (
+    <div style={{
+      marginBottom: "25px",
+      padding: "20px",
+      border: "1px solid var(--vscode-settings-headerBorder)",
+      borderRadius: "8px"
+    }}>
+      <h3>{t(headerKey, 'welcome')}</h3>
+      <p>{t(bodyKey, 'welcome')}</p>
+      {buttonConfig && renderButton(buttonConfig)}
+    </div>
+  )
+
+  return (
+    <div className="caret-welcome">
+      {renderSection('coreFeatures.header', 'coreFeatures.description')}
+      {renderSection('apiSetup.header', 'apiSetup.description', {
+        text: 'apiSetup.button',
+        handler: handleApiSetup
+      })}
+    </div>
+  )
+}
+```
+
+### **2. 컴포넌트 분리 (Component Separation)**
+
+**원칙**: 기능별로 명확하게 분리된 컴포넌트를 생성합니다.
+
+```typescript
+// ✅ 컴포넌트 분리 예시
+// components/caret/CaretWelcomeSection.tsx
+interface CaretWelcomeSectionProps {
+  headerKey: string
+  bodyKey: string
+  buttonConfig?: ButtonConfig
+  className?: string
+}
+
+const CaretWelcomeSection: React.FC<CaretWelcomeSectionProps> = ({
+  headerKey, bodyKey, buttonConfig, className
+}) => {
+  return (
+    <div className={`caret-welcome-section ${className || ''}`}>
+      <h3>{t(headerKey, 'welcome')}</h3>
+      <p>{t(bodyKey, 'welcome')}</p>
+      {buttonConfig && <CaretButton {...buttonConfig} />}
+    </div>
+  )
+}
+
+// components/caret/CaretApiSetup.tsx
+const CaretApiSetup: React.FC<CaretApiSetupProps> = ({ onConfigSave }) => {
+  return (
+    <div className="caret-api-setup">
+      <CaretWelcomeSection
+        headerKey="apiSetup.title"
+        bodyKey="apiSetup.description"
+      />
+      <ApiOptions showModelOptions={true} />
+      <CaretButton onClick={onConfigSave} appearance="primary">
+        {t('apiSetup.saveButton', 'welcome')}
+      </CaretButton>
+    </div>
+  )
+}
+```
+
+### **3. 상태 관리 패턴 (State Management Pattern)**
+
+**원칙**: Cline 원본의 상태 관리 패턴을 따릅니다.
+
+```typescript
+// ✅ 올바른 상태 관리
+const CaretWelcome = () => {
+  const { apiConfiguration, caretBanner } = useExtensionState()
+  const [showApiOptions, setShowApiOptions] = useState(false)
+  const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
+
+  // Cline 패턴과 동일한 validation 로직
+  useEffect(() => {
+    setApiErrorMessage(validateApiConfiguration(apiConfiguration))
+  }, [apiConfiguration])
+
+  // 상태 기반 조건부 렌더링
+  if (showApiOptions) {
+    return <CaretApiSetup onBack={() => setShowApiOptions(false)} />
+  }
+
+  return <CaretWelcomeContent onShowApiOptions={() => setShowApiOptions(true)} />
+}
+```
+
+### **4. 스타일링 일관성 (Styling Consistency)**
+
+**원칙**: VSCode 테마 변수를 사용하고 일관된 스타일링 패턴을 유지합니다.
+
+```typescript
+// ✅ 올바른 스타일링
+const sectionStyle = {
+	marginBottom: "25px",
+	padding: "20px",
+	border: "1px solid var(--vscode-settings-headerBorder)",
+	borderRadius: "8px",
+	backgroundColor: "var(--vscode-sideBar-background)",
+}
+
+// CSS 변수 활용
+const CARET_THEME = {
+	section: {
+		border: "var(--vscode-settings-headerBorder)",
+		background: "var(--vscode-sideBar-background)",
+		text: "var(--vscode-editor-foreground)",
+		description: "var(--vscode-descriptionForeground)",
+	},
+}
+```
+
+### **5. i18n 통합 (Internationalization Integration)**
+
+**원칙**: 모든 텍스트는 i18n 시스템을 통해 관리합니다.
+
+```typescript
+// ✅ 올바른 i18n 사용
+const CaretWelcomeHeader = () => {
+  return (
+    <div className="caret-welcome-header">
+      <h2>{t('greeting', 'welcome')}</h2>
+      <p>{t('catchPhrase', 'welcome')}</p>
+      <img
+        src={caretBanner}
+        alt={t('bannerAlt', 'welcome')}
+        className="caret-banner-image"
+      />
+    </div>
+  )
+}
+```
+
+## 🔧 **구현 가이드라인**
+
+### **컴포넌트 파일 구조**
+
+```
+webview-ui/src/caret/
+├── components/
+│   ├── CaretWelcome.tsx         # 메인 웰컴 컴포넌트
+│   ├── CaretWelcomeSection.tsx  # 재사용 가능한 섹션
+│   ├── CaretApiSetup.tsx        # API 설정 전용 컴포넌트
+│   ├── CaretButton.tsx          # 공통 버튼 컴포넌트
+│   └── CaretFooter.tsx          # 푸터 컴포넌트
+├── hooks/
+│   └── useCaretWelcome.ts       # 웰컴 관련 로직 훅
+├── utils/
+│   └── welcomeHelpers.ts        # 헬퍼 함수들
+└── styles/
+    └── CaretWelcome.css         # 스타일 정의
+```
+
+### **프로퍼티 인터페이스 설계**
+
+```typescript
+interface CaretWelcomeProps {
+	onGetStarted?: () => void
+	initialView?: "welcome" | "apiSetup"
+	theme?: "light" | "dark" | "auto"
+}
+
+interface CaretSectionProps {
+	headerKey: string
+	bodyKey: string
+	buttonConfig?: {
+		textKey: string
+		handler: () => void
+		appearance?: "primary" | "secondary"
+		disabled?: boolean
+	}
+	className?: string
+	children?: React.ReactNode
+}
+```
+
+## 🚨 **안티패턴 (Anti-patterns)**
+
+### **❌ 하드코딩된 구조**
+
+```typescript
+// 피해야 할 패턴
+const BadComponent = () => (
+  <div style={{ padding: "20px", border: "1px solid red" }}>
+    <h2>하드코딩된 제목</h2>
+    <p>하드코딩된 설명</p>
+    <button onClick={() => alert("클릭!")}>버튼</button>
+  </div>
+)
+```
+
+### **❌ 인라인 스타일 남용**
+
+```typescript
+// 피해야 할 패턴
+const BadStyling = () => (
+  <div style={{
+    backgroundColor: "#1e1e1e",
+    color: "#ffffff",
+    padding: "15px",
+    marginBottom: "10px"
+  }}>
+    내용
+  </div>
+)
+```
+
+### **❌ 번역 없는 텍스트**
+
+```typescript
+// 피해야 할 패턴
+const BadI18n = () => (
+  <div>
+    <h2>Caret 설정</h2>
+    <p>API 키를 입력해주세요</p>
+  </div>
+)
+```
+
+## 📋 **체크리스트**
+
+새로운 컴포넌트 개발 시 다음 사항들을 확인하세요:
+
+-   [ ] 원본 Cline 컴포넌트 구조 분석 완료
+-   [ ] 기능별 컴포넌트 분리 설계 완료
+-   [ ] VSCode 테마 변수 사용
+-   [ ] 모든 텍스트 i18n 적용
+-   [ ] 상태 관리 패턴 일관성 확보
+-   [ ] 재사용 가능한 컴포넌트 설계
+-   [ ] 타입스크립트 인터페이스 정의
+-   [ ] 테스트 코드 작성
+-   [ ] 문서화 완료
+
+## 🔗 **관련 문서**
+
+-   [Caret 아키텍처 가이드](./caret-architecture-and-implementation-guide.mdx)
+-   [테스트 작성 가이드](./test-writing-standards.mdx)
+-   [i18n 개발 가이드](./locale.mdx)

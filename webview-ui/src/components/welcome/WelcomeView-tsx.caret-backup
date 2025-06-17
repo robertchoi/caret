@@ -1,0 +1,156 @@
+// CARET MODIFICATION: 이 파일은 Caret 프로젝트에서 수정되었습니다.
+// 원본 Cline WelcomeView.tsx는 WelcomeView-tsx.cline 파일로 백업되어 있습니다.
+// Caret 전용 웰컴 페이지를 표시하도록 수정되었습니다.
+
+import React from 'react'
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
+import { useEffect, useState } from "react"
+import { useExtensionState } from "@/context/ExtensionStateContext"
+import { validateApiConfiguration } from "@utils/validate"
+import { vscode } from "@utils/vscode"
+import ApiOptions from "@components/settings/ApiOptions"
+import CaretWelcome from "@/caret/components/CaretWelcome"
+import { t } from "@/caret/utils/i18n"
+
+const WelcomeView = () => {
+	const { apiConfiguration } = useExtensionState()
+	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
+	const [showApiOptions, setShowApiOptions] = useState(false)
+	const [showCaretWelcome, setShowCaretWelcome] = useState(true)
+
+	const disableLetsGoButton = apiErrorMessage !== null
+
+	const handleSubmitApiKey = () => {
+		// Use a more generic message posting for now
+		console.log("API Configuration submitted:", apiConfiguration)
+		// TODO: Implement proper API configuration message handling
+	}
+
+	const handleShowApiOptions = () => {
+		setShowApiOptions(true)
+		setShowCaretWelcome(false)
+	}
+
+	const handleCaretGetStarted = () => {
+		console.log("Caret Welcome: Get Started clicked")
+		setShowCaretWelcome(false)
+		setShowApiOptions(true)
+	}
+
+	const handleBackToWelcome = () => {
+		setShowCaretWelcome(true)
+		setShowApiOptions(false)
+	}
+
+	useEffect(() => {
+		setApiErrorMessage(validateApiConfiguration(apiConfiguration))
+	}, [apiConfiguration])
+
+	// Show Caret Welcome Page first
+	if (showCaretWelcome) {
+		return <CaretWelcome onGetStarted={handleCaretGetStarted} />
+	}
+
+	// Show API Configuration
+	return (
+		<div
+			data-testid="caret-welcome-view"
+			data-overlay-version="caret"
+			style={{
+				position: "fixed",
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				padding: "20px",
+				display: "flex",
+				flexDirection: "column",
+				background: "var(--vscode-editor-background)",
+				color: "var(--vscode-editor-foreground)",
+			}}>
+			<div
+				style={{
+					height: "100%",
+					overflowY: "auto",
+					maxWidth: "600px",
+					margin: "0 auto",
+					width: "100%",
+				}}>
+				
+				{/* Header with back button */}
+				<div style={{ marginBottom: "30px", textAlign: "center" }}>
+					<VSCodeButton 
+						appearance="secondary" 
+						onClick={handleBackToWelcome}
+						style={{ marginBottom: "20px" }}
+					>
+						{t('apiSetup.backButton', 'welcome')}
+					</VSCodeButton>
+					<h2>{t('apiSetup.title', 'welcome')}</h2>
+					<p style={{ color: "var(--vscode-descriptionForeground)", fontSize: "1.1em" }}>
+						{t('apiSetup.description', 'welcome')}
+					</p>
+				</div>
+
+				{/* API Configuration Section */}
+				<div style={{ 
+					padding: "20px", 
+					border: "1px solid var(--vscode-panel-border)", 
+					borderRadius: "8px", 
+					backgroundColor: "var(--vscode-panel-background)",
+					marginBottom: "20px"
+				}}>
+					<p style={{ marginBottom: "20px", color: "var(--vscode-descriptionForeground)" }}>
+						{t('apiSetup.instructions', 'welcome')}
+					</p>
+					
+					<ApiOptions showModelOptions={true} />
+					
+					<VSCodeButton 
+						onClick={handleSubmitApiKey} 
+						disabled={disableLetsGoButton} 
+						appearance="primary"
+						style={{ width: "100%", marginTop: "20px" }}
+					>
+						{t('apiSetup.saveButton', 'welcome')}
+					</VSCodeButton>
+					
+					{apiErrorMessage && (
+						<div style={{ 
+							marginTop: "15px", 
+							padding: "10px", 
+							backgroundColor: "var(--vscode-inputValidation-errorBackground)",
+							border: "1px solid var(--vscode-inputValidation-errorBorder)",
+							borderRadius: "4px",
+							color: "var(--vscode-inputValidation-errorForeground)"
+						}}>
+							{apiErrorMessage}
+						</div>
+					)}
+				</div>
+
+				{/* Help Section */}
+				<div style={{ 
+					padding: "20px", 
+					border: "1px solid var(--vscode-panel-border)", 
+					borderRadius: "8px", 
+					backgroundColor: "var(--vscode-panel-background)",
+					textAlign: "center"
+				}}>
+					<h4>{t('apiSetup.help.title', 'welcome')}</h4>
+					<VSCodeButton 
+						appearance="secondary"
+						onClick={() => {
+							console.log("Opening external link: https://docs.caret.team")
+							// TODO: Implement proper external link opening
+						}}
+					>
+						{t('apiSetup.help.button', 'welcome')}
+					</VSCodeButton>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+export default WelcomeView

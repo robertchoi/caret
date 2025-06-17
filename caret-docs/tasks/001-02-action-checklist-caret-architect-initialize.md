@@ -90,9 +90,10 @@
   - `caret-src/utils/caret-logger.ts` 구현: CaretLogger 클래스, 로그 레벨, 컨텍스트 기반 로깅
   - CaretProvider에서 로깅 시스템 연결: outputChannel 연동, 활성화/비활성화 로그
   - 웰컴 페이지에서 사용자 상호작용 로깅 추가
-- [ ] 로깅 시스템 테스트 (Extension Development Host에서 확인 예정)
-  - 콘솔 출력 확인
-  - VSCode OUTPUT 패널에서 "Caret" 채널 로그 확인
+- [ ] **로깅 시스템 실제 동작 테스트** (🔍 마스터 직접 확인 필요)
+  - F5 → Extension Development Host 실행
+  - Caret 확장 활성화 후 VSCode OUTPUT 패널 → "Caret" 채널 선택하여 로그 출력 확인
+  - 웰컴페이지에서 "시작하기" 버튼 클릭 → 콘솔과 OUTPUT 패널에 사용자 상호작용 로그 표시되는지 확인
 
 ### ✅ **2.3 테스트 프레임워크 설정**
 - [x] Caret 백엔드 테스트 환경 구축
@@ -110,7 +111,17 @@
 - [x] 디버깅 설정 확인 완료 (.vscode/launch.json)
 - [x] Extension Development Host 기본 로드 확인
 - [x] 백엔드 빌드 성공 확인 (웹뷰 에러는 프론트엔드 미구현으로 인한 정상 상황)
-- [ ] 웹뷰 표시 확인 (Phase 3에서 프론트엔드 구현 후 확인)
+- [x] **웹뷰 표시 확인** (2025-06-17 완료)
+  - 마스터 확인: 웰컴페이지가 정상적으로 표시됨 ✅
+  - **웰컴페이지 완전 개선 작업 완료** (2025-06-17):
+    - 🖼️ 배너 이미지 경로 수정 (`/assets/` → `./assets/`) - 웹뷰 상대경로로 수정
+    - 📝 글자 크기 최적화 (title: 2.5rem → 1.8rem, subtitle: 1.2rem → 1rem, h2: 1.1rem)
+    - 🌍 **다국어 지원 완전 구현** - 한국어/영어/일본어/중국어 4개 언어 지원
+    - 📄 내용 최적화 (catchPhrase 간결화, 서비스 페이지에서 Cline 언급 제거)
+    - 📖 **locale 개발 문서 신규 작성** (`caret-docs/development/locale.mdx`)
+    - 📋 **룰 파일 다국어 지원 추가** (마스터 한글 템플릿 업데이트)
+    - 🔧 **룰 동기화 스크립트 간소화** (복잡한 JSON 변환 → 단순 파일 복사)
+    - ✅ 웹뷰 빌드 성공 확인 & 동기화 스크립트 정상 동작 확인
 
 ## 🎨 **Phase 3: 프론트엔드 웰컴 페이지 구현**
 
@@ -122,7 +133,7 @@
 - [x] 백업 원칙 적용 완료 (모든 Cline 원본 파일 백업 생성)
 - [x] 파일 타입별 주석 형식 가이드라인 추가 완료
 
-### ✅ **3.2 웰컴 페이지 컴포넌트 구현**
+### ❌ **3.2 웰컴 페이지 컴포넌트 구현** (구조 개선 필요)
 - [x] `CaretWelcome.tsx` 기본 컴포넌트 생성 완료
   - Caret 브랜딩 적용 완료 (🥕 이모지, 한글 설명)
   - 기본 UI/UX 구현 완료 (VSCode 테마 적용, 반응형 디자인)
@@ -131,6 +142,16 @@
   - Caret 웰컴 페이지 → API 설정 플로우 구현
   - 백업 생성 완료 (WelcomeView-tsx.cline)
   - CaretWelcome 컴포넌트 통합 완료
+- [⚠️] **구조 문제 식별** (2025-06-17):
+  - 현재 WelcomeView.tsx는 하드코딩된 구조로 원본과 다름
+  - 원본 Cline은 `renderSection` 헬퍼 함수와 `caretBanner` state 활용
+  - 컴포넌트 단위 분리가 부족하여 유지보수성 저하
+- [ ] **컴포넌트 구조 재설계 필요**:
+  - 원본 구조와 유사한 컴포넌트 분리
+  - 하드코딩된 스타일을 재사용 가능한 컴포넌트로 분리
+  - API 설정 관련 로직을 별도 컴포넌트로 추출
+  - i18n 적용 완료 (백엔드 번역 파일 작성됨)
+- [ ] **배너 이미지 문제 해결**: webview에서 assets 경로 접근 문제
 
 ### ✅ **3.3 프론트엔드 로깅 시스템 연동**
 - [x] **프론트엔드 로깅 시스템 연동**
@@ -159,10 +180,52 @@
 - [x] **스크립트 관리 체계 정립**
   - `caret-scripts/` 폴더 생성하여 Cline 원본 `scripts/`와 분리
   - 룰 파일 업데이트 (script_management 가이드라인 수정)
-- [❌] **잘못된 접근 식별 및 수정 계획**
+- [x] **잘못된 접근 식별 및 수정 계획**
   - `caret-scripts/dev-build-test.js` 불필요한 중복 생성 (Cline 원본 시스템으로 충분)
   - Windows 환경변수 문제로 복잡성 증가
   - Cline 기존 테스트 시스템 활용이 더 적절함을 확인
+
+### ❌ **3.6 웰컴 페이지 추가 문제 해결** (2025-06-17 발견)
+- [ ] **문제 1: 메인 배너 이미지 엑박**
+  - 현상: `caretBanner` 이미지가 VSCode 웹뷰에서 로드되지 않아 엑박 표시
+  - 원인: 백엔드에서 `caret-assets` 이미지를 webview URI로 변환하는 과정에 문제
+  - 해결방안: `useExtensionState().caretBanner` 올바른 활용 확인 필요
+  - 우선순위: 최우선 (UI 첫인상 중요)
+
+- [ ] **문제 2: API 설정 페이지 레이아웃 문제**
+  - 현상: "시작하기" 버튼 클릭 시 같은 페이지에 인라인으로 API 설정 표시
+  - 요구사항: 별도 페이지로 이동하도록 변경 필요
+  - 관련 컴포넌트: `WelcomeView.tsx`, `CaretApiSetup.tsx`
+  - 우선순위: 높음 (UX 개선)
+
+- [ ] **문제 3: API 키 입력 후 버튼 활성화 안됨** (2025-06-18 발견)
+  - 현상: API 키를 입력해도 "저장하고 시작하기" 버튼이 활성화되지 않음
+  - 원인: API 키 validation 로직 또는 상태 관리 문제로 추정
+  - 영향: 사용자가 API 설정을 완료할 수 없어 확장 사용 불가
+  - 우선순위: 최우선 (기능 차단)
+
+- [ ] **문제 4: PostHog CSP 에러 지속** (2025-06-18 발견)
+  - 현상: `data.cline.bot` 도메인 연결 거부 CSP 에러 지속 발생
+  - 시도한 해결책: `src/core/webview/index.ts`에서 CSP에 도메인 추가했으나 미해결
+  - 원인: 빌드된 파일이 제대로 반영되지 않았거나 추가 CSP 설정 필요
+  - 영향: 텔레메트리 기능 작동 불가, 콘솔 에러 다수 발생
+  - 우선순위: 중간 (기능상 문제는 없으나 에러 로그 과다)
+
+- [ ] **문제 3: styled-components zIndex 경고**
+  - 현상: `styled-components: unknown prop "zIndex" is being sent through to the DOM`
+  - 원인: `ApiOptions` 컴포넌트의 styled-components에서 `zIndex` prop DOM 전달
+  - 해결방안: transient props (`$zIndex`) 사용 또는 prop 필터링
+  - 우선순위: 중간 (개발자 콘솔 경고)
+
+- [ ] **문제 4: API 버튼 disabled 상태 문제**
+  - 현상: Google Gemini API 키 입력 후에도 "저장하고 시작하기" 버튼이 활성화되지 않음
+  - 원인: `disableLetsGoButton` 로직 또는 validation 문제
+  - 관련: `validateApiConfiguration` 함수, `apiErrorMessage` 상태
+  - 우선순위: 높음 (핵심 기능 차단)
+
+- [ ] **문제 5: 기타 웹뷰 오류들**
+  - 현상: `classList` null 오류, Service worker fetch 실패, gRPC 요청 취소 로그
+  - 우선순위: 낮음 (기능에 직접적 영향 없음)
 
 ## 🚀 **Phase 4: 빌드 스크립트 순차적 개발**
 
@@ -173,7 +236,7 @@
 - [x] **릴리즈 전용 스크립트 구현**
   - `caret-release-build.ps1` Caret 브랜딩 릴리즈 스크립트 생성
   - package.json Caret 메타데이터 업데이트 (버전 0.1.0)
-- [❌] **개발 중 잘못된 접근들**
+- [x] **개발 중 잘못된 접근들**
   - `caret-scripts/dev-build-test.js` 불필요한 중복 (삭제 예정)
   - Windows PowerShell 환경변수 문제로 복잡성 증가
   - cross-env 의존성 추가 (불필요)
@@ -277,6 +340,50 @@
 
 ### ✅ **5.5 커밋 푸시**
 
+## 🧩 **Phase 7: 컴포넌트 구조 개선 및 원칙 수립** (2025-06-17 추가)
+
+### ✅ **7.1 구조 개선 원칙 문서화**
+- [x] **컴포넌트 아키텍처 원칙 문서 작성** (`caret-docs/development/component-architecture-principles.mdx`)
+  - 원본 구조 유지 원칙 정의
+  - 컴포넌트 분리 가이드라인
+  - 상태 관리 패턴 가이드
+  - 스타일링 일관성 규칙
+  - i18n 통합 방법론
+- [x] **개발 문서 인덱스 업데이트** (component-architecture-principles.mdx 링크 추가)
+- [x] **Task 004 계획 문서 생성** (MDX 문서화 시스템 계획)
+
+### ✅ **7.2 웰컴 페이지 컴포넌트 구조 개선**
+- [x] **원본 구조 분석 완료**: WelcomeView-tsx.cline의 `renderSection` 패턴 적용
+- [x] **CaretWelcomeSection 컴포넌트 생성**: 재사용 가능한 섹션 컴포넌트 (`webview-ui/src/caret/components/CaretWelcomeSection.tsx`)
+- [x] **CaretApiSetup 컴포넌트 분리**: API 설정 전용 컴포넌트 (`webview-ui/src/caret/components/CaretApiSetup.tsx`)
+- [x] **상태 관리 개선**: 임시 caretBanner 경로 설정 (TODO: ExtensionStateContext 추가 필요)
+- [x] **URL 상수 활용**: 기존 `CARET_URLS` 상수 활용으로 하드코딩 제거
+- [x] **i18n 번역 데이터 업데이트**: 새로운 섹션용 번역 키 추가 (getStarted, community)
+- [x] **Cline 원본 백업**: WelcomeView.tsx → WelcomeView-tsx.caret-backup
+- [x] **CARET MODIFICATION 주석 추가**: 수정 이유 및 백업 위치 명시
+- [x] **빌드 테스트 성공**: `npm run build:webview` 정상 완료
+
+### ✅ **7.3 i18n 및 스타일 통합**
+- [x] **i18n 번역 파일 작성 완료**: 한국어/영어/일본어/중국어 지원
+- [x] **URL 템플릿 제거**: {{educationLink}}, {{caretGithub}} 템플릿을 실제 URL로 변경
+- [x] **VSCode 테마 변수 적용**: var(--vscode-*) 변수 활용
+- [x] **컴포넌트 기반 스타일링**: 인라인 스타일을 컴포넌트 props로 관리
+- [x] **4개 언어 지원 완료**: ko/en/ja/zh 모든 번역 파일 업데이트
+
+### ❌ **7.4 테스트 및 검증**
+- [ ] **컴포넌트 테스트 추가**: 새로운 컴포넌트들에 대한 테스트 코드
+- [ ] **통합 테스트**: 전체 웰컴 플로우 테스트
+- [ ] **접근성 테스트**: 스크린 리더 및 키보드 네비게이션
+- [ ] **실제 동작 확인**: F5 Extension Development Host에서 검증
+
+## 📝 **Phase 7 관련 파일**
+- `caret-docs/development/component-architecture-principles.mdx` ✅
+- `caret-docs/tasks/004-01-plan-mdx-documentation-system.md` ✅  
+- `webview-ui/src/caret/components/CaretWelcomeSection.tsx` ✅
+- `webview-ui/src/caret/components/CaretApiSetup.tsx` ✅
+- `webview-ui/src/components/welcome/WelcomeView.tsx` ✅ (구조 개선 완료)
+- `webview-ui/src/components/welcome/WelcomeView-tsx.caret-backup` ✅ (원본 백업)
+- `webview-ui/src/caret/locale/*/welcome.json` ✅ (4개 언어 번역 업데이트)
 
 ## 📋 **완료 기준**
 - ✅ **문서 시스템 완성**: 모든 개발 문서가 목표 구조로 업데이트됨

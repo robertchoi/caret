@@ -21,6 +21,10 @@ export interface WebviewMessage {
 		| "grpc_request"
 		| "grpc_request_cancel"
 		| "log"
+		| "openExternalLink"
+		| "apiConfiguration"
+		| "notifyCaretAccount"
+		| "start"
 
 	text?: string
 	disabled?: boolean
@@ -75,9 +79,12 @@ export interface WebviewMessage {
 	shellIntegrationTimeout?: number
 	terminalReuseEnabled?: boolean
 	defaultTerminalProfile?: string
-	
+
 	// For Caret webview logging
 	entry?: any
+
+	// For Caret welcome page actions
+	link?: string
 }
 
 export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse"

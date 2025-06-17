@@ -1,0 +1,20 @@
+{
+  "greeting": "Hello! I'm Caret, your AI development partner.",
+  "catchPhrase": "Caret is here to help you grow with AI and create amazing things. Let's make AI a true partner that understands project context and solves problems with you, going beyond a simple code generator!",
+  "coreFeatures": {
+    "header": "Start a Special 'Vibecoding' Journey with Caret!",
+    "description": "From developer-led AI orchestration and customizable workflows to transparent AI control and robust local LLM integration. Caret proposes a <strong>'Vibecoding'</strong> culture—systematically creating documents with AI and growing together based on those records, moving beyond simple conversations. <VSCodeLink href=\"{{caretGitLink}}\">Learn more on Caret GitHub</VSCodeLink>"
+  },
+  "modelFlexibility": {
+    "header": "Choose Your Model Freely, Endless Possibilities",
+    "body": "Caret isn't tied to specific vendors. Easily connect <strong>your own local sLLM via Ollama</strong>, or use various external API keys you already have, like Anthropic Claude or OpenAI. Choose the best AI for your project and style."
+  },
+  "caretAccount": {
+    "header": "Coming Soon! Caret Integrated Subscription Service (Monthly)",
+    "body": "No more complex API key setups! With the upcoming Caret Integrated Account (monthly subscription), you'll be able to use a selection of high-performance AI agents, including Google Gemini, right away. Be the first to get the latest news!"
+  },
+  "educationOffer": {
+    "header": "✨ Start Now! Free 'Vibecoding' Course & Google Gemini $300 Credit Tips!",
+    "body": "Join our <strong>open-source educational program</strong> to learn 'real Vibecoding' with Caret and experience the entire process of developing an AI blogger agent! This program is free and provides a warm guide and rich hands-on environment for your first practical steps in AI development. We also offer tips on how to use the <strong>$300 GCP credit available for 3 months</strong> for those new to the Google Gemini API. Experience the joy of AI development without worrying about costs! (Learn more about the program and Gemini credit tips <VSCodeLink href=\"{{educationLink}}\">here</VSCodeLink>)"
+  }
+} 

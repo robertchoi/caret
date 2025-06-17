@@ -1,0 +1,175 @@
+/* Caret Welcome Page Styles */
+.caret-welcome {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+}
+
+.caret-welcome-container {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  padding: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--vscode-panel-border);
+  background: var(--vscode-panel-background);
+}
+
+/* Header Styles */
+.caret-header {
+  margin-bottom: 30px;
+}
+
+.caret-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0 0 15px 0;
+  color: var(--vscode-textLink-foreground);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.caret-subtitle {
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  color: var(--vscode-descriptionForeground);
+  font-weight: 500;
+}
+
+.caret-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  color: var(--vscode-editor-foreground);
+  opacity: 0.9;
+}
+
+/* Features Section */
+.caret-features {
+  margin: 30px 0;
+  text-align: left;
+}
+
+.caret-features h2 {
+  font-size: 1.4rem;
+  margin: 0 0 20px 0;
+  color: var(--vscode-textLink-foreground);
+  text-align: center;
+}
+
+.caret-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.caret-feature-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--vscode-panel-border);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.caret-feature-list li:last-child {
+  border-bottom: none;
+}
+
+.caret-feature-list li strong {
+  color: var(--vscode-textLink-foreground);
+}
+
+/* Actions Section */
+.caret-actions {
+  margin: 30px 0;
+}
+
+.caret-actions vscode-button {
+  font-size: 1.1rem;
+  padding: 12px 24px;
+  min-width: 120px;
+}
+
+/* Info Section */
+.caret-info {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--vscode-panel-border);
+}
+
+.caret-version {
+  margin: 0 0 10px 0;
+  color: var(--vscode-descriptionForeground);
+}
+
+.caret-credits {
+  margin: 0;
+  color: var(--vscode-descriptionForeground);
+}
+
+.caret-credits a {
+  color: var(--vscode-textLink-foreground);
+  text-decoration: none;
+}
+
+.caret-credits a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .caret-welcome {
+    padding: 10px;
+  }
+  
+  .caret-welcome-container {
+    padding: 20px;
+  }
+  
+  .caret-title {
+    font-size: 2rem;
+  }
+  
+  .caret-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .caret-features {
+    text-align: center;
+  }
+  
+  .caret-feature-list {
+    text-align: left;
+  }
+}
+
+/* Animation Effects */
+.caret-welcome-container {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover Effects */
+.caret-actions vscode-button:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}
+
+.caret-feature-list li:hover {
+  background: var(--vscode-list-hoverBackground);
+  padding-left: 10px;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+} 

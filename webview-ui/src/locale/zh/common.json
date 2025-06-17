@@ -1,0 +1,27 @@
+{
+  "button": {
+    "freeStart": "免费开始",
+    "useOwnKey": "使用您自己的 API 密钥",
+    "letsGo": "开始吧！",
+    "save": "保存",
+    "cancel": "取消",
+    "setupApiOrLocal": "设置 API 密钥或本地 LLM",
+    "notifyCaretAccount": "订阅 Caret 通知",
+    "saveAndStart": "保存并开始"
+  },
+  "error": {
+    "generic": "发生错误。"
+  },
+  "imageAlt": {
+    "caretBanner": "Caret 标志横幅"
+  },
+  "title": {
+    "apiKeySettings": "API 密钥设置"
+  },
+  "text": {
+    "finalThoughts": "和 {{appName}} 一起开始精彩的开发之旅吧！"
+  },
+  "link": {
+    "learnMoreCaretGit": "在 Caret GitHub 上了解更多"
+  }
+} 

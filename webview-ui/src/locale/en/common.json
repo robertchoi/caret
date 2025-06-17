@@ -1,0 +1,27 @@
+{
+  "button": {
+    "freeStart": "Start for Free",
+    "useOwnKey": "Use Your Own API Key",
+    "letsGo": "Let's Go!",
+    "save": "Save",
+    "cancel": "Cancel",
+    "setupApiOrLocal": "Setup My API Key or Local LLM",
+    "notifyCaretAccount": "Notify Me for Caret Subscription",
+    "saveAndStart": "Save and Start"
+  },
+  "error": {
+    "generic": "An error occurred."
+  },
+  "imageAlt": {
+    "caretBanner": "Caret Logo Banner"
+  },
+  "title": {
+    "apiKeySettings": "API Key Settings"
+  },
+  "text": {
+    "finalThoughts": "Start your amazing development journey with {{appName}}!"
+  },
+  "link": {
+    "learnMoreCaretGit": "Learn more on Caret GitHub"
+  }
+} 

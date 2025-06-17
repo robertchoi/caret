@@ -1,0 +1,27 @@
+{
+  "button": {
+    "freeStart": "無料で始める",
+    "useOwnKey": "自分のAPIキーを使う",
+    "letsGo": "始めよう！",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "setupApiOrLocal": "APIキーまたはローカルLLMを設定する",
+    "notifyCaretAccount": "Caretのサブスクリプションに通知を受け取る",
+    "saveAndStart": "保存して開始"
+  },
+  "error": {
+    "generic": "エラーが発生しました。"
+  },
+  "imageAlt": {
+    "caretBanner": "Caretロゴバナー"
+  },
+  "title": {
+    "apiKeySettings": "APIキー設定"
+  },
+  "text": {
+    "finalThoughts": "{{appName}}と一緒に素晴らしい開発の旅を始めましょう！"
+  },
+  "link": {
+    "learnMoreCaretGit": "CaretのGitHubで詳しく見る"
+  }
+} 

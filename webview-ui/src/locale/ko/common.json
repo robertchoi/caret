@@ -1,0 +1,27 @@
+{
+  "button": {
+    "freeStart": "무료로 시작하기",
+    "useOwnKey": "자신의 API 키 사용하기",
+    "letsGo": "시작하기!",
+    "save": "저장",
+    "cancel": "취소",
+    "setupApiOrLocal": "내 API 키 사용 또는 로컬 LLM 설정",
+    "notifyCaretAccount": "Caret 구독 서비스 알림받기",
+    "saveAndStart": "저장하고 시작하기"
+  },
+  "error": {
+    "generic": "오류가 발생했습니다."
+  },
+  "imageAlt": {
+    "caretBanner": "Caret 로고 배너"
+  },
+  "title": {
+    "apiKeySettings": "API 키 설정"
+  },
+  "text": {
+    "finalThoughts": "{{appName}}와(과) 함께 멋진 개발 여정을 시작해보세요!"
+  },
+  "link": {
+    "learnMoreCaretGit": "Caret GitHub에서 더 알아보기"
+  }
+} 

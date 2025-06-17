@@ -6,6 +6,9 @@ import { ChatContent } from "./ChatContent"
 import { TelemetrySetting } from "./TelemetrySetting"
 import { McpViewTab } from "./mcp"
 
+// CARET MODIFICATION: This file has been modified by Caret. Original backed up as WebviewMessage.ts.cline
+// Purpose: Added 'log' message type for Caret webview logging system
+
 export interface WebviewMessage {
 	type:
 		| "requestVsCodeLmModels"
@@ -17,6 +20,7 @@ export interface WebviewMessage {
 		| "fetchUserCreditsData"
 		| "grpc_request"
 		| "grpc_request_cancel"
+		| "log"
 
 	text?: string
 	disabled?: boolean
@@ -71,6 +75,9 @@ export interface WebviewMessage {
 	shellIntegrationTimeout?: number
 	terminalReuseEnabled?: boolean
 	defaultTerminalProfile?: string
+	
+	// For Caret webview logging
+	entry?: any
 }
 
 export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse"

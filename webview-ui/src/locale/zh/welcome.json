@@ -1,0 +1,20 @@
+{
+ "greeting": "你好！我是 Caret，你的 AI 开发伙伴。",
+  "catchPhrase": "Caret 将帮助你与 AI 一起成长，创造惊人的成果。不仅是代码生成器，更是理解项目上下文、与你并肩解决问题的真正伙伴！",
+  "coreFeatures": {
+    "header": "与 Caret 一起踏上特别的『Vibecoding』之旅！",
+    "description": "从开发者主导的 AI 协同编排、自定义工作流，到可控性强的本地 LLM 集成，Caret 倡导一种 <strong>“Vibecoding”</strong> 文化 —— 不只是对话，而是与 AI 一起系统化地记录开发过程，并共同成长。<VSCodeLink href=\"{{caretGitLink}}\">在 Caret GitHub 上了解更多</VSCodeLink>"
+  },
+  "modelFlexibility": {
+    "header": "自由选择模型，激发无限可能",
+    "body": "Caret 不依赖特定厂商。你可以轻松连接 <strong>通过 Ollama 运行的本地 sLLM</strong>，或使用你已有的 API 密钥，如 Anthropic Claude 或 OpenAI。根据你的项目需求和风格，自由选择最适合的 AI 模型。"
+  },
+  "caretAccount": {
+    "header": "敬请期待！Caret 集成订阅服务（月付）",
+    "body": "再也不需要复杂的 API 设置！即将推出的 Caret 集成账户（月度订阅）将支持包括 Google Gemini 在内的高性能 AI 代理，让你一键即用。欢迎第一时间获取最新消息！"
+  },
+  "educationOffer": {
+    "header": "✨立即开始！免费『Vibecoding』课程 & Google Gemini ¥300 信用使用指南！",
+    "body": "加入我们的 <strong>开源教育项目</strong>，通过 Caret 学习真正的『Vibecoding』，亲身体验开发 AI 博客代理的全过程！该项目免费，并提供贴心引导与丰富实操，适合初学者。我们还将分享如何使用 <strong>Google Gemini 提供的 ¥300 云平台信用（为期 3 个月）</strong>。零成本体验 AI 开发的乐趣！（详细了解课程与信用使用技巧请见<VSCodeLink href=\"{{educationLink}}\">这里</VSCodeLink>）"
+  }
+} 

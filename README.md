@@ -1,190 +1,173 @@
-<div align="center"><sub>
-English | <a href="https://github.com/cline/cline/blob/main/locales/es/README.md" target="_blank">Español</a> | <a href="https://github.com/cline/cline/blob/main/locales/de/README.md" target="_blank">Deutsch</a> | <a href="https://github.com/cline/cline/blob/main/locales/ja/README.md" target="_blank">日本語</a> | <a href="https://github.com/cline/cline/blob/main/locales/zh-cn/README.md" target="_blank">简体中文</a> | <a href="https://github.com/cline/cline/blob/main/locales/zh-tw/README.md" target="_blank">繁體中文</a> | <a href="https://github.com/cline/cline/blob/main/locales/ko/README.md" target="_blank">한국어</a>
-</sub></div>
+[Read this document in English](./README.en.md)
 
-# Cline – \#1 on OpenRouter
+# 캐럿: 당신의 AI 개발 파트너
+<img src="./assets/icons/icon.png" alt="Caret icon">
 
-<p align="center">
-  <img src="https://media.githubusercontent.com/media/cline/cline/main/assets/docs/demo.gif" width="100%" />
-</p>
+Caret은 개발자와 AI 에이전트가 함께 성장하며 소프트웨어를 만들어나가는 차세대 개발 환경을 목표로 하는 VS Code 확장 프로그램입니다. AI와의 긴밀한 협력을 통해 개발 생산성을 높이고, 복잡한 문제를 해결하는 데 도움을 드립니다. ｡•ᴗ•｡💕
 
-<div align="center">
-<table>
-<tbody>
-<td align="center">
-<a href="https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev" target="_blank"><strong>Download on VS Marketplace</strong></a>
-</td>
-<td align="center">
-<a href="https://discord.gg/cline" target="_blank"><strong>Discord</strong></a>
-</td>
-<td align="center">
-<a href="https://www.reddit.com/r/cline/" target="_blank"><strong>r/cline</strong></a>
-</td>
-<td align="center">
-<a href="https://github.com/cline/cline/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><strong>Feature Requests</strong></a>
-</td>
-<td align="center">
-<a href="https://docs.cline.bot/getting-started/for-new-coders" target="_blank"><strong>Getting Started</strong></a>
-</td>
-</tbody>
-</table>
-</div>
+> **Note:** 이 프로젝트는 [Cline](https://github.com/cline/cline) 프로젝트의 포크 버전입니다. 원본 프로젝트의 훌륭한 기반 위에, AI 에이전트와의 더욱 깊은 상호작용과 지능적인 개발 지원 기능을 탐구하고 있습니다. 🌿
 
-Meet Cline, an AI assistant that can use your **CLI** a**N**d **E**ditor.
+## 주요 목표 및 특징
 
-Thanks to [Claude 3.7 Sonnet's agentic coding capabilities](https://www.anthropic.com/claude/sonnet), Cline can handle complex software development tasks step-by-step. With tools that let him create & edit files, explore large projects, use the browser, and execute terminal commands (after you grant permission), he can assist you in ways that go beyond code completion or tech support. Cline can even use the Model Context Protocol (MCP) to create new tools and extend his own capabilities. While autonomous AI scripts traditionally run in sandboxed environments, this extension provides a human-in-the-loop GUI to approve every file change and terminal command, providing a safe and accessible way to explore the potential of agentic AI.
+**왜 Caret인가요?** 기존 AI 코딩 도구의 "블랙박스"에 답답함을 느끼셨나요? AI 에이전트를 내 방식대로 제어하고, 원하는 모델을 연결하며, 개발 워크플로우를 진정으로 맞춤화하고 싶으셨나요? Caret은 **개발자와 AI가 신뢰하는 동료로서 함께하는 경험**을 목표로 합니다. AI를 투명하게 이해하고, 자유롭게 확장하며, 최고의 동료처럼 함께 성장하는 환경을 제공합니다.
 
-1. Enter your task and add images to convert mockups into functional apps or fix bugs with screenshots.
-2. Cline starts by analyzing your file structure & source code ASTs, running regex searches, and reading relevant files to get up to speed in existing projects. By carefully managing what information is added to context, Cline can provide valuable assistance even for large, complex projects without overwhelming the context window.
-3. Once Cline has the information he needs, he can:
-    - Create and edit files + monitor linter/compiler errors along the way, letting him proactively fix issues like missing imports and syntax errors on his own.
-    - Execute commands directly in your terminal and monitor their output as he works, letting him e.g., react to dev server issues after editing a file.
-    - For web development tasks, Cline can launch the site in a headless browser, click, type, scroll, and capture screenshots + console logs, allowing him to fix runtime errors and visual bugs.
-4. When a task is completed, Cline will present the result to you with a terminal command like `open -a "Google Chrome" index.html`, which you run with a click of a button.
+*   **개발자 주도 AI 오케스트레이션:** 불투명한 내부 로직 대신, **명확한 JSON 규칙(`.caretrules`, 퍼소나)**으로 AI의 행동을 직접 정의하고 제어하세요. AI가 어떻게 작동하는지 이해하고, 내 프로젝트와 스타일에 맞게 길들일 수 있습니다.
+*   **워크플로우 맞춤 설정 (4+1 모드):** 정해진 틀을 넘어, **AI의 역할과 상호작용 방식을 직접 설계**하세요. 기본 제공되는 모드(Arch, Dev, Rule, Talk, Empty)를 수정하거나, 완전히 새로운 모드를 만들어 나만의 AI 개발 파트너를 구축할 수 있습니다.
+*   **모델 선택의 자유 (로컬 LLM & 프라이버시):** 특정 벤더 종속 없이 **원하는 LLM을 자유롭게 연결**하세요. 상용 API는 물론, **로컬 sLLM을 활용**하여 비용, 보안, 성능 요구사항을 충족하고 **데이터 프라이버시를 확보**할 수 있습니다.
+*   **AI와의 실질적 협업:** 단순 코드 생성을 넘어, 프로젝트 **맥락을 이해하고(RAG 목표)**, 개발자와 함께 문제를 해결하는 **지능적인 파트너**를 지향합니다. Caret은 AI의 가능성을 탐구하고 **AI와 효과적으로 협업하는 방법을 배우는 플랫폼**이 될 것입니다.
+*   **함께 만드는 오픈소스 (Apache 2.0):** Caret은 AI 시대의 개발 방향을 함께 고민하고 만들어가는 **오픈소스 프로젝트**입니다. 투명하게 공유하고, 자유롭게 기여하며, 함께 발전시켜 나갑시다!
 
-> [!TIP]
-> Use the `CMD/CTRL + Shift + P` shortcut to open the command palette and type "Cline: Open In New Tab" to open the extension as a tab in your editor. This lets you use Cline side-by-side with your file explorer, and see how he changes your workspace more clearly.
+## 왜 Cursor / Windsurf 만으로는 부족할까요?
+<img src="./docs/images/caret_feature.png" alt="Caret Features">
 
----
+| SaaS AI IDE 한계 | 실무 개발에서 꼭 통제해야 하는 이유 |
+|-----------------|------------------------------------|
+| **블랙박스 컨텍스트·모델 버전** | 재현·디버깅·회귀 테스트 불가 |
+| **요금제·쿼터 변동** | 예산 예측 실패, 대규모 팀 비용 폭등 |
+| **외부 서버에 코드·로그 저장** | 보안·규제(PII, 영업비밀) 위반 가능 |
+| **VS Code 의존 엔드포인트 고정** | CLI·CI·다른 IDE와 파이프라인 통합 곤란 |
+| **룰·워크플로 커스터마이징 제한** | 팀 코딩 규칙, 도메인 규제 반영 불가 |
+| **로컬 sLLM 미지원** | 망 분리·저지연·저비용 환경 구축 불가 |
+| **파일 안전성(텍스트 패치)** | 구조 손상·롤백 불가 |
 
-<img align="right" width="340" src="https://github.com/user-attachments/assets/3cf21e04-7ce9-4d22-a7b9-ba2c595e88a4">
+> **Caret** 은 모델·인프라·정책을 *모두 코드로 선언*해 **완전한 통제권**을 제공합니다.
 
-### Use any API and Model
+## 지원 모델
 
-Cline supports API providers like OpenRouter, Anthropic, OpenAI, Google Gemini, AWS Bedrock, Azure, GCP Vertex, and Cerebras. You can also configure any OpenAI compatible API, or use a local model through LM Studio/Ollama. If you're using OpenRouter, the extension fetches their latest model list, allowing you to use the newest models as soon as they're available.
+Caret은 20여 개 제공자의 150개 이상의 AI 모델을 지원하여, 여러분의 필요에 가장 적합한 도구를 선택할 자유를 제공합니다.
 
-The extension also keeps track of total tokens and API usage cost for the entire task loop and individual requests, keeping you informed of spend every step of the way.
+- **Anthropic Claude** (Claude 3.7 Sonnet, Claude 3.5 Sonnet, Claude 3 Opus 등)
+- **OpenAI** (GPT-4o, GPT-4.1 등)
+- **Google Gemini** (Gemini 2.5, Gemini 2.0 등)
+- **Mistral AI** (Mistral Large, Codestral 등)
+- **AWS Bedrock** (Amazon Nova, AWS의 Claude 등)
+- **Vertex AI** (Google Cloud의 AI 플랫폼)
+- 그 외 Ollama 및 LM Studio를 통한 로컬 모델 등 다수
 
-<!-- Transparent pixel to create line break after floating image -->
+## 시작하기
 
-<img width="2000" height="0" src="https://github.com/user-attachments/assets/ee14e6f7-20b8-4391-9091-8e8e25561929"><br>
+Caret은 현재 활발히 개발 중이며, 여러분의 관심과 참여로 함께 만들어가는 프로젝트입니다! 꾸준히 발전하는 모습을 지켜봐 주세요! ☕
 
-<img align="left" width="370" src="https://github.com/user-attachments/assets/81be79a8-1fdb-4028-9129-5fe055e01e76">
+1.  **코드 저장소:** [aicoding-caret/caret](https://github.com/aicoding-caret/caret) 레파지토리에서 개발 진행 상황을 확인하실 수 있습니다. 코드를 직접 빌드하고 사용해보시려면 이 레파지토리를 Star ⭐ 하고 지켜봐 주세요.
+2.  **설치 (향후):** 정식 배포 후에는 VS Code 마켓플레이스에서 "Caret"을 검색하여 설치할 수 있습니다. (준비 중)
+3.  **설정 (설치 후):**
+    *   제공되는 AI 에이전트 퍼소나를 꾸며보세요.
+    *   프로젝트 루트에 `.caretrules` 파일을 생성하여 작업 모드와 규칙을 정의합니다.
+    *   ARCH, DEV, RULE, TALK의 4가지 기본 모드와 비어있는 모드 하나를 더하여, 원하시는 작업에 최적화할 수 있습니다.
+4.  **참여 및 기여:** 프로젝트에 기여하거나 최신 소식을 받아보시려면 레파지토리를 Star ⭐ 해주시거나 Issue를 통해 의견을 남겨주세요!
+5.  **커뮤니티 (준비 중):** 최신 소식과 논의는 [AICoding-Caret Facebook 그룹](https://facebook.com/groups/aicoding-caret)에서 이루어질 예정입니다.
+6.  **공식 웹사이트 (향후):** [caret.team](https://caret.team) (준비 중)
 
-### Run Commands in Terminal
+## 빌드 및 패키징 🛠️
 
-Thanks to the new [shell integration updates in VSCode v1.93](https://code.visualstudio.com/updates/v1_93#_terminal-shell-integration-api), Cline can execute commands directly in your terminal and receive the output. This allows him to perform a wide range of tasks, from installing packages and running build scripts to deploying applications, managing databases, and executing tests, all while adapting to your dev environment & toolchain to get the job done right.
+로컬 개발 환경을 설정하고 확장 프로그램을 빌드하려면 다음 단계를 따르세요.
 
-For long running processes like dev servers, use the "Proceed While Running" button to let Cline continue in the task while the command runs in the background. As Cline works he’ll be notified of any new terminal output along the way, letting him react to issues that may come up, such as compile-time errors when editing files.
+### 1. 레파지토리 설정
 
-<!-- Transparent pixel to create line break after floating image -->
+Caret은 [Cline](https://github.com/cline/cline) 프로젝트의 **Fork 기반 아키텍처**를 채택하고 있습니다. Cline의 안정적인 코드베이스를 `src/` 디렉토리에 직접 포함하여, Caret만의 확장 기능을 `caret-src/`에서 개발하는 구조입니다.
 
-<img width="2000" height="0" src="https://github.com/user-attachments/assets/ee14e6f7-20b8-4391-9091-8e8e25561929"><br>
-
-<img align="right" width="400" src="https://github.com/user-attachments/assets/c5977833-d9b8-491e-90f9-05f9cd38c588">
-
-### Create and Edit Files
-
-Cline can create and edit files directly in your editor, presenting you a diff view of the changes. You can edit or revert Cline's changes directly in the diff view editor, or provide feedback in chat until you're satisfied with the result. Cline also monitors linter/compiler errors (missing imports, syntax errors, etc.) so he can fix issues that come up along the way on his own.
-
-All changes made by Cline are recorded in your file's Timeline, providing an easy way to track and revert modifications if needed.
-
-<!-- Transparent pixel to create line break after floating image -->
-
-<img width="2000" height="0" src="https://github.com/user-attachments/assets/ee14e6f7-20b8-4391-9091-8e8e25561929"><br>
-
-<img align="left" width="370" src="https://github.com/user-attachments/assets/bc2e85ba-dfeb-4fe6-9942-7cfc4703cbe5">
-
-### Use the Browser
-
-With Claude 3.5 Sonnet's new [Computer Use](https://www.anthropic.com/news/3-5-models-and-computer-use) capability, Cline can launch a browser, click elements, type text, and scroll, capturing screenshots and console logs at each step. This allows for interactive debugging, end-to-end testing, and even general web use! This gives him autonomy to fixing visual bugs and runtime issues without you needing to handhold and copy-pasting error logs yourself.
-
-Try asking Cline to "test the app", and watch as he runs a command like `npm run dev`, launches your locally running dev server in a browser, and performs a series of tests to confirm that everything works. [See a demo here.](https://x.com/sdrzn/status/1850880547825823989)
-
-<!-- Transparent pixel to create line break after floating image -->
-
-<img width="2000" height="0" src="https://github.com/user-attachments/assets/ee14e6f7-20b8-4391-9091-8e8e25561929"><br>
-
-<img align="right" width="350" src="https://github.com/user-attachments/assets/ac0efa14-5c1f-4c26-a42d-9d7c56f5fadd">
-
-### "add a tool that..."
-
-Thanks to the [Model Context Protocol](https://github.com/modelcontextprotocol), Cline can extend his capabilities through custom tools. While you can use [community-made servers](https://github.com/modelcontextprotocol/servers), Cline can instead create and install tools tailored to your specific workflow. Just ask Cline to "add a tool" and he will handle everything, from creating a new MCP server to installing it into the extension. These custom tools then become part of Cline's toolkit, ready to use in future tasks.
-
--   "add a tool that fetches Jira tickets": Retrieve ticket ACs and put Cline to work
--   "add a tool that manages AWS EC2s": Check server metrics and scale instances up or down
--   "add a tool that pulls the latest PagerDuty incidents": Fetch details and ask Cline to fix bugs
-
-<!-- Transparent pixel to create line break after floating image -->
-
-<img width="2000" height="0" src="https://github.com/user-attachments/assets/ee14e6f7-20b8-4391-9091-8e8e25561929"><br>
-
-<img align="left" width="360" src="https://github.com/user-attachments/assets/7fdf41e6-281a-4b4b-ac19-020b838b6970">
-
-### Add Context
-
-**`@url`:** Paste in a URL for the extension to fetch and convert to markdown, useful when you want to give Cline the latest docs
-
-**`@problems`:** Add workspace errors and warnings ('Problems' panel) for Cline to fix
-
-**`@file`:** Adds a file's contents so you don't have to waste API requests approving read file (+ type to search files)
-
-**`@folder`:** Adds folder's files all at once to speed up your workflow even more
-
-<!-- Transparent pixel to create line break after floating image -->
-
-<img width="2000" height="0" src="https://github.com/user-attachments/assets/ee14e6f7-20b8-4391-9091-8e8e25561929"><br>
-
-<img align="right" width="350" src="https://github.com/user-attachments/assets/140c8606-d3bf-41b9-9a1f-4dbf0d4c90cb">
-
-### Checkpoints: Compare and Restore
-
-As Cline works through a task, the extension takes a snapshot of your workspace at each step. You can use the 'Compare' button to see a diff between the snapshot and your current workspace, and the 'Restore' button to roll back to that point.
-
-For example, when working with a local web server, you can use 'Restore Workspace Only' to quickly test different versions of your app, then use 'Restore Task and Workspace' when you find the version you want to continue building from. This lets you safely explore different approaches without losing progress.
-
-<!-- Transparent pixel to create line break after floating image -->
-
-<img width="2000" height="0" src="https://github.com/user-attachments/assets/ee14e6f7-20b8-4391-9091-8e8e25561929"><br>
-
-## Contributing
-
-To contribute to the project, start with our [Contributing Guide](CONTRIBUTING.md) to learn the basics. You can also join our [Discord](https://discord.gg/cline) to chat with other contributors in the `#contributors` channel. If you're looking for full-time work, check out our open positions on our [careers page](https://cline.bot/join-us)!
-
-<details>
-<summary>Local Development Instructions</summary>
-
-1. Clone the repository _(Requires [git-lfs](https://git-lfs.com/))_:
+1.  **Caret 레파지토리 클론**:
     ```bash
-    git clone https://github.com/cline/cline.git
+    git clone https://github.com/aicoding-caret/caret.git
+    cd caret
     ```
-2. Open the project in VSCode:
-    ```bash
-    code cline
+
+2.  **아키텍처 구조 이해**:
     ```
-3. Install the necessary dependencies for the extension and webview-gui:
-    ```bash
-    npm run install:all
+    caret/
+    ├── src/                    # Cline 원본 코드 (보존)
+    │   ├── extension.ts        # Cline 메인 진입점
+    │   └── core/              # Cline 핵심 로직
+    ├── caret-src/             # Caret 확장 기능
+    │   ├── extension.ts       # Caret 진입점 (src/ 모듈 활용)
+    │   └── core/webview/      # Caret 전용 WebView Provider
+    ├── caret-assets/          # Caret 에셋 관리
+    │   ├── template_characters/ # AI 캐릭터 템플릿
+    │   ├── rules/             # 기본 모드 및 룰 정의
+    │   └── icons/             # 프로젝트 아이콘
+    ├── caret-docs/            # Caret 전용 문서
+    └── webview-ui/            # 프론트엔드 (Cline 빌드 시스템 활용)
+        ├── src/components/    # Cline 원본 컴포넌트
+        └── src/caret/         # Caret 전용 컴포넌트
     ```
-4. Launch by pressing `F5` (or `Run`->`Start Debugging`) to open a new VSCode window with the extension loaded. (You may need to install the [esbuild problem matchers extension](https://marketplace.visualstudio.com/items?itemName=connor4312.esbuild-problem-matchers) if you run into issues building the project.)
+    
+    이 구조를 통해 **Cline의 강력한 기능을 그대로 활용**하면서, **Caret만의 고유한 기능을 안전하게 확장**할 수 있습니다.
 
-</details>
+### 2. 의존성 설치
 
-<details>
-<summary>Creating a Pull Request</summary>
+Caret 프로젝트의 모든 의존성을 설치합니다:
 
-1. Before creating a PR, generate a changeset entry:
-    ```bash
-    npm run changeset
-    ```
-   This will prompt you for:
-   - Type of change (major, minor, patch)
-     - `major` → breaking changes (1.0.0 → 2.0.0)
-     - `minor` → new features (1.0.0 → 1.1.0)
-     - `patch` → bug fixes (1.0.0 → 1.0.1)
-   - Description of your changes
+```bash
+# caret 프로젝트 루트에서 실행
+npm run install:all
+```
 
-2. Commit your changes and the generated `.changeset` file
+이 명령어는 다음을 자동으로 처리합니다:
+- 백엔드 의존성 설치 (`package.json`)
+- 프론트엔드 의존성 설치 (`webview-ui/package.json`)
+- Protocol Buffer 컴파일 도구 설정
 
-3. Push your branch and create a PR on GitHub. Our CI will:
-   - Run tests and checks
-   - Changesetbot will create a comment showing the version impact
-   - When merged to main, changesetbot will create a Version Packages PR
-   - When the Version Packages PR is merged, a new release will be published
+> **중요**: 이 단계를 건너뛰면 빌드 과정에서 TypeScript 타입 정의 오류나 Protocol Buffer 컴파일 오류가 발생할 수 있습니다.
 
-</details>
+#### Windows 환경 빠른 설정
+
+Windows 사용자는 제공되는 PowerShell 스크립트를 사용하여 초기 설정을 자동화할 수 있습니다:
+
+```powershell
+# caret 프로젝트 루트에서 실행
+.\clean-build-package.ps1
+```
+
+이 스크립트는 다음 작업을 수행합니다:
+- 모든 의존성 설치 및 검증
+- Protocol Buffer 컴파일 도구 설정
+- TypeScript 컴파일 및 빌드 검증
+- VSIX 패키지 생성 (선택사항)
+
+> **참고**: 스크립트 실행 중 문제가 발생하면, 아래의 "수동 설정" 단계를 따라 진행하세요.
+
+#### 수동 설정 (문제 발생 시)
+
+자동 설정 스크립트가 실패하거나 수동으로 설정을 진행하려면:
+
+```bash
+# 1. 의존성 설치
+npm install
+cd webview-ui && npm install && cd ..
+
+# 2. Protocol Buffer 컴파일
+npm run protos
+
+# 3. TypeScript 컴파일 확인
+npm run compile
+```
 
 
-## License
+### 3. 개발 빌드
 
-[Apache 2.0 © 2025 Cline Bot Inc.](./LICENSE)
+확장 프로그램의 TypeScript 코드를 컴파일합니다:
+
+```bash
+# Protocol Buffer 컴파일 (필요시)
+npm run protos
+
+# TypeScript 컴파일
+npm run compile
+```
+
+### 4. 개발 환경에서 실행
+
+VS Code에서 `F5` 키를 눌러 디버깅 세션을 시작하면, 새로운 `[Extension Development Host]` 창에서 확장 프로그램을 테스트할 수 있습니다.
+
+**Caret 실행 방법:**
+- 확장 프로그램이 실행되면 VS Code의 **Primary Sidebar**에 **Caret 아이콘**이 추가됩니다.
+- 이 아이콘을 클릭하여 Caret 웹뷰를 열고 사용을 시작할 수 있습니다.
+
+**개발 모드 특징:**
+- **Hot Reload**: `npm run watch` 명령어로 코드 변경 시 자동 컴파일
+- **디버깅**: VS Code 디버거를 통한 백엔드 코드 디버깅 지원
+- **로깅**: 개발 콘솔에서 상세한 디버그 로그 확인 가능
+
+## 기여하기
+
+Caret 프로젝트는 여러분의 기여를 환영합니다! 자세한 내용은 `

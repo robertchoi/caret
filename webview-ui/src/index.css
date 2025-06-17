@@ -1,3 +1,7 @@
+/* CARET MODIFICATION: Added Caret-specific CSS import at the end of the file
+   Original backed up to: webview-ui/src/index-css.cline
+   Purpose: Import Caret welcome component styles for enhanced UI */
+
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 /* Disable Tailwind's CSS reset to preserve existing styles */
@@ -181,3 +185,6 @@ vscode-dropdown::part(listbox) {
 	box-shadow: 0 0 0 0.5px color-mix(in srgb, var(--vscode-focusBorder) 30%, transparent);
 	color: transparent;
 }
+
+/* Import Caret-specific styles */
+@import './caret/styles/CaretWelcome.css';

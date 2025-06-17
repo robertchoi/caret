@@ -1,0 +1,1 @@
+export { SYSTEM_PROMPT, addUserInstructions } from "../../../src/core/prompts/system"; 

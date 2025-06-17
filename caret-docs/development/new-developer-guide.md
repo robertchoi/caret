@@ -5,11 +5,39 @@
 
 ## 1. 초기 설정: 개인 공간 마련하기 📂
 
-가장 먼저, 본인의 작업 내용을 기록할 개인 폴더를 만들어 주세요.
+### 1.1. 사용자 식별 설정 ⚙️
 
-*   **위치:** `docs/work-logs/` 디렉토리 아래에 본인의 영문 이름 또는 닉네임으로 폴더를 생성합니다.
-    *   예시: `docs/work-logs/developer-name/`
+Caret 프로젝트에서는 AI 어시스턴트가 자동으로 작업 로그를 관리할 수 있도록 **Git 설정**을 기준으로 사용자를 식별합니다.
+
+*   **Git 사용자 설정 확인:**
+    ```bash
+    # 현재 Git 사용자 이름 확인
+    git config user.name
+    
+    # 현재 Git 이메일 확인  
+    git config user.email
+    ```
+
+*   **Git 사용자 설정 (필요시):**
+    ```bash
+    # 사용자 이름 설정 (예: luke, alice, developer-name 등)
+    git config user.name "your-username"
+    
+    # 이메일 설정
+    git config user.email "your-email@example.com"
+    ```
+
+*   **중요:** AI 어시스턴트는 `git config user.name` 결과를 `{username}` 변수로 사용하여 작업 로그 경로를 자동으로 결정합니다. (`caret-docs/work-logs/{username}/`)
+
+### 1.2. 개인 작업 로그 폴더 생성 📂
+
+Git 설정이 완료되면, 본인의 작업 내용을 기록할 개인 폴더를 만들어 주세요.
+
+*   **위치:** `caret-docs/work-logs/` 디렉토리 아래에 **Git 사용자 이름과 동일한 이름**으로 폴더를 생성합니다.
+    *   예시: `caret-docs/work-logs/luke/` (Git user.name이 'luke'인 경우)
+    *   예시: `caret-docs/work-logs/alice/` (Git user.name이 'alice'인 경우)
 *   이 폴더에는 앞으로 매일 작성하게 될 **일일 작업 로그**가 저장될 거예요.
+*   **AI 자동화:** 제대로 설정했다면, AI 어시스턴트가 작업 시작 시 자동으로 오늘 날짜의 작업 로그 파일을 찾거나 생성할 수 있습니다.
 
 ## 2. 업무 진행 방식: 일일 로그와 태스크 관리 🗓️✅
 
@@ -17,10 +45,11 @@ Caret 프로젝트의 업무는 체계적인 기록을 중요하게 생각해요
 
 ### 2.1. 일일 작업 로그 작성
 
-*   **위치:** 위에서 만든 개인 작업 로그 폴더 (예: `docs/work-logs/본인이름/`)
+*   **위치:** 위에서 만든 개인 작업 로그 폴더 (예: `caret-docs/work-logs/luke/`)
 *   **파일명:** `{YYYY-MM-DD}.md` 형식으로 오늘 날짜의 마크다운 파일을 생성합니다.
-    *   예시: `2024-05-19.md`
+    *   예시: `2025-06-17.md`
 *   **내용:** 그날 진행할 주요 태스크, 회의 내용, 발생한 이슈, 해결 과정 등을 자유롭게 기록합니다. 특정 태스크와 관련된 작업이라면 해당 태스크 번호를 명시해 주세요. (아래 태스크 관리 참고)
+*   **AI 자동 생성:** AI 어시스턴트가 작업 시작 시 `git config user.name`과 현재 날짜를 자동으로 확인하여 해당 경로의 작업 로그 파일을 찾거나 생성합니다.
 
 ### 2.2. 태스크(Task) 관리
 

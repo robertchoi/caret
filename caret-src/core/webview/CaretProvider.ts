@@ -1,13 +1,12 @@
 import * as vscode from "vscode";
 import { WebviewProvider as ClineWebviewProvider } from "../../../src/core/webview";
 import { WebviewProviderType } from "../../../src/shared/webview/types"; // WebviewProviderType도 가져옵니다.
+import { caretLogger, logCaretWelcome, logCaretUser } from "../../utils/caret-logger";
 
 export const CARET_SIDEBAR_ID = "caret.SidebarProvider"; // Caret 전용 사이드바 ID 상수 선언
 
 export class CaretProvider extends ClineWebviewProvider {
-    // public static readonly sideBarId = "caret.SidebarProvider"; // 삭제: CARET_SIDEBAR_ID 상수로 대체
-    // tabPanelId도 필요한 경우 유사하게 오버라이드 할 수 있습니다.
-    // public static override readonly tabPanelId = "caret.TabPanelProvider"; // 필요한 경우 오버라이드 (일단 주석 유지 또는 삭제)
+    // Caret 전용 ID는 package.json에서 정의하고, 여기서는 기본 Cline 구조를 활용
 
     constructor(
         public override readonly context: vscode.ExtensionContext,
@@ -20,10 +19,15 @@ export class CaretProvider extends ClineWebviewProvider {
         // ClineWebviewProvider의 생성자를 호출합니다.
         // providerType을 전달하여 Cline의 생성자에서 WebviewProviderType.TAB이 기본값이 되도록 합니다.
         super(context, outputChannel, providerType); 
-        // Caret에 특화된 초기화 로직이 있다면 여기에 추가합니다.
-        // 부모 클래스의 outputChannel을 사용해야 한다면, 부모 클래스에 protected 로깅 메서드를 만들거나
-        // outputChannel 자체를 protected로 변경하는 것을 고려해야 합니다.
-        // 지금은 CaretProvider가 직접 outputChannel에 쓰는 로직은 제거합니다.
+        
+        // Caret 로거에 출력 채널 연결
+        caretLogger.setOutputChannel(outputChannel);
+        
+        // Caret 익스텐션 활성화 로그
+        caretLogger.extensionActivated();
+        
+        // 웰컴 페이지 로드 로그
+        logCaretWelcome();
     }
 
     // Caret에 특화된 기능을 여기에 추가하거나 ClineWebviewProvider의 메서드를 오버라이드 할 수 있습니다.

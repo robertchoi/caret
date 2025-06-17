@@ -162,11 +162,11 @@ webview-ui/               # Cline 빌드 시스템 그대로 활용
   
  
 # 해야 할일 (우선순위 조정됨)
-  1. **아키텍처 전략 고민 및 분석 (우선 진행)**
+  1. **아키텍처 전략 고민 및 분석**
     - 1.1. **오버레이 구조 관련 코드 분석:** 규칙 파일(`.caretrules`, `caretrules.ko.md` 등)에 명시된 "오버레이 구조"의 실제 코드 구현 상태 분석 (Caret과 Cline 간의 연관성, 파일 단위 오버레이 방식 등).
        - 대상 디렉토리: `caret-src/`, `caret-webview-ui/`, `cline/` (참조용), `cline-patch/`
        - 중점 분석 파일 예시 (규칙 기반): `caret-src/extension.ts`, `caret-webview-ui/src/App.tsx` 등
-  2. 룰 점검 (코드 분석 후 진행)
+  2. 룰 점검
     - 2.1. 마스터 한글 템플릿(`caret-docs/caretrules.ko.md`) 점검 완료 (날짜 자동화 규칙 추가, `.clinerules` 제외, 자체 경로 수정 완료 - 2025-06-17)
     - 2.2. `.caretrules` JSON 파일 점검 완료 (마스터 템플릿 경로 수정, `.clinerules` 제외, AI 프로토콜 및 경로 동기화 완료 - 2025-06-17)
     - 2.3. `.cursorrules` JSON 파일 점검 (진행 중단, 오버레이 분석 후 재개):
@@ -207,8 +207,8 @@ webview-ui/               # Cline 빌드 시스템 그대로 활용
    - 이전 오버레이 구현하던 프론트 소스는 아래의 위치에 있다.
       : \webview-ui\src\components\welcome\WelcomeView-tsx.cline -> \webview-ui\src\components\welcome\WelcomeView.tsx 로 교체
        * \webview-ui\src\locale\ : 언어신규
-       * \webview-ui\src\utils\caret-webview-logger.ts  로거
-       * \webview-ui\src\utils\caret-i18n.ts 다국어
+       * \webview-ui\src\caret\utils\webview-logger.ts  로거
+       * \webview-ui\src\caret\utils\i18n.ts 다국어
    
 
 

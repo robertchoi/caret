@@ -1,4 +1,4 @@
-import { vscode } from "./vscode";
+import { vscode } from "../../utils/vscode";
 
 /**
  * Represents a log entry.
@@ -90,4 +90,7 @@ class WebviewLogger {
   }
 }
 
-export default WebviewLogger; 
+export default WebviewLogger;
+
+// Named export for convenience
+export const caretWebviewLogger = new WebviewLogger('Caret'); 

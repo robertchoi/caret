@@ -1,3 +1,4 @@
+// CARET MODIFICATION: Added custom test reporter for separated Caret/Cline results. Original backed up as vite-config-ts.cline
 /// <reference types="vitest/config" />
 
 import { defineConfig, ViteDevServer, type Plugin } from "vite"
@@ -36,6 +37,9 @@ export default defineConfig({
 			provider: "v8",
 			reportOnFailure: true,
 		},
+		reporters: ["./caret-test-reporter.js"],
+		logHeapUsage: false,
+		silent: false,
 	},
 	build: {
 		outDir: "build",

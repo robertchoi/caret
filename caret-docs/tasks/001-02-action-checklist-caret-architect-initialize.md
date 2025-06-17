@@ -6,6 +6,16 @@
 
 ## 📚 **Phase 1: 목표 구조로 개발 문서 전체 수정** (최우선)
 
+### ✅ **1.0 오버레이 구조 분석 완료**
+- [x] **실제 구조 분석 완료** (2025-06-17)
+  - Fork 기반 구조 확인: `src/extension.ts` → `caret-src/extension.ts` 완전 위임
+  - 상속 기반 확장 확인: `CaretProvider extends ClineWebviewProvider`
+  - 분리된 컴포넌트 구조 확인: `webview-ui/src/caret/` 전용 디렉토리
+  - 백업 원칙 적용 확인: `extension-ts.cline` 백업 파일 존재
+- [x] **"오버레이" 용어 정정 필요성 확인**
+  - 실제로는 Fork 기반 구조이므로 문서에서 "오버레이" 용어 제거 필요
+  - 현재 구조는 완전한 Fork 기반 + 상속 확장 패턴
+
 ### ✅ **1.1 README 및 핵심 문서 업데이트**
 - [x] `README.md` 전면 수정
   - Cline → Caret 브랜딩 변경
@@ -76,17 +86,22 @@
 - [x] Caret 전용 로깅 시스템 적용 검증/확인 완료
   - CaretProvider가 WebviewProvider 상속하여 Controller → outputChannel 로깅 체인 구축
   - Cline 로깅 시스템 자동 활용 가능 확인
+- [x] **Caret 전용 로깅 시스템 구현 완료** (2025-06-17)
+  - `caret-src/utils/caret-logger.ts` 구현: CaretLogger 클래스, 로그 레벨, 컨텍스트 기반 로깅
+  - CaretProvider에서 로깅 시스템 연결: outputChannel 연동, 활성화/비활성화 로그
+  - 웰컴 페이지에서 사용자 상호작용 로깅 추가
 - [ ] 로깅 시스템 테스트 (Extension Development Host에서 확인 예정)
   - 콘솔 출력 확인
-  - 로그 파일 생성 확인 (필요시)
+  - VSCode OUTPUT 패널에서 "Caret" 채널 로그 확인
 
 ### ✅ **2.3 테스트 프레임워크 설정**
 - [x] Caret 백엔드 테스트 환경 구축
   - Cline 테스트 시스템 활용 방안 확인 완료
   - 단위 테스트는 VSCode 컨텍스트 필요로 Extension Development Host 환경에서 실행 필요
-- [ ] 기본 테스트 케이스 작성 (향후 필요시)
-  - CaretProvider 기본 동작 테스트
-  - 로깅 시스템 테스트
+- [x] **기본 테스트 케이스 작성 완료** (2025-06-17)
+  - `webview-ui/src/caret/components/__tests__/CaretWelcome.test.tsx` 구현
+  - 웰컴 페이지 렌더링, 버튼 클릭, 섹션 표시 테스트 포함
+  - React Testing Library 기반 컴포넌트 테스트
 - [x] 테스트 시스템 동작 확인
   - `npm run test` Windows PowerShell 환경 변수 문제 확인
   - 실제 테스트는 Extension Development Host에서 수행 가능
@@ -118,8 +133,8 @@
   - CaretWelcome 컴포넌트 통합 완료
 
 ### ✅ **3.3 프론트엔드 로깅 시스템 연동**
-- [x] webview-ui 로깅 시스템 구현 완료
-  - caret-webview-logger.ts 유틸리티 생성 완료
+- [x] **프론트엔드 로깅 시스템 연동**
+  - webview-ui/src/caret/utils/webview-logger.ts 유틸리티 생성 완료
   - 백엔드 로깅과 연동 (WebviewMessage 'log' 타입 추가)
   - 브라우저 콘솔 로깅 설정 완료
 - [x] 메시지 통신 로깅 준비 완료
@@ -180,9 +195,65 @@
 - [ ] 크로스 플랫폼 빌드 스크립트 (`build-release.sh`)
 - [ ] VSIX 패키지 검증 도구 추가
 
-## 🔍 **Phase 5: 통합 검증 및 품질 확인**
+## 📋 **Phase 5: 테스팅 가이드 구축 및 품질 관리** (2025-06-17 완료)
 
-### ✅ **5.1 기능 통합 테스트**
+### ✅ **5.1 테스팅 가이드 문서 작성**
+- [x] **종합 테스팅 전략 문서** (`caret-docs/development/testing-guide.mdx`)
+  - 100% 테스트 커버리지 목표 및 달성 방법
+  - 테스트 유형별 가이드 (Unit/Integration/E2E)
+  - 도구 설정 (Jest/Vitest/React Testing Library)
+  - CI/CD 통합 및 자동화 방안
+- [x] **테스트 작성 표준 문서** (`caret-docs/development/test-writing-standards.mdx`)
+  - AAA 패턴 (Arrange-Act-Assert) 표준
+  - Mock/Stub 사용 가이드라인
+  - React 컴포넌트 테스트 패턴
+  - VSCode API 모킹 방법
+  - 테스트 완료 체크리스트
+- [x] **TDD 방법론 가이드** (`caret-docs/development/tdd-guide.mdx`)
+  - Red-Green-Refactor 사이클 설명
+  - Caret 개발에서의 TDD 적용 방법
+  - VSCode Extension 특수 상황 대응
+  - 실제 예제 및 안티패턴
+
+### ✅ **5.2 문서 네비게이션 및 접근성 개선**
+- [x] **README.md 업데이트**
+  - "테스트 및 품질 관리" 섹션 추가
+  - 테스트 명령어 가이드 (`npm test`, `npm run caret:coverage`)
+  - 테스팅 가이드 문서 링크 추가
+- [x] **개발 문서 인덱스 업데이트** (`caret-docs/development/index.mdx`)
+  - 테스팅 섹션 추가 및 3개 가이드 링크
+  - 개발자 온보딩 프로세스에 테스팅 단계 포함
+- [x] **프로젝트 룰 업데이트**
+  - `caret-docs/caretrules.ko.md`: 테스팅 원칙 및 100% 커버리지 목표 추가
+  - `.caretrules`: 테스팅 설정을 상세 JSON 객체로 구조화
+
+### ✅ **5.3 테스트 리포터 및 출력 개선**
+- [x] **커스텀 테스트 리포터 개발** (`webview-ui/caret-test-reporter.js`)
+  - Caret 전용 테스트 vs Cline 원본 테스트 분리 표시
+  - 번호 매김 리스트 및 실행 시간 표시
+  - 깔끔한 한글 출력 포맷
+- [x] **테스트 환경 정리** (`webview-ui/src/setupTests.ts`)
+  - grpc 및 postMessage 관련 노이즈 로그 필터링
+  - 테스트 실행 시 깔끔한 출력 보장
+- [x] **네이밍 컨벤션 수정**
+  - "CARET vs CLINE" → "📊 테스트 결과" (경쟁적 언어 제거)
+  - 🥕 (당근) → 🔷 (파란 다이아몬드) 이모지 교정
+  - Caret = '^' 기호 의미 명확화
+
+### ✅ **5.4 빌드 시스템 문제 해결**
+- [x] **Import 경로 오류 수정**
+  - `webview-ui/src/caret/utils/webview-logger.ts`: `./vscode` → `../../utils/vscode`
+  - named export 추가: `caretWebviewLogger` 인스턴스 제공
+- [x] **빌드 검증 완료**
+  - `npm run compile` 성공 (전체 파이프라인: type-check → lint → test → build)
+  - `npm run build:webview` 성공 (프론트엔드 빌드)
+- [x] **백업 및 수정 추적**
+  - Cline 원본 파일 백업: `setupTests-ts.cline`, `vite-config-ts.cline`
+  - CARET MODIFICATION 주석 추가
+
+## 🔍 **Phase 6: 통합 검증 및 품질 확인**
+
+### ✅ **6.1 기능 통합 테스트**
 - [ ] 전체 시스템 통합 테스트
 - [ ] 백엔드 ↔ 프론트엔드 연동 확인
 - [ ] 웰컴 페이지 정상 표시 확인

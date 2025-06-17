@@ -1,131 +1,192 @@
 /* Caret Welcome Page Styles */
 .caret-welcome {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
   background: var(--vscode-editor-background);
   color: var(--vscode-editor-foreground);
 }
 
 .caret-welcome-container {
-  max-width: 600px;
+  flex: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
   width: 100%;
+}
+
+/* Main Banner Styles */
+.caret-banner {
+  margin-bottom: 30px;
   text-align: center;
-  padding: 40px;
+}
+
+.caret-banner-image {
+  max-width: 100%;
+  height: auto;
   border-radius: 8px;
-  border: 1px solid var(--vscode-panel-border);
-  background: var(--vscode-panel-background);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Header Styles */
 .caret-header {
-  margin-bottom: 30px;
+  text-align: center;
+  margin-bottom: 40px;
 }
 
 .caret-title {
   font-size: 2.5rem;
   font-weight: bold;
-  margin: 0 0 15px 0;
+  margin-bottom: 15px;
   color: var(--vscode-textLink-foreground);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .caret-subtitle {
   font-size: 1.2rem;
-  margin: 0 0 15px 0;
-  color: var(--vscode-descriptionForeground);
-  font-weight: 500;
+  margin-bottom: 15px;
+  color: var(--vscode-editor-foreground);
 }
 
 .caret-description {
   font-size: 1rem;
   line-height: 1.6;
-  margin: 0;
-  color: var(--vscode-editor-foreground);
-  opacity: 0.9;
+  color: var(--vscode-descriptionForeground);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-/* Features Section */
-.caret-features {
-  margin: 30px 0;
-  text-align: left;
+/* Sections Styles */
+.caret-offer,
+.caret-features,
+.caret-flexibility,
+.caret-account,
+.caret-education {
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 8px;
+  background: var(--vscode-panel-background);
 }
 
-.caret-features h2 {
-  font-size: 1.4rem;
-  margin: 0 0 20px 0;
+.caret-offer h2,
+.caret-features h2,
+.caret-flexibility h2,
+.caret-account h2,
+.caret-education h2 {
+  margin-bottom: 15px;
   color: var(--vscode-textLink-foreground);
-  text-align: center;
 }
 
-.caret-feature-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.caret-feature-list li {
-  padding: 10px 0;
-  border-bottom: 1px solid var(--vscode-panel-border);
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-.caret-feature-list li:last-child {
-  border-bottom: none;
-}
-
-.caret-feature-list li strong {
-  color: var(--vscode-textLink-foreground);
+.caret-offer p,
+.caret-features p,
+.caret-flexibility p,
+.caret-account p,
+.caret-education p {
+  line-height: 1.6;
+  margin-bottom: 10px;
 }
 
 /* Actions Section */
 .caret-actions {
-  margin: 30px 0;
+  text-align: center;
+  margin: 40px 0;
 }
 
-.caret-actions vscode-button {
-  font-size: 1.1rem;
-  padding: 12px 24px;
-  min-width: 120px;
-}
-
-/* Info Section */
-.caret-info {
-  margin-top: 30px;
-  padding-top: 20px;
+/* Footer Styles */
+.caret-footer {
+  background: var(--vscode-panel-background);
   border-top: 1px solid var(--vscode-panel-border);
+  margin-top: auto;
+  padding: 30px 20px 20px;
 }
 
-.caret-version {
-  margin: 0 0 10px 0;
-  color: var(--vscode-descriptionForeground);
+.caret-footer-container {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.caret-credits {
-  margin: 0;
-  color: var(--vscode-descriptionForeground);
+.caret-footer-company {
+  margin-bottom: 20px;
 }
 
-.caret-credits a {
+.caret-footer-links,
+.caret-footer-policy-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  gap: 8px;
+}
+
+.caret-footer-policy-links {
+  margin-bottom: 20px;
+  padding-top: 10px;
+  border-top: 1px solid var(--vscode-widget-border);
+}
+
+.caret-footer-link {
+  color: var(--vscode-textLink-foreground);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.caret-footer-link:hover {
+  text-decoration: underline;
+}
+
+.caret-footer-link-inline {
   color: var(--vscode-textLink-foreground);
   text-decoration: none;
 }
 
-.caret-credits a:hover {
+.caret-footer-link-inline:hover {
   text-decoration: underline;
+}
+
+.caret-footer-separator {
+  color: var(--vscode-descriptionForeground);
+  margin: 0 4px;
+}
+
+.caret-footer-company-info {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.caret-footer-company-name {
+  font-size: 1rem;
+  margin-bottom: 5px;
+  color: var(--vscode-editor-foreground);
+}
+
+.caret-footer-business-info,
+.caret-footer-address {
+  font-size: 0.85rem;
+  color: var(--vscode-descriptionForeground);
+  margin-bottom: 3px;
+}
+
+.caret-footer-copyright {
+  text-align: center;
+  border-top: 1px solid var(--vscode-panel-border);
+  padding-top: 15px;
+}
+
+.caret-footer-copyright p {
+  font-size: 0.8rem;
+  color: var(--vscode-descriptionForeground);
+  margin-bottom: 5px;
+}
+
+.caret-footer-version {
+  margin-top: 5px;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .caret-welcome {
-    padding: 10px;
-  }
-  
   .caret-welcome-container {
-    padding: 20px;
+    padding: 15px;
   }
   
   .caret-title {
@@ -136,12 +197,14 @@
     font-size: 1.1rem;
   }
   
-  .caret-features {
-    text-align: center;
+  .caret-footer-links,
+  .caret-footer-policy-links {
+    flex-direction: column;
+    gap: 5px;
   }
   
-  .caret-feature-list {
-    text-align: left;
+  .caret-footer-separator {
+    display: none;
   }
 }
 

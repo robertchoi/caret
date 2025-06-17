@@ -1,0 +1,8 @@
+pandas
+matplotlib
+seaborn
+numpy
+tiktoken
+openai # For OpenAI compatible APIs (vLLM, TGI)
+psutil # For system monitoring (RAM)
+GPUtil # For GPU monitoring

@@ -2,7 +2,10 @@
   "project_overview": {
     "name": "Caret",
     "description": "VSCode extension for AI assistance, focusing on personalized development partnership. This project (Caret) is a fork of Cline, with the Cline codebase directly integrated in the 'src/' directory.",
-    "repository_url": "https://github.com/aicoding-caret/caret"
+    "repository_url": "https://github.com/aicoding-caret/caret",
+    "naming_convention": {
+      "caret_meaning": "Caret refers to the '^' (caret) symbol, NOT a carrot (🥕). The name comes from the text cursor symbol used in programming.",     
+    }
   },
   "architecture": {
     "summary": "Fork-based: Cline core integrated in src/, minimal Caret extensions in caret-src/",
@@ -86,7 +89,28 @@
     "state_management_guideline": "CaretProvider extends Cline's WebviewProvider. Follow Cline patterns with minimal extensions. For detailed guidelines, refer to caret-docs/development/",
     "tool_integration": "Use Cline's existing integrations from src/integrations/. For implementation standards, refer to caret-docs/development/",
     "api_providers": "Utilize Cline's API providers from src/api/providers/",
-    "testing": "Maintain Cline's testing framework, add Caret-specific tests for extensions only",
+    "testing": {
+      "coverage_goal": "100% test coverage for Caret-specific code (caret-src/, webview-ui/src/caret/)",
+      "framework": "Maintain Cline's testing framework, add Caret-specific tests for extensions only",
+      "tdd_required": "Follow Test-Driven Development (TDD) methodology: Red-Green-Refactor cycle",
+      "test_first_principle": "Write tests before implementing features, add tests before adding functionality",
+      "quality_standards": {
+        "coverage_types": "All public/private methods, all branches (if/else, switch), all exception handling",
+        "test_structure": "Follow AAA pattern (Arrange-Act-Assert)",
+        "naming_convention": "should {expected behavior} when {condition}",
+        "mocking": "Properly mock external dependencies"
+      },
+      "execution_verification": {
+        "after_changes": "Always run 'npm test' after code changes to ensure all tests pass",
+        "coverage_check": "Use 'npm run test:coverage' to verify coverage",
+        "ci_enforcement": "Tests must pass in CI/CD before code merge"
+      },
+      "documentation": {
+        "comprehensive_guide": "caret-docs/development/testing-guide.mdx",
+        "writing_standards": "caret-docs/development/test-writing-standards.mdx",
+        "tdd_guide": "caret-docs/development/tdd-guide.mdx"
+      }
+    },
     "logging": "Use Cline's logging system from src/services/logging/. For detailed policies, refer to caret-docs/development/logging.mdx",
     "checkpoints": "Use Cline's checkpoint system from src/integrations/checkpoints/",
     "documentation": "Update relevant docs in caret-docs/",
@@ -108,14 +132,22 @@
     },
     "script_management": {
       "guideline": "For repetitive tasks, proactively consider creating scripts to improve efficiency.",
-      "location": "Store scripts in subdirectories under the project root's 'scripts/' folder, organized by task or feature (e.g., 'scripts/merging/', 'scripts/deployment/').",
+      "location": "Store Caret-specific scripts in 'caret-scripts/' folder, separate from Cline original 'scripts/' folder. Organize by task or feature.",
       "documentation": "Document the script's purpose, usage, and any required environment variables using comments or a separate README file for clarity and ease of use by other team members."
     },
     "ai_task_execution_protocol": {
       "description": "Defines the protocol that the AI assistant must follow when starting and performing tasks. Adherence to this protocol is CRITICAL.",
+      "fundamental_developer_principles": {
+        "quality_first": "Prioritize accuracy and quality over speed. Never compromise quality for fast completion.",
+        "tests_must_pass": "All tests must pass. When tests fail, identify and fix the root cause. Never suggest skipping or excluding tests.",
+        "no_problem_avoidance": "When problems occur, never suggest workarounds or 'fix later' approaches. Always identify and solve the root cause.",
+        "prevent_technical_debt": "Avoid 'temporary fixes', 'skip for now', or 'fix later' approaches. Implement correctly from the start.",
+        "pursue_completeness": "Never finish work in partial or incomplete state. Continue until all related tests pass and everything works completely.",
+        "verification_first": "After code changes, always verify through compilation, testing, and execution to confirm proper operation."
+      },
       "guidance_document": "caret-docs/guides/ai-work-method-guide.mdx",
       "key_steps_summary": [
-        "1. Initial Work Log Review and Date Fetching: Upon receiving a task instruction from the developer, the AI must follow the 'Task Start Protocol' outlined in 'caret-docs/guides/ai-work-method-guide.mdx' sequentially. To obtain the current date for work log creation/checking, the AI will first attempt to fetch it automatically using OS-specific terminal commands (Windows PowerShell: Get-Date -Format \"yyyy-MM-dd\"; Linux/macOS: date +%Y-%m-%d). Only if this fails or the OS is undetermined will the AI ask the developer for the date. Then, using the confirmed date, check/create today's work log ('caret-docs/work-logs/{username}/{date}.md') to understand the previous session's status and today's plan. The work log is read once at the session start and updated periodically at specified times (e.g., sub-task completion, developer request, Git commit/push, end of work session).",
+        "1. Initial Work Log Review and User/Date Identification: Upon receiving a task instruction from the developer, the AI must follow the 'Task Start Protocol' outlined in 'caret-docs/guides/ai-work-method-guide.mdx' sequentially. First, identify the current user by checking Git configuration using OS-specific terminal commands (Windows PowerShell/Linux/macOS: 'git config user.name'). Then, to obtain the current date for work log creation/checking, the AI will attempt to fetch it automatically using OS-specific terminal commands (Windows PowerShell: Get-Date -Format \"yyyy-MM-dd\"; Linux/macOS: date +%Y-%m-%d). Only if user identification or date fetching fails, or the OS is undetermined, will the AI ask the developer for the missing information. Then, using the confirmed username and date, check/create today's work log ('caret-docs/work-logs/{username}/{date}.md') to understand the previous session's status and today's plan. The work log is read once at the session start and updated periodically at specified times (e.g., sub-task completion, developer request, Git commit/push, end of work session).",
         "2. Identify Related Task Documents: Based on the work log and 'caret-docs/tasks/tasks-status.md', identify relevant documents (plan, checklist, report) for the current task.",
         "3. Thorough Document Review: Meticulously review and fully understand the task's plan ('<task-number>-01-plan-*.md'), checklist ('<task-number>-02-action-checklist-*.md'), report ('<task-number>-03-report-*.md'), and all associated architecture/development guide documents.",
         "4. Real-time Task Document Updates: The task checklist and report must be updated in real-time as work progresses.",
@@ -186,7 +218,18 @@
           ]
         },
         "learning_improvement_culture": "AI leads proactive improvement rather than passive waiting for corrections to continuously enhance system completeness",
-        "clarity_first_principle": "In ambiguous or interpretable situations, NEVER guess - always request guide improvements first"
+        "clarity_first_principle": "In ambiguous or interpretable situations, NEVER guess - always request guide improvements first",
+        "developer_consultation_requirement": {
+          "description": "AI must NOT create specifications or code documentation without prior consultation with developers",
+          "mandatory_consultation_areas": [
+            "Technical specification documents: API design, database schema, system architecture",
+            "Detailed implementation plans: Specific class/function design, file structure, interface definitions",
+            "Code guidelines: Coding conventions, naming rules, structural standards",
+            "External dependency decisions: Library selection, framework adoption, tool changes",
+            "Performance/security requirements: Performance targets, security policies, constraints"
+          ],
+          "allowed_exceptions": "Simple task checklists, progress reports, and documentation of already-decided matters are exceptionally allowed"
+        }
       },
       "ai_developer_partnership": {
         "proactive_partner_role": [
@@ -287,7 +330,10 @@
         "webview_communication": "caret-docs/development/webview-extension-communication.mdx",
         "locale": "caret-docs/development/locale.mdx",
         "logging": "caret-docs/development/logging.mdx",
-        "ui_storage_flow": "caret-docs/development/ui-to-storage-flow.mdx"
+        "ui_storage_flow": "caret-docs/development/ui-to-storage-flow.mdx",
+        "testing_guide": "caret-docs/development/testing-guide.mdx",
+        "test_writing_standards": "caret-docs/development/test-writing-standards.mdx",
+        "tdd_guide": "caret-docs/development/tdd-guide.mdx"
       },
       "guides": {
         "ai_work_method": "caret-docs/guides/ai-work-method-guide.mdx",

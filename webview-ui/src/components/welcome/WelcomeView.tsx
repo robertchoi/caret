@@ -85,7 +85,7 @@ const WelcomeView = () => {
 					>
 						← 뒤로 가기
 					</VSCodeButton>
-					<div style={{ fontSize: "2rem", margin: "10px 0 20px" }}>🥕</div>
+					<div style={{ fontSize: "2rem", margin: "10px 0 20px" }}>^</div>
 					<h2>🔧 API 설정</h2>
 					<p style={{ color: "var(--vscode-descriptionForeground)", fontSize: "1.1em" }}>
 						Caret을 사용하기 위해 AI API를 설정해주세요.

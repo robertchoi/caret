@@ -1,5 +1,9 @@
 import React from "react"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
+import { t } from "../utils/i18n"
+import { caretWebviewLogger } from "../utils/webview-logger"
+import CaretFooter from "./CaretFooter"
+import "../styles/CaretWelcome.css"
 
 interface CaretWelcomeProps {
 	onGetStarted?: () => void
@@ -8,6 +12,7 @@ interface CaretWelcomeProps {
 const CaretWelcome: React.FC<CaretWelcomeProps> = ({ onGetStarted }) => {
 	const handleGetStarted = () => {
 		console.log("Caret Welcome: Get Started clicked")
+		console.info("[CARET-INFO] [UI] 웰컴 페이지에서 '시작하기' 버튼이 클릭되었습니다")
 		if (onGetStarted) {
 			onGetStarted()
 		}
@@ -16,27 +21,54 @@ const CaretWelcome: React.FC<CaretWelcomeProps> = ({ onGetStarted }) => {
 	return (
 		<div className="caret-welcome">
 			<div className="caret-welcome-container">
+				{/* 메인 배너 */}
+				<div className="caret-banner">
+					<img 
+						src="./assets/caret-main-banner.webp" 
+						alt="Caret 메인 배너" 
+						className="caret-banner-image"
+					/>
+				</div>
+
 				{/* Caret 로고 및 브랜딩 */}
 				<div className="caret-header">
-					<h1 className="caret-title">🥕 Caret</h1>
+					<h1 className="caret-title">^ Caret</h1>
 					<p className="caret-subtitle">
-						개인화된 AI 개발 파트너십을 위한 VSCode 확장
+						{t('greeting')}
 					</p>
 					<p className="caret-description">
-						Caret은 Cline을 기반으로 한 Fork 프로젝트로, 
-						더욱 개인화되고 효율적인 AI 코딩 경험을 제공합니다.
+						{t('catchPhrase')}
 					</p>
 				</div>
 
-				{/* 주요 기능 소개 */}
+				{/* Google Gemini 특별 제안 */}
+				<div className="caret-offer">
+					<h2>{t('geminiOffer.header', 'welcome')}</h2>
+					<p dangerouslySetInnerHTML={{ __html: t('geminiOffer.body', 'welcome') }} />
+				</div>
+
+				{/* 핵심 기능 소개 */}
 				<div className="caret-features">
-					<h2>✨ 주요 기능</h2>
-					<ul className="caret-feature-list">
-						<li>🤖 <strong>AI 개발 파트너십:</strong> 개인화된 AI 어시스턴트</li>
-						<li>🔧 <strong>Fork 기반 아키텍처:</strong> Cline 코어 + Caret 확장</li>
-						<li>🌐 <strong>한글 지원:</strong> 완전한 한국어 인터페이스</li>
-						<li>📝 <strong>스마트 로깅:</strong> 개발 과정 추적 및 분석</li>
-					</ul>
+					<h2>{t('coreFeatures.header', 'welcome')}</h2>
+					<p dangerouslySetInnerHTML={{ __html: t('coreFeatures.description', 'welcome') }} />
+				</div>
+
+				{/* 모델 유연성 */}
+				<div className="caret-flexibility">
+					<h2>{t('modelFlexibility.header', 'welcome')}</h2>
+					<p dangerouslySetInnerHTML={{ __html: t('modelFlexibility.body', 'welcome') }} />
+				</div>
+
+				{/* Caret 계정 서비스 */}
+				<div className="caret-account">
+					<h2>{t('caretAccount.header', 'welcome')}</h2>
+					<p>{t('caretAccount.body', 'welcome')}</p>
+				</div>
+
+				{/* 교육 프로그램 */}
+				<div className="caret-education">
+					<h2>{t('educationOffer.header', 'welcome')}</h2>
+					<p dangerouslySetInnerHTML={{ __html: t('educationOffer.body', 'welcome') }} />
 				</div>
 
 				{/* 시작하기 버튼 */}
@@ -48,20 +80,10 @@ const CaretWelcome: React.FC<CaretWelcomeProps> = ({ onGetStarted }) => {
 						시작하기
 					</VSCodeButton>
 				</div>
-
-				{/* 개발 정보 */}
-				<div className="caret-info">
-					<p className="caret-version">
-						<small>Caret v1.0.0 (Cline 기반)</small>
-					</p>
-					<p className="caret-credits">
-						<small>
-							Built with ❤️ by Caret Team | 
-							Based on <a href="https://github.com/cline/cline" target="_blank" rel="noopener noreferrer">Cline</a>
-						</small>
-					</p>
-				</div>
 			</div>
+
+			{/* Footer 컴포넌트 */}
+			<CaretFooter />
 		</div>
 	)
 }

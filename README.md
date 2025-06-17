@@ -168,6 +168,38 @@ VS Code에서 `F5` 키를 눌러 디버깅 세션을 시작하면, 새로운 `[E
 - **디버깅**: VS Code 디버거를 통한 백엔드 코드 디버깅 지원
 - **로깅**: 개발 콘솔에서 상세한 디버그 로그 확인 가능
 
+## 테스트 및 품질 관리 🧪
+
+Caret은 **100% 테스트 커버리지**를 목표로 하는 품질 우선 개발을 지향합니다.
+
+### 테스트 실행
+
+```bash
+# 전체 테스트 실행
+npm test
+
+# 테스트 커버리지 확인
+npm run test:coverage
+
+# 테스트 watch 모드 (개발 시)
+npm run test:watch
+
+# Caret 전용 코드 커버리지 분석
+node caret-scripts/caret-coverage-check.js
+```
+
+### 테스트 가이드
+
+- **[테스트 가이드](./caret-docs/development/testing-guide.mdx)**: 전체 테스트 전략과 실행 방법
+- **[테스트 작성 표준](./caret-docs/development/test-writing-standards.mdx)**: 테스트 코드 작성 규칙과 표준
+- **[TDD 가이드](./caret-docs/development/tdd-guide.mdx)**: 테스트 주도 개발 방법론
+
+### 테스트 원칙
+
+- **Caret 전용 코드**: `caret-src/`, `webview-ui/src/caret/` 디렉토리의 모든 코드는 100% 커버리지 목표
+- **TDD 방식**: Red-Green-Refactor 사이클을 따른 테스트 주도 개발
+- **품질 우선**: 테스트 실패 시 코드 변경 금지, 근본 원인 해결 원칙
+
 ## 기여하기
 
 Caret 프로젝트는 여러분의 기여를 환영합니다! 자세한 내용은 `

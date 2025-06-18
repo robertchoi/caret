@@ -11,6 +11,7 @@ import * as path from "node:path" // Node.js 'path' 모듈을 명시적으로 �
 // import { DIFF_VIEW_URI_SCHEME } from "./integrations/editor/DiffViewProvider"
 import { CaretProvider, CARET_SIDEBAR_ID } from "./core/webview/CaretProvider"
 import { WebviewProviderType } from "../src/shared/webview/types"
+import { caretLogger } from "./utils/caret-logger"
 import assert from "node:assert" // Node.js 'assert' 모듈을 가져옵니다.
 
 /*
@@ -30,14 +31,22 @@ const { IS_DEV, DEV_WORKSPACE_FOLDER } = process.env
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-	console.log('Caret extension is now active!'); // 간단한 콘솔 로그로 변경
+	console.log("Caret extension is now active!") // 간단한 콘솔 로그로 변경
 
 	outputChannel = vscode.window.createOutputChannel("Caret")
 	context.subscriptions.push(outputChannel)
 	outputChannel.appendLine("Caret Output Channel initialized.")
 
-	// Logger.initialize(outputChannel) // Removed static initialization
-	// Logger.log("Caret extension activated") // Removed static log call
+	// Caret 로거 초기화
+	caretLogger.setOutputChannel(outputChannel)
+	caretLogger.extensionActivated()
+
+	// 테스트 로그
+	console.log("🚀 [CARET-TEST] Extension Started - Console Log")
+	caretLogger.debug("🚀 Caret Logger Test - Extension Started!", "TEST")
+	caretLogger.info("📝 Caret Logger Test - Info Level", "TEST")
+	caretLogger.warn("⚠️ Caret Logger Test - Warning Level", "TEST")
+	console.log("📝 [CARET-TEST] Logger calls completed")
 
 	const sidebarWebviewProvider = new CaretProvider(context, outputChannel, WebviewProviderType.SIDEBAR)
 	// sidebarWebviewProvider.controller.logger.log("Caret extension activated") // WebviewProvider 자체에서 로깅, controller 없음
@@ -60,12 +69,14 @@ export async function activate(context: vscode.ExtensionContext) {
 	// postStateToWebviewub85c ub3d9uae30ud654
 	// sidebarWebviewProvider.controller.postStateToWebview()
 
-	if (IS_DEV && IS_DEV === "true") { // IS_DEV 문자열 비교
+	if (IS_DEV && IS_DEV === "true") {
+		// IS_DEV 문자열 비교
 		outputChannel.appendLine("[DEV MODE] Extension activated in development mode.")
 	}
 
 	// vscode.commands.executeCommand("setContext", "caret.isDevMode", IS_DEV && IS_DEV === "true") // 복원
-	if (IS_DEV && IS_DEV === "true") { // IS_DEV 문자열 비교로 변경
+	if (IS_DEV && IS_DEV === "true") {
+		// IS_DEV 문자열 비교로 변경
 		vscode.commands.executeCommand("setContext", "caret.isDevMode", true)
 	} else {
 		vscode.commands.executeCommand("setContext", "caret.isDevMode", false)
@@ -135,20 +146,22 @@ export async function activate(context: vscode.ExtensionContext) {
 	// since vscode doesn't support hot reload for extensions
 
 	// 개발 모드 파일 감시 로직 복원
-	if (IS_DEV && IS_DEV === "true") { 
-		assert(DEV_WORKSPACE_FOLDER, "DEV_WORKSPACE_FOLDER must be set in development mode for hot-reloading.");
-		
-		const workspaceRootUri = vscode.workspace.workspaceFolders?.[0]?.uri;
-		let watchPathUri: vscode.Uri;
+	if (IS_DEV && IS_DEV === "true") {
+		assert(DEV_WORKSPACE_FOLDER, "DEV_WORKSPACE_FOLDER must be set in development mode for hot-reloading.")
+
+		const workspaceRootUri = vscode.workspace.workspaceFolders?.[0]?.uri
+		let watchPathUri: vscode.Uri
 
 		if (DEV_WORKSPACE_FOLDER) {
 			if (path.isAbsolute(DEV_WORKSPACE_FOLDER)) {
-				watchPathUri = vscode.Uri.file(DEV_WORKSPACE_FOLDER);
+				watchPathUri = vscode.Uri.file(DEV_WORKSPACE_FOLDER)
 			} else if (workspaceRootUri) {
-				watchPathUri = vscode.Uri.joinPath(workspaceRootUri, DEV_WORKSPACE_FOLDER);
+				watchPathUri = vscode.Uri.joinPath(workspaceRootUri, DEV_WORKSPACE_FOLDER)
 			} else {
 				// Fallback or error if no absolute path and no workspace folder
-				console.error("[DEV MODE] Cannot determine watch path: DEV_WORKSPACE_FOLDER is relative and no workspace is open.");
+				console.error(
+					"[DEV MODE] Cannot determine watch path: DEV_WORKSPACE_FOLDER is relative and no workspace is open.",
+				)
 				// 혹은 적절한 기본 경로를 사용하거나, watcher를 시작하지 않을 수 있습니다.
 				// 여기서는 일단 에러를 출력하고 넘어갑니다.
 				throw new Error("[DEV MODE] Watch path configuration error.")
@@ -156,46 +169,46 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			// Watcher는 caret-src 내부를 보도록 수정합니다.
 			// workspace.createFileSystemWatcher는 base Uri를 첫 인자로 받을 수 있습니다.
-			const watcherPattern = new vscode.RelativePattern(watchPathUri, "caret-src/**/*");
-			const watcher = vscode.workspace.createFileSystemWatcher(watcherPattern);
+			const watcherPattern = new vscode.RelativePattern(watchPathUri, "caret-src/**/*")
+			const watcher = vscode.workspace.createFileSystemWatcher(watcherPattern)
 
-			outputChannel?.appendLine(`[DEV MODE] Watching for file changes in: ${watchPathUri.fsPath}/caret-src`);
+			outputChannel?.appendLine(`[DEV MODE] Watching for file changes in: ${watchPathUri.fsPath}/caret-src`)
 
-			watcher.onDidChange(uri => {
-				const message = `[DEV MODE] File changed: ${uri.fsPath}. Reloading VSCode...`;
+			watcher.onDidChange((uri) => {
+				const message = `[DEV MODE] File changed: ${uri.fsPath}. Reloading VSCode...`
 				if (outputChannel) {
-					outputChannel.appendLine(message);
+					outputChannel.appendLine(message)
 				} else {
-					console.info(message);
+					console.info(message)
 				}
-				vscode.commands.executeCommand("workbench.action.reloadWindow");
-			});
+				vscode.commands.executeCommand("workbench.action.reloadWindow")
+			})
 
-			watcher.onDidCreate(uri => { 
-				const message = `[DEV MODE] File created: ${uri.fsPath}. Reloading VSCode...`;
+			watcher.onDidCreate((uri) => {
+				const message = `[DEV MODE] File created: ${uri.fsPath}. Reloading VSCode...`
 				if (outputChannel) {
-					outputChannel.appendLine(message);
+					outputChannel.appendLine(message)
 				} else {
-					console.info(message);
+					console.info(message)
 				}
-				vscode.commands.executeCommand("workbench.action.reloadWindow");
-			});
+				vscode.commands.executeCommand("workbench.action.reloadWindow")
+			})
 
-			watcher.onDidDelete(uri => { 
-				const message = `[DEV MODE] File deleted: ${uri.fsPath}. Reloading VSCode...`;
+			watcher.onDidDelete((uri) => {
+				const message = `[DEV MODE] File deleted: ${uri.fsPath}. Reloading VSCode...`
 				if (outputChannel) {
-					outputChannel.appendLine(message);
+					outputChannel.appendLine(message)
 				} else {
-					console.info(message);
+					console.info(message)
 				}
-				vscode.commands.executeCommand("workbench.action.reloadWindow");
-			});
+				vscode.commands.executeCommand("workbench.action.reloadWindow")
+			})
 
 			// activate 함수 외부이므로 context.subscriptions.push(watcher)를 직접 사용할 수 없습니다.
 			// 하지만 watcher는 deactivate 시점에 자동으로 정리될 필요는 없을 수도 있습니다 (프로세스 종료 시 정리).
 			// 만약 명시적인 정리가 필요하다면, deactivate 함수에서 접근 가능한 곳에 watcher 인스턴스를 저장해야 합니다.
 		} else if (IS_DEV && IS_DEV === "true" && !DEV_WORKSPACE_FOLDER) {
-			outputChannel?.appendLine("[DEV MODE] Hot-reloading disabled: DEV_WORKSPACE_FOLDER is not set.");
+			outputChannel?.appendLine("[DEV MODE] Hot-reloading disabled: DEV_WORKSPACE_FOLDER is not set.")
 		}
 	}
 }

@@ -27,8 +27,8 @@ const CaretWelcomeSection: React.FC<CaretWelcomeSectionProps> = ({
 	allowHtml = false,
 }) => {
 	const sectionStyle = {
-		marginBottom: "15px",
-		padding: "15px",
+		marginBottom: "10px",
+		padding: "12px",
 		border: "1px solid var(--vscode-settings-headerBorder)",
 		borderRadius: "8px",
 		backgroundColor: "var(--vscode-sideBar-background)",

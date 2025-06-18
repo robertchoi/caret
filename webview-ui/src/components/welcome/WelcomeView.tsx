@@ -8,6 +8,9 @@ import { validateApiConfiguration } from "@utils/validate"
 import { vscode } from "@utils/vscode"
 import CaretWelcomeSection from "@/caret/components/CaretWelcomeSection"
 import CaretApiSetup from "@/caret/components/CaretApiSetup"
+import { ModelsServiceClient } from "@/services/grpc-client"
+import { UpdateApiConfigurationRequest } from "@shared/proto/models"
+import { convertApiConfigurationToProto } from "@shared/proto-conversions/models/api-configuration-conversion"
 
 import CaretFooter from "@/caret/components/CaretFooter"
 import { t } from "@/caret/utils/i18n"
@@ -18,21 +21,42 @@ const WelcomeView = () => {
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [showApiOptions, setShowApiOptions] = useState(false)
 
-	const disableLetsGoButton = apiErrorMessage !== null
+	const disableLetsGoButton = !!apiErrorMessage
 
 	const handleOpenLink = (link: string, linkName: string) => {
 		vscode.postMessage({ type: "openExternalLink", link })
 	}
 
-	const handleSubmitApiKey = () => {
-		vscode.postMessage({ type: "apiConfiguration", apiConfiguration })
-		vscode.postMessage({ type: "start" })
+	const handleSubmitApiKey = async () => {
+		try {
+			if (!apiConfiguration) return
+
+			// gRPC를 통해 API configuration 저장 (원래 Cline 방식)
+			const protoConfig = convertApiConfigurationToProto(apiConfiguration)
+			await ModelsServiceClient.updateApiConfigurationProto(
+				UpdateApiConfigurationRequest.create({
+					apiConfiguration: protoConfig,
+				}),
+			)
+			// API 설정 완료 후 자동으로 채팅 화면으로 이동
+		} catch (error) {
+			console.error("Failed to save API configuration:", error)
+		}
 	}
 
-	const handleShowApiOptions = () => {
-		// If API is already configured, start directly
-		if (!apiErrorMessage) {
-			vscode.postMessage({ type: "start" })
+	const handleShowApiOptions = async () => {
+		// If API is already configured, save and activate chat
+		if (!apiErrorMessage && apiConfiguration) {
+			try {
+				const protoConfig = convertApiConfigurationToProto(apiConfiguration)
+				await ModelsServiceClient.updateApiConfigurationProto(
+					UpdateApiConfigurationRequest.create({
+						apiConfiguration: protoConfig,
+					}),
+				)
+			} catch (error) {
+				console.error("Failed to save API configuration:", error)
+			}
 		} else {
 			// Otherwise, show API setup
 			setShowApiOptions(true)
@@ -43,8 +67,8 @@ const WelcomeView = () => {
 		setShowApiOptions(false)
 	}
 
-	const handleCaretAccountNotify = () => {
-		vscode.postMessage({ type: "notifyCaretAccount" })
+	const handleGitHubLink = () => {
+		handleOpenLink(CARET_URLS.CARET_GITHUB, "GitHub")
 	}
 
 	useEffect(() => {
@@ -77,6 +101,42 @@ const WelcomeView = () => {
 		</CaretWelcomeSection>
 	)
 
+	// API 설정 페이지를 완전히 별도 페이지로 렌더링
+	if (showApiOptions) {
+		return (
+			<div
+				data-testid="caret-api-setup-page"
+				data-overlay-version="caret"
+				className="caret-api-setup-page"
+				style={{
+					position: "fixed",
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					display: "flex",
+					flexDirection: "column",
+					backgroundColor: "var(--vscode-editor-background)",
+				}}>
+				<div
+					style={{
+						flex: 1,
+						padding: "20px",
+						overflowY: "auto",
+					}}>
+					{/* API 설정 컴포넌트 - 페이지 전체 */}
+					<CaretApiSetup
+						onSubmit={handleSubmitApiKey}
+						onBack={handleHideApiOptions}
+						disabled={disableLetsGoButton}
+						errorMessage={apiErrorMessage || undefined}
+					/>
+				</div>
+			</div>
+		)
+	}
+
+	// 메인 웰컴 페이지
 	return (
 		<div
 			data-testid="caret-welcome-view"
@@ -108,40 +168,15 @@ const WelcomeView = () => {
 						}}
 					/>
 					<h2 style={{ fontSize: "1.1rem", marginBottom: "10px" }}>{t("greeting", "welcome")}</h2>
-					<p
-						style={{
-							color: "var(--vscode-descriptionForeground)",
-							maxWidth: "600px",
-							fontSize: "0.85rem",
-							margin: "0 auto",
-						}}>
-						{t("catchPhrase", "welcome")}
-					</p>
 				</center>
 
 				{renderSection("coreFeatures.header", "coreFeatures.description")}
 
-				{!showApiOptions &&
-					renderSection(
-						"getStarted.header",
-						"getStarted.body",
-						apiErrorMessage ? "API 설정하기" : "getStarted.button",
-						handleShowApiOptions,
-						"primary",
-					)}
+				{renderSection("getStarted.header", "getStarted.body", "getStarted.button", handleShowApiOptions, "primary")}
 
-				{renderSection("community.header", "community.body", "community.button", handleCaretAccountNotify, "secondary")}
+				{renderSection("community.header", "community.body", "community.githubLink", handleGitHubLink, "secondary")}
 
 				{renderSection("educationOffer.header", "educationOffer.body")}
-
-				{showApiOptions && (
-					<CaretApiSetup
-						onSubmit={handleSubmitApiKey}
-						onBack={handleHideApiOptions}
-						disabled={disableLetsGoButton}
-						errorMessage={apiErrorMessage || undefined}
-					/>
-				)}
 
 				{/* Footer 컴포넌트 - 일반 페이지 하단 */}
 				<CaretFooter />

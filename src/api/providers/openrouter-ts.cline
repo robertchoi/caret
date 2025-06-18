@@ -16,12 +16,9 @@ export class OpenRouterHandler implements ApiHandler {
 
 	constructor(options: ApiHandlerOptions) {
 		this.options = options
-		// CARET MODIFICATION: Prevent OpenAI SDK from looking for OPENAI_API_KEY environment variable
-		// when openRouterApiKey is undefined or empty by providing a fallback dummy value
-		const apiKey = this.options.openRouterApiKey || "dummy-key-to-prevent-env-lookup"
 		this.client = new OpenAI({
 			baseURL: "https://openrouter.ai/api/v1",
-			apiKey: apiKey,
+			apiKey: this.options.openRouterApiKey,
 			defaultHeaders: {
 				"HTTP-Referer": "https://cline.bot", // Optional, for including your app on openrouter.ai rankings.
 				"X-Title": "Cline", // Optional. Shows in rankings on openrouter.ai.

@@ -16,10 +16,10 @@ export class CaretProvider extends ClineWebviewProvider {
 		// Caret은 기본적으로 탭을 사용할지, 사이드바를 사용할지 여기서 결정하거나,
 		// 혹은 ClineWebviewProvider의 기본값을 따를 수 있습니다.
 		// Cline의 생성자는 providerType을 선택적으로 받으므로, 여기서도 동일하게 처리합니다.
-		providerType: WebviewProviderType = WebviewProviderType.TAB,
+		providerType: WebviewProviderType = WebviewProviderType.SIDEBAR, // 기본값을 SIDEBAR로 변경
 	) {
 		// ClineWebviewProvider의 생성자를 호출합니다.
-		// providerType을 전달하여 Cline의 생성자에서 WebviewProviderType.TAB이 기본값이 되도록 합니다.
+		// providerType을 전달하여 Cline의 생성자에서 제대로 처리되도록 합니다.
 		super(context, outputChannel, providerType)
 
 		// Caret 로거에 출력 채널 연결
@@ -30,6 +30,10 @@ export class CaretProvider extends ClineWebviewProvider {
 
 		// 웰컴 페이지 로드 로그
 		logCaretWelcome()
+
+		// IMPORTANT: Cline의 WebviewProvider는 이미 Controller를 생성하므로
+		// 우리는 추가로 Controller를 만들 필요가 없습니다.
+		// super() 호출로 이미 this.controller가 생성되어 있습니다.
 	}
 
 	/**
@@ -81,7 +85,7 @@ export class CaretProvider extends ClineWebviewProvider {
                     <div id="root"></div>
                      <script type="text/javascript" nonce="${nonce}">
                         // Inject the provider type
-                        window.WEBVIEW_PROVIDER_TYPE = "TAB";
+                        window.WEBVIEW_PROVIDER_TYPE = "SIDEBAR";
                         
                         // Inject the client ID
                         window.clineClientId = "${this.getClientId()}";

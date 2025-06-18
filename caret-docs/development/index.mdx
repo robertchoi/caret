@@ -234,7 +234,18 @@ node caret-scripts/caret-coverage-check.js
 -   **TDD 방식**: Red-Green-Refactor 사이클을 따른 테스트 주도 개발
 -   **품질 우선**: 테스트 실패 시 코드 변경 금지, 근본 원인 해결 원칙
 
-### 6.5 개발 시 주의사항
+### 6.5 아키텍처 및 통신 패턴
+
+### 6.5.1 메시지 처리 아키텍처
+
+-   **[메시지 처리 아키텍처 가이드](./message-processing-architecture.mdx)**: Cline의 gRPC 기반 메시지 처리 구조 완전 분석
+    -   프론트엔드-백엔드 통신 패턴
+    -   gRPC vs 레거시 메시지 비교
+    -   API Configuration 저장 플로우
+    -   스트리밍 및 이벤트 기반 패턴
+    -   개발 가이드라인 및 마이그레이션 방법
+
+### 6.6 개발 시 주의사항
 
 -   **Cline 코드 수정 금지**: `src/`, `webview-ui/` 원본 파일 직접 수정 지양
 -   **타입 안전성**: Cline 타입과의 호환성 유지

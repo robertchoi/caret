@@ -22,9 +22,7 @@ export interface WebviewMessage {
 		| "grpc_request_cancel"
 		| "log"
 		| "openExternalLink"
-		| "apiConfiguration"
 		| "notifyCaretAccount"
-		| "start"
 
 	text?: string
 	disabled?: boolean

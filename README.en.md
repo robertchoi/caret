@@ -38,15 +38,20 @@ Caret is a VS Code extension that aims to create a next-generation development e
 
 ## Supported Models
 
-Caret provides support for over 150 AI models across 20 different providers including:
+Caret supports **105 models** from **20 providers**, giving you the freedom to choose the tools that best fit your needs.
 
-- **Anthropic Claude** (Claude 3.7 Sonnet, Claude 3.5 Sonnet, Claude 3 Opus, etc.)
-- **OpenAI** (GPT-4o, GPT-4.1, etc.)
-- **Google Gemini** (Gemini 2.5, Gemini 2.0, etc.)
-- **Mistral AI** (Mistral Large, Codestral, etc.)
-- **AWS Bedrock** (Amazon Nova, Claude on AWS, etc.)
-- **Vertex AI** (Google Cloud's AI platform)
-- And many others including local models via Ollama and LM Studio
+### 🔥 Key Providers
+
+- **Anthropic Claude** (6 models): Claude 3.7 Sonnet, Claude 3.5 Sonnet v2, Claude 3.5 Haiku and other latest high-performance models
+- **Google Gemini** (7 models): Gemini 2.5 Pro, Gemini 2.0 Flash, Gemini 1.5 Pro with fast responses and free credits
+- **OpenAI Native** (13 models): O3, O1, GPT-4O, ChatGPT-4O Latest with the most model support
+- **Qwen** (18 models): Qwen 2.5 Coder series, Qwen Plus, Qwen Max with various model sizes
+- **AWS Bedrock** (8 models): Amazon Nova series, Claude models with enterprise-grade stability
+- **Local Execution**: Privacy-guaranteed local models via Ollama, LM Studio, VSCode LM
+
+### 📚 Detailed Information
+
+For the complete list of supported models and setup instructions, please refer to the **[Supported Models Guide](./caret-docs/development/support-model-list.mdx)**.
 
 ## Getting Started
 
@@ -58,9 +63,38 @@ Caret is actively under development, with many features still in preparation. It
    * Customize the provided AI agent personas.
    * Create a `.caretrules` file in your project root to define work modes and rules.
    * Four modes (ARCH, DEV, RULE, TALK) plus an empty mode are provided to optimize for your desired tasks.
-4. **Participation & Contribution:** Star ⭐ the repository or leave feedback through Issues to contribute or receive updates!
-5. **Community (Coming Soon):** Latest news and discussions will be available in the [AICoding-Caret Facebook group](https://facebook.com/groups/aicoding-caret).
-6. **Official Website (Future):** [caret.team](https://caret.team) (coming soon!)
+4. **Community (Coming Soon):** Latest news and discussions will be available in the [AICoding-Caret Facebook group](https://facebook.com/groups/aicoding-caret).
+5. **Official Website (Future):** [caret.team](https://caret.team) (coming soon!)
+
+## Contributing 🤝
+
+Caret is an open source project that welcomes various forms of contribution!
+
+### 🌟 Ways to Contribute
+
+| Contribution Type | Description | Benefits |
+|-------------------|-------------|----------|
+| **💻 Code Contribution** | Feature development, bug fixes, documentation | Service credits + GitHub contributor listing |
+| **🐛 Bug Reports** | Issue reporting, reproduction steps | Service credits |
+| **💡 Ideas & Suggestions** | New features, improvement proposals | Service credits |
+| **💰 Financial Support** | Project sponsorship, development support | Service credits + special contributor listing |
+| **📖 Documentation** | Guide writing, translation, tutorials | Service credits + documentation contributor listing |
+
+### 🎁 Contributor Benefits
+
+- **Service Credits**: Caret service credits based on contribution scale
+- **GitHub Recognition**: Name listed in project README and release notes
+- **Website Recognition**: Profile featured on official website contributor page
+- **Priority Access**: Early access to new features and beta versions
+
+### 🚀 How to Get Started
+
+1. **Check Issues**: Find issues you can contribute to at [GitHub Issues](https://github.com/aicoding-caret/caret/issues)
+2. **Join Discussions**: Share feature suggestions or questions in Issues or Discussions
+3. **Code Contribution**: Follow Fork → Develop → Pull Request process
+4. **Documentation**: Improve or translate documents in the `caret-docs/` folder
+
+For detailed contribution guidelines, please refer to [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Build & Packaging 🛠️
 

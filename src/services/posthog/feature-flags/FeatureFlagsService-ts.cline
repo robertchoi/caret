@@ -1,14 +1,13 @@
-// CARET MODIFICATION: PostHog 완전 비활성화 (백업: FeatureFlagsService-ts.cline)
+import { PostHog } from "posthog-node"
 import { posthogClientProvider } from "../PostHogClientProvider"
 
 class FeatureFlagsService {
 	private static instance: FeatureFlagsService
-	private readonly client: any // DummyPostHogClient
+	private readonly client: PostHog
 
 	private constructor() {
-		// Get the shared dummy client (PostHog disabled in Caret)
+		// Get the shared client
 		this.client = posthogClientProvider.getClient()
-		console.log("[Caret] FeatureFlagsService using dummy PostHog client")
 	}
 
 	public static getInstance(): FeatureFlagsService {
@@ -24,9 +23,17 @@ class FeatureFlagsService {
 	 * @returns Boolean indicating if the feature is enabled
 	 */
 	public async isFeatureFlagEnabled(flagName: string): Promise<boolean> {
-		// CARET MODIFICATION: PostHog 비활성화로 인해 모든 feature flag는 false 반환
-		console.log(`[Caret] Feature flag ${flagName} disabled (PostHog not used)`)
-		return false
+		try {
+			const payload = await this.client.getFeatureFlagPayload(flagName, "_irrelevant_" /* optional params */)
+			if (payload && typeof payload === "object" && "enabled" in payload) {
+				return Boolean(payload.enabled)
+			}
+			console.warn(`Feature flag ${flagName} not found or missing enabled property.`)
+			return false
+		} catch (error) {
+			console.error(`Error checking if feature flag ${flagName} is enabled:`, error)
+			return false
+		}
 	}
 }
 

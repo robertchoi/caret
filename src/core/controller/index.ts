@@ -38,7 +38,8 @@ import {
 	updateGlobalState,
 	updateWorkspaceState,
 } from "../storage/state"
-import { Task } from "../task"
+// CARET MODIFICATION: Use Caret Task instead of Cline Task (백업: index-ts.cline)
+import { Task } from "../../../caret-src/core/task"
 import { ClineRulesToggles } from "@shared/cline-rules"
 import { sendStateUpdate } from "./state/subscribeToState"
 import { sendAddToInputEvent } from "./ui/subscribeToAddToInput"
@@ -256,12 +257,6 @@ export class Controller {
 				if (message.grpc_request_cancel) {
 					await handleGrpcRequestCancel(this, message.grpc_request_cancel)
 				}
-				break
-			}
-
-			case "start": {
-				// Start a new task with optional text and images
-				await this.initTask(message.text, message.images, message.files)
 				break
 			}
 

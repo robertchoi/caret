@@ -136,7 +136,7 @@ const baseConfig = {
 		esbuildProblemMatcherPlugin,
 	],
 	format: "cjs",
-	sourcesContent: false,
+	sourcesContent: !production, // Include source content in development for better debugging
 	platform: "node",
 }
 

@@ -37,13 +37,14 @@ export default defineConfig({
 			provider: "v8",
 			reportOnFailure: true,
 		},
-		reporters: ["./caret-test-reporter.js"],
+		reporters: ["default"],
 		logHeapUsage: false,
 		silent: false,
 	},
 	build: {
 		outDir: "build",
 		reportCompressedSize: false,
+		sourcemap: process.env.IS_DEV === "true", // Enable sourcemap in development
 		rollupOptions: {
 			output: {
 				inlineDynamicImports: true,

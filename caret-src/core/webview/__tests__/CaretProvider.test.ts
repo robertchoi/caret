@@ -64,7 +64,7 @@ describe("CaretProvider", () => {
 			show: vi.fn(),
 		}
 
-		caretProvider = new CaretProvider(mockContext, mockOutputChannel, WebviewProviderType.TAB)
+		caretProvider = new CaretProvider(mockContext, mockOutputChannel, WebviewProviderType.SIDEBAR)
 	})
 
 	afterEach(() => {
@@ -103,7 +103,7 @@ describe("CaretProvider", () => {
 			expect(html).toContain("Caret - AI Development Partner")
 			expect(html).toContain('window.caretBanner = "mock-webview-uri"')
 			expect(html).toContain('window.clineClientId = "mock-client-id"')
-			expect(html).toContain('window.WEBVIEW_PROVIDER_TYPE = "TAB"')
+			expect(html).toContain('window.WEBVIEW_PROVIDER_TYPE = "SIDEBAR"')
 		})
 
 		it("should include all required script and style URIs", () => {

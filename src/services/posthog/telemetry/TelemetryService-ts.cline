@@ -1,4 +1,4 @@
-// CARET MODIFICATION: PostHog 완전 비활성화 (백업: TelemetryService-ts.cline)
+import { PostHog } from "posthog-node"
 import * as vscode from "vscode"
 import { version as extensionVersion } from "../../../../package.json"
 
@@ -99,10 +99,10 @@ class TelemetryService {
 
 	/** Singleton instance of the TelemetryService */
 	private static instance: TelemetryService
-	/** Dummy PostHog client instance (PostHog disabled in Caret) */
-	private client: any // DummyPostHogClient
+	/** PostHog client instance for sending analytics events */
+	private client: PostHog
 	/** Unique identifier for the current VSCode instance */
-	public distinctId: string = vscode.env?.machineId || "test-machine-id"
+	public distinctId: string = vscode.env.machineId
 	/** Whether telemetry is currently enabled based on user and VSCode settings */
 	private telemetryEnabled: boolean = false
 	/** Current version of the extension */
@@ -112,11 +112,10 @@ class TelemetryService {
 
 	/**
 	 * Private constructor to enforce singleton pattern
-	 * Initializes dummy PostHog client (PostHog disabled in Caret)
+	 * Initializes PostHog client with configuration
 	 */
 	private constructor() {
 		this.client = posthogClientProvider.getClient()
-		console.log("[Caret] TelemetryService using dummy PostHog client")
 	}
 
 	private setDistinctId(installId: string) {

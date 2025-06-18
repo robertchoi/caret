@@ -1,6 +1,6 @@
 {
 	"greeting": "Hello! AI Development Partner, ^Caret.",
-	"catchPhrase": "Transform AI from a simple code generator into a true development partner that understands your project context and solves problems together!",
+	"catchPhrase": "",
 	"bannerAlt": "Caret Main Banner",
 
 	"geminiOffer": {
@@ -10,7 +10,7 @@
 
 	"coreFeatures": {
 		"header": "Start your special 'Vibe Coding' journey with Caret!",
-		"description": "Developer-led AI orchestration, customizable workflows, transparent AI control, and powerful local LLM integration. Beyond simple conversations, Caret proposes a <strong>'Vibe Coding'</strong> development culture where you systematically create documents with AI and grow together based on those records. <VSCodeLink href=\"{{caretGitLink}}\">Learn more on Caret GitHub</VSCodeLink>"
+		"description": "Transform AI from a simple code generator into a true development partner that understands your project context and solves problems together!<br/><br/>Developer-led AI orchestration, customizable workflows, transparent AI control, and powerful local LLM integration. Beyond simple conversations, Caret proposes a <strong>'Vibe Coding'</strong> development culture where you systematically create documents with AI and grow together based on those records. <VSCodeLink href=\"{{caretGitLink}}\">Learn more on Caret GitHub</VSCodeLink>"
 	},
 
 	"modelFlexibility": {
@@ -30,14 +30,14 @@
 
 	"getStarted": {
 		"header": "Get Started with Caret",
-		"body": "Welcome to Caret! This AI coding assistant helps you with development tasks. Check out our <a href=\"https://github.com/aicoding-caret/multi-post-agent/blob/main/docs/education-scenario.md#2-development-environment-setup-approximately-30-minutes\" target=\"_blank\">education program</a> to learn more about AI-assisted development.",
+		"body": "Welcome to Caret!",
 		"button": "Get Started"
 	},
 
 	"community": {
-		"header": "Join the Caret Community",
-		"body": "Connect with other developers using Caret! Visit our <a href=\"https://github.com/aicoding-caret/caret\" target=\"_blank\">GitHub repository</a> to contribute, report issues, or learn from the community.",
-		"button": "Notify for Caret Account"
+		"header": "🌱 Join Our Community",
+		"body": "Connect with other developers using Caret! As an open-source project, Caret grows through your participation in our GitHub repository - report issues, suggest features, and help us evolve together.<br/><br/>💻 <strong>Code Contribution</strong>, 🐛 <strong>Bug Reports</strong>, 💡 <strong>Ideas & Suggestions</strong>, 💰 <strong>Financial Support</strong>, 📖 <strong>Documentation</strong> - there are many ways to participate!<br/><br/>🎁 <strong>Contributor Benefits</strong>: Service credits, GitHub recognition, website listing, priority access to new features",
+		"githubLink": "GitHub Repository"
 	},
 
 	"apiSetup": {

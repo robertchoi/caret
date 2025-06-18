@@ -31,5 +31,8 @@
 - **Task #008:** 신규 개발자 온보딩 가이드 개선 (담당자: luke)
   - 요약: 신규 개발자가 태스크 할당 후 즉시 작업 가능하도록 종합 온보딩 가이드 구축
   [008-01-plan-new-developer-onboarding-guide.md](./008-01-plan-new-developer-onboarding-guide.md)
+- **Task #009:** API 프로바이더 구조 개선 (담당자: TBD)
+  - 요약: i18n 적용과 JSON 관리 체계화를 통한 API 프로바이더 구조 개선
+  [009-01-plan-api-provider-structure-improvement.md](./009-01-plan-api-provider-structure-improvement.md)
 
 ## 완료된 작업 (Complete)

@@ -38,15 +38,20 @@ Caret은 개발자와 AI 에이전트가 함께 성장하며 소프트웨어를 
 
 ## 지원 모델
 
-Caret은 20여 개 제공자의 150개 이상의 AI 모델을 지원하여, 여러분의 필요에 가장 적합한 도구를 선택할 자유를 제공합니다.
+Caret은 **20개 제공자**에서 **105개 모델**을 지원하여, 여러분의 필요에 가장 적합한 도구를 선택할 자유를 제공합니다.
 
-- **Anthropic Claude** (Claude 3.7 Sonnet, Claude 3.5 Sonnet, Claude 3 Opus 등)
-- **OpenAI** (GPT-4o, GPT-4.1 등)
-- **Google Gemini** (Gemini 2.5, Gemini 2.0 등)
-- **Mistral AI** (Mistral Large, Codestral 등)
-- **AWS Bedrock** (Amazon Nova, AWS의 Claude 등)
-- **Vertex AI** (Google Cloud의 AI 플랫폼)
-- 그 외 Ollama 및 LM Studio를 통한 로컬 모델 등 다수
+### 🔥 주요 제공자
+
+- **Anthropic Claude** (6개 모델): Claude 3.7 Sonnet, Claude 3.5 Sonnet v2, Claude 3.5 Haiku 등 최신 고성능 모델
+- **Google Gemini** (7개 모델): Gemini 2.5 Pro, Gemini 2.0 Flash, Gemini 1.5 Pro 등 빠른 응답과 무료 크레딧 제공
+- **OpenAI Native** (13개 모델): O3, O1, GPT-4O, ChatGPT-4O Latest 등 최다 모델 지원
+- **Qwen** (18개 모델): Qwen 2.5 Coder 시리즈, Qwen Plus, Qwen Max 등 다양한 크기의 모델
+- **AWS Bedrock** (8개 모델): Amazon Nova 시리즈, Claude 모델 등 엔터프라이즈급 안정성
+- **로컬 실행**: Ollama, LM Studio, VSCode LM을 통한 프라이버시 보장 로컬 모델
+
+### 📚 상세 정보
+
+전체 지원 모델 목록과 설정 방법은 **[지원 모델 가이드](./caret-docs/development/support-model-list.mdx)**를 참조하세요.
 
 ## 시작하기
 
@@ -58,9 +63,58 @@ Caret은 현재 활발히 개발 중이며, 여러분의 관심과 참여로 함
     *   제공되는 AI 에이전트 퍼소나를 꾸며보세요.
     *   프로젝트 루트에 `.caretrules` 파일을 생성하여 작업 모드와 규칙을 정의합니다.
     *   ARCH, DEV, RULE, TALK의 4가지 기본 모드와 비어있는 모드 하나를 더하여, 원하시는 작업에 최적화할 수 있습니다.
-4.  **참여 및 기여:** 프로젝트에 기여하거나 최신 소식을 받아보시려면 레파지토리를 Star ⭐ 해주시거나 Issue를 통해 의견을 남겨주세요!
-5.  **커뮤니티 (준비 중):** 최신 소식과 논의는 [AICoding-Caret Facebook 그룹](https://facebook.com/groups/aicoding-caret)에서 이루어질 예정입니다.
-6.  **공식 웹사이트 (향후):** [caret.team](https://caret.team) (준비 중)
+4.  **커뮤니티 (준비 중):** 최신 소식과 논의는 [AICoding-Caret Facebook 그룹](https://facebook.com/groups/aicoding-caret)에서 이루어질 예정입니다.
+5.  **공식 웹사이트 (향후):** [caret.team](https://caret.team) (준비 중)
+
+## 🔧 개발자를 위한 가이드
+
+### 📚 신규 개발자 시작하기
+- **[빠른 시작 가이드](./caret-docs/development/new-developer-quick-start.md)**: 5분 만에 개발 환경 구축
+- **[프로젝트 아키텍처 이해](./caret-docs/development/caret-architecture-and-implementation-guide.mdx)**: Fork 기반 구조 완전 가이드
+- **[개발 가이드라인](./caret-docs/development/index.mdx)**: 전체 개발 프로세스와 규칙
+
+### 🤖 AI와 협업하기
+- **[AI 작업 방법](./caret-docs/guides/ai-work-method-guide.mdx)**: AI 어시스턴트와의 협업 프로토콜
+- **[작업 로그 작성법](./caret-docs/guides/writing-work-logs-guide.mdx)**: 효과적인 진행 상황 관리
+- **[.caretrules 설정](./caret-docs/development/caretrules-setup-guide.md)**: AI 페르소나 및 모드 설정
+
+### 📋 작업 관리
+- **[작업 상태 확인](./caret-docs/tasks/tasks-status.md)**: 현재 진행 중인 태스크 목록
+- **[태스크 문서 작성](./caret-docs/guides/writing-task-documents-guide.mdx)**: 계획, 체크리스트, 보고서 작성법
+
+### 🧪 품질 관리
+- **[테스팅 가이드](./caret-docs/development/testing-guide.mdx)**: TDD 방법론과 100% 커버리지 목표
+- **[테스트 작성 표준](./caret-docs/development/test-writing-standards.mdx)**: 테스트 코드 품질 기준
+
+## 기여하기 🤝
+
+Caret은 오픈소스 프로젝트로, 여러분의 다양한 형태의 기여를 환영합니다!
+
+### 🌟 기여 방식
+
+| 기여 유형 | 설명 | 혜택 |
+|-----------|------|------|
+| **💻 코드 기여** | 기능 개발, 버그 수정, 문서 개선 | 서비스 크레딧 + GitHub 기여자 등재 |
+| **🐛 버그 신고** | 이슈 리포팅, 재현 방법 제공 | 서비스 크레딧 |
+| **💡 아이디어 제안** | 새로운 기능, 개선 사항 제안 | 서비스 크레딧 |
+| **💰 금전적 기여** | 프로젝트 후원, 개발 지원 | 서비스 크레딧 + 특별 기여자 등재 |
+| **📖 문서화** | 가이드 작성, 번역, 튜토리얼 | 서비스 크레딧 + 문서 기여자 등재 |
+
+### 🎁 기여자 혜택
+
+- **서비스 이용 크레딧**: 기여 규모에 따른 Caret 서비스 크레딧 제공
+- **GitHub 기여자 등재**: 프로젝트 README와 릴리즈 노트에 이름 등재
+- **서비스 페이지 등재**: 공식 웹사이트 기여자 페이지에 프로필 등재
+- **우선 지원**: 새로운 기능 및 베타 버전 우선 접근
+
+### 🚀 시작하는 방법
+
+1. **이슈 확인**: [GitHub Issues](https://github.com/aicoding-caret/caret/issues)에서 기여할 수 있는 이슈 찾기
+2. **토론 참여**: 기능 제안이나 질문을 Issues나 Discussions에서 공유
+3. **코드 기여**: Fork → 개발 → Pull Request 과정으로 코드 기여
+4. **문서 기여**: `caret-docs/` 폴더의 문서 개선이나 번역 작업
+
+자세한 기여 가이드는 [CONTRIBUTING.md](./CONTRIBUTING.md)를 참조하세요.
 
 ## 빌드 및 패키징 🛠️
 

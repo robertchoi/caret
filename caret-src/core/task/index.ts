@@ -1,20 +1,19 @@
 // VS Code API는 기본적으로 필요할 수 있으므로 남겨둡니다.
-import * as vscode from 'vscode';
+import * as vscode from "vscode"
 
 // Cline의 Task 클래스 및 필요한 타입들을 가져옵니다.
 // 경로는 caret-src/core/task/index.ts 에서 세 단계 위로 올라가 루트, 그 다음 cline/src/core/task 로 이동합니다.
-import { Task as ClineTask } from '../../../src/core/task';
+import { Task as ClineTask } from "../../../src/core/task"
 // McpHub와 WorkspaceTracker는 tsconfig.json의 경로 별칭 설정을 확인 후,
 // 가능하다면 @services와 @integrations 별칭을 사용하는 것이 좋습니다.
-import type { McpHub } from '@services/mcp/McpHub';
-import type WorkspaceTracker from '@integrations/workspace/WorkspaceTracker';
-import type { HistoryItem } from '@shared/HistoryItem';
-import type { ExtensionMessage } from '@shared/ExtensionMessage'; // caret-src/shared/ExtensionMessage.ts를 사용
-import type { ApiConfiguration } from '@shared/api'; // cline/src/shared/api.ts를 사용
-import type { AutoApprovalSettings } from '@shared/AutoApprovalSettings';
-import type { BrowserSettings } from '@shared/BrowserSettings';
-import type { ChatSettings } from '@shared/ChatSettings';
-
+import type { McpHub } from "@services/mcp/McpHub"
+import type WorkspaceTracker from "@integrations/workspace/WorkspaceTracker"
+import type { HistoryItem } from "@shared/HistoryItem"
+import type { ExtensionMessage } from "@shared/ExtensionMessage" // caret-src/shared/ExtensionMessage.ts를 사용
+import type { ApiConfiguration } from "@shared/api" // cline/src/shared/api.ts를 사용
+import type { AutoApprovalSettings } from "@shared/AutoApprovalSettings"
+import type { BrowserSettings } from "@shared/BrowserSettings"
+import type { ChatSettings } from "@shared/ChatSettings"
 
 /**
  * Caret의 Task 클래스입니다.
@@ -22,81 +21,93 @@ import type { ChatSettings } from '@shared/ChatSettings';
  * 현재는 최소한의 오버레이 구조만 정의하며, 대부분의 기능은 ClineTask를 따릅니다.
  */
 export class Task extends ClineTask {
-    // Caret에 특화된 Task 로직이 필요하다면 이곳에 추가합니다.
-    // 예를 들어, 생성자를 오버라이드하여 Caret만의 초기화 과정을 추가하거나,
-    // 특정 메서드의 동작을 Caret의 요구사항에 맞게 변경할 수 있습니다.
+	// Caret에 특화된 Task 로직이 필요하다면 이곳에 추가합니다.
+	// 예를 들어, 생성자를 오버라이드하여 Caret만의 초기화 과정을 추가하거나,
+	// 특정 메서드의 동작을 Caret의 요구사항에 맞게 변경할 수 있습니다.
 
-    constructor(
-        context: vscode.ExtensionContext,
-        mcpHub: McpHub,
-        workspaceTracker: WorkspaceTracker,
-        updateTaskHistory: (historyItem: HistoryItem) => Promise<HistoryItem[]>,
-        postStateToWebview: () => Promise<void>,
-        postMessageToWebview: (message: ExtensionMessage) => Promise<void>,
-        reinitExistingTaskFromId: (taskId: string) => Promise<void>,
-        cancelTask: () => Promise<void>,
-        apiConfiguration: ApiConfiguration,
-        autoApprovalSettings: AutoApprovalSettings,
-        browserSettings: BrowserSettings,
-        chatSettings: ChatSettings,
-        shellIntegrationTimeout: number,
-        terminalReuseEnabled: boolean,
-        terminalOutputLineLimit: number,
-        defaultTerminalProfile: string,
-        enableCheckpointsSetting: boolean,
-        task?: string,
-        images?: string[],
-        files?: string[],
-        historyItem?: HistoryItem,
-    ) {
-        super(
-            context,
-            mcpHub,
-            workspaceTracker,
-            updateTaskHistory,
-            postStateToWebview,
-            postMessageToWebview,
-            reinitExistingTaskFromId,
-            cancelTask,
-            apiConfiguration,
-            autoApprovalSettings,
-            browserSettings,
-            chatSettings,
-            shellIntegrationTimeout,
-            terminalReuseEnabled,
-            terminalOutputLineLimit,
-            defaultTerminalProfile,
-            enableCheckpointsSetting,
-            task,
-            images,
-            files,
-            historyItem,
-        );
-        
-        // Caret Task 초기화 관련 로깅 (필요하다면)
-        // console.log("[CaretTask] Initialized with specific constructor (Overlay for ClineTask)");
-        // vscode.window.showInformationMessage('[CaretTask] Initialized with specific constructor'); // UI 알림은 디버깅용으로만
-    }
+	constructor(
+		context: vscode.ExtensionContext,
+		mcpHub: McpHub,
+		workspaceTracker: WorkspaceTracker,
+		updateTaskHistory: (historyItem: HistoryItem) => Promise<HistoryItem[]>,
+		postStateToWebview: () => Promise<void>,
+		postMessageToWebview: (message: ExtensionMessage) => Promise<void>,
+		reinitExistingTaskFromId: (taskId: string) => Promise<void>,
+		cancelTask: () => Promise<void>,
+		apiConfiguration: ApiConfiguration,
+		autoApprovalSettings: AutoApprovalSettings,
+		browserSettings: BrowserSettings,
+		chatSettings: ChatSettings,
+		shellIntegrationTimeout: number,
+		terminalReuseEnabled: boolean,
+		terminalOutputLineLimit: number,
+		defaultTerminalProfile: string,
+		enableCheckpointsSetting: boolean,
+		task?: string,
+		images?: string[],
+		files?: string[],
+		historyItem?: HistoryItem,
+	) {
+		// CARET MODIFICATION: API 설정 완료 후 새 태스크 시작 시 기본 태스크 메시지 제공
+		// Cline 원본에서는 historyItem 또는 task/images가 반드시 필요하지만,
+		// Caret에서는 API 설정 완료 후 빈 태스크로 시작할 수 있도록 개선
+		let effectiveTask = task
+		let effectiveImages = images
+		let effectiveFiles = files
 
-    // 필요한 경우 ClineTask의 메서드를 여기에 오버라이드합니다.
-    // 예시:
-    // override async someMethodFromClineTask() {
-    //     // 먼저 부모의 메서드를 호출하거나,
-    //     // await super.someMethodFromClineTask();
-    //     // Caret에 특화된 로직을 추가합니다.
-    //     console.log("[CaretTask] Overridden someMethodFromClineTask called");
-    // }
+		// historyItem이 없고 task/images/files도 모두 비어있는 경우 기본 태스크 제공
+		if (!historyItem && !task && (!images || images.length === 0) && (!files || files.length === 0)) {
+			effectiveTask = "안녕하세요! Caret과 함께 개발을 시작해보세요. 무엇을 도와드릴까요?"
+			console.log("[CaretTask] Providing default task message for API setup completion")
+		}
+
+		super(
+			context,
+			mcpHub,
+			workspaceTracker,
+			updateTaskHistory,
+			postStateToWebview,
+			postMessageToWebview,
+			reinitExistingTaskFromId,
+			cancelTask,
+			apiConfiguration,
+			autoApprovalSettings,
+			browserSettings,
+			chatSettings,
+			shellIntegrationTimeout,
+			terminalReuseEnabled,
+			terminalOutputLineLimit,
+			defaultTerminalProfile,
+			enableCheckpointsSetting,
+			effectiveTask,
+			effectiveImages,
+			effectiveFiles,
+			historyItem,
+		)
+
+		// Caret Task 초기화 완료 로깅
+		console.log("[CaretTask] Initialized successfully with enhanced parameter validation")
+	}
+
+	// 필요한 경우 ClineTask의 메서드를 여기에 오버라이드합니다.
+	// 예시:
+	// override async someMethodFromClineTask() {
+	//     // 먼저 부모의 메서드를 호출하거나,
+	//     // await super.someMethodFromClineTask();
+	//     // Caret에 특화된 로직을 추가합니다.
+	//     console.log("[CaretTask] Overridden someMethodFromClineTask called");
+	// }
 }
 
 // 이 파일에 Task 클래스 외에 다른 export (상수, 타입, 함수 등)가 있었다면,
 // 해당 기능들도 Cline의 것을 가져오거나 (필요 시 경로 수정),
 // Caret에서 더 이상 사용하지 않는다면 삭제되었습니다.
-// "최소한의 오버레이" 원칙에 따라 이 파일은 가볍게 유지합니다. 
+// "최소한의 오버레이" 원칙에 따라 이 파일은 가볍게 유지합니다.
 
 // Cline의 task/index.ts 에서 필요한 다른 멤버들을 다시 export 합니다.
 // 이렇게 하면 @core/task 경로 별칭을 통해 이 멤버들을 사용할 수 있습니다.
 export {
-    // USE_EXPERIMENTAL_CLAUDE4_FEATURES 와 cwd 를 cline 에서 가져와서 export
-    USE_EXPERIMENTAL_CLAUDE4_FEATURES,
-    cwd
-} from '../../../src/core/task'; 
+	// USE_EXPERIMENTAL_CLAUDE4_FEATURES 와 cwd 를 cline 에서 가져와서 export
+	USE_EXPERIMENTAL_CLAUDE4_FEATURES,
+	cwd,
+} from "../../../src/core/task"

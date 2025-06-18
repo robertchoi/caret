@@ -6,8 +6,10 @@ import * as vscode from "vscode"
 
 // Caret extension 진입점으로 위임
 export async function activate(context: vscode.ExtensionContext) {
+	console.log("🔥 [SRC-EXTENSION] Main extension.ts activate called!")
 	// caret-src/extension.ts의 activate 함수를 호출
 	const { activate: caretActivate } = await import("../caret-src/extension")
+	console.log("🔥 [SRC-EXTENSION] About to call caret activate")
 	return caretActivate(context)
 }
 

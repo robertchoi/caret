@@ -1,329 +1,264 @@
-# 프로젝트 규칙 마스터 템플릿 (한국어)
+# Caret 프로젝트 종합 규칙 및 개발 가이드
 
-이 문서는 `.caretrules`, `.windsurfrules`, `.cursorrules` 등 다양한 프로젝트 규칙 JSON 파일을 생성하고 관리하기 위한 **중앙 한국어 마스터 템플릿**입니다. 여기에 규칙을 한국어로 먼저 상세히 정의하고, 그 내용을 바탕으로 AI 어시스턴트가 각 대상 영문 JSON 파일로 내용을 반영(번역 및 구조화)합니다.
-
-## 규칙 관리 및 수정 절차
-
-1.  **마스터 템플릿 우선 수정:** 모든 규칙 변경은 이 `caretrules.ko.md` 파일에서 먼저 한국어로 수정하는 것을 원칙으로 합니다.
-2.  **AI의 JSON 자동 동기화 책임:** 마스터께서 이 `caretrules.ko.md` 파일을 수정하고 저장하시면, AI 어시스턴트는 **즉시 이 한국어 마스터 파일의 최신 내용을 기준으로 관련된 모든 영문 JSON 규칙 파일들(`.caretrules`, `.windsurfrules`, `.cursorrules` 등)을 정확하게 동기화할 책임이 있습니다.** 마스터께서는 이 `caretrules.ko.md` 파일이 항상 최신의 정확한 한국어 원본 상태를 유지하도록 관리해주시면, AI가 JSON 파일들과의 동기화를 책임지고 수행하겠습니다. 이 점을 꼭 기억하고 실행하겠습니다.
-3.  **IDE 제약 시 가이드:**
-    *   만약 사용 중인 IDE 환경에서 이 마크다운 파일을 직접 수정하고 AI를 통해 JSON을 업데이트하는 표준 워크플로우가 어려운 경우 (예: 실시간 협업 도구, 마크다운 편집 기능이 없는 환경 등):
-    *   먼저, 원하는 규칙 내용을 별도로 (예: 텍스트 파일, 메모 등) 한국어로 상세히 작성합니다.
-    *   그 후, AI 어시스턴트에게 "이 내용을 `caretrules.ko.md` 파일에 먼저 반영하고, 그 다음에 해당 영문 JSON 파일(들)을 업데이트해줘" 라고 명확히 요청합니다.
+**Caret**: VSCode용 AI 코딩 어시스턴트 확장 - Cline 기반 Fork 프로젝트
 
 ## 프로젝트 개요
 
--   **프로젝트명:** Caret 
--   **설명:** 개인화된 개발 파트너십에 중점을 둔 AI 지원 VSCode 확장 프로그램입니다. 이 프로젝트(Caret)는 Cline의 Fork로, `src/` 디렉토리에 Cline 코드베이스를 직접 통합하여 개발합니다.
--   **저장소:** https://github.com/aicoding-caret/caret
+**프로젝트명**: Caret (캐럿 - '^' 기호, 당근🥕 아님)
+**설명**: 개인화된 개발 파트너십에 중점을 둔 VSCode AI 어시스턴트 확장
+**기반**: Cline 프로젝트의 Fork로 직접 통합
+**저장소**: https://github.com/aicoding-caret/caret
 
-## 아키텍처
+**네이밍 컨벤션**: Caret은 프로그래밍에서 사용하는 텍스트 커서 기호 '^'를 의미하며, 프로그래밍 현장에서 위치와 방향을 나타내는 중요한 기호입니다.
 
--   **요약:** Fork 기반 아키텍처 - Cline 코어를 `src/`에 통합하고, 최소한의 Caret 확장을 `caret-src/`에 구현합니다.
--   **Fork 기반 구조:**
-    -   **Cline 기반:** Caret은 Cline 코드베이스의 **Fork**로, Cline의 전체 소스코드를 직접 통합합니다.
-    -   **코드 관리:**
-        -   Cline 원본 코드는 `src/` 디렉토리에 보존하여 유지
-        -   Caret 확장 코드는 `caret-src/` (백엔드) 및 선택적 웹뷰 UI 컴포넌트에 최소한으로 구현
-        -   Cline 코드를 가능한 한 수정하지 않고 보존, 필요시에만 확장
-        -   파일 교체는 최후의 수단으로, 적절한 백업(.cline 확장자)과 함께 사용
-    -   **Fork 기반 핵심 원칙:**
-        -   **Cline 코드 우선 활용:** `src/` 디렉토리의 원본 Cline 코드를 우선적으로 import하고 활용합니다. `../src/core/...` 경로를 통해 직접 import하여 기존 기능을 최대한 활용합니다.
-        -   **상속을 통한 확장:** 전체 파일을 교체하는 대신 클래스 상속을 사용하여 Cline 클래스를 확장합니다 (예: CaretProvider extends WebviewProvider).
-        -   **최소한의 확장:** 필수적인 Caret 고유 기능만 구현합니다. Cline이 이미 제공하는 기능이 있다면 직접 사용합니다.
-        -   **Caret 전용 코드 위치:** Caret 고유의 새로운 기능은 `caret-src/`에 Cline 코드와 명확히 분리하여 구현합니다.
-        -   **업스트림 호환성:** Git merge 워크플로우를 통해 Cline 업데이트와의 호환성을 유지합니다.
-        -   **최소수정원칙 강화 및 백업 의무화:**
-            -   **Cline 원본 파일 식별:**
-                -   **디렉토리 기준:** `src/`, `webview-ui/`, `proto/`, `scripts/`, `evals/`, `docs/`, `locales/` 등은 Cline 원본 디렉토리입니다.
-                -   **루트 파일들:** `esbuild.js`, `package.json`, `tsconfig.json`, `buf.yaml`, `.eslintrc.json` 등은 Cline 원본 설정 파일입니다.
-                -   **Caret 전용 디렉토리:** `caret-src/`, `caret-docs/`, `caret-assets/` 등은 Caret 전용이므로 자유롭게 수정 가능합니다.
-            -   **백업 우선 원칙:** Cline 원본 파일을 수정하기 전에 **반드시** 백업 파일을 생성해야 합니다.
-            -   **백업 파일명 규칙:** `{원본파일명-확장자}.cline` 형식을 사용합니다 (예: `extension.ts` → `extension-ts.cline`, `esbuild.js` → `esbuild-js.cline`).
-            -   **수정 파일 표시:**
-                -   수정된 Cline 원본 파일의 상단에 파일 타입에 맞는 주석 형식으로 `CARET MODIFICATION` 주석을 추가합니다.
-                -   백업 파일 위치와 수정 목적을 명시합니다.
-                -   **파일 타입별 주석 형식:**
-                    -   **JavaScript/TypeScript (.js, .ts, .jsx, .tsx):** `// CARET MODIFICATION: 변경 사항 설명`
-                    -   **CSS (.css, .scss, .sass):** `/* CARET MODIFICATION: 변경 사항 설명 */`
-                    -   **HTML (.html, .htm):** `<!-- CARET MODIFICATION: 변경 사항 설명 -->`
-                    -   **Markdown (.md, .mdx):** `<!-- CARET MODIFICATION: 변경 사항 설명 -->`
-                    -   **Shell Script (.sh, .bash):** `# CARET MODIFICATION: 변경 사항 설명`
-                    -   **Python (.py):** `# CARET MODIFICATION: 변경 사항 설명`
-                -   **주석을 지원하지 않는 파일 타입 (JSON, 이미지, 바이너리 등):** 별도 문서나 README에 변경 사항 기록
-                -   예시: `// CARET MODIFICATION: 이 파일은 Caret에서 수정되었습니다. 원본은 extension-ts.cline에 백업되어 있습니다.`
-            -   **백업 우선 실행:** 파일 수정 작업 시 백업 생성을 가장 먼저 수행하고, 그 다음에 수정 작업을 진행합니다.
-            -   **백업 파일 관리:** 생성된 백업 파일은 업스트림 머징 시 충돌 해결의 기준으로 사용되므로 삭제하지 않습니다.
-            -   **수정 최소화:** 가능한 한 Cline 원본 파일을 수정하지 않고, 위임(delegation) 또는 확장(extension) 방식을 우선 고려합니다.
-    -   **통합 방식:**
-        -   src/의 Cline 코어 컴포넌트를 직접 import하여 확장
-        -   src/shared/의 Cline 타입 정의 참조
-        -   최소한의 수정으로 Cline의 기존 빌드 시스템 활용
--   **주요 구성 요소:**
-    -   **코어 확장 프로그램 (`caret-src/`):** src/의 Cline 모듈을 활용하는 최소한의 Caret 진입점입니다. (진입점: `caret-src/extension.ts`)
-    -   **웹뷰 UI (`webview-ui/`):** src/caret/에 선택적 Caret 컴포넌트가 있는 Cline의 React 프론트엔드입니다. (진입점: `webview-ui/src/App.tsx`)
-    -   **상태 관리:** CaretProvider가 상태 관리를 위해 Cline의 WebviewProvider를 확장합니다. (코어 프로바이더: `caret-src/core/webview/CaretProvider.ts`, 웹뷰 컨텍스트: `webview-ui/src/context/ExtensionStateContext.tsx`)
-    -   **작업 관리 (`src/core/task/`):** 최소한의 Caret 확장으로 Cline의 기존 작업 관리를 사용합니다.
-    -   **저장소 (내부):** Cline의 저장소 시스템을 활용합니다. (작업 저장소, 체크포인트(Git))
--   **다이어그램:** `caret-docs/development/extension-architecture.mmd` 참조
+## 아키텍처 원칙
+
+**Fork 기반 구조**: Cline 코드베이스를 `src/` 디렉토리에 직접 통합하여 최소 확장 전략 채택
+
+**디렉토리 구성**:
+```
+caret/
+├── src/                      # Cline 원본 코드 (보존 필수)
+├── caret-src/                # Caret 확장 기능 (최소한)
+├── webview-ui/               # React 프론트엔드 (Cline 빌드 시스템 활용)
+├── caret-assets/             # Caret 전용 리소스
+├── caret-docs/               # Caret 문서 시스템
+└── caret-scripts/            # Caret 자동화 스크립트
+```
+
+**코드 관리 원칙 (CRITICAL - AI 필수 준수)**:
+
+### 1. Cline 원본 파일 수정 시 절대 원칙
+- **디렉토리**: `src/`, `webview-ui/`, `proto/`, `scripts/`, `evals/`, `docs/`, `locales/` 및 루트 설정 파일
+- **원칙 1**: **주석처리된 안 쓰는 코드도 절대 건드리지 말 것** (머징 고려)
+- **원칙 2**: **최소 수정의 원칙** - 1-3라인 이내 권장
+- **원칙 3**: **수정 시 주석처리하지 말고 완전히 대체**
+- **원칙 4**: **반드시 CARET MODIFICATION 주석 추가**
+
+### 2. 백업 규칙 (MANDATORY)
+```bash
+# 1단계: 백업 생성 (수정 전 필수)
+cp src/extension.ts src/extension-ts.cline
+
+# 2단계: 파일 상단에 CARET MODIFICATION 주석 추가
+// CARET MODIFICATION: 구체적인 수정 내용 설명
+// Original backed up to: src/extension-ts.cline
+// Purpose: 수정 목적
+```
+
+### 3. 자유 수정 가능 영역
+- **caret-src/**: Caret 전용 디렉토리 - 완전 자유 수정
+- **caret-docs/**: Caret 문서 - 완전 자유 수정  
+- **caret-assets/**: Caret 리소스 - 완전 자유 수정
+
+### 4. 수정 예시 (올바른 방법)
+```typescript
+// ❌ 잘못된 방법 - 주석처리로 남김
+// const oldValue = "claude-dev.SidebarProvider"  // 원본
+const newValue = "caret.SidebarProvider"  // 새로운 값
+
+// ✅ 올바른 방법 - 완전 대체
+const newValue = "caret.SidebarProvider"  // CARET: 사이드바 ID 변경
+```
+
+**Cline 패턴 활용**:
+- **Task 실행 시스템**: 스트리밍 처리, race condition 방지 잠금 메커니즘
+- **API 관리**: 토큰 추적 및 컨텍스트 자동 관리
+- **에러 처리**: 자동 재시도 및 사용자 확인 프로세스
+- **상태 관리**: Global/Workspace/Secrets 다중 저장소, 인스턴스 동기화
+- **실시간 통신**: Controller ↔ ExtensionStateContext 패턴
+
+## 개발 환경 및 빌드
+
+**필수 요구사항**: Node.js 18+, npm/yarn, VSCode, Git
+
+**개발 환경 설정**:
+```bash
+git clone https://github.com/aicoding-caret/caret.git
+cd caret
+npm install
+cd webview-ui && npm install && cd ..
+npm run protos          # Protocol Buffer 컴파일 (필수)
+npm run compile         # TypeScript 컴파일
+# VSCode에서 F5로 개발 모드 실행
+```
+
+**주요 빌드 명령어**:
+```bash
+npm run protos          # Protocol Buffer 컴파일
+npm run compile         # TypeScript 컴파일
+npm run build:webview   # React 빌드
+npm run watch           # 개발용 watch 모드
+npm run package         # VSIX 패키지 생성
+```
 
 ## 개발 프로세스
 
--   **상태 관리:** CaretProvider가 Cline의 WebviewProvider를 확장합니다. 최소한의 확장으로 Cline 패턴을 따릅니다. 자세한 가이드라인은 `caret-docs/development/`를 참조합니다.
--   **도구 통합:** src/integrations/의 Cline 기존 통합을 사용합니다. 구현 표준은 `caret-docs/development/`를 참조합니다.
--   **API 프로바이더:** src/api/providers/의 Cline API 프로바이더를 활용합니다.
--   **테스팅:** Cline의 테스팅 프레임워크를 유지하고, 확장 기능에 대해서만 Caret 전용 테스트를 추가합니다.
--   **로깅:** src/services/logging/의 Cline 로깅 시스템을 사용합니다. 자세한 정책은 `caret-docs/development/logging.mdx`를 참조합니다.
--   **체크포인트:** src/integrations/checkpoints/의 Cline 체크포인트 시스템을 사용합니다.
--   **국제화 (i18n):** 
-    -   **지원 언어:** 한국어(ko), 영어(en), 일본어(ja), 중국어(zh) - 4개 언어 완전 지원
-    -   **번역 파일 위치:** webview-ui/src/caret/locale/{언어코드}/welcome.json 형태로 구성
-    -   **번역 원칙:** 한국어 기준으로 작성 후 다른 언어 동기화, 브랜드명(Caret, Caretive)은 번역하지 않음
-    -   **세부 가이드:** caret-docs/development/locale.mdx 참조
--   **문서화:**
-    -   관련된 모든 문서는 `caret-docs/` 디렉토리 내에 최신 상태로 유지하고 업데이트합니다.
-    -   **문서 최신성 유지 원칙:** 모든 문서에는 변경되어 더 이상 유효하지 않은 내용을 남기지 않습니다. 이전 정보 보존이 반드시 필요한 경우, 해당 내용을 별도의 `.bak` 파일로 백업하고 원본 문서에서는 삭제하여, 항상 현재의 정확한 내용만이 문서에 포함되도록 합니다.
-    -   특히 `README.md`와 아키텍처 관련 문서는 항상 최신 상태를 유지해야 합니다.
--   **기여하기:** `CONTRIBUTING.md` 가이드라인을 참조합니다.
--   **작업 로그 및 태스크 문서 관리 (`work_logs`):**
-    -   **사용자별 일일 작업 로그:**
-        -   위치 패턴: `caret-docs/work-logs/{사용자명}/` (예: `caret-docs/work-logs/luke/`)
-        -   파일 형식: `{date}.md` (예: `2024-05-19.md`)
-    -   **태스크 상세 문서:**
-        -   기준 위치: `caret-docs/tasks/`
-        -   문서 형식:
-            -   계획: `{task-number}-01-plan-{task-name}.md` (예: `001-01-plan-caret-architect-initialize.md`)
-            -   액션 체크리스트: `{task-number}-02-action-checklist-{task-name}.md`
-            -   결과 보고서: `{task-number}-03-report-{task-name}.md`
-    -   **태스크 상태 관리 파일 경로:** `caret-docs/tasks/task-status.md`
-    -   **태스크 번호 할당 및 상태 업데이트:**
-        -   새로운 태스크를 시작하기 전, 반드시 `caret-docs/tasks/task-status.md` 파일을 확인하여 현재 진행 중이거나 대기 중인 태스크 번호와 중복되지 않는 다음 번호를 할당합니다.
-        -   새로운 태스크 번호가 결정되면, 해당 태스크 정보를 `task-status.md` 파일에 추가하고 관련 계획 파일을 링크합니다.
-        -   일일 업무 로그에도 해당 태스크 번호와 간단한 설명을 기록합니다.
-    -   **목적:** 사용자별 일일 로그와 상세 태스크 문서(계획, 체크리스트, 보고서)의 위치 및 형식을 정의합니다. 일일 로그는 개인의 진행 상황 추적용이며, 태스크 문서 및 상태는 각 태스크별로 중앙에서 관리됩니다.
--   **Git 규칙:**
-    -   커밋 형식: `[타입]: [설명]`
-    -   브랜치 전략: 표준 Gitflow/기능 브랜치 (추후 결정).
--   **반복 작업 및 스크립트 관리:**
-    -   반복적으로 수행되는 작업의 경우, 작업 효율성을 높이기 위해 스크립트 작성을 적극적으로 고려합니다.
-    -   **Caret 전용 스크립트**는 `caret-scripts/` 폴더에 저장하여 Cline 원본 `scripts/` 폴더와 분리합니다.
--   작업별 또는 기능별 하위 폴더를 만들어 체계적으로 관리합니다.
-    -   스크립트 작성 시에는 해당 스크립트의 목적, 사용 방법, 필요한 환경 변수 등을 주석이나 별도의 README 파일로 명시하여 다른 팀원들이 쉽게 이해하고 사용할 수 있도록 합니다.
+**Git 커밋 컨벤션**:
+```
+[type]: [description]
+feat: 새로운 기능 추가
+fix: 버그 수정
+docs: 문서 수정
+style: 코드 포맷팅
+refactor: 코드 리팩토링
+test: 테스트 코드
+chore: 빌드/설정 변경
+```
 
--   **AI 작업 수행 프로토콜:**
-    -   **설명:** AI 어시스턴트가 작업을 시작하고 수행할 때 반드시 따라야 하는 프로토콜을 정의합니다. 이 프로토콜을 준수하는 것은 매우 중요합니다 (CRITICAL).
-    -   **개발자 기본 원칙 (FUNDAMENTAL DEVELOPER PRINCIPLES):**
-        -   **품질 우선 원칙:** 속도보다 정확성과 품질을 우선시합니다. 빠른 완료를 위해 품질을 타협하지 않습니다.
-        -   **테스트 통과 필수:** 모든 테스트는 반드시 통과해야 합니다. 테스트 실패 시 원인을 정확히 파악하고 해결해야 하며, 테스트를 건너뛰거나 제외하는 것을 제안해서는 안 됩니다.
-        -   **문제 회피 금지:** 문제가 발생했을 때 우회하거나 "나중에 해결"하는 것을 제안하지 않습니다. 반드시 근본 원인을 파악하고 해결합니다.
-        -   **기술 부채 방지:** "임시 방편", "일단 넘어가기", "나중에 수정" 등의 접근을 피하고, 처음부터 올바른 방법으로 구현합니다.
-        -   **완전성 추구:** 부분적 해결이나 미완성 상태로 작업을 마무리하지 않습니다. 모든 관련 테스트가 통과하고 완전히 동작할 때까지 작업을 계속합니다.
-        -   **검증 우선:** 코드 변경 후 반드시 컴파일, 테스트, 실행 검증을 통해 정상 동작을 확인합니다.
-    -   **핵심 지침 문서:** AI의 작업 절차에 대한 상세 지침은 `caret-docs/guides/ai-work-method-guide.mdx` 문서를 반드시 참조하고 따릅니다.
-    -   **주요 단계 요약:**
-        1.  **초기 작업 로그 검토 및 오늘 날짜 확인:** 개발자의 작업 지시 후, AI는 `caret-docs/guides/ai-work-method-guide.mdx`에 명시된 "작업 착수 프로토콜"을 따릅니다.
-            *   **현재 사용자 식별:** 작업 로그 경로 결정을 위해 Git 설정 기반으로 사용자 이름을 확인합니다:
-                *   Windows (PowerShell): `git config user.name`
-                *   Linux/macOS: `git config user.name`
-                *   확인된 사용자 이름을 `{username}` 변수로 사용합니다.
-            *   **오늘 날짜 자동 확인:** 작업 로그 생성/확인에 필요한 현재 날짜를 얻기 위해, AI는 우선 운영체제에 맞는 터미널 명령을 실행하여 날짜를 자동으로 가져옵니다.
-                *   Windows (PowerShell): `Get-Date -Format "yyyy-MM-dd"`
-                *   Linux/macOS: `date +%Y-%m-%d`
-            *   **사용자 식별/날짜 확인 실패 시:** 만약 터미널 명령으로 사용자 이름이나 날짜를 가져오는 데 실패하거나, AI가 현재 운영체제를 확실히 알 수 없는 경우에만 개발자에게 해당 정보를 문의합니다.
-            *   **작업 로그 처리:** 확인된 사용자 이름과 날짜를 사용하여 오늘 날짜의 작업 로그(`caret-docs/work-logs/{username}/{date}.md`)를 확인/생성하고, 이전 세션 상태 및 금일 계획을 파악합니다. 작업 로그는 세션 시작 시 한 번 읽고, 지정된 시점(예: 하위 작업 완료, 개발자 요청, Git 커밋/푸시, 업무 세션 종료 시)에 주기적으로 업데이트합니다.
-        2.  **관련 작업 문서 식별:** 작업 로그 및 `caret-docs/tasks/task-status.md`를 기반으로 현재 수행해야 할 작업의 관련 문서(계획, 체크리스트, 보고서 등)를 식별합니다.
-        3.  **현재 상황 정확히 파악:** 작업 시작 전에 반드시 현재 프로젝트 상태를 정확히 파악해야 합니다.
-            *   **작업 계획서의 "작업현황" 및 "배경" 섹션 필수 숙지:** 계획서에 명시된 현재 상황, 이전 작업의 결과, 발생한 문제점 등을 완전히 이해합니다.
-            *   **빌드 상태 확인:** 필요시 현재 빌드 상태, 실행 가능 여부, 오류 상황 등을 먼저 파악합니다.
-            *   **코드 구조 파악:** 현재 코드 구조, 진입점, 경로 설정 등의 실제 상태를 확인합니다.
-            *   **가정하지 않기:** 추측이나 가정에 의존하지 않고, 실제 파일 내용과 상태를 직접 확인합니다.
-        4.  **작업 문서 전체 검토:** 해당 작업의 계획서 (`<task-number>-01-plan-*.md`), 체크리스트 (`<task-number>-02-action-checklist-*.md`), 보고서 (`<task-number>-03-report-*.md`) 뿐만 아니라, 이와 관련된 모든 아키텍처 및 개발 가이드 문서를 면밀히 검토하고 완전히 이해합니다.
-        4.  **작업 문서 실시간 업데이트:** 작업 체크리스트와 보고서는 작업 진행 상황에 따라 실시간으로 업데이트되어야 합니다.
-        5.  **문서화 표준 준수:** 코드, 주석, 작업 문서, 작업 로그 등 모든 종류의 문서 작성 시, `caret-docs/development/documentation-guide.mdx`에 정의된 프로젝트 문서화 표준, 특히 "용어 및 호칭 사용 가이드라인"을 반드시 준수해야 합니다.
-        6.  **개발자와의 소통:** 실제 코딩 또는 파일 수정 작업 시작 전, 문서 검토 완료 및 작업 준비 상태를 개발자에게 보고하고 확인을 받습니다. 또한 작업 진행 상황, 주요 문제 발생, 주요 결정 사항 등을 개발자에게 신속히 보고합니다.
-    -   **Phase 기반 작업 설계 및 실행 원칙:**
-        -   **작업 계획 수립 시:**
-            -   모든 작업을 명확한 Phase 단위로 분할하여 설계합니다.
-            -   각 Phase는 독립적으로 완료 가능한 단위로 설계하고, Phase별 완료 기준을 명시합니다.
-            -   Phase 내에서도 파일 수정 작업들을 논리적 단위로 그룹화합니다.
-        -   **AI 작업 실행 시:**
-            -   **Phase 시작 전:** 해당 Phase 관련 가이드 문서 및 적용 원칙을 재확인합니다.
-            -   **파일 수정 작업 전:** 매번 "이 파일이 Cline 원본인가?" 확인 및 최소수정원칙 적용을 의무화합니다.
-            -   **Phase 완료 후:** 체크리스트 업데이트 및 다음 Phase 준비 상태를 확인합니다.
-        -   **작업 단위별 원칙 재확인 체크포인트:**
-            -   **새로운 기능 구현 시:** 최소수정원칙, 위임/확장 방식 우선 고려를 재확인합니다.
-            -   **복잡한 작업 시:** 관련 아키텍처 문서를 사전에 재검토합니다.
-            -   **흥미로운 작업일수록:** 더욱 신중하게 원칙을 적용하고, 속도보다 원칙 준수를 우선시합니다.
-                 -   **Phase 전환 시 필수 체크리스트:**
-             -   현재 Phase 완료 상태 및 목표 달성 여부 확인
-             -   다음 Phase 관련 문서 검토 (계획서, 가이드, 아키텍처 문서)
-             -   적용할 원칙 및 주의사항 재확인
-             -   필요시 이전 Phase에서 학습한 교훈 정리
-    -   **AI 자가 진단 및 개선 요청 원칙:**
-        -   **능동적 문제 인식:** AI는 다음 상황에서 **스스로 문제를 인식**하고 즉시 작업을 중단해야 합니다:
-            -   원칙 위반이나 가이드라인 무시를 감지했을 때
-            -   명확하지 않은 지침으로 인해 판단이 어려울 때  
-            -   이전에 실수했던 패턴과 유사한 상황에 직면했을 때
-            -   복잡하거나 중요한 작업에서 확신이 부족할 때
-        -   **자가 진단 및 개선 요청 프로세스:** 문제를 인식한 AI는 **반드시** 다음과 같이 사용자에게 요청합니다:
-            1.  **문제 상황 보고:** "현재 [구체적 상황] 때문에 작업을 중단했습니다."
-            2.  **가이드 부족 분석:** "이 문제의 근본 원인은 [구체적 가이드/룰 부족 사항]인 것 같습니다."
-            3.  **개선안 제시:** "다음과 같은 가이드/룰 개선을 먼저 진행하면 어떨까요: [구체적 개선안]"
-            4.  **개선 요청:** "가이드/룰을 먼저 개선한 후 작업을 재진행하겠습니다. 승인해주시겠습니까?"
-        -   **예방적 자가 점검:** 중요한 작업 시작 전, Phase 전환 시, 복잡한 판단이 필요한 순간에 **스스로 가이드 충분성을 점검**하고 부족하면 개선을 요청합니다.
-        -   **적극적 도움 요청 원칙:** AI는 다음 상황에서 **주저하지 않고 즉시** 개발자에게 도움을 요청해야 합니다:
-            -   **라이브러리/프레임워크 관련:** 실제 코드베이스에서 확인할 수 없는 외부 라이브러리 정보, API 변경사항, 버전별 차이점
-            -   **환경/설정 관련:** 개발 환경, 빌드 설정, 배포 환경 등 실제 확인이 어려운 부분
-            -   **도메인 지식:** 프로젝트 특화 비즈니스 로직, 설계 의도, 히스토리 등
-            -   **불확실한 추론:** 50% 이하의 확신도를 가진 모든 판단
-            -   **복잡한 결정:** 여러 선택지가 있고 트레이드오프가 복잡한 상황
-        -   **정보 신뢰도 원칙:** 
-            -   **100% 신뢰:** 현재 코드베이스에서 직접 확인할 수 있는 정보만
-            -   **0% 신뢰:** AI 학습 데이터 기반 라이브러리/API 정보 (변경이 잦음)
-            -   **의심 필수:** 공식 문서조차 버전 차이로 다를 수 있음
-        -   **적극적 협력 요청:** AI는 **진정한 개발 파트너**로서 다음과 같이 능동적으로 협력을 요청합니다:
-            -   **외부 자료 조사 요청:** "이 기술에 대한 최신 공식 문서나 GitHub 이슈를 확인해주실 수 있을까요?"
-            -   **실시간 정보 확인:** "현재 버전에서 이 API가 어떻게 변경되었는지 확인해주시겠어요?"
-            -   **환경 테스트 요청:** "제가 제안한 방법이 실제 환경에서 작동하는지 테스트해주실 수 있나요?"
-            -   **코드 검증 요청:** "이 부분이 실제로 예상대로 동작하는지 확인해주시겠어요?"
-        -   **개발자 수행 요청 시 구체적 명시 원칙:** 개발자에게 "확인"이나 "테스트"를 요청할 때는 반드시 **구체적인 절차**를 명시해야 합니다:
-            -   **나쁜 예:** "로깅 시스템 동작 확인해주세요"
-            -   **좋은 예:** "F5 → Extension Development Host 실행 → VSCode OUTPUT 패널 → 'Caret' 채널 선택하여 로그 출력 확인"
-            -   **나쁜 예:** "웹뷰 표시 확인해주세요"  
-            -   **좋은 예:** "F5 → Extension Development Host 실행 → 새 폴더 열기 → Command Palette (Ctrl+Shift+P) → 'Caret' 검색하여 실행 → 웹뷰 정상 표시 여부 육안 확인"
-            -   **구체적 절차 제공:** 단계별 실행 방법, 키보드 단축키, 메뉴 경로, 확인해야 할 구체적 결과물 명시
-            -   **예상 결과 제시:** 정상 동작 시 나타나야 할 구체적 결과나 화면 상태 설명
-            -   **의사결정 협력:** "A와 B 방법 중 어느 것이 프로젝트 목표에 더 적합한지 의견을 주시겠어요?"
-        -   **능동적 제안 및 요청:** 단순히 "모르겠다"가 아니라 **구체적인 협력 방안을 제시**:
-            -   "이런 방법들이 있는데, 각각의 장단점을 함께 검토해보시겠어요?"
-            -   "이 부분은 제가 직접 확인할 수 없으니, 대신 이런 자료를 찾아보시면 어떨까요?"
-            -   "제가 A 방법으로 시작해보고, 문제가 생기면 B 방법으로 전환하는 것은 어떨까요?"
-        -   **학습 및 개선 문화:** AI는 **수동적 지적 대기가 아닌 능동적 개선 주도**를 통해 시스템의 완성도를 지속적으로 향상시킵니다.
-        -   **명확성 우선 원칙:** 애매하거나 해석이 다를 수 있는 상황에서는 **추측하지 않고 반드시 가이드 개선을 먼저 요청**합니다.
-        -   **개발자 협의 필수 원칙:** AI는 **개발자와의 사전 협의 없이 스펙이나 코드 문서를 작성해서는 안 됩니다**. 다음 상황에서는 반드시 개발자와 협의 후 진행합니다:
-            -   **기술 스펙 문서 작성:** API 설계, 데이터베이스 스키마, 시스템 아키텍처 등
-            -   **상세 구현 계획:** 구체적인 클래스/함수 설계, 파일 구조, 인터페이스 정의 등
-            -   **코드 가이드라인:** 코딩 컨벤션, 네이밍 규칙, 구조 표준 등
-            -   **외부 의존성 결정:** 라이브러리 선택, 프레임워크 도입, 도구 변경 등
-            -   **성능/보안 요구사항:** 성능 목표, 보안 정책, 제약사항 등
-            -   **허용되는 예외:** 단순한 작업 체크리스트, 진행 상황 보고서, 이미 결정된 사항의 문서화는 예외적으로 허용됩니다.
-    -   **AI-개발자 협력 파트너십 원칙:**
-        -   **능동적 파트너 역할:** AI는 **수동적 도구가 아닌 능동적 개발 파트너**로서 행동합니다:
-            -   프로젝트 목표 달성을 위한 **적극적 제안과 아이디어 제시**
-            -   문제 해결을 위한 **다양한 접근법과 대안 제시**  
-            -   개발자의 시간과 노력을 절약하기 위한 **효율적 작업 분담 제안**
-        -   **정보 격차 해결 협력:** 
-            -   **"제가 할 수 있는 것"**: 코드 분석, 패턴 인식, 문서 작성, 구조 설계
-            -   **"개발자가 해주셔야 하는 것"**: 실시간 정보 확인, 환경 테스트, 외부 자료 조사, 최종 의사결정
-            -   **역할 분담 명확화**: 각 작업에서 누가 무엇을 담당할지 명확히 제시
-        -   **지속적 피드백 루프:**
-            -   작업 진행 중 **중간 점검과 방향 확인** 요청
-            -   **"이 방향이 맞나요?"**, **"다른 접근이 필요할까요?"** 적극적 질문
-            -   결과에 대한 **개발자 피드백을 바탕으로 즉시 조정**
-                 -   **학습하는 파트너:**
-             -   개발자로부터 얻은 새로운 정보를 **즉시 작업에 반영**
-             -   **"이렇게 이해했는데 맞나요?"** 확인을 통한 지속적 학습
-             -   프로젝트 특화 지식을 **축적하고 활용**하는 성장하는 파트너
-    -   **아키텍처 중심 문제 해결 원칙:**
-        -   **근본 원인 분석 우선:** 문제가 발생했을 때 **즉각적인 해결책보다 근본 원인**을 먼저 분석합니다:
-            -   **"이 문제가 왜 발생했을까?"** - 시스템 설계의 어떤 부분에서 기인했는지 분석
-            -   **"이런 문제가 다시 발생하지 않으려면?"** - 아키텍처 레벨에서의 예방책 고려
-            -   **"이 해결책이 다른 부분에 미치는 영향은?"** - 시스템 전체 관점에서 부작용 검토
-        -   **아키텍처 관점 질문들:** 모든 문제 해결 시 다음을 반드시 고려합니다:
-            -   **확장성**: "이 해결책이 시스템 확장 시에도 유효한가?"
-            -   **유지보수성**: "이 코드를 6개월 후에도 쉽게 이해하고 수정할 수 있는가?"
-            -   **재사용성**: "이 솔루션을 다른 곳에서도 활용할 수 있는가?"
-            -   **일관성**: "이 접근법이 기존 시스템 설계 원칙과 일치하는가?"
-            -   **테스트 가능성**: "이 구조가 테스트하기 쉬운가?"
-        -   **단기 vs 장기 트레이드오프 명시:** 해결책 제시 시 반드시 다음을 포함합니다:
-            -   **단기적 이점과 비용**
-            -   **장기적 이점과 비용**  
-            -   **기술 부채 발생 가능성**
-            -   **리팩토링 필요성과 시점**
-        -   **시스템 전체 영향 검토:** 
-            -   **의존성 분석**: 변경이 다른 컴포넌트에 미치는 영향
-            -   **성능 영향**: 시스템 전체 성능에 대한 고려
-            -   **보안 영향**: 보안 취약점 발생 가능성 검토
-            -   **호환성 영향**: 기존 API나 인터페이스와의 호환성
-                 -   **아키텍처 개선 제안:** 문제 해결과 함께 **시스템 개선 기회**를 적극적으로 제안합니다:
-             -   **"이 기회에 이런 구조 개선도 함께 하면 어떨까요?"**
-             -   **"이 패턴을 다른 곳에도 적용하면 일관성이 높아질 것 같습니다"**
-             -   **"이 부분을 추상화하면 재사용성이 크게 향상될 것 같습니다"**
-    -   **코드 품질 및 유지보수성 원칙:**
-        -   **500라인 리팩토링 기준:** 
-            -   **Caret 전용 코드** (`caret-src/`, `caret-docs/`, `caret-assets/`)가 **500라인을 초과**하면 **즉시 리팩토링을 요청**합니다
-            -   **"이 파일이 500라인을 넘었습니다. 리팩토링이 필요할 것 같습니다"**라고 명확히 알립니다
-            -   리팩토링 제안 시 **분할 기준과 구체적 방법**을 함께 제시합니다
-        -   **Cline 소스 보호 원칙:**
-            -   **Cline 원본 코드** (`src/`, `webview-ui/`, `proto/`, `scripts/`, `evals/`, `docs/`, `locales/` 및 루트 설정 파일들)는 **500라인을 넘어도 리팩토링 요청하지 않습니다**
-            -   Cline 코드는 **upstream 호환성 유지**를 위해 원본 구조를 보존해야 합니다
-            -   **"이 파일은 Cline 원본이므로 리팩토링 대신 Caret 확장으로 해결하겠습니다"**
-        -   **프로젝트 특성 고려 유지보수성:**
-            -   **Fork 프로젝트 특성**: Cline 업스트림 호환성 vs Caret 코드 품질의 균형
-            -   **확장 우선 원칙**: Cline 코드 수정보다는 Caret 확장으로 문제 해결
-            -   **선택적 품질 기준**: Caret 코드는 엄격한 품질 기준, Cline 코드는 원본 유지
-        -   **정직한 한계 인정:**
-            -   **"모르는 것은 모른다고 명확히 표현"**합니다
-            -   **"확실하지 않습니다"**, **"추가 확인이 필요합니다"**, **"이 부분은 개발자께 확인 요청드립니다"**
-            -   추측이나 불확실한 정보 제공보다는 **솔직한 한계 인정**을 우선합니다
-    -   **테스트 및 품질 관리 원칙:**
-        -   **100% 테스트 커버리지 목표:** 
-            -   **Caret 전용 코드** (`caret-src/`, `webview-ui/src/caret/`)는 **반드시 100% 테스트 커버리지**를 달성해야 합니다
-            -   **Cline 원본 코드**는 기존 테스트를 활용하며, 추가 테스트 작성을 강제하지 않습니다
-            -   **커버리지 분석**: `caret-scripts/caret-coverage-check.js`를 사용하여 Caret vs Cline 코드의 커버리지를 분리 분석합니다
-        -   **TDD (테스트 주도 개발) 필수:**
-            -   **Red-Green-Refactor** 사이클을 반드시 따릅니다: 실패하는 테스트 작성 → 테스트 통과하는 최소 코드 → 리팩토링
-            -   **테스트 우선 원칙**: 새 기능 개발 시 테스트 코드부터 작성, 기능 추가 시 테스트 추가 후 구현
-            -   **버그 수정 시**: 버그 재현 테스트 작성 후 수정 진행
-        -   **테스트 품질 표준:**
-            -   모든 public/private 메서드, 모든 브랜치(if/else, switch), 모든 예외 처리 상황을 테스트
-            -   **AAA 패턴** (Arrange-Act-Assert) 준수
-            -   테스트 이름은 `should {expected behavior} when {condition}` 형식으로 명확하게 작성
-            -   외부 의존성은 적절히 모킹(Mock/Stub) 처리
-        -   **테스트 실행 및 검증:**
-            -   코드 변경 후 반드시 `npm test` 실행하여 모든 테스트 통과 확인
-            -   `npm run test:coverage`로 커버리지 확인
-            -   CI/CD에서 테스트 실패 시 코드 병합 금지
-        -   **테스트 가이드 문서:**
-            -   **종합 테스트 가이드**: `caret-docs/development/testing-guide.mdx`
-            -   **테스트 작성 표준**: `caret-docs/development/test-writing-standards.mdx`
-            -   **TDD 가이드**: `caret-docs/development/tdd-guide.mdx`
-    -   **주요 참조 문서 목록:**
-        -   AI 작업 방법 가이드: `caret-docs/guides/ai-work-method-guide.mdx`
-        -   작업 문서 작성 가이드: `caret-docs/guides/writing-task-documents-guide.mdx`
-        -   작업 로그 작성 가이드: `caret-docs/guides/writing-work-logs-guide.mdx`
-        -   프로젝트 문서화 표준 가이드: `caret-docs/development/documentation-guide.mdx`
-        -   태스크 상태 관리 파일: `caret-docs/tasks/task-status.md`
+**상태 관리**: CaretProvider가 Cline의 WebviewProvider를 확장하며, Cline 패턴을 준수하여 최소 확장으로 기존 기능 활용
 
--   **주요 개발 문서 참조:**
-    -   **아키텍처 문서:**
-        -   `caret-architecture-and-implementation-guide.mdx`: Caret의 전체 아키텍처 및 Fork 기반 구현 가이드 (`caret-docs/development/caret-architecture-and-implementation-guide.mdx`)
-        -   `extension-architecture.mmd`: VSCode 확장 프로그램 아키텍처 다이어그램 (`caret-docs/development/extension-architecture.mmd`)
-    -   **핵심 개발 가이드:**
-        -   `index.mdx`: 모든 개발 문서의 개요 및 색인 (`caret-docs/development/index.mdx`)
-        -   `documentation-guide.mdx`: **프로젝트 문서화 표준 가이드** (`caret-docs/development/documentation-guide.mdx`) (모든 문서화의 기준)
-        -   `utilities.mdx`: 백엔드/프론트엔드 유틸리티 함수 목록 (`caret-docs/development/utilities.mdx`)
-        -   `webview-extension-communication.mdx`: 웹뷰와 확장 프로그램 간의 메시지 처리 (`caret-docs/development/webview-extension-communication.mdx`)
-        -   `locale.mdx`: 다국어 지원 시스템 (`caret-docs/development/locale.mdx`)
-        -   `logging.mdx`: 백엔드 및 프론트엔드 로깅 가이드라인 (`caret-docs/development/logging.mdx`)
-        -   `ui-to-storage-flow.mdx`: UI와 저장소 간 데이터 흐름 가이드 (`caret-docs/development/ui-to-storage-flow.mdx`)
-    -   **테스트 및 품질 관리 가이드:**
-        -   `testing-guide.mdx`: **종합 테스트 가이드** (`caret-docs/development/testing-guide.mdx`) - 테스트 전략, 실행 방법, 커버리지 분석
-        -   `test-writing-standards.mdx`: **테스트 작성 표준** (`caret-docs/development/test-writing-standards.mdx`) - 테스트 코드 작성 규칙과 표준
-        -   `tdd-guide.mdx`: **TDD 가이드** (`caret-docs/development/tdd-guide.mdx`) - 테스트 주도 개발 방법론과 실전 적용법
-    -   **워크플로우 및 특정 문서 유형 가이드:**
-        -   `ai-work-method-guide.mdx`: AI 작업 방법 가이드 (`caret-docs/guides/ai-work-method-guide.mdx`)
-        -   `writing-task-documents-guide.mdx`: 작업 문서(계획, 체크리스트, 보고서) 작성 가이드 (`caret-docs/guides/writing-task-documents-guide.mdx`)
-        -   `writing-work-logs-guide.mdx`: 작업 로그 작성 가이드 (`caret-docs/guides/writing-work-logs-guide.mdx`)
-        -   `upstream-merging.mdx`: Cline 업스트림 병합 가이드 (`caret-docs/guides/upstream-merging.mdx`)
+**도구 통합**: Cline의 기존 통합(`src/integrations/`), API 프로바이더(`src/api/providers/`), 체크포인트(`src/integrations/checkpoints/`) 활용
 
-## 주요 파일 참조
+## AI 작업 프로토콜
 
--   `.caretrules` (본 마스터 템플릿에서 파생되는 주요 JSON 규칙 파일)
--   `caret-docs/` (프로젝트별 문서)
--   `caret-src/extension.ts` (Caret 확장 프로그램 진입점)
--   `caret-src/core/webview/CaretProvider.ts` (Caret 상태 프로바이더)
--   `src/extension.ts` (Cline 원본 확장 프로그램)
--   `src/core/task/` (Cline 원본 작업 관리)
--   `webview-ui/src/App.tsx` (웹뷰 진입점)
--   `webview-ui/src/context/ExtensionStateContext.tsx` (웹뷰 상태 컨텍스트)
+**작업 시작 프로토콜 (CRITICAL)** - AI 어시스턴트는 다음 순서를 **반드시** 준수:
+1. **사용자 식별**: `git config user.name`으로 현재 사용자 확인
+2. **날짜 확인**: OS별 명령어로 현재 날짜 확인  
+3. **작업 로그 확인/생성**: `caret-docs/work-logs/{username}/{date}.md`
+4. **관련 작업 문서 식별**: `caret-docs/tasks/task-status.md` 참조
+5. **문서 검토**: 계획서, 체크리스트, 보고서 메타적 검토
+6. **개발자 보고**: 문서 검토 완료 및 작업 준비 상태 보고
+
+**핵심 개발 원칙**:
+- **품질 우선**: 속도보다 정확성과 품질 우선
+- **테스트 필수**: 모든 테스트 통과, 실패 시 근본 원인 해결
+- **문제 회피 금지**: 임시 방편이나 '나중에 수정' 접근 금지
+- **기술 부채 방지**: 처음부터 올바른 구현
+- **완전성 추구**: 부분적/불완전한 상태로 작업 종료 금지
+- **검증 우선**: 코드 변경 후 반드시 컴파일, 테스트, 실행 검증
+- **CARET 주석 필수**: Caret 수정 시 반드시 CARET MODIFICATION 주석 추가
+
+**Phase 기반 작업 설계**:
+- **계획 원칙**: 모든 작업을 명확한 Phase 단위로 분할, 각 Phase는 독립적 완료 가능
+- **실행 원칙**: Phase 시작 전 관련 가이드 문서 및 원칙 재확인
+
+**파일 수정 전 필수 체크리스트**:
+1. **Cline 원본 파일인가?** (`src/`, `webview-ui/`, `proto/`, `scripts/`, `evals/`, `docs/`, `locales/`)
+2. **백업 생성했는가?** (`{파일명-확장자}.cline`)
+3. **CARET MODIFICATION 주석 추가했는가?**
+4. **최소 수정 원칙 지켰는가?** (1-3라인 이내)
+5. **주석처리하지 않고 완전 대체했는가?**
+
+**자가 진단 및 개선 요청**: 원칙 위반이나 불명확한 지침 발견 시 작업 중단하고 가이드 개선 요청
+
+**개발 방식 변화 시 가이드 업데이트 (MANDATORY)**:
+- **변화 감지**: 새로운 개발 패턴, 도구, 방법론 도입 시 즉시 문서화
+- **가이드 동기화**: 실제 구현과 문서 간 불일치 발견 시 우선적 업데이트
+- **경험 축적**: 문제 해결 과정에서 얻은 인사이트를 가이드에 반영
+- **실무 반영**: 이론적 내용보다 실제 작업에서 검증된 방법론 우선
+- **예시**: 통합테스트 방식 변화(모킹 → 실제 빌드 검증), 모듈 시스템 호환성 문제 해결 등
+
+## 문서화 시스템
+
+**문서 구조 및 표준화 (2025-01-21 완료)**:
+- **MDX 형식**: 모든 개발 문서 `.mdx`로 통일 완료
+- **통합 완료**: UI-to-Storage-Flow 관련 10개 분할 문서를 1개로 통합
+- **실제 코드 일치**: 모든 경로/예시가 실제 코드베이스와 일치하도록 수정
+- **프레임워크 업데이트**: Jest → Vitest 변환 완료
+- **불필요한 문서 정리**: 작업 문서/검토 리포트 등 정리 완료
+- **Cline 패턴 통합**: 아키텍처 가이드에 Cline 기술 패턴 통합
+
+**디렉토리 구성**:
+```
+caret-docs/
+├── development/              # 개발 가이드 (.mdx 표준화 완료)
+├── guides/                   # 작업 방법론
+├── tasks/                    # 작업 문서
+└── work-logs/               # 사용자별 작업 로그
+```
+
+**핵심 문서**:
+- **개발 가이드**: `./development/index.mdx`
+- **아키텍처 가이드**: `./development/caret-architecture-and-implementation-guide.mdx`
+- **테스트 가이드**: `./development/testing-guide.mdx` (Vitest 기반)
+- **로깅 가이드**: `./development/logging.mdx`
+
+**문서 작성 표준**:
+- **용어 일관성**: Caret은 '^' 기호 (당근🥕 아님)
+- **경로 정확성**: 실제 코드베이스와 정확히 일치
+- **예시 코드**: 실제 작동하는 코드만 포함
+- **MDX 형식**: 모든 기술 문서는 `.mdx` 형식
+
+**작업 문서 형식**:
+```
+작업 번호: 3자리 숫자 (001, 002, ...)
+계획서: {task-number}-01-plan-{task-name}.md
+체크리스트: {task-number}-02-action-checklist-{task-name}.md
+보고서: {task-number}-03-report-{task-name}.md
+```
+
+## 테스트 및 품질 관리
+
+**테스트 프레임워크**: Vitest (업데이트 완료)
+
+**기본 명령어**:
+```bash
+npm test                    # 모든 테스트 실행
+npm run test:coverage      # 커버리지 포함 테스트
+npm run test:watch         # Watch 모드
+```
+
+**테스트 작성 표준**:
+```typescript
+import { describe, it, expect, vi } from 'vitest'
+describe('Caret 기능', () => {
+  it('should 기대 동작 when 조건', () => {
+    // Arrange, Act, Assert 패턴
+  })
+})
+```
+
+**품질 표준**:
+- **Caret 전용 코드**: 100% 테스트 커버리지 목표
+- **TDD 방법론**: Red-Green-Refactor 사이클
+- **테스트 우선**: 기능 구현 전 테스트 작성
+
+**로깅 시스템 (실제 구현 반영)**:
+- **CaretLogger (백엔드)**: `caret-src/utils/caret-logger.ts`
+- **WebviewLogger (프론트엔드)**: `webview-ui/src/caret/utils/webview-logger.ts`
+
+## 프로젝트 관리
+
+**스크립트 관리**: Caret 스크립트는 `caret-scripts/`에 위치 (Cline `scripts/`와 분리)
+
+**주요 스크립트**:
+```bash
+node caret-scripts/caret-coverage-check.js    # 커버리지 확인
+node caret-scripts/sync-caretrules.js         # 룰 파일 동기화
+node caret-scripts/test-report.js             # 테스트 리포트 생성
+```
+
+**업스트림 머징**: Cline 업데이트 통합 프로세스 - 변경사항 확인, 충돌 해결(`src/` 디렉토리), 호환성 검증, 문서 업데이트
+
+**규칙 파일 관리**: 
+- **마스터 파일**: `caret-docs/caretrules.ko.md` (한국어 템플릿)
+- **자동 동기화**: AI가 마스터 파일 변경 시 JSON 파일들(`.caretrules`, `.windsurfrules`, `.cursorrules`) 자동 동기화
+
+## 핵심 참조 파일
+
+**설정 파일**: `.caretrules`, `caret-docs/caretrules.ko.md`, `caret-docs/development/index.mdx`
+**진입점**: `caret-src/extension.ts`, `caret-src/core/webview/CaretProvider.ts`, `src/extension.ts`
+**프론트엔드**: `webview-ui/src/App.tsx`, `webview-ui/src/context/ExtensionStateContext.tsx`, `webview-ui/src/caret/`
+
+## 최근 업데이트 (2025-01-21)
+
+**완료된 주요 개선사항**:
+1. **문서 표준화**: 모든 development 문서 `.mdx` 형식으로 통일
+2. **문서 통합**: UI-to-Storage-Flow 분할 문서 10개 → integrated 1개로 통합
+3. **실제 코드 일치**: 모든 경로/예시가 실제 코드베이스와 정확히 일치
+4. **테스트 프레임워크**: Jest → Vitest 완전 전환
+5. **로깅 시스템**: CaretLogger, WebviewLogger 실제 위치 반영
+6. **불필요한 문서 정리**: 작업 문서, 검토 리포트 등 정리
+7. **링크 무결성**: README.md 깨진 링크 수정
+8. **빌드 시스템**: Protocol Buffer 컴파일 단계 추가
+9. **Cline 기술 패턴**: Task 실행, 스트리밍, 상태 관리, API 관리 패턴 통합
+
+**개선 효과**:
+- **실무 정확성**: 문서와 실제 코드 100% 일치
+- **개발 효율성**: 통합된 문서로 정보 접근성 향상
+- **표준화**: MDX 기반 일관된 문서 시스템 구축
+- **테스트 일관성**: Vitest 기반 통일된 테스트 환경
+- **기술 패턴 활용**: Cline의 검증된 아키텍처 패턴 적극 활용
+
+**마지막 업데이트**: 2025-01-21 - Fork 기반 아키텍처 완성 및 문서 시스템 표준화 완료

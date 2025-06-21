@@ -55,6 +55,7 @@ message ChatSettings {
   PlanActMode mode = 1;
   optional string preferred_language = 2;
   optional string open_ai_reasoning_effort = 3;
+  optional string ui_language = 4;  // CARET MODIFICATION: UI 표시 언어 (Caret 전용)
 }
 
 message ChatContent {

@@ -18,6 +18,7 @@ import ApiOptions from "./ApiOptions"
 import BrowserSettingsSection from "./BrowserSettingsSection"
 import FeatureSettingsSection from "./FeatureSettingsSection"
 import PreferredLanguageSetting from "./PreferredLanguageSetting" // Added import
+import UILanguageSetting from "./UILanguageSetting" // CARET MODIFICATION: Added UI language setting
 import Section from "./Section"
 import SectionHeader from "./SectionHeader"
 import TerminalSettingsSection from "./TerminalSettingsSection"
@@ -106,6 +107,9 @@ type SettingsViewProps = {
 }
 
 const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
+	// CARET MODIFICATION: SettingsView 렌더링 확인
+	alert("🎯 SettingsView 컴포넌트 렌더링!")
+	console.log("🎯 SettingsView props:", { onDone, targetSection })
 	// Track if there are unsaved changes
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 	// State for the unsaved changes dialog
@@ -183,6 +187,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		}
 
 		try {
+			console.log("[DEBUG] Saving settings with chatSettings:", chatSettings)
 			await StateServiceClient.updateSettings(
 				UpdateSettingsRequest.create({
 					planActSeparateModelsSetting,
@@ -200,6 +205,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 					terminalOutputLineLimit,
 				}),
 			)
+			console.log("[DEBUG] Settings saved successfully")
 
 			// Update default terminal profile if it has changed
 			if (defaultTerminalProfile !== originalState.current.defaultTerminalProfile) {
@@ -441,8 +447,8 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		}
 	}
 
-	// Track active tab
-	const [activeTab, setActiveTab] = useState<string>(targetSection || SETTINGS_TABS[0].id)
+	// Track active tab - default to general tab
+	const [activeTab, setActiveTab] = useState<string>(targetSection || "general")
 
 	// Update active tab when targetSection changes
 	useEffect(() => {
@@ -637,7 +643,10 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 							)}
 
 							{/* General Settings Tab */}
-							{activeTab === "general" && (
+							{(() => {
+								alert(`🚨 activeTab: ${activeTab}, general 체크: ${activeTab === "general"}`)
+								return activeTab === "general"
+							})() && (
 								<div>
 									{renderSectionHeader("general")}
 									<Section>
@@ -647,6 +656,25 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 												setChatSettings={setChatSettings}
 											/>
 										)}
+
+										{/* CARET MODIFICATION: UI Language Setting */}
+										{(() => {
+											alert(`🎯 General 탭! chatSettings: ${!!chatSettings}, type: ${typeof chatSettings}`)
+											console.log("🎯 [SettingsView] chatSettings:", chatSettings)
+
+											try {
+												alert("🔥 UILanguageSetting 렌더링 시도!")
+												return (
+													<UILanguageSetting
+														chatSettings={chatSettings || {}}
+														setChatSettings={setChatSettings}
+													/>
+												)
+											} catch (error) {
+												alert(`❌ UILanguageSetting 에러: ${error}`)
+												return <div>UILanguageSetting Error: {String(error)}</div>
+											}
+										})()}
 
 										<div className="mb-[5px]">
 											<VSCodeCheckbox

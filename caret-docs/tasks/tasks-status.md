@@ -3,16 +3,17 @@
 
 ## 진행 중인 작업 (Working)
 ### luke (담당자)
-- **Task #001:** 캐럿 아키텍처 초기화 및 설정 (코드 중심)
-  - 요약: VSCode Extension 기본 구조 및 빌드 시스템 구축
-  [001-01-plan-caret-architect-initialize.md](./001-01-plan-caret-architect-initialize.md) 
+- **Task #002:** 페르소나 기능 복원 (담당자: luke) 🚨 **설정 시스템 장애 발생**
+  - 요약: AI 페르소나 시스템 복구 및 개선
+  - **현재 상태**: Phase 3 완료 후 설정 저장 시스템 장애 발견
+  - **긴급 문제**: UI 언어 설정 및 기존 선호 언어 설정 저장 실패
+  - **완료된 부분**: Caret 룰 시스템 개선, UI 언어 컴포넌트 구현
+  [002-01-plan-persona-feature-restoration.md](./002-01-plan-persona-feature-restoration.md) 
+
 
 ### justin (담당자)
 
 ## 대기 중인 작업 (Pending)
-- **Task #002:** 페르소나 기능 복원 (담당자: TBD)
-  - 요약: AI 페르소나 시스템 복구 및 개선
-  [002-01-plan-persona-feature-restoration.md](./002-01-plan-persona-feature-restoration.md) 
 - **Task #003:** Mode 및 시스템 프롬프트 복원 (담당자: TBD)
   - 요약: 모드 시스템 및 프롬프트 관리 기능 복구
   [003-01-plan-mode-system-prompt-restoration.md](./003-01-plan-mode-system-prompt-restoration.md) 
@@ -36,3 +37,7 @@
   [009-01-plan-api-provider-structure-improvement.md](./009-01-plan-api-provider-structure-improvement.md)
 
 ## 완료된 작업 (Complete)
+- **Task #001:** 캐럿 아키텍처 초기화 및 설정 (코드 중심) 
+  - 요약: VSCode Extension 기본 구조 및 빌드 시스템 구축  
+  [001-01-plan-caret-architect-initialize.md](./001-01-plan-caret-architect-initialize.md) 
+  - 완료 날짜 : 2025년 6월 21일

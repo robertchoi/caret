@@ -4,36 +4,28 @@ import koWelcome from "../locale/ko/welcome.json"
 import enWelcome from "../locale/en/welcome.json"
 import jaWelcome from "../locale/ja/welcome.json"
 import zhWelcome from "../locale/zh/welcome.json"
+import koCommon from "../locale/ko/common.json"
+import enCommon from "../locale/en/common.json"
+import jaCommon from "../locale/ja/common.json"
+import zhCommon from "../locale/zh/common.json"
 import { getLocalizedUrl, getUrl, type CaretLocalizedUrlKey, type CaretUrlKey, type SupportedLanguage } from "../constants/urls"
 
 // JSON 파일에서 번역 데이터 로드
 const translations = {
 	ko: {
-		common: {
-			greeting: koWelcome.greeting,
-			catchPhrase: koWelcome.catchPhrase,
-		},
+		common: koCommon,
 		welcome: koWelcome,
 	},
 	en: {
-		common: {
-			greeting: enWelcome.greeting,
-			catchPhrase: enWelcome.catchPhrase,
-		},
+		common: enCommon,
 		welcome: enWelcome,
 	},
 	ja: {
-		common: {
-			greeting: jaWelcome.greeting,
-			catchPhrase: jaWelcome.catchPhrase,
-		},
+		common: jaCommon,
 		welcome: jaWelcome,
 	},
 	zh: {
-		common: {
-			greeting: zhWelcome.greeting,
-			catchPhrase: zhWelcome.catchPhrase,
-		},
+		common: zhCommon,
 		welcome: zhWelcome,
 	},
 }

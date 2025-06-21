@@ -38,8 +38,8 @@ import {
 	updateGlobalState,
 	updateWorkspaceState,
 } from "../storage/state"
-// CARET MODIFICATION: Use Caret Task instead of Cline Task (백업: index-ts.cline)
-import { Task } from "../../../caret-src/core/task"
+// CARET MODIFICATION: Use Cline Task instead of caret-src Task to fix "Class extends value undefined" error (백업: index-ts.cline)
+import { Task } from "../task"
 import { ClineRulesToggles } from "@shared/cline-rules"
 import { sendStateUpdate } from "./state/subscribeToState"
 import { sendAddToInputEvent } from "./ui/subscribeToAddToInput"
@@ -999,6 +999,9 @@ export class Controller {
 		const localWindsurfRulesToggles =
 			((await getWorkspaceState(this.context, "localWindsurfRulesToggles")) as ClineRulesToggles) || {}
 
+		const localCaretRulesToggles =
+			((await getWorkspaceState(this.context, "localCaretRulesToggles")) as ClineRulesToggles) || {}
+
 		const localCursorRulesToggles =
 			((await getWorkspaceState(this.context, "localCursorRulesToggles")) as ClineRulesToggles) || {}
 
@@ -1029,6 +1032,7 @@ export class Controller {
 			distinctId: telemetryService.distinctId,
 			globalClineRulesToggles: globalClineRulesToggles || {},
 			localClineRulesToggles: localClineRulesToggles || {},
+			localCaretRulesToggles: localCaretRulesToggles || {},
 			localWindsurfRulesToggles: localWindsurfRulesToggles || {},
 			localCursorRulesToggles: localCursorRulesToggles || {},
 			localWorkflowToggles: localWorkflowToggles || {},

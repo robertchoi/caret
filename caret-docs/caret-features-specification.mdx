@@ -1,0 +1,267 @@
+# Caret 기능 명세서
+
+## 개요
+
+Caret은 Cline을 기반으로 한 VSCode AI 코딩 어시스턴트 확장 프로그램입니다. Cline의 모든 기능을 포함하면서, 추가적인 기능과 개선사항을 제공합니다.
+
+> **Caret** 이름의 유래: 프로그래밍에서 위치와 방향을 나타내는 '^' (caret) 기호에서 따온 이름입니다.
+
+## Cline과의 차이점
+
+### 1. 규칙 시스템 개선
+
+#### 1.1 우선순위 기반 규칙 로딩 ✅ 구현 완료
+
+**기존 Cline의 문제점:**
+
+-   `.clinerules`, `.cursorrules`, `.windsurfrules` 파일이 모두 존재할 때 중복으로 로딩
+-   동일한 내용이 여러 번 프롬프트에 포함되어 토큰 낭비 발생
+
+**Caret의 해결책:**
+
+-   **우선순위 로직**: `.clinerules` > `.cursorrules` > `.windsurfrules`
+-   **단일 선택**: 우선순위가 높은 규칙 파일이 존재하면 나머지는 무시
+-   **중복 방지**: 동일한 규칙이 여러 번 로딩되는 것을 방지
+
+**기술적 구현:**
+
+-   `src/core/prompts/system.ts`의 `addUserInstructions` 함수 수정
+-   `src/core/prompts/model_prompts/claude4.ts`의 동일 함수 수정
+-   백업 파일: `system-ts.cline`, `claude4-ts.cline`
+
+**테스트 커버리지:**
+
+-   `caret-src/__tests__/rule-priority.test.ts` (6개 테스트 모두 통과)
+
+#### 1.2 UI 규칙 표시 개선 🔄 개발 예정
+
+**계획된 개선사항:**
+
+-   Rules Toggle Modal에서 우선순위 로직 반영
+-   활성화된 규칙만 UI에서 표시
+-   비활성화된 규칙에 대한 안내 메시지 제공
+
+### 2. 페르소나 시스템 🔄 개발 중
+
+#### 2.1 AI 에이전트 페르소나 선택 기능
+
+**기능 개요:**
+
+-   사전 정의된 AI 캐릭터 페르소나 중 선택 가능
+-   각 페르소나별 고유한 대화 스타일과 행동 패턴
+-   다국어 지원 (한국어, 영어)
+
+**지원 페르소나:**
+
+1. **오사랑 (Oh Sarang)** - K-pop 아이돌, 수학적 감정 분석, 츤데레
+2. **마도베 이치카 (Madobe Ichika)** - Windows 11 기반, 깔끔하고 믿음직한 조수
+3. **사이안 매킨 (Cyan Mackin)** - macOS 기반, 미니멀하고 효율적
+4. **탄도 우분투 (Thando Ubuntu)** - Ubuntu 기반, 오픈소스 정신, 협업 중심
+
+**데이터 구조:**
+
+-   `caret-assets/template_characters/template_characters.json`
+-   각 페르소나별 이미지, 설명, 커스텀 인스트럭션 포함
+
+#### 2.2 구현 계획
+
+**Phase 3: UI 구현**
+
+-   `PersonaTemplateSelector.tsx` 컴포넌트 개발
+-   페르소나 선택 모달 UI
+-   캐릭터별 이미지 및 설명 표시
+
+**Phase 4: 백엔드 연동**
+
+-   선택된 페르소나를 `custom_instructions.md`에 저장
+-   언어 설정에 따른 자동 선택
+-   CaretProvider를 통한 메시지 처리
+
+### 3. 테스트 시스템 개선 ✅ 구현 완료
+
+#### 3.1 테스트 명령어 정리
+
+**기존 문제:**
+
+-   `npm test`와 `npm run test:all`의 혼란스러운 관계
+-   하드코딩된 가짜 테스트 수치
+
+**Caret의 개선:**
+
+-   `npm test` → `npm run test:all`로 리다이렉트 (성공적인 테스트 실행)
+-   `npm run test:unit` → 명확한 ESM/CJS 에러 메시지 제공
+-   `npm run compile:fast` 추가 (빠른 개발용)
+-   동적 테스트 수치 파싱으로 변경
+
+#### 3.2 테스트 프레임워크
+
+**Caret 테스트 시스템:**
+
+-   **프레임워크**: Vitest
+-   **설정 파일**: `vitest.config.ts`
+-   **테스트 위치**: `caret-src/__tests__/`
+-   **실행 명령어**: `npm run test:backend`
+
+**Cline 원본 테스트:**
+
+-   **프레임워크**: Mocha + ts-node
+-   **현재 상태**: ESM/CJS 호환성 문제로 실행 불가
+-   **원인**: `@google/genai 1.0.0` Pure ESM 모듈 충돌
+
+### 4. 로깅 시스템
+
+#### 4.1 Caret 전용 로거
+
+**백엔드 로거:**
+
+-   **파일**: `caret-src/utils/caret-logger.ts`
+-   **용도**: Caret 확장 기능 로깅
+
+**프론트엔드 로거:**
+
+-   **파일**: `webview-ui/src/caret/utils/webview-logger.ts`
+-   **용도**: 웹뷰 내 Caret 기능 로깅
+
+### 5. 개발 환경 및 빌드 시스템
+
+#### 5.1 디렉토리 구조
+
+**Caret 전용 디렉토리:**
+
+-   `caret-src/` - Caret 확장 기능 소스코드
+-   `caret-docs/` - Caret 문서 시스템
+-   `caret-assets/` - Caret 전용 리소스
+-   `caret-scripts/` - Caret 자동화 스크립트
+
+**Cline 원본 보존:**
+
+-   `src/` - Cline 원본 코드 (최소 수정)
+-   `webview-ui/` - React 프론트엔드 (Cline 빌드 시스템 활용)
+-   `proto/`, `scripts/`, `evals/`, `docs/`, `locales/` - Cline 원본 유지
+
+#### 5.2 개발 원칙
+
+**코드 관리 원칙:**
+
+1. **Cline 코드 보존**: src/ 디렉토리 최소 수정
+2. **백업 필수**: Cline 원본 수정 시 `.cline` 백업 생성
+3. **상속 우선**: 파일 교체보다는 클래스 상속 방식 선호
+4. **수정 마커**: `// CARET MODIFICATION:` 주석으로 수정 부분 표시
+
+**아키텍처 패턴:**
+
+-   **Fork 기반**: Cline 코드베이스 직접 통합
+-   **최소 확장**: caret-src/에서만 자유로운 수정
+-   **Cline 패턴 활용**: Task 실행, 스트리밍, 상태 관리, API 관리
+
+### 6. 문서 시스템 ✅ 표준화 완료
+
+#### 6.1 문서 표준화 (2025-01-21 완료)
+
+**주요 성과:**
+
+-   **MDX 형식**: 모든 개발 문서를 .mdx 형식으로 통일
+-   **문서 통합**: UI-to-Storage-Flow 관련 10개 분산 문서를 1개로 통합
+-   **실제 코드 정합성**: 모든 경로/예제가 실제 코드베이스와 일치
+-   **테스트 프레임워크 업데이트**: Jest → Vitest 변환 완료
+
+**핵심 문서:**
+
+-   `./development/index.mdx` - 개발 가이드
+-   `./development/caret-architecture-and-implementation-guide.mdx` - 아키텍처 가이드
+-   `./development/testing-guide.mdx` - 테스팅 가이드 (Vitest 기반)
+-   `./development/logging.mdx` - 로깅 가이드
+
+### 7. 프로젝트 관리
+
+#### 7.1 버전 관리
+
+**릴리스 정보:**
+
+-   **현재 버전**: 0.1.0
+-   **빌드 스크립트**: `caret-release-build.ps1`
+-   **패키지 출력**: `caret-0.1.0.vsix`
+
+#### 7.2 스크립트 관리
+
+**Caret 전용 스크립트:**
+
+-   `caret-scripts/caret-coverage-check.js` - 테스트 커버리지 체크
+-   `caret-scripts/sync-caretrules.js` - 규칙 파일 동기화
+-   `caret-scripts/test-report.js` - 테스트 리포트 생성
+
+#### 7.3 규칙 관리
+
+**마스터 규칙 파일:**
+
+-   `caret-docs/caretrules.ko.md` (한국어 템플릿)
+-   자동 동기화: JSON 파일들 (`.caretrules`, `.windsurfrules`, `.cursorrules`)
+
+## 향후 개발 계획
+
+### 단기 목표 (1-2주)
+
+1. **페르소나 시스템 완성**
+
+    - UI 컴포넌트 구현
+    - 백엔드 연동 완료
+    - 테스트 코드 작성
+
+2. **Rules UI 개선**
+    - 우선순위 로직 UI 반영
+    - 사용자 안내 메시지 추가
+
+### 중기 목표 (1-2개월)
+
+1. **추가 페르소나 개발**
+
+    - 사용자 커스텀 페르소나 지원
+    - 페르소나 편집 기능
+
+2. **성능 최적화**
+    - 토큰 사용량 최적화
+    - 응답 속도 개선
+
+### 장기 목표 (3-6개월)
+
+1. **AI 모델 확장**
+
+    - 다양한 AI 모델 지원
+    - 모델별 최적화
+
+2. **커뮤니티 기능**
+    - 페르소나 공유 플랫폼
+    - 사용자 기여 시스템
+
+## 기술 스택
+
+**프론트엔드:**
+
+-   React + TypeScript
+-   Vite (빌드 도구)
+-   VSCode Webview UI Toolkit
+
+**백엔드:**
+
+-   Node.js + TypeScript
+-   Protocol Buffers (gRPC)
+-   VSCode Extension API
+
+**테스트:**
+
+-   Vitest (Caret 테스트)
+-   Mocha + ts-node (Cline 원본, 현재 비활성)
+
+**개발 도구:**
+
+-   ESLint + Prettier
+-   Buf (Protocol Buffer 린팅)
+-   PowerShell (빌드 스크립트)
+
+## 라이선스
+
+Caret은 Cline과 동일한 Apache 2.0 라이선스를 따릅니다.
+
+---
+
+_이 문서는 Caret 프로젝트의 현재 상태와 계획을 반영하며, 개발 진행에 따라 지속적으로 업데이트됩니다._

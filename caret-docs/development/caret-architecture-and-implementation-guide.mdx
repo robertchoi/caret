@@ -1,23 +1,29 @@
 # Caret 아키텍처 및 구현 가이드
 
 ## 1. 개요
+
 이 문서는 Caret 프로젝트가 **Fork 기반 아키텍처**를 통해 Cline의 안정적인 기반 위에서 고유의 기능을 구현하는 방법을 안내합니다. Caret은 Cline 코드베이스를 직접 포함하여 기존 기능을 최대한 활용하면서, 필요한 부분만 선택적으로 확장하거나 대체하는 전략을 채택합니다.
 
 ## 2. Fork 기반 아키텍처 원칙
 
 ### 2.1. Cline 코드 직접 포함
+
 Caret은 [Cline](https://github.com/cline/cline) 프로젝트의 **Fork**로, Cline의 전체 코드베이스를 `src/` 디렉토리에 직접 포함합니다. 이를 통해:
-- Cline의 안정적이고 검증된 기능을 그대로 활용
-- 업스트림 변경사항을 Git merge를 통해 효율적으로 통합
-- 복잡한 서브모듈 관리나 외부 의존성 없이 단순한 구조 유지
+
+-   Cline의 안정적이고 검증된 기능을 그대로 활용
+-   업스트림 변경사항을 Git merge를 통해 효율적으로 통합
+-   복잡한 서브모듈 관리나 외부 의존성 없이 단순한 구조 유지
 
 ### 2.2. 최소 확장 원칙
+
 Caret의 확장 코드는 다음 원칙을 따릅니다:
-- **Cline 코드 보존**: `src/`, `webview-ui/` 원본 파일은 가능한 수정하지 않음
-- **최소 진입점**: `caret-src/extension.ts`를 통해 Cline 모듈 활용
-- **점진적 확장**: 필요한 기능만 Caret 전용으로 구현
+
+-   **Cline 코드 보존**: `src/`, `webview-ui/` 원본 파일은 가능한 수정하지 않음
+-   **최소 진입점**: `caret-src/extension.ts`를 통해 Cline 모듈 활용
+-   **점진적 확장**: 필요한 기능만 Caret 전용으로 구현
 
 ### 2.3. 핵심 디렉토리 구조
+
 ```
 caret/
 ├── src/                      # Cline 원본 코드 (보존)
@@ -45,111 +51,379 @@ caret/
     └── src/locale/           # Caret 다국어 지원
 ```
 
-## 3. 구현 전략
+## 3. Cline 기반 핵심 아키텍처 패턴
 
-### 3.1. 백엔드 확장 (caret-src)
+### 3.1. Task 실행 시스템 (Cline 패턴 활용)
+
+Caret은 Cline의 검증된 Task 실행 아키텍처를 기반으로 구축됩니다:
+
+```typescript
+// caret-src/core/task/CaretTask.ts (Cline Task 확장)
+import { Task } from "../../../src/core/task/Task"
+
+export class CaretTask extends Task {
+	// Cline의 핵심 실행 루프 활용
+	async initiateTaskLoop(userContent: UserContent, isNewTask: boolean) {
+		while (!this.abort) {
+			// 1. API 요청 및 스트림 응답 (Cline 패턴)
+			const stream = this.attemptApiRequest()
+
+			// 2. 콘텐츠 블록 파싱 및 표시 (Cline 패턴)
+			for await (const chunk of stream) {
+				switch (chunk.type) {
+					case "text":
+						this.assistantMessageContent = parseAssistantMessageV2(chunk.text)
+						await this.presentAssistantMessage()
+						break
+					case "tool_use":
+						// Caret 고유 도구 실행 로직 추가
+						await this.handleCaretToolExecution(chunk)
+						break
+				}
+			}
+
+			// 3. 도구 실행 완료 대기 (Cline 패턴)
+			await pWaitFor(() => this.userMessageContentReady)
+
+			// 4. 결과와 함께 루프 계속 (Cline 패턴)
+			const recDidEndLoop = await this.recursivelyMakeClineRequests(this.userMessageContent)
+		}
+	}
+
+	// Caret 고유 도구 실행 로직
+	private async handleCaretToolExecution(chunk: ToolBlock) {
+		// Cline의 기본 도구 + Caret 전용 도구 처리
+		if (this.isCaretSpecificTool(chunk.name)) {
+			return await this.executeCaretTool(chunk)
+		}
+
+		// 기본적으로는 Cline의 도구 실행 사용
+		return await super.executeToolWithApproval(chunk)
+	}
+}
+```
+
+### 3.2. 메시지 스트리밍 시스템 (Cline 패턴)
+
+Cline의 실시간 스트리밍 아키텍처를 활용하여 안정적인 메시지 처리:
+
+```typescript
+// caret-src/core/webview/CaretProvider.ts
+import { WebviewProvider } from "../../../src/core/webview/index"
+
+export class CaretProvider extends WebviewProvider {
+	// Cline의 스트리밍 잠금 메커니즘 활용
+	async presentAssistantMessage() {
+		// Race condition 방지 (Cline 패턴)
+		if (this.presentAssistantMessageLocked) {
+			this.presentAssistantMessageHasPendingUpdates = true
+			return
+		}
+		this.presentAssistantMessageLocked = true
+
+		try {
+			// 현재 콘텐츠 블록 처리 (Cline 패턴)
+			const block = this.assistantMessageContent[this.currentStreamingContentIndex]
+
+			// 콘텐츠 타입별 처리 (Cline 패턴 + Caret 확장)
+			switch (block.type) {
+				case "text":
+					await this.say("text", content, undefined, block.partial)
+					break
+				case "tool_use":
+					// Caret 전용 도구 표시 로직 추가
+					await this.handleCaretToolDisplay(block)
+					break
+				default:
+					// Cline 기본 처리 위임
+					await super.presentAssistantMessage()
+			}
+
+			// 다음 블록으로 이동 (Cline 패턴)
+			if (!block.partial) {
+				this.currentStreamingContentIndex++
+			}
+		} finally {
+			this.presentAssistantMessageLocked = false
+
+			// 대기 중인 업데이트 처리 (Cline 패턴)
+			if (this.presentAssistantMessageHasPendingUpdates) {
+				this.presentAssistantMessageHasPendingUpdates = false
+				await this.presentAssistantMessage()
+			}
+		}
+	}
+}
+```
+
+### 3.3. API 요청 및 토큰 관리 (Cline 패턴)
+
+Cline의 검증된 토큰 관리와 에러 처리 시스템 활용:
+
+```typescript
+// CaretTask에서 Cline의 API 관리 패턴 확장
+export class CaretTask extends Task {
+	async *attemptApiRequest(previousApiReqIndex: number): ApiStream {
+		// 1. MCP 서버 연결 대기 (Cline 패턴)
+		await pWaitFor(() => this.controllerRef.deref()?.mcpHub?.isConnecting !== true)
+
+		// 2. 컨텍스트 윈도우 관리 (Cline 패턴)
+		const previousRequest = this.clineMessages[previousApiReqIndex]
+		if (previousRequest?.text) {
+			const { tokensIn, tokensOut } = JSON.parse(previousRequest.text || "{}")
+			const totalTokens = (tokensIn || 0) + (tokensOut || 0)
+
+			// 컨텍스트 한계 접근 시 대화 축약 (Cline 패턴)
+			if (totalTokens >= maxAllowedSize) {
+				this.conversationHistoryDeletedRange = this.contextManager.getNextTruncationRange(
+					this.apiConversationHistory,
+					this.conversationHistoryDeletedRange,
+					totalTokens / 2 > maxAllowedSize ? "quarter" : "half",
+				)
+			}
+		}
+
+		// 3. 자동 재시도가 포함된 스트리밍 (Cline 패턴)
+		try {
+			this.isWaitingForFirstChunk = true
+			const firstChunk = await iterator.next()
+			yield firstChunk.value
+			this.isWaitingForFirstChunk = false
+
+			// 나머지 청크 스트리밍
+			yield* iterator
+		} catch (error) {
+			// 4. Caret 고유 에러 처리 추가
+			if (this.isCaretSpecificError(error)) {
+				yield* this.handleCaretApiError(error)
+				return
+			}
+
+			// 5. Cline 기본 에러 처리 활용
+			if (isOpenRouter && !this.didAutomaticallyRetryFailedApiRequest) {
+				await setTimeoutPromise(1000)
+				this.didAutomaticallyRetryFailedApiRequest = true
+				yield* this.attemptApiRequest(previousApiReqIndex)
+				return
+			}
+
+			// 6. 사용자 재시도 요청 (Cline 패턴)
+			const { response } = await this.ask("api_req_failed", this.formatErrorWithStatusCode(error))
+			if (response === "yesButtonClicked") {
+				await this.say("api_req_retried")
+				yield* this.attemptApiRequest(previousApiReqIndex)
+				return
+			}
+		}
+	}
+}
+```
+
+### 3.4. 상태 관리 아키텍처 (Cline 패턴)
+
+Cline의 Controller ↔ ExtensionStateContext 통신 패턴을 기반으로 Caret 상태 관리:
+
+```typescript
+// caret-src/core/state/CaretStateManager.ts
+import { Controller } from "../../../src/core/controller/index"
+
+export class CaretStateManager extends Controller {
+	// Cline의 다중 저장소 패턴 활용
+	async initializeCaretState() {
+		// Global State: 모든 VSCode 인스턴스에서 공유 (Cline 패턴)
+		const globalCaretSettings = await this.context.globalState.get("caret.settings", {})
+
+		// Workspace State: 현재 워크스페이스 전용 (Cline 패턴)
+		const workspaceCaretData = await this.context.workspaceState.get("caret.workspace", {})
+
+		// Secrets: 민감한 정보 안전 저장 (Cline 패턴)
+		const caretApiKeys = await this.context.secrets.get("caret.apiKeys")
+
+		// Caret 고유 상태 초기화
+		await this.setupCaretSpecificState(globalCaretSettings, workspaceCaretData)
+	}
+
+	// Cline의 인스턴스 간 상태 동기화 패턴 활용
+	async syncCaretStateAcrossInstances() {
+		// 파일 기반 저장소 (Cline 패턴)
+		await this.saveCaretTaskHistory()
+
+		// VSCode 글로벌 상태 API (Cline 패턴)
+		await this.context.globalState.update("caret.lastSync", Date.now())
+
+		// 파일 변경 및 설정 업데이트 리스너 (Cline 패턴)
+		this.setupCaretStateListeners()
+	}
+}
+```
+
+### 3.5. 에러 처리 및 복구 시스템 (Cline 패턴)
+
+Cline의 견고한 에러 처리 패턴을 Caret에 적용:
+
+```typescript
+// CaretTask 에러 처리
+export class CaretTask extends Task {
+	async handleError(action: string, error: Error) {
+		// 1. 작업 중단 확인 (Cline 패턴)
+		if (this.abandoned) return
+
+		// 2. Caret 고유 에러 분류
+		const errorCategory = this.categorizeCaretError(error)
+
+		// 3. 에러 메시지 포맷팅 (Cline 패턴)
+		const errorString = `Error ${action}: ${error.message}`
+
+		// 4. 사용자에게 에러 표시 (Cline 패턴)
+		await this.say("error", errorString)
+
+		// 5. 도구 결과에 에러 추가 (Cline 패턴)
+		pushToolResult(formatResponse.toolError(errorString))
+
+		// 6. 리소스 정리 (Cline 패턴 + Caret 확장)
+		await this.diffViewProvider.revertChanges()
+		await this.browserSession.closeBrowser()
+		await this.cleanupCaretResources() // Caret 고유 정리
+	}
+
+	// Caret 고유 에러 분류 시스템
+	private categorizeCaretError(error: Error): CaretErrorCategory {
+		if (error.message.includes("caret-specific")) {
+			return CaretErrorCategory.CARET_FEATURE_ERROR
+		}
+		if (error.message.includes("api")) {
+			return CaretErrorCategory.API_ERROR
+		}
+		return CaretErrorCategory.GENERAL_ERROR
+	}
+
+	// Caret 전용 리소스 정리
+	private async cleanupCaretResources() {
+		// Caret 고유 리소스 정리 로직
+		await this.caretLogger.flush()
+		await this.caretStateManager.saveEmergencyState()
+	}
+}
+```
+
+## 4. 구현 전략
+
+### 4.1. 백엔드 확장 (caret-src)
+
 **목적**: Cline의 핵심 기능을 활용하면서 Caret 고유 기능 추가
 
 **구현 방식**:
+
 1. **Cline 모듈 직접 활용**
-   ```typescript
-   // caret-src/extension.ts
-   import { WebviewProvider } from '../src/core/webview/WebviewProvider';
-   import { TaskManager } from '../src/core/task/TaskManager';
-   
-   // Cline 모듈을 직접 import하여 활용
-   export class CaretProvider extends WebviewProvider {
-     // Caret 고유 기능만 추가/오버라이드
-   }
-   ```
+
+    ```typescript
+    // caret-src/extension.ts
+    import { WebviewProvider } from "../src/core/webview/WebviewProvider"
+    import { TaskManager } from "../src/core/task/TaskManager"
+
+    // Cline 모듈을 직접 import하여 활용
+    export class CaretProvider extends WebviewProvider {
+    	// Caret 고유 기능만 추가/오버라이드
+    }
+    ```
 
 2. **클래스 상속을 통한 확장**
-   ```typescript
-   // caret-src/core/webview/CaretProvider.ts
-   import { WebviewProvider } from '../../../src/core/webview/WebviewProvider';
-   
-   export class CaretProvider extends WebviewProvider {
-     // 기존 메서드 오버라이드
-     override async initialize(): Promise<void> {
-       await super.initialize();
-       // Caret 전용 초기화 로직
-       await this.initializeCaretFeatures();
-     }
-   
-     // 새로운 메서드 추가
-     private async initializeCaretFeatures(): Promise<void> {
-       // Caret 고유 기능 구현
-     }
-   }
-   ```
 
-### 3.2. 프론트엔드 확장 (webview-ui)
+    ```typescript
+    // caret-src/core/webview/CaretProvider.ts
+    import { WebviewProvider } from "../../../src/core/webview/WebviewProvider"
+
+    export class CaretProvider extends WebviewProvider {
+    	// 기존 메서드 오버라이드
+    	override async initialize(): Promise<void> {
+    		await super.initialize()
+    		// Caret 전용 초기화 로직
+    		await this.initializeCaretFeatures()
+    	}
+
+    	// 새로운 메서드 추가
+    	private async initializeCaretFeatures(): Promise<void> {
+    		// Caret 고유 기능 구현
+    	}
+    }
+    ```
+
+### 4.2. 프론트엔드 확장 (webview-ui)
+
 **목적**: Cline의 React 빌드 시스템을 그대로 활용하면서 UI 확장
 
 **구현 방식**:
+
 1. **컴포넌트 추가**
-   ```typescript
-   // webview-ui/src/caret/CaretWelcome.tsx
-   import React from 'react';
-   import { useExtensionState } from '../context/ExtensionStateContext';
-   
-   export const CaretWelcome: React.FC = () => {
-     const { state } = useExtensionState();
-     
-     return (
-       <div className="caret-welcome">
-         {/* Caret 전용 웰컴 페이지 */}
-       </div>
-     );
-   };
-   ```
+
+    ```typescript
+    // webview-ui/src/caret/CaretWelcome.tsx
+    import React from 'react';
+    import { useExtensionState } from '../context/ExtensionStateContext';
+
+    export const CaretWelcome: React.FC = () => {
+      const { state } = useExtensionState();
+
+      return (
+        <div className="caret-welcome">
+          {/* Caret 전용 웰컴 페이지 */}
+        </div>
+      );
+    };
+    ```
 
 2. **라우팅 분기**
-   ```typescript
-   // webview-ui/src/App.tsx 수정 (필요시)
-   import { CaretWelcome } from './caret/CaretWelcome';
-   
-   function App() {
-     const isCaretMode = /* Caret 모드 판별 로직 */;
-     
-     if (isCaretMode) {
-       return <CaretWelcome />;
-     }
-     
-     // 기존 Cline UI
-     return <ClineApp />;
-   }
-   ```
+
+    ```typescript
+    // webview-ui/src/App.tsx 수정 (필요시)
+    import { CaretWelcome } from './caret/CaretWelcome';
+
+    function App() {
+      const isCaretMode = /* Caret 모드 판별 로직 */;
+
+      if (isCaretMode) {
+        return <CaretWelcome />;
+      }
+
+      // 기존 Cline UI
+      return <ClineApp />;
+    }
+    ```
 
 3. **유틸리티 추가**
-   ```typescript
-   // webview-ui/src/utils/caret-i18n.ts
-   // webview-ui/src/utils/caret-webview-logger.ts
-   // Caret 전용 유틸리티 함수들
-   ```
+    ```typescript
+    // webview-ui/src/utils/caret-i18n.ts
+    // webview-ui/src/utils/caret-webview-logger.ts
+    // Caret 전용 유틸리티 함수들
+    ```
 
-### 3.3. 필요시 파일 교체
+### 4.3. 필요시 파일 교체
+
 **원칙**: 최후의 수단으로만 사용, 반드시 백업 생성
 
 **구현 방식**:
+
 1. **원본 백업**
-   ```bash
-   # 원본 파일을 .cline 확장자로 백업
-   cp webview-ui/src/components/Welcome.tsx webview-ui/src/components/Welcome-tsx.cline
-   ```
+
+    ```bash
+    # 원본 파일을 .cline 확장자로 백업
+    cp webview-ui/src/components/Welcome.tsx webview-ui/src/components/Welcome-tsx.cline
+    ```
 
 2. **Caret 버전으로 교체**
-   ```typescript
-   // webview-ui/src/components/Welcome.tsx (교체됨)
-   // Caret 전용 Welcome 컴포넌트 구현
-   ```
+
+    ```typescript
+    // webview-ui/src/components/Welcome.tsx (교체됨)
+    // Caret 전용 Welcome 컴포넌트 구현
+    ```
 
 3. **머징 가이드 업데이트**
-   - `caret-docs/guides/upstream-merging.md`에 교체 파일 정보 기록
+    - `caret-docs/guides/upstream-merging.md`에 교체 파일 정보 기록
 
-## 4. 빌드 시스템
+## 5. 빌드 시스템
 
-### 4.1. 통합 빌드 프로세스
+### 5.1. 통합 빌드 프로세스
+
 Caret은 Cline의 기존 빌드 시스템을 최대한 활용:
 
 ```bash
@@ -163,69 +437,80 @@ npm run compile
 cd webview-ui && npm run build
 ```
 
-### 4.2. 빌드 설정 최적화
-- **tsconfig.json**: `src/`와 `caret-src/` 경로 포함
-- **package.json**: Cline 스크립트 확장
-- **vite.config.ts**: Caret 컴포넌트 경로 추가
+### 5.2. 빌드 설정 최적화
 
-## 5. 개발 워크플로우
+-   **tsconfig.json**: `src/`와 `caret-src/` 경로 포함
+-   **package.json**: Cline 스크립트 확장
+-   **vite.config.ts**: Caret 컴포넌트 경로 추가
 
-### 5.1. 새 기능 개발
+## 6. 개발 워크플로우
+
+### 6.1. 새 기능 개발
+
 1. **요구사항 분석**: Cline 기존 기능으로 충족 가능한지 확인
 2. **구현 방식 결정**: 확장 vs 교체 vs 신규 추가
 3. **최소 구현**: 가능한 Cline 모듈 재사용
 4. **테스트 및 로깅**: 모든 새 기능에 테스트와 로깅 포함
 
-### 5.2. 업스트림 머징
+### 6.2. 업스트림 머징
+
 1. **Cline 변경사항 확인**
 2. **충돌 해결**: 주로 `src/` 디렉토리에서 발생
 3. **Caret 기능 호환성 검증**
 4. **문서 업데이트**
 
-## 6. 품질 관리
+## 7. 품질 관리
 
-### 6.1. 테스트 전략
-- **Cline 기능**: 원본 테스트 그대로 유지
-- **Caret 확장**: 100% 테스트 커버리지 목표
-- **통합 테스트**: Cline-Caret 연동 검증
+### 7.1. 테스트 전략
 
-### 6.2. 로깅 시스템
+-   **Cline 기능**: 원본 테스트 그대로 유지
+-   **Caret 확장**: 100% 테스트 커버리지 목표
+-   **통합 테스트**: Cline-Caret 연동 검증
+
+### 7.2. 로깅 시스템 (Cline 패턴 확장)
+
 ```typescript
-// caret-src/utils/logger.ts
-import { Logger } from '../src/services/logging/Logger';
+// caret-src/utils/caret-logger.ts
+import { Logger } from "../src/services/logging/Logger"
 
-export const caretLogger = Logger.getLogger('Caret');
+export class CaretLogger extends Logger {
+	constructor(name: string) {
+		super(`Caret.${name}`)
+	}
 
-caretLogger.info('Caret feature initialized');
+	// Cline 로깅 패턴 + Caret 컨텍스트 추가
+	logWithContext(level: LogLevel, message: string, context?: any) {
+		const caretContext = {
+			...context,
+			caretVersion: this.getCaretVersion(),
+			timestamp: new Date().toISOString(),
+		}
+
+		super.log(level, message, caretContext)
+	}
+}
+
+// 사용 예시
+export const caretLogger = new CaretLogger("Core")
+caretLogger.logWithContext("info", "Caret feature initialized", { feature: "welcome" })
 ```
 
-### 6.3. 코드 품질
-- **ESLint/Prettier**: Cline 설정 준수
-- **TypeScript**: 엄격한 타입 검사
-- **코드 리뷰**: 모든 변경사항 검토
+## 8. Cline 패턴 활용 모범 사례
 
-## 7. 성공 기준
+### 8.1. 스트리밍 처리 모범 사례
 
-### 7.1. 기술적 목표
-- ✅ **빌드 성공**: `npm run compile` 오류 없음
-- ✅ **확장 로드**: VSCode에서 Caret 정상 실행
-- ✅ **기능 동작**: 기본 UI 표시 및 Cline 호환성
+-   **잠금 메커니즘**: race condition 방지를 위한 적절한 잠금 사용
+-   **부분 업데이트**: 스트리밍 중 부분 콘텐츠 안전 처리
+-   **에러 복구**: 스트림 중단 시 적절한 복구 메커니즘
 
-### 7.2. 아키텍처 목표
-- ✅ **코드 재사용**: Cline 기능 최대 활용
-- ✅ **확장성**: 새 기능 추가 용이성
-- ✅ **유지보수성**: 업스트림 머징 원활함
+### 8.2. 상태 관리 모범 사례
 
-## 8. 문제 해결 가이드
+-   **다중 저장소**: Global/Workspace/Secrets 적절한 분리 사용
+-   **인스턴스 동기화**: 여러 확장 인스턴스 간 상태 일관성 유지
+-   **캐시 관리**: 성능을 위한 적절한 캐싱 전략
 
-### 8.1. 일반적인 문제들
-- **경로 오류**: `../../../src/` 경로 확인
-- **타입 오류**: Cline 타입 정의 활용
-- **빌드 실패**: Protocol Buffer 컴파일 선행
+### 8.3. API 관리 모범 사례
 
-### 8.2. 디버깅 팁
-- **VSCode 디버거**: F5로 확장 개발 환경 실행
-- **콘솔 로그**: 개발자 도구에서 로그 확인
-- **소스맵**: TypeScript 소스 레벨 디버깅
-
-이 가이드는 Caret의 Fork 기반 아키텍처를 통해 안정적이고 확장 가능한 개발 환경을 구축하는 데 도움이 됩니다. 모든 변경사항은 이 원칙을 기반으로 진행되어야 합니다.
+-   **토큰 추적**: 정확한 토큰 사용량 모니터링
+-   **컨텍스트 관리**: 자동 대화 축약으로 메모리 효율성 확보
+-   **재시도 로직**: 일시적 오류에 대한 견고한 재시도 메커니즘

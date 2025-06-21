@@ -1,3 +1,4 @@
+// CARET MODIFICATION: Added debug logging for API provider selection and configuration tracking. Original backed up as index-ts.cline
 import { Anthropic } from "@anthropic-ai/sdk"
 import { ApiConfiguration, ModelInfo } from "../shared/api"
 import { AnthropicHandler } from "./providers/anthropic"
@@ -26,7 +27,7 @@ import { XAIHandler } from "./providers/xai"
 import { SambanovaHandler } from "./providers/sambanova"
 import { CerebrasHandler } from "./providers/cerebras"
 import { SapAiCoreHandler } from "./providers/sapaicore"
-import { caretLogger } from "../../caret-src/utils/caret-logger"
+import { Logger } from "@services/logging/Logger"
 
 export interface ApiHandler {
 	createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream
@@ -42,98 +43,98 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 	const { apiProvider, ...options } = configuration
 
 	// CARET MODIFICATION: Debug logging to track API provider selection and parameters
-	caretLogger.debug("==================== API HANDLER BUILD ====================", "API")
-	caretLogger.debug(`Selected API Provider: "${apiProvider}"`, "API")
-	caretLogger.debug(`Full Configuration: ${JSON.stringify(configuration, null, 2)}`, "API")
-	caretLogger.debug(`Provider-specific options: ${JSON.stringify(options, null, 2)}`, "API")
+	Logger.debug("[API] ==================== API HANDLER BUILD ====================")
+	Logger.debug(`[API] Selected API Provider: "${apiProvider}"`)
+	Logger.debug(`[API] Full Configuration: ${JSON.stringify(configuration, null, 2)}`)
+	Logger.debug(`[API] Provider-specific options: ${JSON.stringify(options, null, 2)}`)
 
 	// Log specific API keys to see what's available
-	caretLogger.debug("API Keys Status:", "API")
-	caretLogger.debug(`  - anthropic apiKey: ${options.apiKey ? "SET" : "NOT SET"}`, "API")
-	caretLogger.debug(`  - openRouter apiKey: ${options.openRouterApiKey ? "SET" : "NOT SET"}`, "API")
-	caretLogger.debug(`  - openAI apiKey: ${options.openAiApiKey ? "SET" : "NOT SET"}`, "API")
-	caretLogger.debug(`  - gemini apiKey: ${options.geminiApiKey ? "SET" : "NOT SET"}`, "API")
-	caretLogger.debug(`  - cline apiKey: ${options.clineApiKey ? "SET" : "NOT SET"}`, "API")
-	caretLogger.debug("===========================================================", "API")
+	Logger.debug("[API] API Keys Status:")
+	Logger.debug(`[API]   - anthropic apiKey: ${options.apiKey ? "SET" : "NOT SET"}`)
+	Logger.debug(`[API]   - openRouter apiKey: ${options.openRouterApiKey ? "SET" : "NOT SET"}`)
+	Logger.debug(`[API]   - openAI apiKey: ${options.openAiApiKey ? "SET" : "NOT SET"}`)
+	Logger.debug(`[API]   - gemini apiKey: ${options.geminiApiKey ? "SET" : "NOT SET"}`)
+	Logger.debug(`[API]   - cline apiKey: ${options.clineApiKey ? "SET" : "NOT SET"}`)
+	Logger.debug("[API] ===========================================================")
 
 	switch (apiProvider) {
 		case "anthropic":
-			caretLogger.debug("Creating AnthropicHandler", "API")
+			Logger.debug("[API] Creating AnthropicHandler")
 			return new AnthropicHandler(options)
 		case "openrouter":
-			caretLogger.debug(`Creating OpenRouterHandler with key: ${options.openRouterApiKey ? "SET" : "NOT SET"}`, "API")
+			Logger.debug(`[API] Creating OpenRouterHandler with key: ${options.openRouterApiKey ? "SET" : "NOT SET"}`)
 			return new OpenRouterHandler(options)
 		case "bedrock":
-			caretLogger.debug("Creating AwsBedrockHandler", "API")
+			Logger.debug("[API] Creating AwsBedrockHandler")
 			return new AwsBedrockHandler(options)
 		case "vertex":
-			caretLogger.debug("Creating VertexHandler", "API")
+			Logger.debug("[API] Creating VertexHandler")
 			return new VertexHandler(options)
 		case "openai":
-			caretLogger.debug("Creating OpenAiHandler", "API")
+			Logger.debug("[API] Creating OpenAiHandler")
 			return new OpenAiHandler(options)
 		case "ollama":
-			caretLogger.debug("Creating OllamaHandler", "API")
+			Logger.debug("[API] Creating OllamaHandler")
 			return new OllamaHandler(options)
 		case "lmstudio":
-			caretLogger.debug("Creating LmStudioHandler", "API")
+			Logger.debug("[API] Creating LmStudioHandler")
 			return new LmStudioHandler(options)
 		case "gemini":
-			caretLogger.debug("Creating GeminiHandler", "API")
+			Logger.debug("[API] Creating GeminiHandler")
 			return new GeminiHandler(options)
 		case "openai-native":
-			caretLogger.debug("Creating OpenAiNativeHandler", "API")
+			Logger.debug("[API] Creating OpenAiNativeHandler")
 			return new OpenAiNativeHandler(options)
 		case "deepseek":
-			caretLogger.debug("Creating DeepSeekHandler", "API")
+			Logger.debug("[API] Creating DeepSeekHandler")
 			return new DeepSeekHandler(options)
 		case "requesty":
-			caretLogger.debug("Creating RequestyHandler", "API")
+			Logger.debug("[API] Creating RequestyHandler")
 			return new RequestyHandler(options)
 		case "fireworks":
-			caretLogger.debug("Creating FireworksHandler", "API")
+			Logger.debug("[API] Creating FireworksHandler")
 			return new FireworksHandler(options)
 		case "together":
-			caretLogger.debug("Creating TogetherHandler", "API")
+			Logger.debug("[API] Creating TogetherHandler")
 			return new TogetherHandler(options)
 		case "qwen":
-			caretLogger.debug("Creating QwenHandler", "API")
+			Logger.debug("[API] Creating QwenHandler")
 			return new QwenHandler(options)
 		case "doubao":
-			caretLogger.debug("Creating DoubaoHandler", "API")
+			Logger.debug("[API] Creating DoubaoHandler")
 			return new DoubaoHandler(options)
 		case "mistral":
-			caretLogger.debug("Creating MistralHandler", "API")
+			Logger.debug("[API] Creating MistralHandler")
 			return new MistralHandler(options)
 		case "vscode-lm":
-			caretLogger.debug("Creating VsCodeLmHandler", "API")
+			Logger.debug("[API] Creating VsCodeLmHandler")
 			return new VsCodeLmHandler(options)
 		case "cline":
-			caretLogger.debug("Creating ClineHandler", "API")
+			Logger.debug("[API] Creating ClineHandler")
 			return new ClineHandler(options)
 		case "litellm":
-			caretLogger.debug("Creating LiteLlmHandler", "API")
+			Logger.debug("[API] Creating LiteLlmHandler")
 			return new LiteLlmHandler(options)
 		case "nebius":
-			caretLogger.debug("Creating NebiusHandler", "API")
+			Logger.debug("[API] Creating NebiusHandler")
 			return new NebiusHandler(options)
 		case "asksage":
-			caretLogger.debug("Creating AskSageHandler", "API")
+			Logger.debug("[API] Creating AskSageHandler")
 			return new AskSageHandler(options)
 		case "xai":
-			caretLogger.debug("Creating XAIHandler", "API")
+			Logger.debug("[API] Creating XAIHandler")
 			return new XAIHandler(options)
 		case "sambanova":
-			caretLogger.debug("Creating SambanovaHandler", "API")
+			Logger.debug("[API] Creating SambanovaHandler")
 			return new SambanovaHandler(options)
 		case "cerebras":
-			caretLogger.debug("Creating CerebrasHandler", "API")
+			Logger.debug("[API] Creating CerebrasHandler")
 			return new CerebrasHandler(options)
 		case "sapaicore":
-			caretLogger.debug("Creating SapAiCoreHandler", "API")
+			Logger.debug("[API] Creating SapAiCoreHandler")
 			return new SapAiCoreHandler(options)
 		default:
-			caretLogger.warn(`⚠️  Unknown provider "${apiProvider}", falling back to AnthropicHandler`, "API")
+			Logger.warn(`[API] ⚠️  Unknown provider "${apiProvider}", falling back to AnthropicHandler`)
 			return new AnthropicHandler(options)
 	}
 }

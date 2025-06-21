@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { WebviewProvider as ClineWebviewProvider } from "../../../src/core/webview"
+import { WebviewProvider as ClineWebviewProvider } from "../../../src/core/webview/index"
 import { WebviewProviderType } from "../../../src/shared/webview/types" // WebviewProviderType도 가져옵니다.
 import { caretLogger, logCaretWelcome, logCaretUser } from "../../utils/caret-logger"
 import { getUri } from "../../../src/core/webview/getUri"

@@ -1,0 +1,169 @@
+{
+  "project_overview": {
+    "name": "Caret",
+    "description": "VSCode AI coding assistant extension - Cline-based Fork project",
+    "repository_url": "https://github.com/aicoding-caret/caret",
+    "naming_convention": "Caret refers to the '^' (caret) symbol used in programming, representing position and direction in programming contexts. NOT a carrot (🥕)."
+  },
+  "architecture_principles": {
+    "fork_structure": "Cline codebase directly integrated in src/ directory with minimal extension strategy",
+    "directory_structure": {
+      "src": "Cline original code (must preserve)",
+      "caret_src": "Caret extension features (minimal)",
+      "webview_ui": "React frontend (leveraging Cline build system)",
+      "caret_assets": "Caret-specific resources",
+      "caret_docs": "Caret documentation system",
+      "caret_scripts": "Caret automation scripts"
+    },
+    "code_management_principles": [
+      "Preserve Cline code: maintain src/, webview-ui/, proto/, scripts/, evals/, docs/, locales/ and root config files",
+      "Minimal extension: free modification only in caret-src/, caret-docs/, caret-assets/",
+      "Inheritance over replacement: prefer class inheritance over file replacement",
+      "Backup mandatory: create .cline backup before modifying any Cline original file"
+    ],
+    "backup_rules": {
+      "backup_command": "cp src/extension.ts src/extension-ts.cline",
+      "modification_marker": "// CARET MODIFICATION: description of Caret-specific functionality"
+    },
+    "cline_patterns": [
+      "Task execution system: streaming processing, race condition prevention with locking mechanisms",
+      "API management: token tracking and automatic context management",
+      "Error handling: automatic retry and user confirmation processes",
+      "State management: Global/Workspace/Secrets multi-store, instance synchronization",
+      "Real-time communication: Controller ↔ ExtensionStateContext pattern"
+    ]
+  },
+  "development_environment": {
+    "requirements": "Node.js 18+, npm/yarn, VSCode, Git",
+    "setup_commands": [
+      "git clone https://github.com/aicoding-caret/caret.git",
+      "cd caret",
+      "npm install",
+      "cd webview-ui && npm install && cd ..",
+      "npm run protos",
+      "npm run compile"
+    ],
+    "build_commands": {
+      "protos": "npm run protos",
+      "compile": "npm run compile", 
+      "build_webview": "npm run build:webview",
+      "watch": "npm run watch",
+      "package": "npm run package"
+    }
+  },
+  "development_process": {
+    "git_commit_convention": "[type]: [description] - feat, fix, docs, style, refactor, test, chore",
+    "state_management": "CaretProvider extends Cline's WebviewProvider, following Cline patterns with minimal extensions",
+    "tool_integration": "Utilize Cline's existing integrations (src/integrations/), API providers (src/api/providers/), checkpoints (src/integrations/checkpoints/)"
+  },
+  "ai_task_protocol": {
+    "task_start_protocol": [
+      "User identification: verify current user with 'git config user.name'",
+      "Date confirmation: get current date with OS-specific commands",
+      "Work log check/creation: caret-docs/work-logs/{username}/{date}.md",
+      "Related task document identification: reference caret-docs/tasks/task-status.md",
+      "Document review: thorough review of plans, checklists, reports",
+      "Developer report: completion of document review and task readiness"
+    ],
+    "core_principles": [
+      "Quality first: prioritize accuracy and quality over speed",
+      "Tests must pass: all tests must pass, fix root causes when tests fail",
+      "No problem avoidance: no temporary fixes or 'fix later' approaches",
+      "Prevent technical debt: implement correctly from the start",
+      "Pursue completeness: never finish work in partial/incomplete state",
+      "Verification first: always verify through compilation, testing, execution after code changes"
+    ],
+    "phase_based_work": {
+      "planning": "Divide all work into clear Phase units, each Phase independently completable",
+      "execution": "Before Phase start: reconfirm related guide documents and principles. Before file modifications: mandatory check 'Is this a Cline original file?'"
+    },
+    "self_diagnosis": "When principle violations or unclear guidelines are detected, halt work and request guide improvements"
+  },
+  "documentation_system": {
+    "standardization_completed": "2025-01-21 completed",
+    "achievements": [
+      "MDX format: all development documents unified to .mdx format",
+      "Integration completed: UI-to-Storage-Flow related 10 split documents merged into 1",
+      "Real code alignment: all paths/examples match actual codebase",
+      "Framework update: Jest → Vitest conversion completed",
+      "Unnecessary document cleanup: work documents/review reports cleaned up",
+      "Cline pattern integration: Cline technical patterns integrated into architecture guide"
+    ],
+    "core_documents": [
+      "Development guide: ./development/index.mdx",
+      "Architecture guide: ./development/caret-architecture-and-implementation-guide.mdx",
+      "Testing guide: ./development/testing-guide.mdx (Vitest-based)",
+      "Logging guide: ./development/logging.mdx"
+    ],
+    "writing_standards": [
+      "Term consistency: Caret refers to '^' symbol (NOT carrot 🥕)",
+      "Path accuracy: must exactly match actual codebase",
+      "Example code: include only working code examples",
+      "MDX format: all technical documents in .mdx format"
+    ],
+    "task_document_format": {
+      "task_number": "3-digit numbers (001, 002, ...)",
+      "plan": "{task-number}-01-plan-{task-name}.md",
+      "checklist": "{task-number}-02-action-checklist-{task-name}.md",
+      "report": "{task-number}-03-report-{task-name}.md"
+    }
+  },
+  "testing_quality": {
+    "framework": "Vitest (updated)",
+    "commands": {
+      "test": "npm test",
+      "coverage": "npm run test:coverage",
+      "watch": "npm run test:watch"
+    },
+    "test_standards": "import { describe, it, expect, vi } from 'vitest' - AAA pattern (Arrange, Act, Assert)",
+    "quality_standards": [
+      "Caret-specific code: 100% test coverage goal",
+      "TDD methodology: Red-Green-Refactor cycle",
+      "Test first: write tests before implementing features"
+    ],
+    "logging_system": {
+      "backend": "CaretLogger (backend): caret-src/utils/caret-logger.ts",
+      "frontend": "WebviewLogger (frontend): webview-ui/src/caret/utils/webview-logger.ts"
+    }
+  },
+  "project_management": {
+    "script_management": "Caret scripts located in caret-scripts/ (separate from Cline scripts/)",
+    "key_scripts": [
+      "node caret-scripts/caret-coverage-check.js",
+      "node caret-scripts/sync-caretrules.js",
+      "node caret-scripts/test-report.js"
+    ],
+    "upstream_merging": "Cline update integration process - change verification, conflict resolution (src/ directory), compatibility testing, documentation updates",
+    "rules_management": {
+      "master_file": "caret-docs/caretrules.ko.md (Korean template)",
+      "auto_sync": "AI automatically synchronizes JSON files (.caretrules, .windsurfrules, .cursorrules) when master file changes"
+    }
+  },
+  "key_reference_files": {
+    "config_files": [".caretrules", "caret-docs/caretrules.ko.md", "caret-docs/development/index.mdx"],
+    "entry_points": ["caret-src/extension.ts", "caret-src/core/webview/CaretProvider.ts", "src/extension.ts"],
+    "frontend": ["webview-ui/src/App.tsx", "webview-ui/src/context/ExtensionStateContext.tsx", "webview-ui/src/caret/"]
+  },
+  "recent_updates": {
+    "date": "2025-01-21",
+    "major_improvements": [
+      "Documentation standardization: all development documents unified to .mdx format",
+      "Document integration: UI-to-Storage-Flow split documents 10 → integrated 1",
+      "Real code alignment: all paths/examples exactly match actual codebase",
+      "Test framework: Jest → Vitest complete conversion",
+      "Logging system: CaretLogger, WebviewLogger actual location reflection",
+      "Unnecessary document cleanup: work documents, review reports cleaned up",
+      "Link integrity: README.md broken links fixed",
+      "Build system: Protocol Buffer compilation step added",
+      "Cline technical patterns: Task execution, streaming, state management, API management patterns integrated"
+    ],
+    "improvement_effects": [
+      "Practical accuracy: 100% match between documentation and actual code",
+      "Development efficiency: improved information accessibility through integrated documentation",
+      "Standardization: consistent documentation system built on MDX foundation",
+      "Test consistency: unified test environment based on Vitest",
+      "Technical pattern utilization: active utilization of Cline's proven architecture patterns"
+    ],
+    "version": "Fork-based architecture completion and documentation system standardization completed"
+  }
+}

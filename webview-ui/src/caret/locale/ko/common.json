@@ -1,27 +1,47 @@
 {
-  "button": {
-    "freeStart": "무료로 시작하기",
-    "useOwnKey": "자신의 API 키 사용하기",
-    "letsGo": "시작하기!",
-    "save": "저장",
-    "cancel": "취소",
-    "setupApiOrLocal": "내 API 키 사용 또는 로컬 LLM 설정",
-    "notifyCaretAccount": "Caret 구독 서비스 알림받기",
-    "saveAndStart": "저장하고 시작하기"
-  },
-  "error": {
-    "generic": "오류가 발생했습니다."
-  },
-  "imageAlt": {
-    "caretBanner": "Caret 로고 배너"
-  },
-  "title": {
-    "apiKeySettings": "API 키 설정"
-  },
-  "text": {
-    "finalThoughts": "{{appName}}와(과) 함께 멋진 개발 여정을 시작해보세요!"
-  },
-  "link": {
-    "learnMoreCaretGit": "Caret GitHub에서 더 알아보기"
-  }
-} 
+	"button": {
+		"freeStart": "무료로 시작하기",
+		"useOwnKey": "자신의 API 키 사용하기",
+		"letsGo": "시작하기!",
+		"save": "저장",
+		"cancel": "취소",
+		"setupApiOrLocal": "내 API 키 사용 또는 로컬 LLM 설정",
+		"notifyCaretAccount": "Caret 구독 서비스 알림받기",
+		"saveAndStart": "저장하고 시작하기"
+	},
+	"error": {
+		"generic": "오류가 발생했습니다."
+	},
+	"imageAlt": {
+		"caretBanner": "Caret 로고 배너"
+	},
+	"title": {
+		"apiKeySettings": "API 키 설정"
+	},
+	"text": {
+		"finalThoughts": "{{appName}}와(과) 함께 멋진 개발 여정을 시작해보세요!"
+	},
+	"link": {
+		"learnMoreCaretGit": "Caret GitHub에서 더 알아보기"
+	},
+	"rules": {
+		"title": "Cline 규칙 및 워크플로우 관리",
+		"globalRules": "전역 규칙",
+		"workspaceRules": "워크스페이스 규칙",
+		"globalWorkflows": "전역 워크플로우",
+		"workspaceWorkflows": "워크스페이스 워크플로우",
+		"rulesDescription": "규칙을 통해 Cline에게 시스템 수준의 지침을 제공할 수 있습니다. 프로젝트별 또는 모든 대화에 대한 컨텍스트와 선호사항을 지속적으로 포함하는 방법으로 생각하세요.",
+		"workflowsDescription": "워크플로우를 통해 서비스 배포나 PR 제출과 같은 반복적인 작업들을 Cline이 수행할 수 있도록 일련의 단계를 정의할 수 있습니다. 워크플로우를 실행하려면 채팅에서 /워크플로우명을 입력하세요.",
+		"toggleError": "규칙 토글 오류",
+		"caretrules": "Caret 규칙 (.caretrules)",
+		"clinerules": "Cline 규칙 (.clinerules)",
+		"cursorrules": "Cursor 규칙 (.cursorrules)",
+		"windsurfrules": "Windsurf 규칙 (.windsurfrules)"
+	},
+	"settings": {
+		"uiLanguage": {
+			"title": "UI 언어",
+			"description": "Caret의 사용자 인터페이스 요소(메뉴, 버튼, 메시지 등)에 사용되는 언어입니다."
+		}
+	}
+}

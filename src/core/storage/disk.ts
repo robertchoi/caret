@@ -8,12 +8,14 @@ import { TaskMetadata } from "@core/context/context-tracking/ContextTrackerTypes
 import os from "os"
 import { execa } from "@packages/execa"
 
+// CARET MODIFICATION: Added caretrules support with priority system. Original backed up as disk-ts.cline
 export const GlobalFileNames = {
 	apiConversationHistory: "api_conversation_history.json",
 	contextHistory: "context_history.json",
 	uiMessages: "ui_messages.json",
 	openRouterModels: "openrouter_models.json",
 	mcpSettings: "cline_mcp_settings.json",
+	caretRules: ".caretrules",
 	clineRules: ".clinerules",
 	workflows: ".clinerules/workflows",
 	cursorRulesDir: ".cursor/rules",

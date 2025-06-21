@@ -101,6 +101,7 @@ import {
 import { ensureLocalClineDirExists } from "../context/instructions/user-instructions/rule-helpers"
 import {
 	refreshExternalRulesToggles,
+	getLocalCaretRules,
 	getLocalWindsurfRules,
 	getLocalCursorRules,
 } from "@core/context/instructions/user-instructions/external-rules"
@@ -1702,13 +1703,18 @@ export class Task {
 				? `# Preferred Language\n\nSpeak in ${preferredLanguage}.`
 				: ""
 
+		// CARET MODIFICATION: Added caretrules support with priority system. Original backed up as index-ts.cline
 		const { globalToggles, localToggles } = await refreshClineRulesToggles(this.getContext(), cwd)
-		const { windsurfLocalToggles, cursorLocalToggles } = await refreshExternalRulesToggles(this.getContext(), cwd)
+		const { caretLocalToggles, windsurfLocalToggles, cursorLocalToggles } = await refreshExternalRulesToggles(
+			this.getContext(),
+			cwd,
+		)
 
 		const globalClineRulesFilePath = await ensureRulesDirectoryExists()
 		const globalClineRulesFileInstructions = await getGlobalClineRules(globalClineRulesFilePath, globalToggles)
 
 		const localClineRulesFileInstructions = await getLocalClineRules(cwd, localToggles)
+		const localCaretRulesFileInstructions = await getLocalCaretRules(cwd, caretLocalToggles)
 		const [localCursorRulesFileInstructions, localCursorRulesDirInstructions] = await getLocalCursorRules(
 			cwd,
 			cursorLocalToggles,
@@ -1724,6 +1730,7 @@ export class Task {
 		if (
 			globalClineRulesFileInstructions ||
 			localClineRulesFileInstructions ||
+			localCaretRulesFileInstructions ||
 			localCursorRulesFileInstructions ||
 			localCursorRulesDirInstructions ||
 			localWindsurfRulesFileInstructions ||
@@ -1734,6 +1741,7 @@ export class Task {
 			const userInstructions = addUserInstructions(
 				globalClineRulesFileInstructions,
 				localClineRulesFileInstructions,
+				localCaretRulesFileInstructions,
 				localCursorRulesFileInstructions,
 				localCursorRulesDirInstructions,
 				localWindsurfRulesFileInstructions,

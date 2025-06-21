@@ -1,25 +1,25 @@
-# Task #004: Cline+Caret 통합 문서화 시스템 구축 계획 (Docusaurus)
+# Task #004: docs + caret-docs 통합 문서화 시스템 구축 계획 (Docusaurus i18n)
 
-**작업 기간**: 2025년 6월 17일  
+**작업 기간**: 2025년 1월 21일 업데이트  
 **담당자**: luke  
 **우선순위**: 높음  
 **관련 작업**: Task #001 (아키텍처 초기화)
 
 ## 📋 **작업 개요**
 
-기존 Cline docs/ (Mintlify 기반 영문 문서)에서 **내용을 추출**하여 Docusaurus 기반의 새로운 통합 문서 시스템을 구축합니다. Mintlify는 유료 서비스이므로 **무료 오픈소스인 Docusaurus**를 사용합니다.
+기존 Cline docs/ (Mintlify 기반)를 **Docusaurus로 전환**하면서 caret-docs/와 통합하여 **단일 문서 시스템**을 구축합니다. **최소화 수정 법칙**을 준수하여 기존 구조를 최대한 보존합니다.
 
 ### **현재 상황 분석**
-- **Cline docs/**: Mintlify 기반, 완전한 영문 사용자 문서 (getting-started, features, provider-config 등) → **내용만 활용**
-- **caret-docs/**: MDX 기반, 한국어 개발 문서 (development, guides, tasks 등) → **통합 대상**
+- **docs/**: Mintlify 기반, 완전한 영문 사용자 문서 (getting-started, features, provider-config 등) → **Docusaurus 전환**
+- **caret-docs/**: MDX 기반, 한국어 개발 문서 (development, guides, tasks 등) → **docs/에 통합**
 
 ### **목표**
-1. **Docusaurus 기반 새 문서 시스템 구축** (무료)
-2. **Cline 영문 문서 내용 + Caret 개발 문서 통합**
-3. **다국어 지원**: 한국어/영어/일본어/중국어
-4. **Caret 브랜딩 적용**: 완전한 Caret 문서로 구축
+1. **docs/ Mintlify → Docusaurus 전환** (최소 수정)
+2. **caret-docs/ → docs/ 통합** (구조 보존)
+3. **Docusaurus i18n 다국어 지원**: 한국어/영어/일본어/중국어
+4. **Caret 브랜딩 적용**: 점진적 브랜딩 변경
 5. **도메인 연결**: `https://docs.caret.team`
-6. **API 도움말 페이지 구축**: 웰컴 페이지 연동
+6. **기존 URL 구조 보존**: SEO 및 링크 호환성 유지
 
 ## 🎯 **상세 계획**
 

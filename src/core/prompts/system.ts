@@ -650,9 +650,12 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
 	}
 
 
+// CARET MODIFICATION: Added priority-based rule loading to prevent duplicate rules
+// Priority: .caretrules > .cursorrules > .windsurfrules (only load one type)
 export function addUserInstructions(
 	globalClineRulesFileInstructions?: string,
 	localClineRulesFileInstructions?: string,
+	localCaretRulesFileInstructions?: string,
 	localCursorRulesFileInstructions?: string,
 	localCursorRulesDirInstructions?: string,
 	localWindsurfRulesFileInstructions?: string,
@@ -666,18 +669,28 @@ export function addUserInstructions(
 	if (globalClineRulesFileInstructions) {
 		customInstructions += globalClineRulesFileInstructions + "\n\n"
 	}
-	if (localClineRulesFileInstructions) {
+	
+	// CARET MODIFICATION: Priority-based local rules loading
+	// Only load one type of local rules based on priority: .caretrules > .cursorrules > .windsurfrules
+	if (localCaretRulesFileInstructions) {
+		// .caretrules has highest priority
+		customInstructions += localCaretRulesFileInstructions + "\n\n"
+	} else if (localClineRulesFileInstructions) {
+		// .clinerules has second priority (for backward compatibility)
 		customInstructions += localClineRulesFileInstructions + "\n\n"
-	}
-	if (localCursorRulesFileInstructions) {
-		customInstructions += localCursorRulesFileInstructions + "\n\n"
-	}
-	if (localCursorRulesDirInstructions) {
-		customInstructions += localCursorRulesDirInstructions + "\n\n"
-	}
-	if (localWindsurfRulesFileInstructions) {
+	} else if (localCursorRulesFileInstructions || localCursorRulesDirInstructions) {
+		// .cursorrules has third priority
+		if (localCursorRulesFileInstructions) {
+			customInstructions += localCursorRulesFileInstructions + "\n\n"
+		}
+		if (localCursorRulesDirInstructions) {
+			customInstructions += localCursorRulesDirInstructions + "\n\n"
+		}
+	} else if (localWindsurfRulesFileInstructions) {
+		// .windsurfrules has lowest priority
 		customInstructions += localWindsurfRulesFileInstructions + "\n\n"
 	}
+	
 	if (clineIgnoreInstructions) {
 		customInstructions += clineIgnoreInstructions
 	}

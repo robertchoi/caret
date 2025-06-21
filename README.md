@@ -69,14 +69,14 @@ Caret은 현재 활발히 개발 중이며, 여러분의 관심과 참여로 함
 ## 🔧 개발자를 위한 가이드
 
 ### 📚 신규 개발자 시작하기
-- **[빠른 시작 가이드](./caret-docs/development/new-developer-quick-start.md)**: 5분 만에 개발 환경 구축
+- **[빠른 시작 가이드](./caret-docs/development/new-developer-guide.mdx)**: 개발 환경 구축
 - **[프로젝트 아키텍처 이해](./caret-docs/development/caret-architecture-and-implementation-guide.mdx)**: Fork 기반 구조 완전 가이드
 - **[개발 가이드라인](./caret-docs/development/index.mdx)**: 전체 개발 프로세스와 규칙
 
 ### 🤖 AI와 협업하기
 - **[AI 작업 방법](./caret-docs/guides/ai-work-method-guide.mdx)**: AI 어시스턴트와의 협업 프로토콜
 - **[작업 로그 작성법](./caret-docs/guides/writing-work-logs-guide.mdx)**: 효과적인 진행 상황 관리
-- **[.caretrules 설정](./caret-docs/development/caretrules-setup-guide.md)**: AI 페르소나 및 모드 설정
+- **[.caretrules 설정](./caret-docs/rules-reference/caretrules룰-파일가이드.md)**: AI 페르소나 및 모드 설정
 
 ### 📋 작업 관리
 - **[작업 상태 확인](./caret-docs/tasks/tasks-status.md)**: 현재 진행 중인 태스크 목록

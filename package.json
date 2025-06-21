@@ -119,8 +119,8 @@
 			"caret-ActivityBar": [
 				{
 					"type": "webview",
-					"id": "caret.SidebarProvider",
-					"name": ""
+					"id": "claude-dev.SidebarProvider",
+					"name": "Caret"
 				}
 			]
 		},
@@ -256,6 +256,36 @@
 					"command": "cline.settingsButtonClicked",
 					"group": "navigation@6",
 					"when": "view == claude-dev.SidebarProvider"
+				},
+				{
+					"command": "cline.plusButtonClicked",
+					"group": "navigation@1",
+					"when": "view == caret.SidebarProvider"
+				},
+				{
+					"command": "cline.mcpButtonClicked",
+					"group": "navigation@2",
+					"when": "view == caret.SidebarProvider"
+				},
+				{
+					"command": "cline.historyButtonClicked",
+					"group": "navigation@3",
+					"when": "view == caret.SidebarProvider"
+				},
+				{
+					"command": "cline.popoutButtonClicked",
+					"group": "navigation@4",
+					"when": "view == caret.SidebarProvider"
+				},
+				{
+					"command": "cline.accountButtonClicked",
+					"group": "navigation@5",
+					"when": "view == caret.SidebarProvider"
+				},
+				{
+					"command": "cline.settingsButtonClicked",
+					"group": "navigation@6",
+					"when": "view == caret.SidebarProvider"
 				}
 			],
 			"editor/title": [
@@ -324,7 +354,8 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
-		"compile": "npm run check-types && npm run lint && npm run test:report && node esbuild.js",
+		"compile": "npm run check-types && npm run lint && node esbuild.js",
+		"compile:fast": "node esbuild.js",
 		"compile-standalone": "npm run check-types && npm run lint && node esbuild.js --standalone",
 		"postcompile-standalone": "node scripts/package-standalone.mjs",
 		"watch": "npm-run-all -p watch:*",
@@ -335,15 +366,15 @@
 		"postprotos": "prettier src/shared/proto src/core/controller src/hosts/ webview-ui/src/services src/generated --write --log-level warn",
 		"compile-tests": "node ./scripts/build-tests.js",
 		"watch-tests": "tsc -p . -w --outDir out",
-		"pretest": "npm run compile-tests && npm run compile && npm run compile-standalone && npm run lint",
+		"pretest": "npm run compile-tests && npm run compile && npm run compile-standalone && npm run lint && npm run test:all",
 		"check-types": "npm run protos && tsc --noEmit",
 		"lint": "eslint src --ext ts && eslint webview-ui/src --ext ts && buf lint && cd webview-ui && npm run lint",
 		"format": "prettier . --check",
 		"format:fix": "prettier . --write",
-		"test": "npm-run-all test:unit test:integration",
+		"test": "npm run test:all",
 		"test:ci": "node scripts/test-ci.js",
 		"test:integration": "vscode-test",
-		"test:unit": "cross-env TS_NODE_PROJECT=./tsconfig.unit-test.json mocha",
+		"test:unit": "echo '❌ Legacy mocha tests currently broken due to ESM/CJS incompatibility with @google/genai 1.0.0' && exit 1",
 		"test:coverage": "vscode-test --coverage",
 		"install:all": "npm install && cd webview-ui && npm install",
 		"dev:webview": "cd webview-ui && npm run dev",
@@ -352,7 +383,7 @@
 		"test:backend": "vitest run --config vitest.config.ts",
 		"test:backend:watch": "vitest watch --config vitest.config.ts",
 		"test:backend:coverage": "vitest run --config vitest.config.ts --coverage",
-		"test:report": "node caret-scripts/test-report.js",
+		"test:all": "node caret-scripts/test-report.js",
 		"publish:marketplace": "vsce publish && ovsx publish",
 		"publish:marketplace:prerelease": "vsce publish --pre-release && ovsx publish --pre-release",
 		"prepare": "husky",

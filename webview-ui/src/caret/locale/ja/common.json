@@ -1,27 +1,41 @@
 {
-  "button": {
-    "freeStart": "無料で始める",
-    "useOwnKey": "自分のAPIキーを使う",
-    "letsGo": "始めよう！",
-    "save": "保存",
-    "cancel": "キャンセル",
-    "setupApiOrLocal": "APIキーまたはローカルLLMを設定する",
-    "notifyCaretAccount": "Caretのサブスクリプションに通知を受け取る",
-    "saveAndStart": "保存して開始"
-  },
-  "error": {
-    "generic": "エラーが発生しました。"
-  },
-  "imageAlt": {
-    "caretBanner": "Caretロゴバナー"
-  },
-  "title": {
-    "apiKeySettings": "APIキー設定"
-  },
-  "text": {
-    "finalThoughts": "{{appName}}と一緒に素晴らしい開発の旅を始めましょう！"
-  },
-  "link": {
-    "learnMoreCaretGit": "CaretのGitHubで詳しく見る"
-  }
-} 
+	"button": {
+		"freeStart": "無料で始める",
+		"useOwnKey": "自分のAPIキーを使う",
+		"letsGo": "始めよう！",
+		"save": "保存",
+		"cancel": "キャンセル",
+		"setupApiOrLocal": "APIキーまたはローカルLLMを設定する",
+		"notifyCaretAccount": "Caretのサブスクリプションに通知を受け取る",
+		"saveAndStart": "保存して開始"
+	},
+	"error": {
+		"generic": "エラーが発生しました。"
+	},
+	"imageAlt": {
+		"caretBanner": "Caretロゴバナー"
+	},
+	"title": {
+		"apiKeySettings": "APIキー設定"
+	},
+	"text": {
+		"finalThoughts": "{{appName}}と一緒に素晴らしい開発の旅を始めましょう！"
+	},
+	"link": {
+		"learnMoreCaretGit": "CaretのGitHubで詳しく見る"
+	},
+	"rules": {
+		"title": "Clineルール＆ワークフロー管理",
+		"globalRules": "グローバルルール",
+		"workspaceRules": "ワークスペースルール",
+		"globalWorkflows": "グローバルワークフロー",
+		"workspaceWorkflows": "ワークスペースワークフロー",
+		"rulesDescription": "ルールを使用してClineにシステムレベルの指示を提供できます。特定のプロジェクトまたはすべての会話に対してコンテキストと設定を永続的に含める方法と考えてください。",
+		"workflowsDescription": "ワークフローを使用して、サービスのデプロイやPRの提出などの反復的なタスクをClineが実行するための一連のステップを定義できます。ワークフローを実行するには、チャットで/ワークフロー名を入力してください。",
+		"toggleError": "ルールの切り替えエラー",
+		"caretrules": "Caretルール (.caretrules)",
+		"clinerules": "Clineルール (.clinerules)",
+		"cursorrules": "Cursorルール (.cursorrules)",
+		"windsurfrules": "Windsurfルール (.windsurfrules)"
+	}
+}

@@ -1,3 +1,4 @@
+// CARET MODIFICATION: Added caretrules support with priority system. Original backed up as external-rules-ts.cline
 import path from "path"
 import fs from "fs/promises"
 import { GlobalFileNames } from "@core/storage/disk"
@@ -14,20 +15,25 @@ import { ClineRulesToggles } from "@shared/cline-rules"
 import * as vscode from "vscode"
 
 /**
- * Refreshes the toggles for windsurf and cursor rules
+ * Refreshes the toggles for caret, windsurf and cursor rules
  */
 export async function refreshExternalRulesToggles(
 	context: vscode.ExtensionContext,
 	workingDirectory: string,
 ): Promise<{
+	caretLocalToggles: ClineRulesToggles
 	windsurfLocalToggles: ClineRulesToggles
 	cursorLocalToggles: ClineRulesToggles
 }> {
+	// local caret toggles
+	const localCaretRulesToggles = ((await getWorkspaceState(context, "localCaretRulesToggles")) as ClineRulesToggles) || {}
+	const localCaretRulesFilePath = path.resolve(workingDirectory, GlobalFileNames.caretRules)
+	const updatedLocalCaretToggles = await synchronizeRuleToggles(localCaretRulesFilePath, localCaretRulesToggles)
+
 	// local windsurf toggles
 	const localWindsurfRulesToggles = ((await getWorkspaceState(context, "localWindsurfRulesToggles")) as ClineRulesToggles) || {}
 	const localWindsurfRulesFilePath = path.resolve(workingDirectory, GlobalFileNames.windsurfRules)
 	const updatedLocalWindsurfToggles = await synchronizeRuleToggles(localWindsurfRulesFilePath, localWindsurfRulesToggles)
-	await updateWorkspaceState(context, "localWindsurfRulesToggles", updatedLocalWindsurfToggles)
 
 	// local cursor toggles
 	const localCursorRulesToggles = ((await getWorkspaceState(context, "localCursorRulesToggles")) as ClineRulesToggles) || {}
@@ -41,12 +47,43 @@ export async function refreshExternalRulesToggles(
 	const updatedLocalCursorToggles2 = await synchronizeRuleToggles(localCursorRulesFilePath, localCursorRulesToggles)
 
 	const updatedLocalCursorToggles = combineRuleToggles(updatedLocalCursorToggles1, updatedLocalCursorToggles2)
+
+	// CARET MODIFICATION: Priority logic moved to refreshRules.ts for global coordination
+	await updateWorkspaceState(context, "localCaretRulesToggles", updatedLocalCaretToggles)
 	await updateWorkspaceState(context, "localCursorRulesToggles", updatedLocalCursorToggles)
+	await updateWorkspaceState(context, "localWindsurfRulesToggles", updatedLocalWindsurfToggles)
 
 	return {
+		caretLocalToggles: updatedLocalCaretToggles,
 		windsurfLocalToggles: updatedLocalWindsurfToggles,
 		cursorLocalToggles: updatedLocalCursorToggles,
 	}
+}
+
+/**
+ * Gather formatted caret rules
+ */
+export const getLocalCaretRules = async (cwd: string, toggles: ClineRulesToggles) => {
+	const caretRulesFilePath = path.resolve(cwd, GlobalFileNames.caretRules)
+
+	let caretRulesFileInstructions: string | undefined
+
+	if (await fileExistsAtPath(caretRulesFilePath)) {
+		if (!(await isDirectory(caretRulesFilePath))) {
+			try {
+				if (caretRulesFilePath in toggles && toggles[caretRulesFilePath] !== false) {
+					const ruleFileContent = (await fs.readFile(caretRulesFilePath, "utf8")).trim()
+					if (ruleFileContent) {
+						caretRulesFileInstructions = formatResponse.caretRulesLocalFileInstructions(cwd, ruleFileContent)
+					}
+				}
+			} catch {
+				console.error(`Failed to read .caretrules file at ${caretRulesFilePath}`)
+			}
+		}
+	}
+
+	return caretRulesFileInstructions
 }
 
 /**

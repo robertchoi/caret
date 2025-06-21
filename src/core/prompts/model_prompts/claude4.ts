@@ -662,6 +662,8 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
 5. The user may provide feedback, which you can use to make improvements and try again. But DO NOT continue in pointless back and forth conversations, i.e. don't end your responses with questions or offers for further assistance.`
     }
 
+// CARET MODIFICATION: Added priority-based rule loading to prevent duplicate rules
+// Priority: .clinerules > .cursorrules > .windsurfrules (only load one type)
 export function addUserInstructions(
     globalClineRulesFileInstructions?: string,
     localClineRulesFileInstructions?: string,
@@ -678,18 +680,25 @@ export function addUserInstructions(
     if (globalClineRulesFileInstructions) {
         customInstructions += globalClineRulesFileInstructions + "\n\n"
     }
+    
+    // CARET MODIFICATION: Priority-based local rules loading
+    // Only load one type of local rules based on priority: .clinerules > .cursorrules > .windsurfrules
     if (localClineRulesFileInstructions) {
+        // .clinerules has highest priority
         customInstructions += localClineRulesFileInstructions + "\n\n"
-    }
-    if (localCursorRulesFileInstructions) {
-        customInstructions += localCursorRulesFileInstructions + "\n\n"
-    }
-    if (localCursorRulesDirInstructions) {
-        customInstructions += localCursorRulesDirInstructions + "\n\n"
-    }
-    if (localWindsurfRulesFileInstructions) {
+    } else if (localCursorRulesFileInstructions || localCursorRulesDirInstructions) {
+        // .cursorrules has second priority
+        if (localCursorRulesFileInstructions) {
+            customInstructions += localCursorRulesFileInstructions + "\n\n"
+        }
+        if (localCursorRulesDirInstructions) {
+            customInstructions += localCursorRulesDirInstructions + "\n\n"
+        }
+    } else if (localWindsurfRulesFileInstructions) {
+        // .windsurfrules has lowest priority
         customInstructions += localWindsurfRulesFileInstructions + "\n\n"
     }
+    
     if (clineIgnoreInstructions) {
         customInstructions += clineIgnoreInstructions
     }

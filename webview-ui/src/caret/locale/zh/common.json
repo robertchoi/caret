@@ -1,27 +1,41 @@
 {
-  "button": {
-    "freeStart": "免费开始",
-    "useOwnKey": "使用您自己的 API 密钥",
-    "letsGo": "开始吧！",
-    "save": "保存",
-    "cancel": "取消",
-    "setupApiOrLocal": "设置 API 密钥或本地 LLM",
-    "notifyCaretAccount": "订阅 Caret 通知",
-    "saveAndStart": "保存并开始"
-  },
-  "error": {
-    "generic": "发生错误。"
-  },
-  "imageAlt": {
-    "caretBanner": "Caret 标志横幅"
-  },
-  "title": {
-    "apiKeySettings": "API 密钥设置"
-  },
-  "text": {
-    "finalThoughts": "和 {{appName}} 一起开始精彩的开发之旅吧！"
-  },
-  "link": {
-    "learnMoreCaretGit": "在 Caret GitHub 上了解更多"
-  }
-} 
+	"button": {
+		"freeStart": "免费开始",
+		"useOwnKey": "使用您自己的 API 密钥",
+		"letsGo": "开始吧！",
+		"save": "保存",
+		"cancel": "取消",
+		"setupApiOrLocal": "设置 API 密钥或本地 LLM",
+		"notifyCaretAccount": "订阅 Caret 通知",
+		"saveAndStart": "保存并开始"
+	},
+	"error": {
+		"generic": "发生错误。"
+	},
+	"imageAlt": {
+		"caretBanner": "Caret 标志横幅"
+	},
+	"title": {
+		"apiKeySettings": "API 密钥设置"
+	},
+	"text": {
+		"finalThoughts": "和 {{appName}} 一起开始精彩的开发之旅吧！"
+	},
+	"link": {
+		"learnMoreCaretGit": "在 Caret GitHub 上了解更多"
+	},
+	"rules": {
+		"title": "Cline 规则和工作流管理",
+		"globalRules": "全局规则",
+		"workspaceRules": "工作区规则",
+		"globalWorkflows": "全局工作流",
+		"workspaceWorkflows": "工作区工作流",
+		"rulesDescription": "规则允许您向 Cline 提供系统级指令。将它们视为为特定项目或所有对话持续包含上下文和偏好设置的方式。",
+		"workflowsDescription": "工作流允许您定义一系列步骤，让 Cline 执行重复性任务，如部署服务或提交 PR。要运行工作流，请在聊天中输入 /工作流名称。",
+		"toggleError": "切换规则时出错",
+		"caretrules": "Caret 规则 (.caretrules)",
+		"clinerules": "Cline 规则 (.clinerules)",
+		"cursorrules": "Cursor 规则 (.cursorrules)",
+		"windsurfrules": "Windsurf 规则 (.windsurfrules)"
+	}
+}

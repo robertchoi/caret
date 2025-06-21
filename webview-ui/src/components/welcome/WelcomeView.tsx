@@ -13,6 +13,7 @@ import { UpdateApiConfigurationRequest } from "@shared/proto/models"
 import { convertApiConfigurationToProto } from "@shared/proto-conversions/models/api-configuration-conversion"
 
 import CaretFooter from "@/caret/components/CaretFooter"
+import PersonaTemplateSelector from "@/caret/components/PersonaTemplateSelector"
 import { t } from "@/caret/utils/i18n"
 import { CARET_URLS, getLocalizedUrl } from "@/caret/constants/urls"
 
@@ -20,6 +21,7 @@ const WelcomeView = () => {
 	const { apiConfiguration, caretBanner } = useExtensionState()
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [showApiOptions, setShowApiOptions] = useState(false)
+	const [showPersonaSelector, setShowPersonaSelector] = useState(false)
 
 	const disableLetsGoButton = !!apiErrorMessage
 
@@ -69,6 +71,29 @@ const WelcomeView = () => {
 
 	const handleGitHubLink = () => {
 		handleOpenLink(CARET_URLS.CARET_GITHUB, "GitHub")
+	}
+
+	const handleShowPersonaSelector = () => {
+		setShowPersonaSelector(true)
+	}
+
+	const handleHidePersonaSelector = () => {
+		setShowPersonaSelector(false)
+	}
+
+	const handlePersonaSelect = (template: any, language: string) => {
+		// TODO: 선택된 페르소나를 custom_instructions.md에 저장하는 로직 구현
+		console.log("선택된 페르소나:", template, "언어:", language)
+		// 임시로 log 메시지 타입을 사용하여 백엔드에 전달
+		vscode.postMessage({
+			type: "log",
+			text: JSON.stringify({
+				action: "SET_PERSONA",
+				template,
+				language,
+			}),
+		})
+		setShowPersonaSelector(false)
 	}
 
 	useEffect(() => {
@@ -174,6 +199,8 @@ const WelcomeView = () => {
 
 				{renderSection("getStarted.header", "getStarted.body", "getStarted.button", handleShowApiOptions, "primary")}
 
+				{renderSection("persona.header", "persona.body", "persona.button", handleShowPersonaSelector, "secondary")}
+
 				{renderSection("community.header", "community.body", "community.githubLink", handleGitHubLink, "secondary")}
 
 				{renderSection("educationOffer.header", "educationOffer.body")}
@@ -181,6 +208,13 @@ const WelcomeView = () => {
 				{/* Footer 컴포넌트 - 일반 페이지 하단 */}
 				<CaretFooter />
 			</div>
+
+			{/* PersonaTemplateSelector 모달 */}
+			<PersonaTemplateSelector
+				isVisible={showPersonaSelector}
+				onSelect={handlePersonaSelect}
+				onClose={handleHidePersonaSelector}
+			/>
 		</div>
 	)
 }

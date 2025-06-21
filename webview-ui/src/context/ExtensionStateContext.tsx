@@ -6,7 +6,7 @@ import {
 	UiServiceClient,
 	FileServiceClient,
 	McpServiceClient,
-} from "../services/grpc-client"
+} from "../services/grpc-client.js"
 import { EmptyRequest, StringRequest } from "@shared/proto/common"
 import { UpdateSettingsRequest } from "@shared/proto/state"
 import { WebviewProviderType as WebviewProviderTypeEnum, WebviewProviderTypeRequest } from "@shared/proto/ui"
@@ -73,6 +73,7 @@ interface ExtensionStateContextType extends ExtensionState {
 	setMcpServers: (value: McpServer[]) => void
 	setGlobalClineRulesToggles: (toggles: Record<string, boolean>) => void
 	setLocalClineRulesToggles: (toggles: Record<string, boolean>) => void
+	setLocalCaretRulesToggles: (toggles: Record<string, boolean>) => void
 	setLocalCursorRulesToggles: (toggles: Record<string, boolean>) => void
 	setLocalWindsurfRulesToggles: (toggles: Record<string, boolean>) => void
 	setLocalWorkflowToggles: (toggles: Record<string, boolean>) => void
@@ -192,6 +193,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		mcpRichDisplayEnabled: true,
 		globalClineRulesToggles: {},
 		localClineRulesToggles: {},
+		localCaretRulesToggles: {},
 		localCursorRulesToggles: {},
 		localWindsurfRulesToggles: {},
 		localWorkflowToggles: {},
@@ -690,6 +692,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		showAnnouncement,
 		globalClineRulesToggles: state.globalClineRulesToggles || {},
 		localClineRulesToggles: state.localClineRulesToggles || {},
+		localCaretRulesToggles: state.localCaretRulesToggles || {},
 		localCursorRulesToggles: state.localCursorRulesToggles || {},
 		localWindsurfRulesToggles: state.localWindsurfRulesToggles || {},
 		localWorkflowToggles: state.localWorkflowToggles || {},
@@ -776,11 +779,8 @@ export const ExtensionStateContextProvider: React.FC<{
 		setShowMcp,
 		closeMcpView,
 		setChatSettings: async (value) => {
-			setState((prevState) => ({
-				...prevState,
-				chatSettings: value,
-			}))
 			try {
+				// CARET MODIFICATION: Backend 저장을 먼저 수행하여 상태 덮어쓰기 방지
 				// Import the conversion functions
 				const { convertApiConfigurationToProtoApiConfiguration } = await import(
 					"@shared/proto-conversions/state/settings-conversion"
@@ -803,6 +803,12 @@ export const ExtensionStateContextProvider: React.FC<{
 						mcpResponsesCollapsed: state.mcpResponsesCollapsed,
 					}),
 				)
+
+				// Backend 저장 성공 후 Frontend 상태 업데이트
+				setState((prevState) => ({
+					...prevState,
+					chatSettings: value,
+				}))
 			} catch (error) {
 				console.error("Failed to update chat settings:", error)
 			}
@@ -816,6 +822,11 @@ export const ExtensionStateContextProvider: React.FC<{
 			setState((prevState) => ({
 				...prevState,
 				localClineRulesToggles: toggles,
+			})),
+		setLocalCaretRulesToggles: (toggles) =>
+			setState((prevState) => ({
+				...prevState,
+				localCaretRulesToggles: toggles,
 			})),
 		setLocalCursorRulesToggles: (toggles) =>
 			setState((prevState) => ({

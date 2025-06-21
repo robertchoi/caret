@@ -1,13 +1,16 @@
+// CARET MODIFICATION: Enhanced rules toggle modal with caretrules support. Original backed up as ClineRulesToggleModal-tsx.cline
 import { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock"
 import Tooltip from "@/components/common/Tooltip"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { FileServiceClient } from "@/services/grpc-client"
 import { vscode } from "@/utils/vscode"
+import { caretWebviewLogger } from "@/caret/utils/webview-logger"
 import { EmptyRequest } from "@shared/proto/common"
 import {
 	ClineRulesToggles,
 	RefreshedRules,
 	ToggleClineRuleRequest,
+	ToggleCaretRuleRequest,
 	ToggleCursorRuleRequest,
 	ToggleWindsurfRuleRequest,
 	ToggleWorkflowRequest,
@@ -22,12 +25,14 @@ const ClineRulesToggleModal: React.FC = () => {
 	const {
 		globalClineRulesToggles = {},
 		localClineRulesToggles = {},
+		localCaretRulesToggles = {},
 		localCursorRulesToggles = {},
 		localWindsurfRulesToggles = {},
 		localWorkflowToggles = {},
 		globalWorkflowToggles = {},
 		setGlobalClineRulesToggles,
 		setLocalClineRulesToggles,
+		setLocalCaretRulesToggles,
 		setLocalCursorRulesToggles,
 		setLocalWindsurfRulesToggles,
 		setLocalWorkflowToggles,
@@ -43,41 +48,56 @@ const ClineRulesToggleModal: React.FC = () => {
 
 	useEffect(() => {
 		if (isVisible) {
+			console.log("[DEBUG] Rules modal opened, refreshing rules...")
 			FileServiceClient.refreshRules({} as EmptyRequest)
 				.then((response: RefreshedRules) => {
-					// Update state with the response data using all available setters
+					console.log("[DEBUG] Rules refresh response:", response)
 					if (response.globalClineRulesToggles?.toggles) {
 						setGlobalClineRulesToggles(response.globalClineRulesToggles.toggles)
+						console.log("[DEBUG] Set global cline rules:", response.globalClineRulesToggles.toggles)
 					}
 					if (response.localClineRulesToggles?.toggles) {
 						setLocalClineRulesToggles(response.localClineRulesToggles.toggles)
+						console.log("[DEBUG] Set local cline rules:", response.localClineRulesToggles.toggles)
+					}
+					if (response.localCaretRulesToggles?.toggles) {
+						setLocalCaretRulesToggles(response.localCaretRulesToggles.toggles)
+						console.log("[DEBUG] Set local caret rules:", response.localCaretRulesToggles.toggles)
 					}
 					if (response.localCursorRulesToggles?.toggles) {
 						setLocalCursorRulesToggles(response.localCursorRulesToggles.toggles)
+						console.log("[DEBUG] Set local cursor rules:", response.localCursorRulesToggles.toggles)
 					}
 					if (response.localWindsurfRulesToggles?.toggles) {
 						setLocalWindsurfRulesToggles(response.localWindsurfRulesToggles.toggles)
+						console.log("[DEBUG] Set local windsurf rules:", response.localWindsurfRulesToggles.toggles)
 					}
 					if (response.localWorkflowToggles?.toggles) {
 						setLocalWorkflowToggles(response.localWorkflowToggles.toggles)
+						console.log("[DEBUG] Set local workflows:", response.localWorkflowToggles.toggles)
 					}
 					if (response.globalWorkflowToggles?.toggles) {
 						setGlobalWorkflowToggles(response.globalWorkflowToggles.toggles)
+						console.log("[DEBUG] Set global workflows:", response.globalWorkflowToggles.toggles)
 					}
 				})
 				.catch((error) => {
+					caretWebviewLogger.error("Failed to refresh rules", error)
 					console.error("Failed to refresh rules:", error)
 				})
 		}
 	}, [isVisible])
 
-	// Format global rules for display with proper typing
+	// Format rules for display
 	const globalRules = Object.entries(globalClineRulesToggles || {})
 		.map(([path, enabled]): [string, boolean] => [path, enabled as boolean])
 		.sort(([a], [b]) => a.localeCompare(b))
 
-	// Format local rules for display with proper typing
 	const localRules = Object.entries(localClineRulesToggles || {})
+		.map(([path, enabled]): [string, boolean] => [path, enabled as boolean])
+		.sort(([a], [b]) => a.localeCompare(b))
+
+	const caretRules = Object.entries(localCaretRulesToggles || {})
 		.map(([path, enabled]): [string, boolean] => [path, enabled as boolean])
 		.sort(([a], [b]) => a.localeCompare(b))
 
@@ -97,7 +117,7 @@ const ClineRulesToggleModal: React.FC = () => {
 		.map(([path, enabled]): [string, boolean] => [path, enabled as boolean])
 		.sort(([a], [b]) => a.localeCompare(b))
 
-	// Handle toggle rule using gRPC
+	// Toggle handlers
 	const toggleRule = (isGlobal: boolean, rulePath: string, enabled: boolean) => {
 		FileServiceClient.toggleClineRule(
 			ToggleClineRuleRequest.create({
@@ -107,7 +127,6 @@ const ClineRulesToggleModal: React.FC = () => {
 			}),
 		)
 			.then((response) => {
-				// Update the local state with the response
 				if (response.globalClineRulesToggles?.toggles) {
 					setGlobalClineRulesToggles(response.globalClineRulesToggles.toggles)
 				}
@@ -116,7 +135,29 @@ const ClineRulesToggleModal: React.FC = () => {
 				}
 			})
 			.catch((error) => {
+				caretWebviewLogger.error("Error toggling Cline rule", error)
 				console.error("Error toggling Cline rule:", error)
+			})
+	}
+
+	const toggleCaretRule = (rulePath: string, enabled: boolean) => {
+		console.log("[DEBUG] Toggling Caret rule:", rulePath, "enabled:", enabled)
+		FileServiceClient.toggleCaretRule(
+			ToggleCaretRuleRequest.create({
+				rulePath,
+				enabled,
+			}),
+		)
+			.then((response) => {
+				console.log("[DEBUG] Caret rule toggle response:", response)
+				if (response.toggles) {
+					setLocalCaretRulesToggles(response.toggles)
+					console.log("[DEBUG] Updated local caret rule toggles:", response.toggles)
+				}
+			})
+			.catch((error) => {
+				caretWebviewLogger.error("Error toggling Caret rule", error)
+				console.error("Error toggling Caret rule:", error)
 			})
 	}
 
@@ -128,12 +169,12 @@ const ClineRulesToggleModal: React.FC = () => {
 			}),
 		)
 			.then((response) => {
-				// Update the local state with the response
 				if (response.toggles) {
 					setLocalCursorRulesToggles(response.toggles)
 				}
 			})
 			.catch((error) => {
+				caretWebviewLogger.error("Error toggling Cursor rule", error)
 				console.error("Error toggling Cursor rule:", error)
 			})
 	}
@@ -151,6 +192,7 @@ const ClineRulesToggleModal: React.FC = () => {
 				}
 			})
 			.catch((error) => {
+				caretWebviewLogger.error("Error toggling Windsurf rule", error)
 				console.error("Error toggling Windsurf rule:", error)
 			})
 	}
@@ -172,8 +214,9 @@ const ClineRulesToggleModal: React.FC = () => {
 					}
 				}
 			})
-			.catch((err: Error) => {
-				console.error("Failed to toggle workflow:", err)
+			.catch((error) => {
+				caretWebviewLogger.error("Failed to toggle workflow", error)
+				console.error("Failed to toggle workflow:", error)
 			})
 	}
 
@@ -198,21 +241,11 @@ const ClineRulesToggleModal: React.FC = () => {
 		<div ref={modalRef}>
 			<div ref={buttonRef} className="inline-flex min-w-0 max-w-full">
 				<Tooltip tipText="Manage Cline Rules & Workflows" visible={isVisible ? false : undefined}>
-					<VSCodeButton
-						appearance="icon"
-						aria-label="Cline Rules"
-						onClick={() => setIsVisible(!isVisible)}
-						style={{ padding: "0px 0px", height: "20px" }}>
-						<div className="flex items-center gap-1 text-xs whitespace-nowrap min-w-0 w-full">
-							<span
-								className="codicon codicon-law flex items-center"
-								style={{ fontSize: "12.5px", marginBottom: 1 }}
-							/>
-						</div>
+					<VSCodeButton appearance="icon" aria-label="Cline Rules" onClick={() => setIsVisible(!isVisible)}>
+						<span className="codicon codicon-law"></span>
 					</VSCodeButton>
 				</Tooltip>
 			</div>
-
 			{isVisible && (
 				<div
 					className="fixed left-[15px] right-[15px] border border-[var(--vscode-editorGroup-border)] p-3 rounded z-[1000] overflow-y-auto"
@@ -270,12 +303,7 @@ const ClineRulesToggleModal: React.FC = () => {
 							<p>
 								Workflows allow you to define a series of steps to guide Cline through a repetitive set of tasks,
 								such as deploying a service or submitting a PR. To invoke a workflow, type{" "}
-								<span
-									className=" 
-								text-[var(--vscode-foreground)] font-bold">
-									/workflow-name
-								</span>{" "}
-								in the chat.{" "}
+								<span className="text-[var(--vscode-foreground)] font-bold">/workflow-name</span> in the chat.{" "}
 								<VSCodeLink
 									href="https://docs.cline.bot/features/slash-commands/workflows"
 									style={{ display: "inline" }}
@@ -305,33 +333,74 @@ const ClineRulesToggleModal: React.FC = () => {
 							{/* Local Rules Section */}
 							<div style={{ marginBottom: -10 }}>
 								<div className="text-sm font-normal mb-2">Workspace Rules</div>
-								<RulesToggleList
-									rules={localRules}
-									toggleRule={(rulePath, enabled) => toggleRule(false, rulePath, enabled)}
-									listGap="small"
-									isGlobal={false}
-									ruleType={"cline"}
-									showNewRule={false}
-									showNoRules={false}
-								/>
-								<RulesToggleList
-									rules={cursorRules}
-									toggleRule={toggleCursorRule}
-									listGap="small"
-									isGlobal={false}
-									ruleType={"cursor"}
-									showNewRule={false}
-									showNoRules={false}
-								/>
-								<RulesToggleList
-									rules={windsurfRules}
-									toggleRule={toggleWindsurfRule}
-									listGap="small"
-									isGlobal={false}
-									ruleType={"windsurf"}
-									showNewRule={true}
-									showNoRules={false}
-								/>
+								{/* Caret Rules */}
+								{caretRules.length > 0 && (
+									<>
+										<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1 mt-2">
+											Caret Rules (.caretrules)
+										</div>
+										<RulesToggleList
+											rules={caretRules}
+											toggleRule={toggleCaretRule}
+											listGap="small"
+											isGlobal={false}
+											ruleType={"caret"}
+											showNewRule={false}
+											showNoRules={false}
+										/>
+									</>
+								)}
+								{/* Cline Rules */}
+								{localRules.length > 0 && (
+									<>
+										<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1 mt-2">
+											Cline Rules (.clinerules)
+										</div>
+										<RulesToggleList
+											rules={localRules}
+											toggleRule={(rulePath, enabled) => toggleRule(false, rulePath, enabled)}
+											listGap="small"
+											isGlobal={false}
+											ruleType={"cline"}
+											showNewRule={true}
+											showNoRules={false}
+										/>
+									</>
+								)}
+								{/* Cursor Rules */}
+								{cursorRules.length > 0 && (
+									<>
+										<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1 mt-2">
+											Cursor Rules (.cursorrules)
+										</div>
+										<RulesToggleList
+											rules={cursorRules}
+											toggleRule={toggleCursorRule}
+											listGap="small"
+											isGlobal={false}
+											ruleType={"cursor"}
+											showNewRule={false}
+											showNoRules={false}
+										/>
+									</>
+								)}
+								{/* Windsurf Rules */}
+								{windsurfRules.length > 0 && (
+									<>
+										<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1 mt-2">
+											Windsurf Rules (.windsurfrules)
+										</div>
+										<RulesToggleList
+											rules={windsurfRules}
+											toggleRule={toggleWindsurfRule}
+											listGap="small"
+											isGlobal={false}
+											ruleType={"windsurf"}
+											showNewRule={false}
+											showNoRules={false}
+										/>
+									</>
+								)}
 							</div>
 						</>
 					) : (

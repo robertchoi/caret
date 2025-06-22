@@ -1,6 +1,6 @@
 # Task #002-4: i18n 하드코딩 텍스트 수정 + uiLanguage 저장소 분리 및 UI 즉시 반영
 
-**작업 기간**: 1일 (진행 중)
+**작업 기간**: 1일 (완료)
 **담당자**: luke & Alpha
 **우선순위**: 🚨 **Critical**
 **예상 시간**: 4시간 (초과 가능성 높음)
@@ -15,7 +15,7 @@
 ### 초기 목표
 1.  **uiLanguage 저장소 분리**: `chatSettings`에서 `uiLanguage`를 분리하여 Caret 앱 단위(globalState) 저장 (완료되었으나, 이후 순환 업데이트 문제로 일부 로직 재검토 필요성 대두).
 2.  **i18n 하드코딩 수정**: `CaretUILanguageSetting.tsx`의 하드코딩된 텍스트를 i18n 시스템으로 수정 (완료).
-3.  **UI 언어 즉시 반영**: 사용자가 설정을 변경하면 웹뷰 UI 전체에 즉시 반영되도록 시스템 구축 (현재 이 부분의 통합 테스트 진행 중).
+3.  **UI 언어 즉시 반영**: 사용자가 설정을 변경하면 웹뷰 UI 전체에 즉시 반영되도록 시스템 구축 (완료).
 
 ### 🚨 발견된 주요 문제 및 해결 과정 요약
 1.  **설정창 먹통**: 초기 로깅 문제로 설정창 로드 불가 → 로깅 해제 후 해결.
@@ -27,15 +27,15 @@
 3.  **통합 테스트 실패 (`App.test.tsx`)**: 위 프론트엔드 조치 검증을 위한 통합 테스트 작성 중 여러 문제 발생.
     *   **문제 1 (해결됨)**: `ExtensionStateContext.Provider`를 테스트에서 찾지 못함.
         *   **해결**: `webview-ui/src/context/ExtensionStateContext.tsx`에서 `ExtensionStateContext`를 `export` 하도록 수정. (Cline 원본: 백업, 주석 완료)
-    *   **문제 2 (현재 작업 대상)**: `App.test.tsx` 코드 자체의 설정 오류 및 타입 불일치로 인해 테스트가 정상적으로 실행되지 않고, 기능 로직을 검증하는 명확한 "Red" 또는 "Green" 상태에 도달하지 못함.
+    *   **문제 2 (해결됨)**: `App.test.tsx` 코드 자체의 설정 오류 및 타입 불일치로 인해 테스트가 정상적으로 실행되지 않고, 기능 로직을 검증하는 명확한 "Red" 또는 "Green" 상태에 도달하지 못함.
 
 ## ✅ 실행 체크리스트 (재정리 및 현행화)
 
 ### Phase 1 & 2: 초기 목표 (대부분 완료, 일부는 후속 문제와 연관)
-- `uiLanguage` 저장소 분리 및 `CaretUILanguageSetting.tsx` i18n 적용은 초기 구현이 완료되었습니다.
-- 단, 저장소 분리 관련 로직(특히 백엔드 `updateSettings.ts` 등)은 문서 후반부의 "순환 업데이트" 문제 분석 결과에 따라 추가 검토/수정이 필요할 수 있습니다.
+- [x] `uiLanguage` 저장소 분리 및 `CaretUILanguageSetting.tsx` i18n 적용은 초기 구현이 완료되었습니다.
+- [x] 단, 저장소 분리 관련 로직(특히 백엔드 `updateSettings.ts` 등)은 문서 후반부의 "순환 업데이트" 문제 분석 결과에 따라 추가 검토/수정이 필요할 수 있습니다.
 
-### Phase 3: 언어 변경 즉시 반영 시스템 구축 (프론트엔드 UI 업데이트) - ⚠️ **현재 핵심 진행 단계**
+### Phase 3: 언어 변경 즉시 반영 시스템 구축 (프론트엔드 UI 업데이트) - ✅ **완료**
 
 - [x] **3.1**: `webview-ui/src/caret/utils/i18n.ts` 수정 완료
     - [x] `setGlobalUILanguage` 및 `currentEffectiveLanguage` 추가.
@@ -49,37 +49,31 @@
     - [x] `ExtensionStateContext` 객체 `export` 추가 (통합 테스트 지원 목적).
     - [x] 백업 파일 (`ExtensionStateContext-tsx.cline`) 존재 확인 완료.
     - [x] `CARET MODIFICATION` 주석 추가 완료.
-- [ ] **3.4**: 통합 테스트 (`webview-ui/src/__tests__/App.test.tsx`) - 🚨 **다음 세션 최우선 작업**
-    - [ ] **3.4.1 (현재 상태 및 문제점)**:
+- [x] **3.4**: 통합 테스트 (`webview-ui/src/__tests__/App.test.tsx`) - ✅ **완료**
+    - [x] **3.4.1 (문제점 해결)**:
         - 테스트가 기능 로직의 성공/실패를 명확히 보여주는 "Red" 또는 "Green" 상태가 아님. 테스트 코드 자체의 설정 오류 및 타입 불일치로 인해 정상 실행 불가.
         - **해결된 문제:** `ExtensionStateContext.Provider`를 테스트에서 찾지 못하던 초기 오류는 `ExtensionStateContext.tsx`에서 `ExtensionStateContext`를 `export`함으로써 해결됨.
-        - **남아있는 주요 문제점 (다음 세션 해결 대상):**
+        - **해결된 주요 문제점:**
             1.  **린터/타입 오류 in `App.test.tsx`:**
                 *   `getMockState` 함수 반환 타입(`Partial<ExtensionState>`)이 `ExtensionStateContextType`에서 요구하는 `didHydrateState` 등의 필수 속성을 포함하지 않아 발생.
                 *   `ExtensionStateContext.Provider`에 전달되는 `value` prop이 `ExtensionStateContextType` 인터페이스를 완전히 만족시키지 못함 (다수의 필수 상태값 및 함수 누락).
             2.  **테스트 로직 오류 (잘못된 "Arrange" 단계) in `App.test.tsx`:**
-                *   `screen.getByText('Settings')` 호출 시, 테스트의 모의 상태에서 `showSettings`가 `false`로 설정되어 `SettingsView` 컴포넌트 자체가 렌더링되지 않아 해당 텍스트를 찾을 수 없음.
-    - [ ] **3.4.2 (다음 세션을 위한 명확한 TDD 준비 단계 - "Arrange" 단계 완성 목표):**
-        1.  **`App.test.tsx`의 `getMockState` 함수 수정:**
-            *   반환 타입을 `Partial<ExtensionStateContextType>`으로 변경.
-            *   `AppContent`가 실제로 사용하는 `ExtensionStateContextType`의 모든 필수 상태값(예: `didHydrateState`, `showWelcome`, `theme`, `openRouterModels`, `mcpServers`, `mcpMarketplaceCatalog`, `filePaths`, `totalTasksSize`, `availableTerminalProfiles`, `caretBanner`, `showSettings`, `showHistory`, `showMcp`, `showAccount`, `showAnnouncement`, `uiLanguage` 등)을 모의 객체에 포함시키고, 테스트 시나리오에 맞는 적절한 기본값 설정.
-        2.  **`App.test.tsx`의 `renderAppWithState` 함수 내 `mockFunctions` 객체 수정:**
-            *   `ExtensionStateContextType`에 정의된 모든 함수 (setter, 네비게이션 함수, hide 함수 등)를 `vi.fn()`으로 모킹하여 `ExtensionStateContext.Provider`의 `value` prop이 `ExtensionStateContextType` 인터페이스를 완전히 만족하도록 보강.
-        3.  **테스트 케이스 (`it` 블록) 수정:**
-            *   `renderAppWithState` 함수 호출 시, `showSettingsView` 파라미터(또는 유사한 방식의 상태 제어)를 `true`로 명시적으로 전달하여, "Settings" 텍스트가 포함된 `SettingsView`가 확실히 렌더링되도록 보장.
-    - [ ] **3.4.3 (TDD "Red" 또는 "Green" 확인):**
-        *   위 "3.4.2" 조치 완료 후, `npm test webview-ui/src/__tests__/App.test.tsx` (또는 프로젝트별 정확한 단일 파일 테스트 명령어) 실행.
-        *   **기대 결과:** 테스트가 린터/타입 오류 없이 정상적으로 실행되어, `App.tsx`의 언어 변경 로직이 올바르면 테스트 통과 (Green), 로직에 문제가 있다면 해당 기능 로직으로 인해 테스트 실패 (Red)해야 함.
-    - [ ] **3.4.4 (필요시 Debug 또는 TDD "Refactor"):**
-        *   테스트가 "Red" 상태이면, `App.tsx`의 `useEffect` 및 관련 로직 디버깅.
-        *   테스트가 "Green" 상태이면, 코드의 명확성, 효율성 등을 검토하여 리팩토링 여부 결정.
-    - [ ] **3.4.5 (최종 목표):** UI 언어 변경 시, 실제 화면의 텍스트가 올바르게 변경되는지 `App.test.tsx`를 통해 최종 검증 완료.
+                *   `screen.getByText(\'Settings\')` 호출 시, 테스트의 모의 상태에서 `showSettings`가 `false`로 설정되어 `SettingsView` 컴포넌트 자체가 렌더링되지 않아 해당 텍스트를 찾을 수 없음.
+    - [x] **3.4.2 (TDD 준비 단계 - "Arrange" 단계 완성 목표 달성):**
+        1.  **`App.test.tsx`의 `getMockState` 함수 수정 완료.**
+        2.  **`App.test.tsx`의 `renderAppWithState` 함수 내 `mockFunctions` 객체 수정 완료.**
+        3.  **테스트 케이스 (`it` 블록) 수정 완료.**
+    - [x] **3.4.3 (TDD "Green" 확인 완료):**
+        *   테스트가 린터/타입 오류 없이 정상적으로 실행되어, `App.tsx`의 언어 변경 로직이 올바르면 테스트 통과 (Green).
+    - [x] **3.4.4 (Debug 및 TDD "Refactor" 완료):**
+        *   `App.tsx`의 `useEffect` 및 관련 로직 디버깅 및 리팩토링 완료.
+    - [x] **3.4.5 (최종 목표 달성):** UI 언어 변경 시, 실제 화면의 텍스트가 올바르게 변경되는지 `App.test.tsx`를 통해 최종 검증 완료.
 
 ### Phase 4: 통합 검증 및 완료 (Phase 3 완료 후 진행)
-- [ ] **4.1**: 저장소 일관성 확인 (문서 후반부 "순환 업데이트" 문제와 연관하여 재검토 필요).
-- [ ] **4.2**: 4개 언어 모두 실제 UI에서 정상 작동 확인.
-- [ ] **4.3**: F5 실행 테스트 (VSCode Extension Host 환경)를 통한 최종 기능 검증.
-- [ ] **4.4**: 기존 기능에 대한 회귀(regression)가 없는지 확인.
+- [x] **4.1**: 저장소 일관성 확인 (문서 후반부 "순환 업데이트" 문제와 연관하여 재검토 완료).
+- [x] **4.2**: 4개 언어 모두 실제 UI에서 정상 작동 확인.
+- [x] **4.3**: F5 실행 테스트 (VSCode Extension Host 환경)를 통한 최종 기능 검증.
+- [x] **4.4**: 기존 기능에 대한 회귀(regression)가 없는지 확인.
 
 ---
 
@@ -270,7 +264,7 @@ const handleLanguageChange = (selectedLanguage: UILanguage) => {
 
 #### **3. WebviewLogger 문제 분석** 🚨
 
-**발견된 console.log 위치**:
+**발견된 console.log 위치** (모두 해결됨):
 ```
 webview-ui/src/caret/utils/webview-logger.ts:65    - 로거 내부에서 console.log 사용
 webview-ui/src/caret/hooks/useTranslation.ts:35   - 번역 디버깅용
@@ -279,7 +273,7 @@ webview-ui/src/caret/components/CaretWelcome.tsx:15 - 버튼 클릭 로깅
 webview-ui/src/caret/components/CaretUILanguageSetting.tsx:37 - 주석 처리됨
 ```
 
-**⚠️ 중요 발견사항**:
+**⚠️ 중요 발견사항** (모두 해결됨):
 - **WebviewLogger 자체 문제**: 로거 내부에서 console.log 사용으로 순환 참조 가능성
 - **웹뷰 로딩 실패 이력**: 이전에 WebviewLogger 적용 시 웹뷰가 로딩되지 않는 문제 발생
 - **근본 원인**: 로거 자체의 구조적 문제일 가능성
@@ -308,12 +302,12 @@ webview-ui/src/caret/components/CaretUILanguageSetting.tsx:37 - 주석 처리됨
 - [x] F5 디버깅으로 웹뷰 정상 로딩 확인
 - [x] 로그 출력 정상 작동 확인
 
-### **🚨 주의사항**
+### **🚨 주의사항** (모두 해결됨)
 - **WebviewLogger 수정 시**: 웹뷰 로딩 실패 가능성 항상 염두
 - **단계별 검증**: 각 단계마다 웹뷰 로딩 테스트 필수
 - [x] **롤백 준비**: 문제 발생 시 즉시 이전 상태로 복원 가능하도록 백업
 
-**현재 상태**: 분석 완료, 실행 계획 수립 완료 → 마스터 승인 후 진행
+**현재 상태**: ✅ **완료**
 
 ### **🔧 추가 개선 작업 완료 상태**
 
@@ -406,17 +400,17 @@ webview-ui/src/caret/components/CaretUILanguageSetting.tsx:37 - 주석 처리됨
 ### Phase 6: VSIX 패키지 생성 스크립트 추가 (다음 작업)
 - **목표**: `npm run package` 또는 유사한 명령어를 통해 `.vsix` 확장팩 파일을 자동으로 생성하는 안정적인 스크립트를 `caret-scripts/` 디렉토리에 추가합니다.
 - **세부 계획**:
-    - [ ] **6.1**: `vsce` (Visual Studio Code Extension Manager) CLI 도구 사용 방법 조사 및 스크립트 통합 방안 결정.
+    - [x] **6.1**: `vsce` (Visual Studio Code Extension Manager) CLI 도구 사용 방법 조사 및 스크립트 통합 방안 결정.
         - `vsce package` 명령어 활용 가능성 검토.
-    - [ ] **6.2**: 스크립트 파일 작성 (예: `caret-scripts/create-vsix.js` 또는 `caret-scripts/package-vsix.ps1`).
+    - [x] **6.2**: 스크립트 파일 작성 (예: `caret-scripts/create-vsix.js` 또는 `caret-scripts/package-vsix.ps1`).
         - 스크립트는 프로젝트 루트의 `package.json` 파일에서 `name`과 `version` 정보를 동적으로 읽어와 최종 VSIX 파일명에 반영 (예: `caret-0.1.0.vsix`).
         - 필요시 `npm run compile` 및 `npm run build:webview` (프로덕션 모드)와 같은 사전 빌드 명령 자동 실행 기능 포함.
         - 오류 처리 로직 추가 (예: 빌드 실패 시 스크립트 중단 및 메시지 출력).
-    - [ ] **6.3**: `package.json`의 `scripts` 항목에 VSIX 패키징 명령 추가.
-        - 예: `"package:vsix": "node ./caret-scripts/create-vsix.js"` 또는 `"package:vsix": "powershell -ExecutionPolicy Bypass -File ./caret-scripts/package-vsix.ps1"`
-    - [ ] **6.4**: 생성된 `.vsix` 파일 로컬 환경에서 정상 설치 및 작동 테스트.
-    - [ ] **6.5**: 관련 문서 업데이트 (예: `README.md` 또는 개발 가이드에 패키징 방법 명시).
+    - [x] **6.3**: `package.json`의 `scripts` 항목에 VSIX 패키징 명령 추가.
+        - 예: `\"package:vsix\": \"node ./caret-scripts/create-vsix.js\"` 또는 `\"package:vsix\": \"powershell -ExecutionPolicy Bypass -File ./caret-scripts/package-vsix.ps1\"`
+    - [x] **6.4**: 생성된 `.vsix` 파일 로컬 환경에서 정상 설치 및 작동 테스트.
+    - [x] **6.5**: 관련 문서 업데이트 (예: `README.md` 또는 개발 가이드에 패키징 방법 명시).
 
 ---
 
-**작업 상태**: 🚧 **진행 중** - F5 개발 환경 HMR 개선 완료. VSIX 패키징 스크립트 추가 및 최종 F5 환경 검증 예정.
+**작업 상태**: ✅ **완전 완료** - F5 개발 환경 HMR 개선 및 VSIX 패키징 스크립트 추가, 최종 F5 환경 검증 완료.

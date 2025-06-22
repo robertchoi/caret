@@ -7,8 +7,28 @@ import { getNonce } from "../../../src/core/webview/getNonce"
 // CARET MODIFICATION: Import Node.js fs and path modules for reading .vite-port
 import * as fs from "fs"
 import * as path from "path"
+import { ensureRulesDirectoryExists } from "../../../src/core/storage/disk" // For global rules path helper
+import { UpdateRuleFileContentRequest } from "../../../src/shared/proto/file" // Proto for request
+import { EmptyRequest } from "../../../src/shared/proto/common" // For refreshRules
 
 export const CARET_SIDEBAR_ID = "caret.SidebarProvider" // Caret 전용 사이드바 ID 상수 선언
+
+type PersonaLanguageKey = "en" | "ko" | "ja" | "zh"
+
+interface PersonaData {
+	name: string
+	description: string
+	customInstruction: object
+}
+
+interface PersonaCharacter {
+	character: string
+	en: PersonaData
+	ko: PersonaData
+	ja: PersonaData
+	zh: PersonaData
+	isDefault?: boolean
+}
 
 export class CaretProvider extends ClineWebviewProvider {
 	// Caret 전용 ID는 package.json에서 정의하고, 여기서는 기본 Cline 구조를 활용
@@ -193,6 +213,82 @@ export class CaretProvider extends ClineWebviewProvider {
 
 		// Cline의 기본 resolveWebviewView를 먼저 호출
 		await super.resolveWebviewView(webviewView)
+
+		// CARET MODIFICATION: Initialize custom_instructions.md with default persona if needed.
+		try {
+			caretLogger.info("[CaretProvider] Checking and initializing custom_instructions.md if necessary...")
+			const customInstructionsFilename = "custom_instructions.md"
+			const globalRulesDir = await ensureRulesDirectoryExists()
+			if (!globalRulesDir) {
+				caretLogger.error(
+					"[CaretProvider] Could not determine global rules directory. Skipping custom_instructions.md initialization.",
+				)
+			} else {
+				const customInstructionsFilePath = path.join(globalRulesDir, customInstructionsFilename)
+				let needsUpdate = true
+				if (fs.existsSync(customInstructionsFilePath)) {
+					const currentContent = fs.readFileSync(customInstructionsFilePath, "utf8").trim()
+					if (currentContent !== "") {
+						needsUpdate = false
+						caretLogger.info(
+							`[CaretProvider] Found existing custom_instructions.md with content at: ${customInstructionsFilePath}. No update needed.`,
+						)
+					}
+				}
+
+				if (needsUpdate) {
+					caretLogger.info(
+						`[CaretProvider] custom_instructions.md needs to be created or updated with default. Path: ${customInstructionsFilePath}`,
+					)
+					const personaTemplatePath = path.join(
+						this.context.extensionPath,
+						"caret-assets",
+						"template_characters",
+						"template_characters.json",
+					)
+					const personaTemplates: PersonaCharacter[] = JSON.parse(fs.readFileSync(personaTemplatePath, "utf8"))
+					const defaultPersona =
+						personaTemplates.find((p) => p.isDefault === true || p.character === "sarang") || personaTemplates[0]
+
+					if (defaultPersona) {
+						let langStr = (vscode.env.language || "en").toLowerCase().split("-")[0]
+						if (!["en", "ko", "ja", "zh"].includes(langStr)) {
+							langStr = "en"
+						}
+						const langKey = langStr as PersonaLanguageKey
+
+						const personaLangData = defaultPersona[langKey]
+						const customInstructionObj = personaLangData?.customInstruction || defaultPersona.en.customInstruction
+						const customInstructionContent = JSON.stringify(customInstructionObj, null, 2)
+
+						const request = UpdateRuleFileContentRequest.create({
+							rulePath: customInstructionsFilename,
+							content: customInstructionContent,
+							isGlobal: true,
+						})
+
+						caretLogger.info(
+							`[CaretProvider] Updating custom_instructions.md with default persona (${defaultPersona.character}, lang: ${langKey})`,
+						)
+						if (this.controller && this.controller.fileServiceClient) {
+							await this.controller.fileServiceClient.updateRuleFileContent(request)
+							caretLogger.info("[CaretProvider] Successfully updated custom_instructions.md. Refreshing rules...")
+							await this.controller.fileServiceClient.refreshRules(EmptyRequest.create())
+							caretLogger.info("[CaretProvider] Rules refreshed after initializing custom_instructions.md.")
+						} else {
+							caretLogger.error(
+								"[CaretProvider] Controller or FileServiceClient not available for updating custom_instructions.md.",
+							)
+						}
+					} else {
+						caretLogger.warn("[CaretProvider] Could not find a default persona in template_characters.json.")
+					}
+				}
+			}
+		} catch (error: any) {
+			caretLogger.error("[CaretProvider] Error during custom_instructions.md initialization:", error)
+		}
+		// END CARET MODIFICATION
 
 		// 그 다음 Caret 전용 HTML로 교체
 		if (webviewView.webview) {

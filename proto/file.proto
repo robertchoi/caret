@@ -1,4 +1,5 @@
 // CARET MODIFICATION: Added caretrules support (toggleCaretRule RPC and ToggleCaretRuleRequest)
+// CARET MODIFICATION: Added UpdateRuleFileContent RPC and related messages for managing persona custom instructions.
 // Original backed up to: file-proto.cline
 syntax = "proto3";
 
@@ -27,6 +28,8 @@ service FileService {
 
   // Creates a rule file from either global or workspace rules directory
   rpc createRuleFile(RuleFileRequest) returns (RuleFile);
+
+
   
   // Search git commits in the workspace
   rpc searchCommits(StringRequest) returns (GitCommits);
@@ -188,3 +191,5 @@ message ToggleWorkflowRequest {
   bool enabled = 3;
   bool is_global = 4;
 }
+
+

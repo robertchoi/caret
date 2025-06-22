@@ -28,18 +28,42 @@
 - [x] **테스트 코드 작성**: `caret-src/__tests__/rule-priority.test.ts` 추가 (6개 테스트 모두 통과)
 - [x] **검증**: 빌드 및 컴파일 성공 확인
 
-## Phase 3: 설정 시스템 확장 ✅ **완료**
+## Phase 3: 설정 시스템 확장 ❌ **실패 - 근본 원인 분석 완료**
 
+### **구현 완료 부분**:
 - [x] **General Settings에 UI 언어 설정(i18n) 추가**:
     - [x] SettingsView 컴포넌트 구조 분석
     - [x] 기존 ChatSettings 인터페이스 확장 (uiLanguage 필드 추가)
-    - [x] 언어 선택 UI 컴포넌트 구현 (UILanguageSetting.tsx)
+    - [x] 언어 선택 UI 컴포넌트 구현 (CaretUILanguageSetting.tsx)
     - [x] SettingsView에 UI 언어 설정 통합
     - [x] 백업 생성 (ChatSettings-ts.cline, SettingsView-tsx.cline)
 - [x] **테스트 및 검증**:
     - [x] TypeScript 컴파일 성공 확인
     - [x] webview-ui 빌드 성공 확인  
     - [x] 전체 테스트 스위트 통과 (프론트엔드 80개, 백엔드 30개)
+
+### **❌ 실제 동작 실패 - 근본 원인 발견 (2025-06-22)**:
+
+**1. 저장소 불일치 (가장 심각)**:
+- `updateSettings.ts`: globalState에 저장
+- `state.ts`: workspaceState에서 로드
+- **결과**: 저장한 곳과 다른 곳에서 로드하여 설정이 사라짐
+
+**2. ExtensionStateContext 반응성 저하**:
+- Cline 원본: UI 먼저 업데이트 → 백엔드 저장
+- Caret 수정: 백엔드 먼저 저장 → UI 업데이트
+- **결과**: 네트워크 지연 시 UI 멈춤
+
+**3. TDD 원칙 위반**:
+- 테스트 없이 구현부터 진행
+- 복잡성 폭발: 한 번에 너무 많은 변경
+- **결과**: 근본 문제를 놓쳐 실패
+
+### **Phase 3 재작업 필요**:
+- [ ] **저장소 불일치 해결** (최우선)
+- [ ] **ExtensionStateContext 원복**
+- [ ] **통합 테스트 추가**
+- [ ] **TDD 방식으로 재구현**
 
 ## Phase 4: 페르소나 UI 구현 📅 **다음 세션 예정**
 

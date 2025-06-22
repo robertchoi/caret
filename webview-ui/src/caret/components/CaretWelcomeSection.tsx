@@ -1,6 +1,7 @@
 import React from "react"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import { t } from "../utils/i18n"
+import { useCurrentLanguage } from "../hooks/useCurrentLanguage"
 
 interface ButtonConfig {
 	textKey: string
@@ -26,6 +27,8 @@ const CaretWelcomeSection: React.FC<CaretWelcomeSectionProps> = ({
 	children,
 	allowHtml = false,
 }) => {
+	const currentLanguage = useCurrentLanguage()
+
 	const sectionStyle = {
 		marginBottom: "10px",
 		padding: "12px",
@@ -37,8 +40,12 @@ const CaretWelcomeSection: React.FC<CaretWelcomeSectionProps> = ({
 
 	return (
 		<div className={`caret-welcome-section ${className}`} style={sectionStyle}>
-			<h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{t(headerKey, "welcome")}</h3>
-			{allowHtml ? <p dangerouslySetInnerHTML={{ __html: t(bodyKey, "welcome") }} /> : <p>{t(bodyKey, "welcome")}</p>}
+			<h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{t(headerKey, "welcome", currentLanguage)}</h3>
+			{allowHtml ? (
+				<p dangerouslySetInnerHTML={{ __html: t(bodyKey, "welcome", currentLanguage) }} />
+			) : (
+				<p>{t(bodyKey, "welcome", currentLanguage)}</p>
+			)}
 			{children}
 			{buttonConfig && (
 				<VSCodeButton
@@ -46,7 +53,7 @@ const CaretWelcomeSection: React.FC<CaretWelcomeSectionProps> = ({
 					onClick={buttonConfig.handler}
 					disabled={buttonConfig.disabled || false}
 					style={{ width: "100%", marginTop: "10px" }}>
-					{t(buttonConfig.textKey, "welcome")}
+					{t(buttonConfig.textKey, "welcome", currentLanguage)}
 				</VSCodeButton>
 			)}
 		</div>

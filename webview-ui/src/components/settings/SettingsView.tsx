@@ -18,12 +18,15 @@ import ApiOptions from "./ApiOptions"
 import BrowserSettingsSection from "./BrowserSettingsSection"
 import FeatureSettingsSection from "./FeatureSettingsSection"
 import PreferredLanguageSetting from "./PreferredLanguageSetting" // Added import
-import UILanguageSetting from "./UILanguageSetting" // CARET MODIFICATION: Added UI language setting
+import CaretUILanguageSetting from "../../caret/components/CaretUILanguageSetting" // CARET MODIFICATION: Moved to Caret directory
 import Section from "./Section"
 import SectionHeader from "./SectionHeader"
 import TerminalSettingsSection from "./TerminalSettingsSection"
 import { convertApiConfigurationToProtoApiConfiguration } from "@shared/proto-conversions/state/settings-conversion"
 import { convertChatSettingsToProtoChatSettings } from "@shared/proto-conversions/state/chat-settings-conversion"
+//import { caretWebviewLogger } from "@/caret/utils/webview-logger" // CARET MODIFICATION: 주석 처리
+import { t } from "@/caret/utils/i18n"
+import { useCurrentLanguage } from "@/caret/hooks/useCurrentLanguage"
 const { IS_DEV } = process.env
 
 // Styles for the tab system
@@ -108,8 +111,8 @@ type SettingsViewProps = {
 
 const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 	// CARET MODIFICATION: SettingsView 렌더링 확인
-	alert("🎯 SettingsView 컴포넌트 렌더링!")
-	console.log("🎯 SettingsView props:", { onDone, targetSection })
+	// caretWebviewLogger.debug("🎯 SettingsView 컴포넌트 렌더링!"); // CARET MODIFICATION: 주석 처리
+	//caretWebviewLogger.debug("🎯 SettingsView props:", { onDone, targetSection })
 	// Track if there are unsaved changes
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 	// State for the unsaved changes dialog
@@ -187,7 +190,8 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		}
 
 		try {
-			console.log("[DEBUG] Saving settings with chatSettings:", chatSettings)
+			// CARET MODIFICATION: console.log to logger
+			// caretWebviewLogger.debug("[DEBUG] Saving settings with chatSettings:", chatSettings); // CARET MODIFICATION: 주석 처리
 			await StateServiceClient.updateSettings(
 				UpdateSettingsRequest.create({
 					planActSeparateModelsSetting,
@@ -205,7 +209,8 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 					terminalOutputLineLimit,
 				}),
 			)
-			console.log("[DEBUG] Settings saved successfully")
+			// CARET MODIFICATION: console.log to logger
+			// caretWebviewLogger.info("[DEBUG] Settings saved successfully"); // CARET MODIFICATION: 주석 처리
 
 			// Update default terminal profile if it has changed
 			if (defaultTerminalProfile !== originalState.current.defaultTerminalProfile) {
@@ -230,7 +235,9 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 				defaultTerminalProfile,
 			}
 		} catch (error) {
-			console.error("Failed to update settings:", error)
+			// CARET MODIFICATION: console.error to logger
+			// caretWebviewLogger.error("Failed to update settings:", error); // CARET MODIFICATION: 주석 처리
+			console.error("Failed to update settings:", error) // 원래 Cline 코드로 복원 (에러는 계속 로깅되도록)
 		}
 
 		if (!withoutDone) {
@@ -460,11 +467,20 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 	// Enhanced tab change handler with debugging
 	const handleTabChange = useCallback(
 		(tabId: string) => {
-			console.log("Tab change requested:", tabId, "Current:", activeTab)
+			// CARET MODIFICATION: console.log to logger, corrected arguments
+			// caretWebviewLogger.debug("Tab change requested:", { tabId, currentTab: activeTab }); // CARET MODIFICATION: 주석 처리
 			setActiveTab(tabId)
+			// CARET MODIFICATION: console.log to logger, corrected arguments
+			// caretWebviewLogger.debug("Active tab changed to:", { activeTab }); // CARET MODIFICATION: 주석 처리
 		},
 		[activeTab],
 	)
+
+	const handleCompactTabClick = (tab: "general" | "api" | "advanced" | "chat") => {
+		// CARET MODIFICATION: console.log to logger, corrected arguments
+		// caretWebviewLogger.debug("Compact tab clicked:", { tabId: tab }); // CARET MODIFICATION: 주석 처리
+		handleTabChange(tab)
+	}
 
 	// Debug tab changes
 	useEffect(() => {
@@ -531,8 +547,9 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 									data-testid={`tab-${tab.id}`}
 									data-value={tab.id}
 									onClick={() => {
-										console.log("Compact tab clicked:", tab.id)
-										handleTabChange(tab.id)
+										// CARET MODIFICATION: console.log to logger
+										// caretWebviewLogger.debug("Compact tab clicked:", { tabId: tab.id }); // CARET MODIFICATION: 주석 처리
+										handleCompactTabClick(tab.id as "general" | "api" | "advanced" | "chat")
 									}}>
 									<div className={cn("flex items-center gap-2", isCompactMode && "justify-center")}>
 										<tab.icon className="w-4 h-4" />
@@ -643,10 +660,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 							)}
 
 							{/* General Settings Tab */}
-							{(() => {
-								alert(`🚨 activeTab: ${activeTab}, general 체크: ${activeTab === "general"}`)
-								return activeTab === "general"
-							})() && (
+							{activeTab === "general" && (
 								<div>
 									{renderSectionHeader("general")}
 									<Section>
@@ -658,23 +672,32 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 										)}
 
 										{/* CARET MODIFICATION: UI Language Setting */}
-										{(() => {
-											alert(`🎯 General 탭! chatSettings: ${!!chatSettings}, type: ${typeof chatSettings}`)
-											console.log("🎯 [SettingsView] chatSettings:", chatSettings)
-
-											try {
-												alert("🔥 UILanguageSetting 렌더링 시도!")
-												return (
-													<UILanguageSetting
-														chatSettings={chatSettings || {}}
-														setChatSettings={setChatSettings}
-													/>
+										{chatSettings &&
+											(() => {
+												// caretWebviewLogger.debug(\`🎯 General 탭! Rendering CaretUILanguageSetting with chatSettings.\\`); // 주석 유지
+												console.log(
+													"🎯 [SettingsView] chatSettings for CaretUILanguageSetting:",
+													chatSettings,
 												)
-											} catch (error) {
-												alert(`❌ UILanguageSetting 에러: ${error}`)
-												return <div>UILanguageSetting Error: {String(error)}</div>
-											}
-										})()}
+
+												try {
+													// caretWebviewLogger.debug(\\`🔥 CaretUILanguageSetting 렌더링 시도!\\`) // 주석 유지
+													return (
+														<CaretUILanguageSetting
+															chatSettings={chatSettings}
+															setChatSettings={setChatSettings}
+														/>
+													)
+												} catch (error) {
+													// caretWebviewLogger.error(\\`❌ CaretUILanguageSetting 에러: \\${error}\\`) // 주석 유지
+													console.error("CaretUILanguageSetting Error:", error) // console.error 사용
+													return <div>CaretUILanguageSetting Error: {String(error)}</div>
+												}
+											})()}
+										{!chatSettings &&
+											console.debug(
+												"🎯 General 탭! chatSettings not available, CaretUILanguageSetting not rendered.",
+											)}
 
 										<div className="mb-[5px]">
 											<VSCodeCheckbox

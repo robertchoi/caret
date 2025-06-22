@@ -61,7 +61,7 @@ const CaretWelcome: React.FC<CaretWelcomeProps> = ({ onGetStarted }) => {
 				{/* 시작하기 버튼 */}
 				<div className="caret-actions">
 					<VSCodeButton onClick={handleGetStarted} appearance="primary">
-						시작하기
+						{t("getStarted.button", "welcome")}
 					</VSCodeButton>
 				</div>
 			</div>

@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest"
 describe("UI Language Final Fix (TDD)", () => {
 	describe("UI Language Save Issue", () => {
 		it("should identify the remaining problem: Settings not calling setChatSettings", () => {
-			// RED: SettingsView에서 UILanguageSetting 변경이 실제로 저장되지 않는 문제
+			// RED: SettingsView에서 CaretUILanguageSetting 변경이 실제로 저장되지 않는 문제
 
 			// 현재 상황:
 			// ✅ Proto에 ui_language 필드 추가됨
@@ -12,10 +12,10 @@ describe("UI Language Final Fix (TDD)", () => {
 
 			// 가능한 원인들:
 			// A. SettingsView의 handleSubmit에서 chatSettings 저장 누락
-			// B. UILanguageSetting 변경이 hasUnsavedChanges에 반영되지 않음
+			// B. CaretUILanguageSetting 변경이 hasUnsavedChanges에 반영되지 않음
 			// C. Save 버튼이 chatSettings를 포함하지 않음
 
-			expect(false).toBe(false) // GREEN: SettingsView에 UILanguageSetting 포함됨, 저장 로직 정상
+			expect(false).toBe(false) // GREEN: SettingsView에 CaretUILanguageSetting 포함됨, 저장 로직 정상
 		})
 
 		it("should check SettingsView save mechanism for chatSettings", () => {
@@ -42,7 +42,7 @@ describe("UI Language Final Fix (TDD)", () => {
 			// - "UI Language" → "UI 언어" (한국어)
 			// - "The language used for Caret's user interface elements" → 한국어 설명
 
-			expect(false).toBe(false) // GREEN: UILanguageSetting에 다국어 적용 완료
+			expect(false).toBe(false) // GREEN: CaretUILanguageSetting에 다국어 적용 완료
 		})
 
 		it("should create Korean translations for UI Language setting", () => {
@@ -66,7 +66,7 @@ describe("UI Language Final Fix (TDD)", () => {
 			const fixSteps = [
 				"1. SettingsView handleSubmit에 setChatSettings 호출 추가",
 				"2. hasUnsavedChanges에 chatSettings 변경 감지 추가",
-				"3. UILanguageSetting에 다국어 적용",
+				"3. CaretUILanguageSetting에 다국어 적용",
 				"4. 테스트로 검증",
 			]
 

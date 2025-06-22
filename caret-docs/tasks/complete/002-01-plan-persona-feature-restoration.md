@@ -28,7 +28,7 @@
 - [x] **General Settings에 UI 언어 설정(i18n) 추가**:
     - [x] SettingsView 컴포넌트 분석 및 구조 파악
     - [x] ChatSettings.ts에 uiLanguage 필드 추가 (백업: ChatSettings-ts.cline)
-    - [x] UILanguageSetting.tsx 컴포넌트 구현 (영어/한국어 지원)
+    - [x] CaretUILanguageSetting.tsx 컴포넌트 구현 (영어/한국어 지원)
     - [x] SettingsView.tsx에 UI 언어 설정 통합 (백업: SettingsView-tsx.cline)
     - [x] 기존 Preferred Language(AI 대화용)와 UI Language(인터페이스용) 구분 완료
     - [x] 컴파일 및 테스트 성공 (전체 110개 테스트 통과)
@@ -42,18 +42,45 @@
 - [ ] 백엔드 연동 로직 구현
 - [ ] 테스트 및 검증
 
-### 🚨 Phase 3 후속 문제 발생 (2025-06-22 새벽)
-**설정 저장 시스템 장애 발견**:
-- [x] **Caret 룰 시스템 개선**: `.caretrules` 우선순위 및 저장 기능 구현 완료
-- [x] **UI 언어 설정 구현**: 컴포넌트 및 백엔드 연동 구현 완료
+### 🚨 Phase 3 후속 문제 발생 및 근본 원인 분석 (2025-06-22)
+
+#### **초기 증상 (2025-06-22 새벽)**:
 - ❌ **설정 저장 실패**: UI 언어 설정 및 기존 선호 언어 설정 모두 저장 안됨
 - ❌ **디버깅 불가**: Extension Development Host에서 로그 출력 안됨
 
-**긴급 해결 필요 사항**:
-1. **기존 PreferredLanguageSetting 복구** (우선순위 1)
-2. **설정 저장 메커니즘 디버깅** (백엔드 통신 확인)
-3. **UI 언어 설정 재구현** (기존 기능 복구 후)
-4. **Extension Development Host 캐시 문제 해결**
+#### **근본 원인 분석 완료 (2025-06-22 오후)**:
+
+**1. 저장소 불일치 (가장 심각) 🎯**
+```typescript
+// Controller.ts (445줄): workspaceState 저장
+await updateWorkspaceState(this.context, "chatSettings", chatSettings)
+
+// updateSettings.ts (57줄): globalState 저장  
+await controller.context.globalState.update("chatSettings", chatSettings)
+
+// state.ts (360줄): workspaceState에서 로드
+getWorkspaceState(context, "chatSettings")
+```
+**결과**: 저장은 `globalState`에, 로드는 `workspaceState`에서! 완전히 다른 저장소 사용
+
+**2. ExtensionStateContext 반응성 저하**
+- **Cline 원본**: UI 먼저 업데이트 → 백엔드 저장 (즉시 반응성)
+- **Caret 수정**: 백엔드 먼저 저장 → UI 업데이트 (반응성 저하)
+
+**3. 테스트 한계**
+- 모킹된 환경에서는 저장소 불일치 검증 불가
+- Extension Host 실제 실행 환경과 다름
+- 통합 테스트 부족으로 전체 플로우 검증 안됨
+
+**4. TDD 원칙 위반**
+- 테스트 없이 구현부터 진행 → 근본 문제 놓침
+- 복잡성 폭발: 한 번에 너무 많은 변경사항
+
+#### **해결 계획 (우선순위순)**:
+1. **저장소 불일치 해결** - chatSettings 저장/로드 위치 통일
+2. **ExtensionStateContext 원복** - Cline 원본 방식으로 복구  
+3. **통합 테스트 추가** - 실제 저장/로드 플로우 검증
+4. **UI 언어 설정 재구현** (근본 문제 해결 후)
 ## 3. 분석 결과
 
 ### 3.1. 페르소나 기능

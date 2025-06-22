@@ -70,6 +70,8 @@ interface ExtensionStateContextType extends ExtensionState {
 	setTerminalOutputLineLimit: (value: number) => void
 	setDefaultTerminalProfile: (value: string) => void
 	setChatSettings: (value: ChatSettings) => void
+	// CARET MODIFICATION: UI 언어만 업데이트하는 별도 함수
+	setUILanguage: (language: string) => void
 	setMcpServers: (value: McpServer[]) => void
 	setGlobalClineRulesToggles: (toggles: Record<string, boolean>) => void
 	setLocalClineRulesToggles: (toggles: Record<string, boolean>) => void
@@ -107,7 +109,8 @@ interface ExtensionStateContextType extends ExtensionState {
 	onRelinquishControl: (callback: () => void) => () => void
 }
 
-const ExtensionStateContext = createContext<ExtensionStateContextType | undefined>(undefined)
+// CARET MODIFICATION: Export ExtensionStateContext for testing purposes
+export const ExtensionStateContext = createContext<ExtensionStateContextType | undefined>(undefined)
 
 export const ExtensionStateContextProvider: React.FC<{
 	children: React.ReactNode
@@ -204,6 +207,8 @@ export const ExtensionStateContextProvider: React.FC<{
 		defaultTerminalProfile: "default",
 		isNewUser: false,
 		mcpResponsesCollapsed: false, // Default value (expanded), will be overwritten by extension state
+		// CARET MODIFICATION: Add uiLanguage for i18n support - follows VSCode settings or defaults to 'en'
+		uiLanguage: "en", // Will be overwritten by backend state with VSCode settings
 	})
 	const [didHydrateState, setDidHydrateState] = useState(false)
 	const [showWelcome, setShowWelcome] = useState(false)
@@ -852,6 +857,31 @@ export const ExtensionStateContextProvider: React.FC<{
 		setTotalTasksSize,
 		refreshOpenRouterModels,
 		onRelinquishControl,
+		// CARET MODIFICATION: UI 언어만 업데이트하는 별도 함수 - chatSettings 충돌 방지
+		setUILanguage: async (language: string) => {
+			try {
+				// UI 언어만 업데이트 (다른 설정 포함하지 않음)
+				await StateServiceClient.updateSettings(
+					UpdateSettingsRequest.create({
+						uiLanguage: language, // 오직 이것만 업데이트
+					}),
+				)
+
+				// Frontend 상태 업데이트
+				setState((prevState) => ({
+					...prevState,
+					uiLanguage: language,
+					chatSettings: {
+						...prevState.chatSettings,
+						uiLanguage: language,
+					},
+				}))
+
+				console.log("[DEBUG] 🌐 setUILanguage completed:", language)
+			} catch (error) {
+				console.error("Failed to update UI language:", error)
+			}
+		},
 	}
 
 	return <ExtensionStateContext.Provider value={contextValue}>{children}</ExtensionStateContext.Provider>

@@ -13,6 +13,6 @@ export type PartialChatSettings = Partial<ChatSettings>
 export const DEFAULT_CHAT_SETTINGS: ChatSettings = {
 	mode: "act",
 	preferredLanguage: "English",
-	uiLanguage: "ko", // CARET MODIFICATION: 기본 UI 언어는 한국어 (Caret 정책)
+	uiLanguage: "en", // CARET MODIFICATION: 기본 UI 언어는 영어 (VSCode 설정 따라감)
 	openAIReasoningEffort: "medium",
 }

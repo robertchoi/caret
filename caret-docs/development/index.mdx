@@ -14,6 +14,16 @@ Caret은 [Cline](https://github.com/cline/cline)의 완전한 Fork입니다:
 
 자세한 아키텍처 정보는 [Caret 아키텍처 가이드](./caret-architecture-and-implementation-guide.mdx)를 참조하세요.
 
+### ⚡ Frontend-Backend 상호작용 패턴
+
+Caret의 webview와 Extension Host 간 통신에는 **검증된 표준 패턴**을 사용하세요:
+
+-   **단일 필드 업데이트**: 변경된 필드만 전송하여 순환 메시지 방지
+-   **Optimistic Update**: 즉시 UI 업데이트 후 백엔드 동기화
+-   **별도 업데이트 함수**: `setUILanguage`, `setPersona` 등 전용 함수 생성
+
+자세한 패턴은 [Frontend-Backend 상호작용 가이드](./frontend-backend-interaction-patterns.mdx)를 참조하세요.
+
 ## 🚀 빠른 시작
 
 ### 필수 요구사항

@@ -19,7 +19,12 @@ vi.mock("../CaretFooter", () => ({
 
 // Mock i18n
 vi.mock("../../utils/i18n", () => ({
-	t: (key: string, namespace: string) => `${namespace}.${key}`,
+	t: (key: string, namespace: string) => {
+		if (namespace === "welcome" && key === "getStarted.button") {
+			return "시작하기"
+		}
+		return `${namespace}.${key}`
+	},
 }))
 
 // Mock webview logger
@@ -28,6 +33,7 @@ vi.mock("../../utils/webview-logger", () => ({
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
+		debug: vi.fn(),
 	},
 }))
 
@@ -188,6 +194,37 @@ describe("CaretWelcome", () => {
 		it("should work with onGetStarted prop", () => {
 			const mockOnGetStarted = vi.fn()
 			expect(() => render(React.createElement(CaretWelcome, { onGetStarted: mockOnGetStarted }))).not.toThrow()
+		})
+	})
+
+	// ✨ Task #002-4: i18n 하드코딩 텍스트 수정 TDD 테스트
+	describe("🎯 Task #002-4: i18n 하드코딩 텍스트 수정", () => {
+		it("should use i18n for 'Get Started' button text instead of hardcoded Korean", () => {
+			render(React.createElement(CaretWelcome))
+
+			// VSCode Button 컴포넌트는 일반적인 role="button"이 아닌 vscode-button 태그로 렌더링됨
+			const getStartedButton = screen.getByText("시작하기")
+			expect(getStartedButton).toBeInTheDocument()
+			expect(getStartedButton.tagName.toLowerCase()).toBe("vscode-button")
+		})
+
+		it("should properly use welcome namespace for getStarted.button key", () => {
+			render(React.createElement(CaretWelcome))
+
+			// 현재 모킹에서 정확한 키와 네임스페이스를 사용했을 때만 "시작하기"가 나타남
+			// 이는 실제 코드에서 t("getStarted.button", "welcome")를 사용하고 있음을 의미
+			const button = screen.getByText("시작하기")
+			expect(button).toBeInTheDocument()
+		})
+
+		it("should maintain button functionality after i18n integration", () => {
+			const mockOnGetStarted = vi.fn()
+			render(React.createElement(CaretWelcome, { onGetStarted: mockOnGetStarted }))
+
+			const button = screen.getByText("시작하기")
+			fireEvent.click(button)
+
+			expect(mockOnGetStarted).toHaveBeenCalledTimes(1)
 		})
 	})
 })

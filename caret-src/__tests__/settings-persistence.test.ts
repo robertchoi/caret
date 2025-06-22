@@ -21,7 +21,7 @@ describe("Settings Persistence Issues (TDD)", () => {
 		it("should check ChatSettings save mechanism", () => {
 			// GREEN: ChatSettings 저장 메커니즘 확인
 
-			// UILanguageSetting.tsx에서 사용하는 저장 로직 확인
+			// CaretUILanguageSetting.tsx에서 사용하는 저장 로직 확인
 			// onSettingsChange 콜백이 제대로 호출되는지
 			// ExtensionStateContext의 상태 관리가 올바른지
 

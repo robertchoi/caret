@@ -5,7 +5,7 @@ describe("UILanguage ChatSettings Integration", () => {
 	describe("ChatSettings uiLanguage field", () => {
 		it("should include uiLanguage in DEFAULT_CHAT_SETTINGS", () => {
 			expect(DEFAULT_CHAT_SETTINGS).toHaveProperty("uiLanguage")
-			expect(DEFAULT_CHAT_SETTINGS.uiLanguage).toBe("ko") // Caret 정책: 한국어가 기본 언어
+			expect(DEFAULT_CHAT_SETTINGS.uiLanguage).toBe("en") // Caret 정책: 영어가 기본 언어 (VSCode 설정 따라감)
 		})
 
 		it("should accept uiLanguage as optional string in ChatSettings interface", () => {
@@ -131,7 +131,7 @@ describe("UILanguage ChatSettings Integration", () => {
 	// 🎯 진짜 통합테스트 추가
 	describe("🔗 UI-Backend Integration Tests", () => {
 		it("should support all UI language options in backend ChatSettings", () => {
-			// UILanguageSetting 컴포넌트에서 제공하는 언어 옵션들
+			// CaretUILanguageSetting 컴포넌트에서 제공하는 언어 옵션들
 			const uiSupportedLanguages = ["ko", "en", "ja", "zh"]
 
 			// 백엔드 ChatSettings에서 모든 UI 언어를 지원하는지 확인
@@ -147,12 +147,12 @@ describe("UILanguage ChatSettings Integration", () => {
 			})
 		})
 
-		it("should handle UILanguageSetting onChange flow end-to-end", () => {
+		it("should handle CaretUILanguageSetting onChange flow end-to-end", () => {
 			// 1. 초기 설정 (기본값)
 			let currentSettings: ChatSettings = { ...DEFAULT_CHAT_SETTINGS }
-			expect(currentSettings.uiLanguage).toBe("ko") // Caret 기본값
+			expect(currentSettings.uiLanguage).toBe("en") // Caret 기본값 (영어)
 
-			// 2. UILanguageSetting onChange 시뮬레이션 (사용자가 영어로 변경)
+			// 2. CaretUILanguageSetting onChange 시뮬레이션 (사용자가 영어로 변경)
 			const newUILanguage = "en"
 			const updatedSettings: ChatSettings = {
 				...currentSettings,
@@ -223,7 +223,7 @@ describe("UILanguage ChatSettings Integration", () => {
 				// uiLanguage 없음
 			}
 
-			// UILanguageSetting 컴포넌트에서 사용하는 fallback 로직 테스트
+			// CaretUILanguageSetting 컴포넌트에서 사용하는 fallback 로직 테스트
 			const fallbackLanguage = settingsWithoutUI.uiLanguage || "ko"
 			expect(fallbackLanguage).toBe("ko") // Caret 정책: 한국어 기본값
 

@@ -54,6 +54,37 @@ export async function getWorkspaceState(context: vscode.ExtensionContext, key: s
 	return await context.workspaceState.get(key)
 }
 
+// CARET MODIFICATION: UI Language specific storage functions (app-wide)
+
+export async function getUILanguage(context: vscode.ExtensionContext): Promise<string> {
+	const uiLanguage = (await getGlobalState(context, "uiLanguage")) as string | undefined
+	if (uiLanguage) {
+		return uiLanguage
+	}
+	
+	// CARET MODIFICATION: VSCode 언어 설정 따라가기
+	// 저장된 설정이 없으면 VSCode 언어 설정에서 감지
+	const vscodeLocale = vscode.env.language || "en"
+	const detectedLanguage = vscodeLocale.split('-')[0] // ko-KR -> ko
+	
+	console.log("[DEBUG] 🌐 VSCode language detection:", {
+		vscodeLocale,
+		detectedLanguage,
+		fallback: "en"
+	})
+	
+	// 지원하는 언어인지 확인
+	const supportedLanguages = ["ko", "en", "ja", "zh"]
+	const finalLanguage = supportedLanguages.includes(detectedLanguage) ? detectedLanguage : "en"
+	
+	console.log("[DEBUG] 🌐 Final UI language:", finalLanguage)
+	return finalLanguage
+}
+
+export async function updateUILanguage(context: vscode.ExtensionContext, uiLanguage: string) {
+	await updateGlobalState(context, "uiLanguage", uiLanguage)
+}
+
 export async function migratePlanActGlobalToWorkspaceStorage(context: vscode.ExtensionContext) {
 	// Keys that were migrated from global storage to workspace storage
 	const keysToMigrate = [
@@ -320,6 +351,9 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 		getGlobalState(context, "sapAiCoreModelId") as Promise<string | undefined>,
 	])
 
+	// CARET MODIFICATION: Load uiLanguage from globalState separately
+	const uiLanguage = await getUILanguage(context)
+
 	const localClineRulesToggles = (await getWorkspaceState(context, "localClineRulesToggles")) as ClineRulesToggles
 
 	const [
@@ -403,7 +437,6 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 		if (apiKey) {
 			apiProvider = "anthropic"
 		} else {
-			// New users should default to openrouter, since they've opted to use an API key instead of signing in
 			apiProvider = "openrouter"
 		}
 	}
@@ -515,7 +548,11 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 		chatSettings: {
 			...DEFAULT_CHAT_SETTINGS, // Apply defaults first
 			...(chatSettings || {}), // Spread fetched chatSettings, which includes preferredLanguage, and openAIReasoningEffort
+			// CARET MODIFICATION: Remove uiLanguage from chatSettings (now stored separately in globalState)
+			uiLanguage: undefined,
 		},
+		// CARET MODIFICATION: Add uiLanguage as separate field (from globalState)
+		uiLanguage,
 		userInfo,
 		previousModeApiProvider,
 		previousModeModelId,

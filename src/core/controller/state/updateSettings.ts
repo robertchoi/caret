@@ -15,6 +15,24 @@ import { TelemetrySetting } from "@/shared/TelemetrySetting"
  */
 export async function updateSettings(controller: Controller, request: UpdateSettingsRequest): Promise<Empty> {
 	try {
+		// CARET MODIFICATION: Debug logging to track what's being updated
+		console.log("[DEBUG] 🔧 updateSettings called with:", {
+			hasApiConfiguration: !!request.apiConfiguration,
+			hasTelemetrySetting: !!request.telemetrySetting,
+			hasChatSettings: !!request.chatSettings,
+			hasUILanguage: request.uiLanguage !== undefined,
+			uiLanguageValue: request.uiLanguage,
+			otherSettings: {
+				planActSeparateModelsSetting: request.planActSeparateModelsSetting !== undefined,
+				enableCheckpointsSetting: request.enableCheckpointsSetting !== undefined,
+				mcpMarketplaceEnabled: request.mcpMarketplaceEnabled !== undefined,
+				mcpResponsesCollapsed: request.mcpResponsesCollapsed !== undefined,
+				mcpRichDisplayEnabled: request.mcpRichDisplayEnabled !== undefined,
+				shellIntegrationTimeout: request.shellIntegrationTimeout !== undefined,
+				terminalReuseEnabled: request.terminalReuseEnabled !== undefined,
+				terminalOutputLineLimit: request.terminalOutputLineLimit !== undefined,
+			},
+		})
 		// Update API configuration
 		if (request.apiConfiguration) {
 			const apiConfiguration = convertProtoApiConfigurationToApiConfiguration(request.apiConfiguration)
@@ -55,12 +73,20 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 			await controller.context.globalState.update("mcpRichDisplayEnabled", request.mcpRichDisplayEnabled)
 		}
 
+		// CARET MODIFICATION: Update uiLanguage separately in globalState (app-wide setting)
+		if (request.uiLanguage !== undefined) {
+			await controller.context.globalState.update("uiLanguage", request.uiLanguage)
+		}
+
 		// Update chat settings
+		// CARET MODIFICATION: Use workspaceState instead of globalState for chatSettings consistency
 		if (request.chatSettings) {
 			const chatSettings = convertProtoChatSettingsToChatSettings(request.chatSettings)
-			await controller.context.globalState.update("chatSettings", chatSettings)
+			// CARET MODIFICATION: Remove uiLanguage from chatSettings before saving (stored separately in globalState)
+			const { uiLanguage, ...chatSettingsWithoutUILanguage } = chatSettings
+			await controller.context.workspaceState.update("chatSettings", chatSettingsWithoutUILanguage)
 			if (controller.task) {
-				controller.task.chatSettings = chatSettings
+				controller.task.chatSettings = chatSettingsWithoutUILanguage
 			}
 		}
 
@@ -79,8 +105,34 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 			await controller.context.globalState.update("terminalOutputLineLimit", Number(request.terminalOutputLineLimit))
 		}
 
-		// Post updated state to webview
-		await controller.postStateToWebview()
+		// CARET MODIFICATION: Conditional broadcast to prevent circular messages
+		// Skip broadcast for uiLanguage-only updates to prevent webview subscription override
+		const isUILanguageOnlyUpdate =
+			request.uiLanguage !== undefined &&
+			!request.apiConfiguration &&
+			!request.telemetrySetting &&
+			!request.chatSettings &&
+			request.planActSeparateModelsSetting === undefined &&
+			request.enableCheckpointsSetting === undefined &&
+			request.mcpMarketplaceEnabled === undefined &&
+			request.mcpResponsesCollapsed === undefined &&
+			request.mcpRichDisplayEnabled === undefined &&
+			request.shellIntegrationTimeout === undefined &&
+			request.terminalReuseEnabled === undefined &&
+			request.terminalOutputLineLimit === undefined
+
+		console.log("[DEBUG] 🔧 Broadcast decision:", {
+			isUILanguageOnlyUpdate,
+			willBroadcast: !isUILanguageOnlyUpdate,
+		})
+
+		if (!isUILanguageOnlyUpdate) {
+			console.log("[DEBUG] 🔧 Calling postStateToWebview()")
+			// Post updated state to webview (only for non-uiLanguage updates)
+			await controller.postStateToWebview()
+		} else {
+			console.log("[DEBUG] 🔧 SKIPPING postStateToWebview() for uiLanguage-only update")
+		}
 
 		return Empty.create()
 	} catch (error) {

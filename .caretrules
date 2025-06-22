@@ -78,13 +78,34 @@
   },
   "ai_task_protocol": {
     "task_start_protocol": [
-      "User identification: verify current user with 'git config user.name'",
-      "Date confirmation: get current date with OS-specific commands",
-      "Work log check/creation: caret-docs/work-logs/{username}/{date}.md",
-      "Related task document identification: reference caret-docs/tasks/task-status.md",
-      "Document review: thorough review of plans, checklists, reports",
-      "Developer report: completion of document review and task readiness"
+      "Phase 1 - Basic Context: User identification, date confirmation, work log check",
+      "Phase 2 - Task Nature Analysis: Identify task type and check MANDATORY documents by category",
+      "Phase 3 - Architecture Pattern Analysis: Review constraints, patterns, existing implementations", 
+      "Phase 4 - Plan & Approval: Create execution plan and get developer approval before coding",
+      "CRITICAL: NO coding without task-specific document review and pattern analysis"
     ],
+    "task_nature_mandatory_documents": {
+      "frontend_backend_interaction": [
+        "caret-docs/development/frontend-backend-interaction-patterns.mdx",
+        "caret-docs/development/caret-architecture-and-implementation-guide.mdx (sections 10-11)"
+      ],
+      "cline_original_modification": [
+        "File modification checklist in caret-docs/caretrules.ko.md",
+        "Backup creation rules and CARET MODIFICATION comment requirements"
+      ],
+      "component_ui_development": [
+        "caret-docs/development/component-architecture-principles.mdx",
+        "VSCode theme integration and i18n patterns"
+      ],
+      "testing_related": [
+        "caret-docs/development/testing-guide.mdx",
+        "TDD mandatory principles (RED → GREEN → REFACTOR)"
+      ],
+      "persona_ai_character": [
+        "caret-docs/development/frontend-backend-interaction-patterns.mdx (setPersona pattern)",
+        "caret-docs/development/component-architecture-principles.mdx"
+      ]
+    },
     "core_principles": [
       "Quality first: prioritize accuracy and quality over speed",
       "Tests must pass: all tests must pass, fix root causes when tests fail",
@@ -103,7 +124,34 @@
       "Did you create backup? ({filename-extension}.cline)",
       "Did you add CARET MODIFICATION comment?",
       "Did you follow minimal modification principle? (1-3 lines within)",
-      "Did you completely replace instead of commenting out old code?"
+      "Did you completely replace instead of commenting out old code?",
+      "Did you check storage type? (globalState vs workspaceState)",
+      "Do save and load locations match?",
+      "Do related files use consistent storage patterns?"
+    ],
+    "storage_usage_principles": {
+      "chatSettings": "workspaceState (project-specific settings)",
+      "globalSettings": "globalState (global settings)",
+      "consistency_rule": "Save and load must use same storage type"
+    },
+    "complexity_explosion_prevention": [
+      "Maximum 3 files modification at once",
+      "Analyze existing feature impact before adding new features",
+      "Step-by-step progression: Proto → Backend → Frontend",
+      "Complete testing and verification after each step"
+    ],
+    "cline_original_modification_additional_principles": [
+      "Test existing functionality before modification",
+      "Verify no impact on existing features after modification",
+      "Confirm backup file allows recovery anytime",
+      "Document modification reason and expected impact"
+    ],
+    "problem_analysis_systematic_approach": [
+      "Record symptoms (alert usage, log not showing, etc.)",
+      "Establish hypotheses (list multiple possibilities)",
+      "Explore root causes (code-level analysis)",
+      "Identify impact scope (related systems check)",
+      "Prioritize solution approaches"
     ],
     "self_diagnosis": "When principle violations or unclear guidelines are detected, halt work and request guide improvements",
     "development_method_evolution": {
@@ -138,9 +186,12 @@
     ],
     "task_document_format": {
       "task_number": "3-digit numbers (001, 002, ...)",
-      "plan": "{task-number}-01-plan-{task-name}.md",
-      "checklist": "{task-number}-02-action-checklist-{task-name}.md",
-      "report": "{task-number}-03-report-{task-name}.md"
+      "master_task": "{task-number}-{task-name}.md (overall context and goals)",
+      "sub_task": "{task-number}-{sub-number}-{sub-task-name}.md (individual implementation)",
+      "unified_format": "Plan + Checklist integrated in single document",
+      "ai_session_based": "All tasks must be completable in single AI conversation session",
+      "size_limits": "Context window <50%, 1-3 files, 2-4 hours work, 3-5 phases max",
+      "writing_guide": "Reference caret-docs/guides/writing-task-documents-guide.mdx for detailed requirements"
     }
   },
   "testing_quality": {
@@ -155,6 +206,28 @@
       "Caret-specific code: 100% test coverage goal",
       "TDD methodology: Red-Green-Refactor cycle",
       "Test first: write tests before implementing features"
+    ],
+    "tdd_mandatory_checklist": [
+      "Test code written (RED)",
+      "Minimal implementation passes test (GREEN)",
+      "Refactoring completed (REFACTOR)",
+      "No code commits without these 3 steps"
+    ],
+    "ai_assistant_tdd_principles": [
+      "Start with 'I'll write tests first' when implementation requested",
+      "Refuse implementation without tests and suggest TDD approach",
+      "Break complex features into step-by-step TDD"
+    ],
+    "integration_test_requirements": [
+      "Run actual tests in Extension Host environment",
+      "Verify entire settings save/load flow",
+      "Test both mocked and actual environments",
+      "Include storage inconsistency verification tests"
+    ],
+    "test_verification_stages": [
+      "Unit tests: individual functions/components",
+      "Integration tests: complete flow (MANDATORY)",
+      "E2E tests: actual Extension Host environment"
     ],
     "logging_system": {
       "backend": "CaretLogger (backend): caret-src/utils/caret-logger.ts",
@@ -180,7 +253,7 @@
     "frontend": ["webview-ui/src/App.tsx", "webview-ui/src/context/ExtensionStateContext.tsx", "webview-ui/src/caret/"]
   },
   "recent_updates": {
-    "date": "2025-01-21",
+    "date": "2025-06-22",
     "major_improvements": [
       "Documentation standardization: all development documents unified to .mdx format",
       "Document integration: UI-to-Storage-Flow split documents 10 → integrated 1",

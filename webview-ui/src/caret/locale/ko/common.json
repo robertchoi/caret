@@ -40,7 +40,7 @@
 	},
 	"settings": {
 		"uiLanguage": {
-			"title": "UI 언어",
+			"label": "UI 언어",
 			"description": "Caret의 사용자 인터페이스 요소(메뉴, 버튼, 메시지 등)에 사용되는 언어입니다."
 		}
 	}

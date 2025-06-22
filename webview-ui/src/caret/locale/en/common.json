@@ -32,23 +32,42 @@
 		"learnMore": "Learn More"
 	},
 	"rules": {
+		"tab.rules": "Rules",
+		"tab.workflows": "Workflows",
 		"title": "Cline Rules & Workflow Management",
-		"globalRules": "Global Rules",
-		"workspaceRules": "Workspace Rules",
-		"globalWorkflows": "Global Workflows",
-		"workspaceWorkflows": "Workspace Workflows",
-		"rulesDescription": "Rules allow you to provide system-level instructions to Cline. Think of them as a way to persistently include context and preferences for your projects or all conversations.",
+		"description": "Rules allow you to provide system-level guidance. Think of them as a persistent way to include context and preferences for your projects or globally for every conversation.",
+		"docsLink": "Docs",
+		"section.globalRules": "Global Rules",
+		"action.newRuleFile": "New rule file...",
+		"section.workspaceRules": "Workspace Rules",
+		"subTitle.caretRules": "Caret Rules (.caretrules)",
+		"subTitle.clineRules": "Cline Rules (.clinerules)",
+		"subTitle.cursorRules": "Cursor Rules (.cursorrules)",
+		"subTitle.windsurfRules": "Windsurf Rules (.windsurfrules)",
+		"section.globalWorkflows": "Global Workflows",
+		"section.localWorkflows": "Local Workflows",
 		"workflowsDescription": "Workflows allow you to define a series of steps for Cline to perform repetitive tasks like deploying services or submitting PRs. To run a workflow, type /workflow-name in the chat.",
-		"toggleError": "Rule toggle error",
-		"caretrules": "Caret Rules (.caretrules)",
-		"clinerules": "Cline Rules (.clinerules)",
-		"cursorrules": "Cursor Rules (.cursorrules)",
-		"windsurfrules": "Windsurf Rules (.windsurfrules)"
+		"toggleError": "Rule toggle error"
+	},
+	"rulesModal": {
+		"tooltip.manageRulesWorkflows": "Manage Cline Rules & Workflows",
+		"ariaLabel.clineRulesButton": "Cline Rules"
 	},
 	"settings": {
+		"openAIReasoningEffort": {
+			"high": "High (More detailed, slower, higher cost)",
+			"label": "OpenAI Reasoning Effort",
+			"description": "Adjust the reasoning effort for OpenAI models. Higher effort may lead to more detailed responses but can be slower and more costly."
+		},
 		"uiLanguage": {
-			"title": "UI Language",
-			"description": "The language used for Caret's user interface elements (menus, buttons, messages, etc.)."
+			"label": "UI Language",
+			"description": "Select the display language for the Caret UI.",
+			"option": {
+				"ko": "Korean (한국어)",
+				"en": "English",
+				"ja": "Japanese (日本語)",
+				"zh": "Chinese (中文)"
+			}
 		}
 	}
 }

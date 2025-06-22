@@ -15,7 +15,7 @@ describe("UI Language Context Integration (TDD)", () => {
 			// - getCurrentLanguage()가 "en" 반환해야 함
 			// - t() 함수가 영어 번역 사용해야 함
 
-			expect(false).toBe(false) // GREEN: UILanguageSetting에 로그 추가하여 실제 값 확인 가능
+			expect(false).toBe(false) // GREEN: CaretUILanguageSetting에 로그 추가하여 실제 값 확인 가능
 		})
 
 		it("should identify the solution: Context-aware getCurrentLanguage", () => {
@@ -59,7 +59,7 @@ describe("UI Language Context Integration (TDD)", () => {
 
 			const fixSteps = [
 				"1. useCurrentLanguage Hook 생성",
-				"2. UILanguageSetting에서 Hook 사용",
+				"2. CaretUILanguageSetting에서 Hook 사용",
 				"3. t() 함수 Context-aware하게 수정",
 				"4. 로그 추가하여 언어 변경 추적",
 				"5. 테스트로 검증",

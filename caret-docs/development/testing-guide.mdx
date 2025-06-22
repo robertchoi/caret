@@ -36,13 +36,39 @@
 -   **도구**: VSCode Extension Development Host
 -   **방법**: F5 디버깅을 통한 수동/자동 테스트
 
-### 2.3 TDD(Test-Driven Development) 방식
+### 2.3 TDD(Test-Driven Development) 방식 ⚡ **필수**
 
-Caret은 TDD 방식을 권장합니다:
+Caret은 **TDD 방식을 필수**로 합니다:
 
 1. **Red**: 실패하는 테스트 작성
 2. **Green**: 테스트를 통과하는 최소한의 코드 작성
 3. **Refactor**: 코드 품질 개선 (테스트는 계속 통과)
+
+**🚨 AI 개발자 필수 원칙**:
+
+-   ❌ **구현 먼저 금지**: 코드 작성 전 반드시 테스트부터
+-   ✅ **테스트 우선**: "테스트를 먼저 작성하겠습니다" 선언 필수
+-   ✅ **단계별 진행**: RED → GREEN → REFACTOR 순서 엄수
+
+**실제 적용 예시 (UI 언어 설정)**:
+
+```typescript
+// RED: 실패하는 테스트 작성
+it("should update only uiLanguage without affecting other settings", async () => {
+	await setUILanguage("ja")
+	expect(mockUpdateSettings).toHaveBeenCalledWith({
+		uiLanguage: "ja", // 오직 이것만
+	})
+	expect(state.chatSettings.model).toBe("claude-3") // 다른 설정 영향 없음
+})
+
+// GREEN: 최소 구현
+const setUILanguage = async (language: string) => {
+	await StateServiceClient.updateSettings({ uiLanguage: language })
+}
+
+// REFACTOR: 에러 처리, 상태 업데이트 등 개선
+```
 
 ## 3. 테스트 프레임워크 및 도구
 

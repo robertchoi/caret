@@ -22,6 +22,8 @@ export default defineConfig({
 		alias: {
 			"@": path.resolve(__dirname, "./caret-src"),
 			"@shared": path.resolve(__dirname, "./src/shared"),
+			"@utils": path.resolve(__dirname, "./src/utils"),
+			"@packages": path.resolve(__dirname, "./src/packages"),
 		},
 	},
 })

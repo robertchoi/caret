@@ -109,6 +109,7 @@ export interface ExtensionState {
 	localCursorRulesToggles: ClineRulesToggles
 	localWindsurfRulesToggles: ClineRulesToggles
 	mcpResponsesCollapsed?: boolean
+	uiLanguage: string
 }
 
 export interface ClineMessage {

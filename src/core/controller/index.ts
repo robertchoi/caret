@@ -993,6 +993,9 @@ export class Controller {
 			terminalOutputLineLimit,
 		} = await getAllExtensionState(this.context)
 
+		// CARET MODIFICATION: Get UI Language setting separately (app-wide)
+		const uiLanguage = (await getAllExtensionState(this.context)).chatSettings.uiLanguage
+
 		const localClineRulesToggles =
 			((await getWorkspaceState(this.context, "localClineRulesToggles")) as ClineRulesToggles) || {}
 
@@ -1043,6 +1046,7 @@ export class Controller {
 			isNewUser,
 			mcpResponsesCollapsed,
 			terminalOutputLineLimit,
+			uiLanguage, // CARET MODIFICATION: UI Language setting (app-wide)
 		}
 	}
 

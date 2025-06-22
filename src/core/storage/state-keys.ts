@@ -79,6 +79,7 @@ export type GlobalStateKey =
 	| "sapAiCoreClientId"
 	| "sapAiCoreClientSecret"
 	| "sapAiCoreModelId"
+	| "uiLanguage" // CARET MODIFICATION: UI language setting (app-wide)
 
 export type LocalStateKey =
 	| "localClineRulesToggles"

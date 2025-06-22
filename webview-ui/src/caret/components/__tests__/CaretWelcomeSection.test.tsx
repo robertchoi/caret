@@ -271,8 +271,8 @@ describe("CaretWelcomeSection", () => {
 		it("should render multiple children", () => {
 			render(
 				React.createElement(CaretWelcomeSection, defaultProps, [
-					React.createElement("div", { "data-testid": "child-1" }, "Child 1"),
-					React.createElement("div", { "data-testid": "child-2" }, "Child 2"),
+					React.createElement("div", { key: "child-1", "data-testid": "child-1" }, "Child 1"),
+					React.createElement("div", { key: "child-2", "data-testid": "child-2" }, "Child 2"),
 				]),
 			)
 

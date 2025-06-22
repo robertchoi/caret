@@ -1,5 +1,6 @@
 // CARET MODIFICATION: Enhanced rules toggle modal with caretrules support. Original backed up as ClineRulesToggleModal-tsx.cline
 // CARET MODIFICATION: Added i18n and replaced console.log with caretWebviewLogger
+// CARET MODIFICATION: Added PersonaManagement component integration
 import { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock"
 import Tooltip from "@/components/common/Tooltip"
 import { useExtensionState } from "@/context/ExtensionStateContext"
@@ -22,6 +23,7 @@ import { useClickAway, useWindowSize } from "react-use"
 import styled from "styled-components"
 import RulesToggleList from "./RulesToggleList"
 import { t } from "@/caret/utils/i18n"
+import PersonaManagement from "@/caret/components/PersonaManagement"
 
 const ClineRulesToggleModal: React.FC = () => {
 	const {
@@ -331,6 +333,9 @@ const ClineRulesToggleModal: React.FC = () => {
 
 					{currentView === "rules" ? (
 						<>
+							{/* Persona Management Section */}
+							<PersonaManagement className="mb-3" />
+
 							{/* Global Rules Section */}
 							<div className="mb-3">
 								<div className="text-sm font-normal mb-2">{t("rules.section.globalRules")}</div>

@@ -78,11 +78,13 @@
   },
   "ai_task_protocol": {
     "task_start_protocol": [
-      "Phase 1 - Basic Context: User identification, date confirmation, work log check",
-      "Phase 2 - Task Nature Analysis: Identify task type and check MANDATORY documents by category",
-      "Phase 3 - Architecture Pattern Analysis: Review constraints, patterns, existing implementations", 
-      "Phase 4 - Plan & Approval: Create execution plan and get developer approval before coding",
-      "CRITICAL: NO coding without task-specific document review and pattern analysis"
+      "Phase 0 - MANDATORY Pre-Review & Architecture Decision: User identification, date confirmation, work log check",
+      "CRITICAL: Task Nature Analysis - Identify task type and check MANDATORY documents by category",
+      "CRITICAL: Architecture Decision Checklist - Caret vs Cline directory, backup requirements",
+      "Phase 1 - TDD RED: Test file location verification, failing test creation with immediate verification",
+      "Phase 2 - TDD GREEN: Implementation with STOP POINTS for Cline original file modifications",
+      "Phase 3 - TDD REFACTOR: Code quality improvement and full system verification",
+      "CRITICAL: NO coding without task-specific document review and architecture decision approval"
     ],
     "task_nature_mandatory_documents": {
       "frontend_backend_interaction": [
@@ -117,7 +119,13 @@
     ],
     "phase_based_work": {
       "planning": "Divide all work into clear Phase units, each Phase independently completable",
-      "execution": "Before Phase start: reconfirm related guide documents and principles. Before file modifications: mandatory check 'Is this a Cline original file?'"
+      "execution": "Before Phase start: reconfirm related guide documents and principles. Before file modifications: mandatory check 'Is this a Cline original file?'",
+      "stop_points": {
+        "stop_point_1": "Test file creation - verify include path before creation, immediate npm run test:webview verification",
+        "stop_point_2": "Cline original file modification - backup creation, CARET MODIFICATION comment, minimal modification principle",
+        "stop_point_3": "New file creation - verify correct directory (caret/ vs src/), import path validation",
+        "immediate_verification": "File creation/modification followed by immediate compile/test verification for early problem detection"
+      }
     },
     "file_modification_mandatory_checklist": [
       "Is this a Cline original file? (src/, webview-ui/, proto/, scripts/, evals/, docs/, locales/)",
@@ -154,6 +162,12 @@
       "Prioritize solution approaches"
     ],
     "self_diagnosis": "When principle violations or unclear guidelines are detected, halt work and request guide improvements",
+    "ai_mistake_prevention_summary": {
+      "architecture_decision_mistakes": "Caret-specific features must be in caret/ folders, Cline originals require minimal modification",
+      "test_location_mistakes": "webview tests only in src/caret/**/*.test.tsx, verify include path settings",
+      "backup_omission_prevention": "Cline original modification requires backup creation and CARET MODIFICATION comment before any changes",
+      "immediate_verification_principle": "File creation/modification followed by immediate compile/test for early problem detection"
+    },
     "development_method_evolution": {
       "change_detection": "Immediately document when new development patterns, tools, or methodologies are introduced",
       "guide_synchronization": "Prioritize updates when inconsistencies between actual implementation and documentation are found",

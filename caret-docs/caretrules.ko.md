@@ -113,12 +113,34 @@ chore: 빌드/설정 변경
 ## AI 작업 프로토콜
 
 **작업 시작 프로토콜 (CRITICAL)** - AI 어시스턴트는 다음 순서를 **반드시** 준수:
+
+**Phase 0: 필수 사전 검토 및 아키텍처 결정 (MANDATORY)**
 1. **사용자 식별**: `git config user.name`으로 현재 사용자 확인
 2. **날짜 확인**: OS별 명령어로 현재 날짜 확인  
 3. **작업 로그 확인/생성**: `caret-docs/work-logs/{username}/{date}.md`
 4. **관련 작업 문서 식별**: `caret-docs/tasks/task-status.md` 참조
-5. **문서 검토**: 계획서, 체크리스트, 보고서 메타적 검토
-6. **개발자 보고**: 문서 검토 완료 및 작업 준비 상태 보고
+
+**🚨 CRITICAL: 작업 성격 분석 및 필수 문서 확인**
+- [ ] 작업 유형 식별 후 해당 필수 문서 **완전히** 읽기:
+  - Frontend-Backend 상호작용 → `frontend-backend-interaction-patterns.mdx`
+  - Cline 원본 수정 → 파일 수정 체크리스트 + `caretrules.ko.md`
+  - 컴포넌트 개발 → `component-architecture-principles.mdx`
+  - 테스트 관련 → `testing-guide.mdx`
+  - 페르소나/AI 캐릭터 → setPersona 패턴 문서
+
+**🚨 CRITICAL: 아키텍처 결정 체크리스트**
+- [ ] 이 기능은 Caret 전용인가? 
+  - YES → `caret-src/` 또는 `webview-ui/src/caret/`
+  - NO → Cline 원본 최소 수정 + 백업 필수
+- [ ] Cline 원본 파일 수정이 필요한가?
+  - YES → 백업 생성 + CARET MODIFICATION 주석 + 최소 수정 원칙
+- [ ] 새로운 컴포넌트가 필요한가?
+  - YES → 적절한 디렉토리 선택 (caret/ vs src/)
+- [ ] 테스트 파일 위치는?
+  - webview → `webview-ui/src/caret/**/*.test.tsx`
+  - 백엔드 → `caret-src/__tests__/`
+
+5. **계획 수립 및 개발자 승인**: 아키텍처 결정 사항 명시 후 개발자 승인 요청
 
 **핵심 개발 원칙**:
 - **품질 우선**: 속도보다 정확성과 품질 우선
@@ -129,9 +151,39 @@ chore: 빌드/설정 변경
 - **검증 우선**: 코드 변경 후 반드시 컴파일, 테스트, 실행 검증
 - **CARET 주석 필수**: Caret 수정 시 반드시 CARET MODIFICATION 주석 추가
 
-**Phase 기반 작업 설계**:
-- **계획 원칙**: 모든 작업을 명확한 Phase 단위로 분할, 각 Phase는 독립적 완료 가능
-- **실행 원칙**: Phase 시작 전 관련 가이드 문서 및 원칙 재확인
+**Phase 기반 작업 설계 (강화된 체크포인트)**:
+
+**Phase 1: TDD RED - 실패하는 테스트 작성**
+🚨 **STOP POINT 1: 테스트 파일 생성 전 경로 확인**
+- [ ] 테스트 설정의 include 경로 확인:
+  - webview: `src/caret/**/*.test.{ts,tsx}`
+  - 백엔드: `caret-src/__tests__/`
+- [ ] 테스트 파일이 올바른 디렉토리에 생성되는가?
+- [ ] **즉시 검증**: 테스트 파일 생성 후 `npm run test:webview` 실행으로 인식 확인
+
+**Phase 2: TDD GREEN - 테스트 통과 구현**
+🚨 **STOP POINT 2: Cline 원본 파일 수정 전 (MANDATORY)**
+**다음 중 하나라도 해당되면 STOP하고 체크리스트 실행:**
+- `src/`, `webview-ui/`, `proto/`, `scripts/`, `evals/`, `docs/`, `locales/` 파일 수정
+- 기존 Cline 컴포넌트에 기능 추가
+
+**필수 체크리스트:**
+- [ ] 백업 파일 생성: `cp {원본파일} {파일명-확장자}.cline`
+- [ ] CARET MODIFICATION 주석 추가 계획
+- [ ] 최소 수정 원칙 (1-3라인) 준수 계획
+- [ ] 완전 대체 (주석처리 금지) 방식 계획
+
+🚨 **STOP POINT 3: 새 파일 생성 전 디렉토리 확인**
+- [ ] Caret 전용 기능이 `caret/` 폴더에 구현되는가?
+- [ ] import 경로가 올바른가?
+- [ ] **즉시 검증**: Cline 원본 수정 후 `npm run compile`로 에러 확인
+
+**Phase 3: TDD REFACTOR - 코드 품질 개선 및 전체 검증**
+- [ ] 전체 시스템 검증: `npm run compile` 성공
+- [ ] 모든 테스트 통과: `npm run test:webview`, `npm run test:backend`
+- [ ] 기존 기능에 영향 없음 확인
+
+**실행 원칙**: 각 Phase 시작 전 관련 가이드 문서 및 원칙 재확인 **필수**
 
 **파일 수정 전 필수 체크리스트**:
 1. **Cline 원본 파일인가?** (`src/`, `webview-ui/`, `proto/`, `scripts/`, `evals/`, `docs/`, `locales/`)
@@ -194,6 +246,12 @@ subscription → webview setState() → 설정 덮어씌움 ❌
 - 적절한 로그 레벨 설정 (debug, info, warn, error)
 
 **자가 진단 및 개선 요청**: 원칙 위반이나 불명확한 지침 발견 시 작업 중단하고 가이드 개선 요청
+
+**🚨 AI 실수 방지 핵심 체크포인트 요약**:
+1. **아키텍처 결정 실수 방지**: Caret 전용 기능은 반드시 `caret/` 폴더에, Cline 원본은 최소 수정
+2. **테스트 위치 실수 방지**: webview 테스트는 `src/caret/**/*.test.tsx`에만, include 경로 확인 필수
+3. **백업 누락 방지**: Cline 원본 수정 전 반드시 백업 생성 및 CARET MODIFICATION 주석
+4. **즉시 검증 원칙**: 파일 생성/수정 후 즉시 컴파일/테스트로 검증, 문제 조기 발견
 
 **개발 방식 변화 시 가이드 업데이트 (MANDATORY)**:
 - **변화 감지**: 새로운 개발 패턴, 도구, 방법론 도입 시 즉시 문서화

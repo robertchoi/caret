@@ -35,6 +35,17 @@ vi.mock("../../../utils/caret-logger", () => ({
 	caretLogger: {
 		setOutputChannel: vi.fn(),
 		extensionActivated: vi.fn(),
+		debug: vi.fn(),
+		info: vi.fn(),
+		warn: vi.fn(),
+		error: vi.fn(),
+		success: vi.fn(),
+		welcomePageLoaded: vi.fn(),
+		apiConfigured: vi.fn(),
+		taskStarted: vi.fn(),
+		taskCompleted: vi.fn(),
+		userInteraction: vi.fn(),
+		extensionDeactivated: vi.fn(),
 	},
 	logCaretWelcome: vi.fn(),
 	logCaretUser: vi.fn(),
@@ -148,8 +159,6 @@ describe("CaretProvider", () => {
 			const superSpy = vi.spyOn(Object.getPrototypeOf(Object.getPrototypeOf(caretProvider)), "resolveWebviewView")
 			superSpy.mockResolvedValue(undefined)
 
-			mockContext.extensionMode = "Production" as any
-
 			await caretProvider.resolveWebviewView(mockWebviewView)
 
 			expect(mockWebviewView.webview.html).toContain("Caret - AI Development Partner")
@@ -160,9 +169,13 @@ describe("CaretProvider", () => {
 			const superSpy = vi.spyOn(Object.getPrototypeOf(Object.getPrototypeOf(caretProvider)), "resolveWebviewView")
 			superSpy.mockResolvedValue(undefined)
 
-			mockContext.extensionMode = "Development" as any
+			const devMockContext = {
+				extensionUri: { toString: () => "mock-extension-uri" },
+				extensionMode: "Development",
+			} as any
+			const devCaretProvider = new CaretProvider(devMockContext, mockOutputChannel, WebviewProviderType.SIDEBAR)
 
-			await caretProvider.resolveWebviewView(mockWebviewView)
+			await devCaretProvider.resolveWebviewView(mockWebviewView)
 
 			expect(mockWebviewView.webview.html).toContain("Caret - AI Development Partner")
 		})

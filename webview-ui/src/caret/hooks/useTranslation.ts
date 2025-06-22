@@ -1,6 +1,7 @@
 import { useCurrentLanguage } from "./useCurrentLanguage"
 import { tWithLang } from "../utils/i18n"
 import { SupportedLanguage } from "../constants/urls"
+import { caretWebviewLogger } from "../utils/webview-logger"
 
 /**
  * Context-aware 번역 Hook
@@ -16,7 +17,11 @@ export const useTranslation = () => {
 	 * @returns 번역된 텍스트
 	 */
 	const t = (key: string, namespace: string = "common"): string => {
-		return tWithLang(key, currentLanguage, namespace)
+		const translation = tWithLang(key, currentLanguage, namespace)
+
+		caretWebviewLogger.debug(`Translation - Key: ${key}, Language: ${currentLanguage}, Result: ${translation}`)
+
+		return translation
 	}
 
 	return { t, currentLanguage }
@@ -33,7 +38,7 @@ export const useTranslationWithLog = () => {
 
 		// 개발 환경에서만 로그 출력
 		if (process.env.NODE_ENV === "development") {
-			console.log(`[Translation] Key: ${key}, Language: ${currentLanguage}, Result: ${translation}`)
+			caretWebviewLogger.debug(`[Translation] Key: ${key}, Language: ${currentLanguage}, Result: ${translation}`)
 		}
 
 		return translation

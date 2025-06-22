@@ -226,37 +226,62 @@ VS Code에서 `F5` 키를 눌러 디버깅 세션을 시작하면, 새로운 `[E
 - **디버깅**: VS Code 디버거를 통한 백엔드 코드 디버깅 지원
 - **로깅**: 개발 콘솔에서 상세한 디버그 로그 확인 가능
 
+### 5. VSIX 릴리즈 패키징 (로컬 빌드용)
+
+개발된 확장 프로그램을 `.vsix` 파일로 패키징하여 로컬 설치 또는 배포 준비를 할 수 있습니다.
+
+```bash
+# 프로젝트 루트에서 실행
+npm run package:release
+```
+
+이 스크립트는 다음 작업을 수행합니다:
+- `package.json`에서 버전을 읽어옵니다.
+- 타임스탬프를 생성합니다.
+- `output/` 디렉토리가 없으면 생성합니다.
+- 이전 빌드 아티팩트(`webview-ui/build/`, `dist/`)를 정리합니다.
+- 전체 클린 빌드를 실행합니다 (`npm run protos`, `npm run compile`, `npm run build:webview`).
+- `vsce package` 명령을 사용하여 `output/caret-{version}-{YYYYMMDDHHMM}.vsix` 형식으로 패키징합니다.
+
+생성된 `.vsix` 파일은 `output/` 디렉토리에서 찾을 수 있습니다.
+
 ## 테스트 및 품질 관리 🧪
 
-Caret은 **100% 테스트 커버리지**를 목표로 하는 품질 우선 개발을 지향합니다.
+Caret은 **100% 테스트 커버리지**(Caret 전용 코드 기준)와 **TDD(테스트 주도 개발)**를 목표로 하는 품질 우선 개발을 지향합니다. **모든 코드는 Git 푸시 전에 반드시 전체 테스트를 통과해야 합니다.**
 
 ### 테스트 실행
 
 ```bash
-# 전체 테스트 실행
+# ⭐ 권장: 전체 테스트 실행 (프론트엔드 + 백엔드)
+# Git 푸시 전 반드시 이 명령어로 전체 테스트를 실행하여 통과 여부를 확인해야 합니다.
+npm run test:all
+
+# ⚠️ 주의: 과거 ESM 관련 이슈가 있었던 명령어
+# 현재는 'npm run test:all'과 동일하게 동작하며 모든 테스트가 통과합니다.
+# 하지만, 'npm run test:all' 사용을 우선적으로 권장합니다.
 npm test
 
-# 테스트 커버리지 확인
+# 테스트 커버리지 확인 (자세한 내용은 테스팅 가이드 참조)
 npm run test:coverage
 
-# 테스트 watch 모드 (개발 시)
-npm run test:watch
+# 테스트 watch 모드 (개발 시, 자세한 내용은 테스팅 가이드 참조)
+npm run test:watch # 주로 백엔드 watch, 프론트엔드 watch는 테스팅 가이드 확인
 
-# Caret 전용 코드 커버리지 분석
+# Caret 전용 코드 커버리지 상세 분석 (스크립트 활용)
 node caret-scripts/caret-coverage-check.js
 ```
 
 ### 테스트 가이드
 
-- **[테스트 가이드](./caret-docs/development/testing-guide.mdx)**: 전체 테스트 전략과 실행 방법
-- **[테스트 작성 표준](./caret-docs/development/test-writing-standards.mdx)**: 테스트 코드 작성 규칙과 표준
-- **[TDD 가이드](./caret-docs/development/tdd-guide.mdx)**: 테스트 주도 개발 방법론
+- **[Caret 테스트 가이드](./caret-docs/development/testing-guide.mdx)**: 전체 테스트 전략, 다양한 실행 방법, 작성 표준, TDD 방법론 등 **테스트에 관한 가장 상세하고 정확한 정보를 제공하는 핵심 문서입니다.**
+- **[테스트 작성 표준](./caret-docs/development/test-writing-standards.mdx)**: (Deprecated될 수 있으며, 주요 내용은 테스트 가이드에 통합됨)
+- **[TDD 가이드](./caret-docs/development/tdd-guide.mdx)**: (Deprecated될 수 있으며, 주요 내용은 테스트 가이드에 통합됨)
 
 ### 테스트 원칙
 
-- **Caret 전용 코드**: `caret-src/`, `webview-ui/src/caret/` 디렉토리의 모든 코드는 100% 커버리지 목표
-- **TDD 방식**: Red-Green-Refactor 사이클을 따른 테스트 주도 개발
-- **품질 우선**: 테스트 실패 시 코드 변경 금지, 근본 원인 해결 원칙
+- **Caret 전용 코드 100% 커버리지**: `caret-src/`, `webview-ui/src/caret/` 디렉토리의 모든 코드는 100% 테스트 커버리지를 목표로 합니다.
+- **TDD (Test-Driven Development) 방식**: Red-Green-Refactor 사이클을 따르는 테스트 주도 개발을 필수 원칙으로 합니다.
+- **품질 우선 및 푸시 전 검증**: 테스트 실패 시 코드 변경 및 푸시를 금지하며, 근본 원인 해결을 원칙으로 합니다. `npm run test:all`을 통해 모든 테스트가 통과하는 것을 확인한 후에만 코드를 푸시합니다.
 
 ## 기여하기
 

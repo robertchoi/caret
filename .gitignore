@@ -37,3 +37,60 @@ src/hosts/vscode/*/methods.ts
 src/hosts/vscode/*/index.ts
 src/hosts/vscode/client/host-grpc-client.ts
 src/hosts/vscode/host-grpc-service-config.ts
+
+/node_modules
+out/
+dist/
+src/generated
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env*.local
+.npm
+*.code-workspace
+*.vsix
+output/
+# Cline cache files
+.cache/
+# Logs
+logs
+*.log
+# Coverage
+coverage
+# temp
+temp-*
+# IDE specific files
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.sublime/
+*.iml
+# VS Code specific files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+# OS specific files
+desktop.ini
+# Proto specific files
+src/generated/*
+# Test results
+*.xml
+*.json
+# Node Gyp
+build/Release
+
+# Cline Test output files
+cline-test-output.json
+cline-test-results.json
+temp-cline-test.json
+test-results.json
+
+# Backup files
+*.cline

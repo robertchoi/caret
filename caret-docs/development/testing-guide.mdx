@@ -495,6 +495,44 @@ node caret-scripts/caret-coverage-check.js
 npm run coverage:report
 ```
 
+### 5.1 테스트 실행 명령어
+
+#### 5.1.1 `npm run test:all` ⭐ **(권장) 통합 테스트 (백엔드 + 프론트엔드)**
+
+-   **설명**: 가장 안정적이고 포괄적인 전체 테스트 방법입니다. 백엔드와 프론트엔드의 모든 Vitest 기반 테스트를 실행합니다.
+-   **실행**: `npm run test:all`
+-   **사용 시점**:
+    -   로컬 개발 중 수시로 실행하여 코드 변경 사항 검증
+    -   Git 커밋 및 푸시 전 필수 실행하여 모든 테스트 통과 확인
+-   **목표 상태**: **항상 모든 테스트 통과 (All Pass)**. CI/CD 파이프라인의 핵심 검증 단계입니다.
+-   **현재 상태**: 모든 테스트가 성공적으로 통과합니다.
+
+#### 5.1.2 `npm test` ⚠️ **(주의) 전체 테스트 (단위 + 통합)**
+
+-   **설명**: `package.json`의 메인 테스트 스크립트로, `pretest` (빌드, `test:all` 포함 가능성) 후 추가적인 단위/통합 테스트를 실행할 수 있도록 구성될 수 있습니다. (현재는 `test:all`과 유사하게 동작하나, 과거 ESM 이슈가 있었습니다.)
+-   **실행**: `npm test`
+-   **사용 시점**: 프로젝트의 공식 테스트 스크립트로 사용될 수 있으나, 현재는 `npm run test:all`의 안정성을 더 권장합니다.
+-   **주의사항**: 과거 `@google/genai` ESM 관련 이슈로 실패 가능성이 있었으므로, `npm run test:all` 사용을 우선적으로 권장합니다. 현재는 `npm run test:all`과 동일하게 모든 테스트가 통과합니다.
+
+#### 5.1.3 개별 테스트 실행
+
+```bash
+# 단위 테스트 실행
+npm run test:backend
+
+# 커버리지와 함께 실행
+npm run test:backend:coverage
+
+# 특정 파일 테스트
+npm run test:backend -- CaretProvider.test.ts
+
+# 통합 테스트만 실행
+npm run test:backend -- integration
+
+# Watch 모드
+npm run test:backend:watch
+```
+
 ## 6. 통합 테스트 구현 변화 (2025-01-21 업데이트)
 
 ### 6.1 새로운 통합 테스트 방식

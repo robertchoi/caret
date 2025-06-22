@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import "@testing-library/jest-dom"
 import CaretWelcome from "../CaretWelcome"
+// CARET MODIFICATION: Import caretWebviewLogger for testing
+import { caretWebviewLogger } from "../../utils/webview-logger"
 
 // Mock dependencies
 vi.mock("../../../context/ExtensionStateContext", () => ({
@@ -165,17 +167,19 @@ describe("CaretWelcome", () => {
 			expect(() => fireEvent.click(button)).not.toThrow()
 		})
 
-		it("should log console messages when button is clicked", () => {
-			const consoleSpy = vi.spyOn(console, "log")
-			const consoleInfoSpy = vi.spyOn(console, "info")
+		it("should log messages via caretWebviewLogger when button is clicked", () => {
+			// CARET MODIFICATION: Test caretWebviewLogger instead of console.log
+			const mockCaretLogger = vi.mocked(caretWebviewLogger)
 
 			render(React.createElement(CaretWelcome))
 
 			const button = screen.getByText("시작하기")
 			fireEvent.click(button)
 
-			expect(consoleSpy).toHaveBeenCalledWith("Caret Welcome: Get Started clicked")
-			expect(consoleInfoSpy).toHaveBeenCalledWith("[CARET-INFO] [UI] 웰컴 페이지에서 '시작하기' 버튼이 클릭되었습니다")
+			expect(mockCaretLogger.info).toHaveBeenCalledWith("Caret Welcome: Get Started clicked")
+			expect(mockCaretLogger.info).toHaveBeenCalledWith(
+				"[CARET-INFO] [UI] 웰컴 페이지에서 '시작하기' 버튼이 클릭되었습니다",
+			)
 		})
 	})
 

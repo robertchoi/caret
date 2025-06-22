@@ -30,7 +30,13 @@
 		},
 		{
 			"label": "watch",
-			"dependsOn": ["npm: protos", "npm: build:webview", "npm: dev:webview", "npm: watch:tsc", "npm: watch:esbuild"],
+			"dependsOn": [
+				"npm: protos",
+				// "npm: build:webview", // CARET MODIFICATION: Removed to ensure F5 (default build) uses dev:webview for development server and HMR
+				"npm: dev:webview",
+				"npm: watch:tsc",
+				"npm: watch:esbuild"
+			],
 			"presentation": {
 				"reveal": "always"
 			},

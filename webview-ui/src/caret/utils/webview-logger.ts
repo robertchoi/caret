@@ -23,7 +23,8 @@ export enum LogLevel {
 
 /**
  * Logger for the webview.
- * Sends log messages to the extension host and also logs to the browser console.
+ * Sends log messages to the extension host and also logs to the browser console in development mode.
+ * CARET MODIFICATION: Added safety checks to prevent webview loading failures
  */
 class WebviewLogger {
 	private component: string
@@ -31,7 +32,10 @@ class WebviewLogger {
 
 	constructor(component: string) {
 		this.component = component
-		this.isDev = process.env.NODE_ENV !== "production"
+
+		// CARET MODIFICATION: Use IS_DEV defined by Vite config (string 'true' or 'false')
+		// this.isDev = typeof process !== 'undefined' && process.env?.NODE_ENV !== "production"; // Old logic
+		this.isDev = process.env.IS_DEV === "true" // Vite injects IS_DEV as a string 'true' or 'false'
 	}
 
 	private log(level: LogLevel, message: string, data?: any): void {
@@ -48,29 +52,42 @@ class WebviewLogger {
 			data,
 		}
 
-		// Log to browser console
-		switch (level) {
-			case LogLevel.DEBUG:
-				console.debug(`[${this.component}] ${message}`, data || "")
-				break
-			case LogLevel.INFO:
-				console.info(`[${this.component}] ${message}`, data || "")
-				break
-			case LogLevel.WARN:
-				console.warn(`[${this.component}] ${message}`, data || "")
-				break
-			case LogLevel.ERROR:
-				console.error(`[${this.component}] ${message}`, data || "")
-				break
-			default:
-				console.log(`[${this.component}] ${message}`, data || "")
+		// CARET MODIFICATION: Safe console logging (development only)
+		if (this.isDev && typeof console !== "undefined") {
+			try {
+				switch (level) {
+					case LogLevel.DEBUG:
+						console.debug(`[${this.component}] ${message}`, data || "")
+						break
+					case LogLevel.INFO:
+						console.info(`[${this.component}] ${message}`, data || "")
+						break
+					case LogLevel.WARN:
+						console.warn(`[${this.component}] ${message}`, data || "")
+						break
+					case LogLevel.ERROR:
+						console.error(`[${this.component}] ${message}`, data || "")
+						break
+					default:
+						console.log(`[${this.component}] ${message}`, data || "")
+				}
+			} catch (consoleError) {
+				// Silently ignore console errors to prevent webview loading issues
+			}
 		}
 
-		// Send log to extension host
-		vscode.postMessage({
-			type: "log",
-			entry,
-		})
+		// CARET MODIFICATION: Safe Extension Host communication
+		try {
+			if (vscode && typeof vscode.postMessage === "function") {
+				vscode.postMessage({
+					type: "log",
+					entry,
+				})
+			}
+		} catch (vscodeError) {
+			// Silently ignore vscode communication errors to prevent webview loading issues
+			// This ensures the webview can still load even if Extension Host communication fails
+		}
 	}
 
 	debug(message: string, data?: any): void {

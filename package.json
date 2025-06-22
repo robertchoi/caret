@@ -362,6 +362,7 @@
 		"watch:esbuild": "node esbuild.js --watch",
 		"watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
 		"package": "npm run check-types && npm run build:webview && npm run lint && node esbuild.js --production",
+		"package:release": "node ./caret-scripts/package-release.js",
 		"protos": "node proto/build-proto.js && node scripts/generate-server-setup.mjs",
 		"postprotos": "prettier src/shared/proto src/core/controller src/hosts/ webview-ui/src/services src/generated --write --log-level warn",
 		"compile-tests": "node ./scripts/build-tests.js",
@@ -397,7 +398,10 @@
 		"dev:build-test:coverage": "node caret-scripts/dev-build-test.js --coverage",
 		"dev:build-test:fast": "node caret-scripts/dev-build-test.js --skip-webview --fail-fast",
 		"dev:build-test:verbose": "node caret-scripts/dev-build-test.js --verbose",
-		"caret:coverage": "node caret-scripts/caret-coverage-check.js"
+		"caret:coverage": "node caret-scripts/caret-coverage-check.js",
+		"watch:webview": "npm run build:webview -- --watch",
+		"clean": "rimraf dist webview-ui/build",
+		"caretrules:sync": "node caret-scripts/sync-caretrules.js"
 	},
 	"lint-staged": {
 		"*": [

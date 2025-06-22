@@ -17,7 +17,7 @@ export const useCurrentLanguage = (): SupportedLanguage => {
 		const state = useExtensionState()
 		uiLanguage = state.uiLanguage
 	} catch (error) {
-		caretWebviewLogger.warn("[DEBUG] 🌐 useCurrentLanguage context error, using fallback:", error)
+		caretWebviewLogger.debug(`🌐 useCurrentLanguage context error, using fallback: ${error}`)
 		return "en"
 	}
 
@@ -25,13 +25,13 @@ export const useCurrentLanguage = (): SupportedLanguage => {
 		// 지원하는 언어인지 확인
 		const supportedLanguages: SupportedLanguage[] = ["ko", "en", "ja", "zh"]
 		if (supportedLanguages.includes(uiLanguage as SupportedLanguage)) {
-			caretWebviewLogger.debug("[DEBUG] 🌐 useCurrentLanguage returning:", uiLanguage)
+			caretWebviewLogger.debug(`🌐 useCurrentLanguage returning: ${uiLanguage}`)
 			return uiLanguage as SupportedLanguage
 		}
 	}
 
 	// 기본값은 영어 (Context 없을 때)
-	caretWebviewLogger.debug("[DEBUG] 🌐 useCurrentLanguage returning fallback: en")
+	caretWebviewLogger.debug(`🌐 useCurrentLanguage returning fallback: en`)
 	return "en"
 }
 
@@ -43,8 +43,8 @@ export const useCurrentLanguageWithLog = (): SupportedLanguage => {
 
 	// 개발 환경에서만 로그 출력
 	if (process.env.NODE_ENV === "development") {
-		console.log("[UI Language] Current language:", language)
-		console.log("[UI Language] Note: ExtensionState integration pending")
+		caretWebviewLogger.debug(`[UI Language] Current language: ${language}`)
+		caretWebviewLogger.debug("[UI Language] Note: ExtensionState integration pending")
 	}
 
 	return language

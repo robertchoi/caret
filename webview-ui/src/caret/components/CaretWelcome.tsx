@@ -13,8 +13,8 @@ interface CaretWelcomeProps {
 const CaretWelcome: React.FC<CaretWelcomeProps> = ({ onGetStarted }) => {
 	const { caretBanner } = useExtensionState()
 	const handleGetStarted = () => {
-		console.log("Caret Welcome: Get Started clicked")
-		console.info("[CARET-INFO] [UI] 웰컴 페이지에서 '시작하기' 버튼이 클릭되었습니다")
+		caretWebviewLogger.info("Caret Welcome: Get Started clicked")
+		caretWebviewLogger.info("[CARET-INFO] [UI] 웰컴 페이지에서 '시작하기' 버튼이 클릭되었습니다")
 		if (onGetStarted) {
 			onGetStarted()
 		}

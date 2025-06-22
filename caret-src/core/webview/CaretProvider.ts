@@ -4,6 +4,9 @@ import { WebviewProviderType } from "../../../src/shared/webview/types" // Webvi
 import { caretLogger, logCaretWelcome, logCaretUser } from "../../utils/caret-logger"
 import { getUri } from "../../../src/core/webview/getUri"
 import { getNonce } from "../../../src/core/webview/getNonce"
+// CARET MODIFICATION: Import Node.js fs and path modules for reading .vite-port
+import * as fs from "fs"
+import * as path from "path"
 
 export const CARET_SIDEBAR_ID = "caret.SidebarProvider" // Caret 전용 사이드바 ID 상수 선언
 
@@ -103,21 +106,106 @@ export class CaretProvider extends ClineWebviewProvider {
 	 * Caret 전용 HMR HTML 콘텐츠 생성 (개발 모드용)
 	 */
 	private async getCaretHMRHtmlContent(webview: vscode.Webview): Promise<string> {
-		// 개발 모드에서는 Cline의 기본 HMR 로직을 사용하되, caretBanner만 추가
-		// 우선 간단히 production 버전을 사용하고, 필요하면 나중에 HMR 지원 추가
-		return this.getCaretHtmlContent(webview)
+		// CARET MODIFICATION: Development mode to use Vite dev server for HMR
+		// Dynamically read port from webview-ui/.vite-port
+		let localServerPort = "5173" // Default port as fallback
+		try {
+			const portFilePath = path.join(this.context.extensionPath, "webview-ui", ".vite-port")
+			// CARET MODIFICATION: Log the path being checked for .vite-port
+			caretLogger.info(`[CaretProvider] Checking for .vite-port file at: ${portFilePath}`)
+			if (fs.existsSync(portFilePath)) {
+				const portFileContent = fs.readFileSync(portFilePath, "utf-8")
+				const parsedPort = parseInt(portFileContent.trim(), 10)
+				if (!isNaN(parsedPort)) {
+					localServerPort = parsedPort.toString()
+					caretLogger.info(`[CaretProvider] Successfully read Vite dev server port: ${localServerPort} from .vite-port`)
+				} else {
+					caretLogger.warn(
+						`[CaretProvider] Failed to parse port from .vite-port file. Content: "${portFileContent}". Falling back to default port ${localServerPort}.`,
+					)
+				}
+			} else {
+				caretLogger.warn(
+					`[CaretProvider] .vite-port file not found at ${portFilePath}. Falling back to default port ${localServerPort}.`,
+				)
+			}
+		} catch (error) {
+			caretLogger.error(
+				"[CaretProvider] Error reading .vite-port file. Falling back to default port " + localServerPort,
+				error,
+			)
+		}
+
+		const localServerUrl = `http://localhost:${localServerPort}`
+		// CARET MODIFICATION: Log the derived localServerUrl
+		caretLogger.info(`[CaretProvider] Using localServerUrl for HMR: ${localServerUrl}`)
+		const localWsServerUrl = `ws://localhost:${localServerPort}`
+
+		// Caret 배너 이미지 URI 생성 (동일하게 유지)
+		const caretBannerUri = getUri(webview, this.context.extensionUri, ["caret-assets", "caret-main-banner.webp"])
+		const nonce = getNonce()
+
+		// CARET MODIFICATION: CSP to use dynamic localServerPort and localServerUrl
+		return /*html*/ `
+			<!DOCTYPE html>
+			<html lang="en">
+				<head>
+					<meta charset="UTF-8" />
+					<!-- CSP for Vite dev server -->
+					<meta http-equiv="Content-Security-Policy" content="
+						default-src 'none';
+						connect-src ${webview.cspSource} ${localWsServerUrl} ${localServerUrl} https://*.posthog.com https://*.firebaseauth.com https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com;
+						font-src ${webview.cspSource} data:;
+						style-src ${webview.cspSource} 'unsafe-inline' ${localServerUrl};
+						img-src ${webview.cspSource} https: data: ${localServerUrl};
+						script-src 'nonce-${nonce}' 'unsafe-eval' ${localServerUrl};
+					">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+					<title>Caret - AI Development Partner (Dev)</title>
+					<!-- Vite HMR client -->
+					<script type="module" nonce="${nonce}" src="${localServerUrl}/@vite/client"></script>
+				</head>
+				<body>
+					<div id="root"></div>
+					<script type="text/javascript" nonce="${nonce}">
+						// Inject the provider type
+						window.WEBVIEW_PROVIDER_TYPE = "SIDEBAR";
+						
+						// Inject the client ID
+						window.clineClientId = "${this.getClientId()}";
+						
+						// Inject Caret banner URI
+						window.caretBanner = "${caretBannerUri}";
+					</script>
+					<!-- Main entry point for the webview UI -->
+					<script type="module" nonce="${nonce}" src="${localServerUrl}/src/main.tsx"></script>
+				</body>
+			</html>
+		`
 	}
 
 	public override async resolveWebviewView(webviewView: vscode.WebviewView | vscode.WebviewPanel) {
+		// CARET MODIFICATION: Log current extension mode
+		const currentMode = this.context.extensionMode
+		caretLogger.info(
+			`[CaretProvider] resolveWebviewView called. ExtensionMode: ${currentMode === vscode.ExtensionMode.Development ? "Development (1)" : currentMode === vscode.ExtensionMode.Production ? "Production (2)" : "Test (0) / Unknown"} (Raw value: ${currentMode})`,
+		)
+
 		// Cline의 기본 resolveWebviewView를 먼저 호출
 		await super.resolveWebviewView(webviewView)
 
 		// 그 다음 Caret 전용 HTML로 교체
 		if (webviewView.webview) {
-			webviewView.webview.html =
-				this.context.extensionMode === vscode.ExtensionMode.Development
+			const htmlContent =
+				currentMode === vscode.ExtensionMode.Development
 					? await this.getCaretHMRHtmlContent(webviewView.webview)
 					: this.getCaretHtmlContent(webviewView.webview)
+
+			// CARET MODIFICATION: Log a snippet of the HTML being set
+			const htmlSnippet = htmlContent.substring(0, Math.min(htmlContent.length, 200))
+			caretLogger.info(`[CaretProvider] Setting webview HTML (first 200 chars): ${htmlSnippet}...`)
+
+			webviewView.webview.html = htmlContent
 		}
 	}
 

@@ -194,6 +194,7 @@ chore: 빌드/설정 변경
 6. **저장소 타입 확인했는가?** (globalState vs workspaceState)
 7. **저장 위치와 로드 위치 일치하는가?**
 8. **관련 파일들의 저장소 사용 패턴 일치하는가?**
+9. **🚨 룰 파일 수정 시**: `caretrules.ko.md` 변경 후 `node caret-scripts/sync-caretrules.js` 실행했는가?
 
 **저장소 사용 원칙 (NEW)**:
 - chatSettings: workspaceState 사용 (프로젝트별 설정)
@@ -252,6 +253,7 @@ subscription → webview setState() → 설정 덮어씌움 ❌
 2. **테스트 위치 실수 방지**: webview 테스트는 `src/caret/**/*.test.tsx`에만, include 경로 확인 필수
 3. **백업 누락 방지**: Cline 원본 수정 전 반드시 백업 생성 및 CARET MODIFICATION 주석
 4. **즉시 검증 원칙**: 파일 생성/수정 후 즉시 컴파일/테스트로 검증, 문제 조기 발견
+5. **🚨 룰 동기화 누락 방지**: `caretrules.ko.md` 수정 시 **반드시** `node caret-scripts/sync-caretrules.js` 실행
 
 **개발 방식 변화 시 가이드 업데이트 (MANDATORY)**:
 - **변화 감지**: 새로운 개발 패턴, 도구, 방법론 도입 시 즉시 문서화
@@ -367,7 +369,9 @@ node caret-scripts/test-report.js             # 테스트 리포트 생성
 
 **규칙 파일 관리**: 
 - **마스터 파일**: `caret-docs/caretrules.ko.md` (한국어 템플릿)
-- **자동 동기화**: AI가 마스터 파일 변경 시 JSON 파일들(`.caretrules`, `.windsurfrules`, `.cursorrules`) 자동 동기화
+- **수동 동기화 필수**: `caretrules.ko.md` 변경 후 **반드시** `node caret-scripts/sync-caretrules.js` 실행
+- **AI 필수 작업**: 룰 파일 수정 시 동기화 스크립트 실행을 **절대 빼먹으면 안 됨**
+- **동기화 대상**: `.caretrules`, `.cursorrules`, `.windsurfrules` (JSON 형식)
 
 ## 핵심 참조 파일
 

@@ -46,6 +46,9 @@ import { sendAddToInputEvent } from "./ui/subscribeToAddToInput"
 import { sendAuthCallbackEvent } from "./account/subscribeToAuthCallback"
 import { sendMcpMarketplaceCatalogEvent } from "./mcp/subscribeToMcpMarketplaceCatalog"
 import { sendRelinquishControlEvent } from "./ui/subscribeToRelinquishControl"
+import type { PersonaInstruction } from "../../shared/persona"
+import { updateRuleFileContent } from "../../../caret-src/core/updateRuleFileContent"
+import { caretLogger } from "../../../caret-src/utils/caret-logger"
 
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
@@ -256,6 +259,83 @@ export class Controller {
 			case "grpc_request_cancel": {
 				if (message.grpc_request_cancel) {
 					await handleGrpcRequestCancel(this, message.grpc_request_cancel)
+				}
+				break
+			}
+
+			// CARET MODIFICATION: Handle UPDATE_PERSONA_CUSTOM_INSTRUCTION to update the global custom instructions file.
+			case "UPDATE_PERSONA_CUSTOM_INSTRUCTION": {
+				if (message.payload?.personaInstruction) {
+					caretLogger.info("[Controller] Received UPDATE_PERSONA_CUSTOM_INSTRUCTION")
+					await updateRuleFileContent({
+						rulePath: "custom_instructions.md",
+						isGlobal: true,
+						content: JSON.stringify(message.payload.personaInstruction, null, 2),
+					})
+					await this.postStateToWebview()
+				}
+				break
+			}
+
+			// CARET MODIFICATION: Handle REQUEST_TEMPLATE_CHARACTERS to provide persona templates to the webview.
+			case "REQUEST_TEMPLATE_CHARACTERS": {
+				caretLogger.info("[Controller] Received REQUEST_TEMPLATE_CHARACTERS")
+				try {
+					const templatePath = path.join(
+						this.context.extensionPath,
+						"caret-assets",
+						"template_characters",
+						"template_characters.json",
+					)
+					const templates = await fs.readFile(templatePath, "utf-8")
+					this.postMessageToWebview({
+						type: "RESPONSE_TEMPLATE_CHARACTERS",
+						payload: JSON.parse(templates),
+					})
+				} catch (error) {
+					caretLogger.error(`[Controller] Error reading template_characters.json: ${error}`)
+				}
+				break
+			}
+
+			// CARET MODIFICATION: Handle REQUEST_RULE_FILE_CONTENT to get the content of a rule file.
+			case "REQUEST_RULE_FILE_CONTENT": {
+				const ruleName = message.payload?.ruleName
+				if (!ruleName) {
+					break
+				}
+
+				try {
+					let ruleDir
+					if (message.payload.isGlobal) {
+						const { ensureRulesDirectoryExists } = await import("../storage/disk")
+						ruleDir = await ensureRulesDirectoryExists()
+					} else {
+						const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+						if (!cwd) {
+							break
+						}
+						ruleDir = path.join(cwd, ".clinerules")
+						if (!(await fileExistsAtPath(ruleDir))) {
+							await fs.mkdir(ruleDir, { recursive: true })
+						}
+					}
+					const rulePath = path.join(ruleDir, ruleName)
+					const content = await fs.readFile(rulePath, "utf-8")
+					this.postMessageToWebview({
+						type: "RESPONSE_RULE_FILE_CONTENT",
+						payload: { ruleName, content },
+					})
+				} catch (error) {
+					// It's okay if the file doesn't exist, just send back empty content
+					if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+						this.postMessageToWebview({
+							type: "RESPONSE_RULE_FILE_CONTENT",
+							payload: { ruleName, content: "" },
+						})
+					} else {
+						caretLogger.error(`[Controller] Error reading rule file ${ruleName}: ${error}`)
+					}
 				}
 				break
 			}

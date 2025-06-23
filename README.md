@@ -68,23 +68,9 @@ Caret은 현재 활발히 개발 중이며, 여러분의 관심과 참여로 함
 
 ## 🔧 개발자를 위한 가이드
 
-### 📚 신규 개발자 시작하기
-- **[빠른 시작 가이드](./caret-docs/development/new-developer-guide.mdx)**: 개발 환경 구축
-- **[프로젝트 아키텍처 이해](./caret-docs/development/caret-architecture-and-implementation-guide.mdx)**: Fork 기반 구조 완전 가이드
-- **[개발 가이드라인](./caret-docs/development/index.mdx)**: 전체 개발 프로세스와 규칙
+Caret 프로젝트에 기여하고 싶으신가요? 코드를 직접 빌드하고, AI와 협업하는 방법을 배우고 싶다면 아래 가이드를 따라주세요.
 
-### 🤖 AI와 협업하기
-- **[AI 작업 방법](./caret-docs/guides/ai-work-method-guide.mdx)**: AI 어시스턴트와의 협업 프로토콜
-- **[작업 로그 작성법](./caret-docs/guides/writing-work-logs-guide.mdx)**: 효과적인 진행 상황 관리
-- **[.caretrules 설정](./caret-docs/rules-reference/caretrules룰-파일가이드.md)**: AI 페르소나 및 모드 설정
-
-### 📋 작업 관리
-- **[작업 상태 확인](./caret-docs/tasks/tasks-status.md)**: 현재 진행 중인 태스크 목록
-- **[태스크 문서 작성](./caret-docs/guides/writing-task-documents-guide.mdx)**: 계획, 체크리스트, 보고서 작성법
-
-### 🧪 품질 관리
-- **[테스팅 가이드](./caret-docs/development/testing-guide.mdx)**: TDD 방법론과 100% 커버리지 목표
-- **[테스트 작성 표준](./caret-docs/development/test-writing-standards.mdx)**: 테스트 코드 품질 기준
+**가장 먼저, [🚀 신규 개발자 온보딩 가이드](./caret-docs/development/new-developer-guide.mdx)를 확인해주세요!** 이 가이드는 개발 환경 설정부터 추천 학습 경로, AI와의 협업 방법까지 모든 과정을 안내합니다.
 
 ## 기여하기 🤝
 
@@ -151,42 +137,29 @@ Caret은 [Cline](https://github.com/cline/cline) 프로젝트의 **Fork 기반 �
     
     이 구조를 통해 **Cline의 강력한 기능을 그대로 활용**하면서, **Caret만의 고유한 기능을 안전하게 확장**할 수 있습니다.
 
-### 2. 의존성 설치
+### 2. 의존성 설치 (권장)
 
-Caret 프로젝트의 모든 의존성을 설치합니다:
+Caret 프로젝트의 모든 의존성을 가장 쉽게 설치하는 방법은 제공된 스크립트를 사용하는 것입니다.
 
 ```bash
-# caret 프로젝트 루트에서 실행
+# 모든 플랫폼에서 권장
 npm run install:all
 ```
 
-이 명령어는 다음을 자동으로 처리합니다:
-- 백엔드 의존성 설치 (`package.json`)
-- 프론트엔드 의존성 설치 (`webview-ui/package.json`)
-- Protocol Buffer 컴파일 도구 설정
-
-> **중요**: 이 단계를 건너뛰면 빌드 과정에서 TypeScript 타입 정의 오류나 Protocol Buffer 컴파일 오류가 발생할 수 있습니다.
-
-#### Windows 환경 빠른 설정
-
-Windows 사용자는 제공되는 PowerShell 스크립트를 사용하여 초기 설정을 자동화할 수 있습니다:
+또는 Windows 환경에서는 아래 PowerShell 스크립트를 사용할 수도 있습니다.
 
 ```powershell
-# caret 프로젝트 루트에서 실행
+# Windows 사용자 권장
 .\clean-build-package.ps1
 ```
 
-이 스크립트는 다음 작업을 수행합니다:
-- 모든 의존성 설치 및 검증
-- Protocol Buffer 컴파일 도구 설정
-- TypeScript 컴파일 및 빌드 검증
-- VSIX 패키지 생성 (선택사항)
+이 스크립트들은 백엔드와 프론트엔드 의존성 설치, Protocol Buffer 컴파일까지 모든 필요한 단계를 자동으로 처리해줍니다.
 
-> **참고**: 스크립트 실행 중 문제가 발생하면, 아래의 "수동 설정" 단계를 따라 진행하세요.
+> **중요**: 이 자동 설정 스크립트를 먼저 시도하시는 것을 강력히 권장합니다. 대부분의 경우 이 방법으로 충분합니다.
 
-#### 수동 설정 (문제 발생 시)
+### 3. 수동 설정 (문제 발생 시)
 
-자동 설정 스크립트가 실패하거나 수동으로 설정을 진행하려면:
+만약 자동 설정 스크립트가 실패하거나 특정 단계를 직접 실행하고 싶을 경우, 아래의 수동 절차를 따르세요.
 
 ```bash
 # 1. 의존성 설치
@@ -200,8 +173,7 @@ npm run protos
 npm run compile
 ```
 
-
-### 3. 개발 빌드
+### 4. 개발 빌드
 
 확장 프로그램의 TypeScript 코드를 컴파일합니다:
 
@@ -213,7 +185,7 @@ npm run protos
 npm run compile
 ```
 
-### 4. 개발 환경에서 실행
+### 5. 개발 환경에서 실행
 
 VS Code에서 `F5` 키를 눌러 디버깅 세션을 시작하면, 새로운 `[Extension Development Host]` 창에서 확장 프로그램을 테스트할 수 있습니다.
 
@@ -226,7 +198,72 @@ VS Code에서 `F5` 키를 눌러 디버깅 세션을 시작하면, 새로운 `[E
 - **디버깅**: VS Code 디버거를 통한 백엔드 코드 디버깅 지원
 - **로깅**: 개발 콘솔에서 상세한 디버그 로그 확인 가능
 
-### 5. VSIX 릴리즈 패키징 (로컬 빌드용)
+## 🧪 테스트 및 품질 관리
+
+Caret은 **TDD(Test-Driven Development) 방법론**을 채택하여 높은 코드 품질을 유지합니다.
+
+### 📊 전체 테스트 + 커버리지 실행
+
+```bash
+# 🌟 권장: 전체 테스트 + 커버리지 분석 (한번에)
+npm run test:all; npm run caret:coverage
+
+# 또는 백엔드 상세 커버리지까지 포함
+npm run test:all; npm run test:backend:coverage; npm run caret:coverage
+```
+
+### 🎯 개별 테스트 실행
+
+```bash
+# 프론트엔드 테스트 (React 컴포넌트, UI 로직)
+npm run test:webview
+
+# 백엔드 단위 테스트 (개별 모듈, 함수)
+npm run test:backend
+
+# 백엔드 감시 모드 (개발 중 자동 실행)
+npm run test:backend:watch
+
+# 통합 테스트 (VSCode Extension 환경)
+npm run test:integration
+```
+
+### 📈 커버리지 분석
+
+```bash
+# Caret 전용 코드 커버리지 분석 (파일별 상세)
+npm run caret:coverage
+
+# 백엔드 Vitest 커버리지 (라인별 상세)
+npm run test:backend:coverage
+
+# VSCode Extension 통합 커버리지
+npm run test:coverage
+```
+
+### 🎯 테스트 현황 확인
+
+위의 명령어들을 실행하면 현재 프로젝트의 테스트 통과율과 커버리지를 실시간으로 확인할 수 있습니다.
+
+### 📋 TDD 원칙 및 커버리지 목표
+
+Caret 프로젝트는 다음 TDD 원칙을 준수합니다:
+
+1. **🔴 RED**: 실패하는 테스트를 먼저 작성
+2. **🟢 GREEN**: 테스트를 통과하는 최소한의 코드 작성  
+3. **🔄 REFACTOR**: 코드 품질 개선
+
+#### 🎯 커버리지 목표 및 현실
+
+- **🥕 Caret 신규 로직**: **100% 커버리지 필수** - 모든 새로운 기능과 비즈니스 로직은 테스트 우선 개발
+- **🔗 기존 Re-export**: 일부 파일은 Cline 모듈의 단순 재내보내기로 별도 테스트 불필요
+- **📦 Type 정의**: 인터페이스 정의만 포함한 파일은 런타임 로직이 없어 테스트 제외 가능
+
+**새로운 기능 개발 시 반드시 테스트를 먼저 작성해야 합니다!**
+
+자세한 테스트 가이드는 **[테스트 가이드](./caret-docs/development/testing-guide.mdx)**를 참조하세요.
+
+### 6. VSIX 릴리즈 패키징 (로컬 빌드용)
 
 개발된 확장 프로그램을 `.vsix` 파일로 패키징하여 로컬 설치 또는 배포 준비를 할 수 있습니다.
 
@@ -283,6 +320,3 @@ node caret-scripts/caret-coverage-check.js
 - **TDD (Test-Driven Development) 방식**: Red-Green-Refactor 사이클을 따르는 테스트 주도 개발을 필수 원칙으로 합니다.
 - **품질 우선 및 푸시 전 검증**: 테스트 실패 시 코드 변경 및 푸시를 금지하며, 근본 원인 해결을 원칙으로 합니다. `npm run test:all`을 통해 모든 테스트가 통과하는 것을 확인한 후에만 코드를 푸시합니다.
 
-## 기여하기
-
-Caret 프로젝트는 여러분의 기여를 환영합니다! 자세한 내용은 `

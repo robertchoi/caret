@@ -5,9 +5,10 @@ import { UserInfo } from "./UserInfo"
 import { ChatContent } from "./ChatContent"
 import { TelemetrySetting } from "./TelemetrySetting"
 import { McpViewTab } from "./mcp"
+import type { PersonaInstruction } from "./persona"
 
 // CARET MODIFICATION: This file has been modified by Caret. Original backed up as WebviewMessage.ts.cline
-// Purpose: Added 'log' message type for Caret webview logging system
+// Purpose: Added 'log' message type for Caret webview logging system and UPDATE_PERSONA_CUSTOM_INSTRUCTION for persona management.
 
 export interface WebviewMessage {
 	type:
@@ -23,6 +24,30 @@ export interface WebviewMessage {
 		| "log"
 		| "openExternalLink"
 		| "notifyCaretAccount"
+		| "UPDATE_PERSONA_CUSTOM_INSTRUCTION"
+		| "REQUEST_TEMPLATE_CHARACTERS"
+		| "RESPONSE_TEMPLATE_CHARACTERS"
+		| "REQUEST_RULE_FILE_CONTENT"
+		| "RESPONSE_RULE_FILE_CONTENT"
+		| "reinitiate_task"
+		| "delete_task"
+		| "export_task"
+		| "toggle_favorite_task"
+		| "set_chat_settings"
+		| "set_ui_language"
+		| "new_task"
+		| "execute_task"
+		| "cancel_task"
+		| "clear_task"
+		| "approve_task"
+		| "ask_response"
+		| "open_file"
+		| "open_link"
+		| "show_diff"
+		| "apply_diff"
+		| "add_to_input"
+		| "relinquish_control"
+		| "start"
 
 	text?: string
 	disabled?: boolean
@@ -83,6 +108,9 @@ export interface WebviewMessage {
 
 	// For Caret welcome page actions
 	link?: string
+
+	personaInstruction?: PersonaInstruction
+	payload?: any // Used for RESPONSE_TEMPLATE_CHARACTERS and potentially others
 }
 
 export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse"

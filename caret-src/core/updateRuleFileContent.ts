@@ -1,17 +1,28 @@
-// CARET MODIFICATION: Handles the UpdateRuleFileContent RPC to update rule file contents, specifically for persona custom instructions.
+// CARET MODIFICATION: Handles updating rule file contents, specifically for persona custom instructions.
 import * as fs from "fs"
 import * as path from "path"
-import { UpdateRuleFileContentRequest, RuleFileContentResponse } from "../../src/shared/proto/file"
 import { ensureRulesDirectoryExists } from "../../src/core/storage/disk"
 import { cwd } from "../../src/core/task"
-// No need for grpc-specific imports for basic error handling
 
-export async function updateRuleFileContent(request: UpdateRuleFileContentRequest): Promise<RuleFileContentResponse> {
+interface UpdateRuleFileContentParams {
+	rulePath: string
+	content?: string
+	isGlobal: boolean
+	deleteFile?: boolean
+	enabled?: boolean
+}
+
+export async function updateRuleFileContent(
+	request: UpdateRuleFileContentParams,
+): Promise<{ success: boolean; filePath: string; content?: string }> {
 	console.log("[FileService] Received UpdateRuleFileContent request for:", request.rulePath)
 
-	if (!request.rulePath || typeof request.content !== "string") {
-		console.error("[FileService] Invalid request: rulePath and content (string) are required.")
-		throw new Error("Rule path and content (string) are required.")
+	if (
+		!request.rulePath ||
+		(typeof request.content !== "string" && !request.deleteFile && typeof request.enabled !== "boolean")
+	) {
+		console.error("[FileService] Invalid request: rulePath and content/deleteFile/enabled are required.")
+		throw new Error("Rule path and content/deleteFile/enabled are required.")
 	}
 
 	let targetDir: string
@@ -40,16 +51,25 @@ export async function updateRuleFileContent(request: UpdateRuleFileContentReques
 	console.log(`[FileService] Attempting to update file at: ${filePath}`)
 
 	try {
-		fs.writeFileSync(filePath, request.content, "utf8")
-		console.log(`[FileService] Successfully wrote to file: ${filePath}`)
+		if (request.deleteFile) {
+			if (fs.existsSync(filePath)) {
+				fs.unlinkSync(filePath)
+				console.log(`[FileService] Successfully deleted file: ${filePath}`)
+			} else {
+				console.log(`[FileService] File to delete does not exist, skipping: ${filePath}`)
+			}
+		} else if (typeof request.content === "string") {
+			fs.writeFileSync(filePath, request.content, "utf8")
+			console.log(`[FileService] Successfully wrote to file: ${filePath}`)
+		}
 
-		return RuleFileContentResponse.create({
+		return {
 			filePath: filePath,
 			content: request.content,
 			success: true,
-		})
+		}
 	} catch (error: any) {
-		console.error(`[FileService] Error writing to file ${filePath}: `, error)
-		throw new Error(`Failed to write file: ${error.message}`)
+		console.error(`[FileService] Error writing/deleting file ${filePath}: `, error)
+		throw new Error(`Failed to write/delete file: ${error.message}`)
 	}
 }

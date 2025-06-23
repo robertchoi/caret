@@ -72,14 +72,27 @@ const newValue = "caret.SidebarProvider"  // CARET: 사이드바 ID 변경
 
 **필수 요구사항**: Node.js 18+, npm/yarn, VSCode, Git
 
-**개발 환경 설정**:
+**개발 환경 설정 (권장)**:
+가장 쉽고 빠른 방법은 프로젝트 루트에서 제공되는 자동화 스크립트를 실행하는 것입니다.
+
+```bash
+# 모든 플랫폼 권장
+npm run install:all
+
+# 또는 Windows 사용자
+powershell .\\clean-build-package.ps1
+```
+이 스크립트는 의존성 설치, Protocol Buffer 컴파일 등 모든 과정을 자동으로 처리합니다.
+
+**수동 설정 (문제 발생 시)**:
+자동화 스크립트에 문제가 발생할 경우, 아래 절차를 따라 수동으로 설정할 수 있습니다.
 ```bash
 git clone https://github.com/aicoding-caret/caret.git
 cd caret
 npm install
 cd webview-ui && npm install && cd ..
-npm run protos          # Protocol Buffer 컴파일 (필수)
-npm run compile         # TypeScript 컴파일
+npm run protos
+npm run compile
 # VSCode에서 F5로 개발 모드 실행
 ```
 
@@ -112,13 +125,17 @@ chore: 빌드/설정 변경
 
 ## AI 작업 프로토콜
 
+**🚨 중요: AI 어시스턴트는 다음 프로토콜을 수행하기 위한 상세 실행 절차서로 [`./guides/ai-work-method-guide.mdx`](./guides/ai-work-method-guide.mdx)를 최우선으로 숙지하고, 모든 작업을 해당 문서의 지시에 따라 수행해야 합니다.**
+
 **작업 시작 프로토콜 (CRITICAL)** - AI 어시스턴트는 다음 순서를 **반드시** 준수:
 
 **Phase 0: 필수 사전 검토 및 아키텍처 결정 (MANDATORY)**
-1. **사용자 식별**: `git config user.name`으로 현재 사용자 확인
-2. **날짜 확인**: OS별 명령어로 현재 날짜 확인  
-3. **작업 로그 확인/생성**: `caret-docs/work-logs/{username}/{date}.md`
-4. **관련 작업 문서 식별**: `caret-docs/tasks/task-status.md` 참조
+*   **목표:** 본격적인 개발에 앞서 작업의 방향을 설정하고, 프로젝트 규칙에 맞는 최적의 설계도를 그리는 단계입니다.
+
+1.  **사용자 식별**: `git config user.name`으로 현재 사용자 확인
+2.  **날짜 확인**: OS별 명령어로 현재 날짜 확인  
+3.  **작업 로그 확인/생성**: `caret-docs/work-logs/{username}/{date}.md`
+4.  **관련 작업 문서 식별**: `caret-docs/tasks/task-status.md` 참조
 
 **🚨 CRITICAL: 작업 성격 분석 및 필수 문서 확인**
 - [ ] 작업 유형 식별 후 해당 필수 문서 **완전히** 읽기:
@@ -126,7 +143,7 @@ chore: 빌드/설정 변경
   - Cline 원본 수정 → 파일 수정 체크리스트 + `caretrules.ko.md`
   - 컴포넌트 개발 → `component-architecture-principles.mdx`
   - 테스트 관련 → `testing-guide.mdx`
-  - 페르소나/AI 캐릭터 → setPersona 패턴 문서
+  - 페르소나 → setPersona 패턴 문서
 
 **🚨 CRITICAL: 아키텍처 결정 체크리스트**
 - [ ] 이 기능은 Caret 전용인가? 
@@ -154,6 +171,8 @@ chore: 빌드/설정 변경
 **Phase 기반 작업 설계 (강화된 체크포인트)**:
 
 **Phase 1: TDD RED - 실패하는 테스트 작성**
+*   **목표:** 구현할 기능의 요구사항을 명확히 정의하는 '실패하는' 테스트 코드를 먼저 작성합니다.
+
 🚨 **STOP POINT 1: 테스트 파일 생성 전 경로 확인**
 - [ ] 테스트 설정의 include 경로 확인:
   - webview: `src/caret/**/*.test.{ts,tsx}`
@@ -162,6 +181,8 @@ chore: 빌드/설정 변경
 - [ ] **즉시 검증**: 테스트 파일 생성 후 `npm run test:webview` 실행으로 인식 확인
 
 **Phase 2: TDD GREEN - 테스트 통과 구현**
+*   **목표:** 앞에서 작성한 테스트를 통과시키는 '최소한의' 코드를 작성하여 기능을 구현합니다.
+
 🚨 **STOP POINT 2: Cline 원본 파일 수정 전 (MANDATORY)**
 **다음 중 하나라도 해당되면 STOP하고 체크리스트 실행:**
 - `src/`, `webview-ui/`, `proto/`, `scripts/`, `evals/`, `docs/`, `locales/` 파일 수정
@@ -179,6 +200,8 @@ chore: 빌드/설정 변경
 - [ ] **즉시 검증**: Cline 원본 수정 후 `npm run compile`로 에러 확인
 
 **Phase 3: TDD REFACTOR - 코드 품질 개선 및 전체 검증**
+*   **목표:** 기능은 그대로 유지하면서 코드의 구조를 개선하고, 전체 시스템이 정상 동작하는지 최종 확인합니다.
+
 - [ ] 전체 시스템 검증: `npm run compile` 성공
 - [ ] 모든 테스트 통과: `npm run test:webview`, `npm run test:backend`
 - [ ] 기존 기능에 영향 없음 확인
@@ -323,9 +346,16 @@ describe('Caret 기능', () => {
 ```
 
 **품질 표준**:
-- **Caret 전용 코드**: 100% 테스트 커버리지 목표
+- **🥕 Caret 신규 로직**: 100% 테스트 커버리지 **필수** - 모든 새로운 기능과 비즈니스 로직은 테스트 우선 개발
+- **🔗 Re-export 파일**: Cline 모듈의 단순 재내보내기 파일은 테스트 제외 가능
+- **📦 Type 정의**: 런타임 로직이 없는 인터페이스/타입 정의만 포함한 파일은 테스트 제외 가능
 - **TDD 방법론**: Red-Green-Refactor 사이클
 - **테스트 우선**: 기능 구현 전 테스트 작성
+
+**현재 테스트 제외 파일들 (정당한 이유)**:
+- `caret-src/core/prompts/system.ts` - Cline 모듈 재내보내기
+- `caret-src/shared/providers/types.ts` - TypeScript 인터페이스 정의만 포함
+- `caret-src/core/task/index.ts` - 일부 래퍼 로직 (향후 테스트 추가 예정)
 
 **TDD 필수 체크리스트 (MANDATORY)**:
 - [ ] 테스트 코드 작성 완료 (RED)

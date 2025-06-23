@@ -22,6 +22,10 @@ export function getCurrentLanguage(): string {
  * @returns 해당 언어의 데이터
  */
 export function getLocalizedData(data: Record<string, any>, lang: string): any {
+	// null이나 undefined인 경우 빈 객체 반환
+	if (!data || typeof data !== "object") {
+		return {}
+	}
 	// 언어 코드에 해당하는 데이터를 가져옵니다. 없으면 기본 언어 데이터를 가져옵니다.
 	return data[lang] ?? data[DEFAULT_LANGUAGE] ?? {}
 }

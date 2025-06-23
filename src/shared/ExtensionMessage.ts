@@ -23,12 +23,15 @@ export interface ExtensionMessage {
 		| "userCreditsBalance"
 		| "userCreditsUsage"
 		| "userCreditsPayments"
-		| "grpc_response" // New type for gRPC responses
+		| "grpc_response"
+		| "RESPONSE_TEMPLATE_CHARACTERS"
+		| "RESPONSE_RULE_FILE_CONTENT"
 	text?: string
-	action?: "didBecomeVisible" | "accountLogoutClicked"
+	action?: "didBecomeVisible" | "accountLogoutClicked" | "responseTemplateCharacters"
 	state?: ExtensionState
 	images?: string[]
 	files?: string[]
+	payload?: any // CARET MODIFICATION: For generic message payloads
 	ollamaModels?: string[]
 	lmStudioModels?: string[]
 	vsCodeLmModels?: { vendor?: string; family?: string; version?: string; id?: string }[]

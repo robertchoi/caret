@@ -89,16 +89,7 @@ const ClineRulesToggleModal: React.FC = () => {
 					caretWebviewLogger.error("Failed to refresh rules", error)
 				})
 		}
-	}, [
-		isVisible,
-		setGlobalClineRulesToggles,
-		setLocalClineRulesToggles,
-		setLocalCaretRulesToggles,
-		setLocalCursorRulesToggles,
-		setLocalWindsurfRulesToggles,
-		setLocalWorkflowToggles,
-		setGlobalWorkflowToggles,
-	])
+	}, [isVisible])
 
 	// Format rules for display
 	const globalRules = Object.entries(globalClineRulesToggles || {})

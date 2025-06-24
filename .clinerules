@@ -17,8 +17,13 @@
     },
     "code_management_principles": [
       "Preserve Cline code: maintain src/, webview-ui/, proto/, scripts/, evals/, docs/, locales/ and root config files",
-      "Minimal extension: free modification only in caret-src/, caret-docs/, caret-assets/",
-      "Inheritance over replacement: prefer class inheritance over file replacement",
+      "Minimal extension: free modification only in caret-src/, caret-docs/, assets/",
+      {
+        "principle": "Principle of Extensibility: Inheritance vs. Direct Modification",
+        "new_feature": "For new features, prioritize using inheritance to extend existing classes.",
+        "modify_feature": "For modifying existing features, use overriding via inheritance if possible.",
+        "direct_modification_condition": "If extension via inheritance is impossible due to private members, direct modification of the original file after backup is permitted as an exception, as this aligns with the 'minimal modification' principle."
+      },
       "Backup mandatory: create .cline backup before modifying any Cline original file"
     ],
     "cline_original_file_modification_absolute_principles": {
@@ -259,10 +264,15 @@
     ],
     "upstream_merging": "Cline update integration process - change verification, conflict resolution (src/ directory), compatibility testing, documentation updates",
     "rules_management": {
-      "master_file": "caret-docs/caretrules.ko.md (Korean template)",
-      "manual_sync_required": "caretrules.ko.md changes require MANDATORY node caret-scripts/sync-caretrules.js execution",
-      "ai_mandatory_task": "AI must NEVER forget to run sync script after rule file modifications",
-      "sync_targets": [".caretrules", ".cursorrules", ".windsurfrules (JSON format)"]
+      "master_file": "caretrules.ko.md (Korean template for human readability)",
+      "source_of_truth": ".caretrules (JSON format, the actual rule data)",
+      "sync_procedure": [
+        "Step 1: Modify caretrules.ko.md to document the rule change for readability.",
+        "Step 2: Directly modify the .caretrules JSON file to change the actual rule data.",
+        "Step 3: Run 'node caret-scripts/sync-caretrules.js' to synchronize the changes from .caretrules to other rule files."
+      ],
+      "ai_mandatory_task": "AI must strictly follow the 3-step sync procedure without skipping or changing the order.",
+      "sync_targets": [".cursorrules", ".windsurfrules (JSON format)"]
     }
   },
   "key_reference_files": {
@@ -278,4 +288,4 @@
     "architecture_protection": "Cline original file modification rules with mandatory checklist",
     "quality_standards": "TDD mandatory, immediate verification principle applied"
   }
-} 
+}

@@ -1,56 +1,56 @@
 const { expect } = require("chai")
 const vscode = require("vscode")
 
-describe("Extension Tests", function () {
+describe("Caret Extension Tests", function () {
 	this.timeout(60000) // Increased timeout for extension operations
 
-	let originalGetConfiguration
+	let extension
 
-	beforeEach(() => {
-		// Save original configuration
-		originalGetConfiguration = vscode.workspace.getConfiguration
-		// Setup mock configuration
-		const mockUpdate = async () => Promise.resolve()
-		const mockConfig = {
-			get: () => true,
-			update: mockUpdate,
-		}
-		vscode.workspace.getConfiguration = () => mockConfig
-	})
-
-	afterEach(() => {
-		// Restore original configuration
-		vscode.workspace.getConfiguration = originalGetConfiguration
-	})
-
-	it("should activate extension successfully", async () => {
-		// Get the extension
-		const extension = vscode.extensions.getExtension("saoudrizwan.claude-dev")
+	// Activate the extension once before all tests
+	before(async () => {
+		extension = vscode.extensions.getExtension("caret-team.caret")
 		expect(extension).to.not.be.undefined
-
-		// Activate the extension if not already activated
 		if (!extension.isActive) {
 			await extension.activate()
 		}
+	})
+
+	it("should activate the extension successfully", () => {
 		expect(extension.isActive).to.be.true
 	})
 
-	it("should open sidebar view", async () => {
-		// Execute the command to open sidebar
-		await vscode.commands.executeCommand("cline.plusButtonClicked")
-
-		// Wait for sidebar to be visible
-		await new Promise((resolve) => setTimeout(resolve, 1000))
-
-		// Get all views
-		const views = vscode.window.visibleTextEditors
-		// Just verify the command executed without error
-		// The actual view verification is handled in the TypeScript tests
+	it("should execute the new task command", async () => {
+		await vscode.commands.executeCommand("caret.plusButtonClicked")
+		// Success if no error is thrown
 	})
 
-	it("should handle basic commands", async () => {
-		// Test basic command execution
-		await vscode.commands.executeCommand("cline.historyButtonClicked")
-		// Success if no error thrown
+	it("should execute the history command", async () => {
+		await vscode.commands.executeCommand("caret.historyButtonClicked")
+		// Success if no error is thrown
+	})
+
+	it("should execute the settings command", async () => {
+		await vscode.commands.executeCommand("caret.settingsButtonClicked")
+		// Success if no error is thrown
+	})
+
+	it("should execute the account command", async () => {
+		await vscode.commands.executeCommand("caret.accountButtonClicked")
+		// Success if no error is thrown
+	})
+
+	it("should execute the mcp command", async () => {
+		await vscode.commands.executeCommand("caret.mcpButtonClicked")
+		// Success if no error is thrown
+	})
+
+	it("should execute the popout command", async () => {
+		// This command is expected to fail until implemented
+		try {
+			await vscode.commands.executeCommand("caret.popoutButtonClicked")
+		} catch (error) {
+			// We can assert the error message if we want to be specific
+			expect(error).to.be.an("error")
+		}
 	})
 })

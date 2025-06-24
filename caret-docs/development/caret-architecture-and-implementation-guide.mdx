@@ -5,11 +5,15 @@
 -   [Project Overview](#project-overview)
 -   [Architecture Principles](#architecture-principles)
 -   [Development Patterns](#development-patterns)
+-   [Implementation Strategy](#implementation-strategy)
+-   [Core Class Extension Guide](#core-class-extension-guide)
+-   [Build System](#build-system)
+-   [Development Workflow](#development-workflow)
+-   [Quality Assurance](#quality-assurance)
+-   [Cline Pattern Best Practices](#cline-pattern-best-practices)
 -   [Message Flow Analysis](#message-flow-analysis)
 -   [Frontend-Backend Interaction Patterns](#frontend-backend-interaction-patterns)
 -   [Circular Message Prevention](#circular-message-prevention)
--   [Testing Guidelines](#testing-guidelines)
--   [Quality Assurance](#quality-assurance)
 
 ## 1. 개요
 
@@ -431,9 +435,47 @@ export class CaretTask extends Task {
 3. **머징 가이드 업데이트**
     - `caret-docs/guides/upstream-merging.md`에 교체 파일 정보 기록
 
-## 5. 빌드 시스템
+## 5. 핵심 클래스 확장 가이드: CaretProvider 예시
 
-### 5.1. 통합 빌드 프로세스
+Caret의 핵심 `WebviewProvider`는 Cline의 `WebviewProvider`를 기반으로 합니다. 이를 수정할 때는 다음 원칙을 따릅니다.
+
+### 5.1. 기본 원칙: 상속을 통한 최소 확장
+
+`CaretProvider`는 `ClineWebviewProvider`를 `extends` 해야 합니다. 이는 코드 재사용성을 높이고, 향후 Cline의 업데이트를 따라가기 위함입니다.
+
+```typescript
+// caret-src/core/webview/CaretProvider.ts
+import { WebviewProvider as ClineWebviewProvider } from "../../../src/core/webview/index"
+
+export class CaretProvider extends ClineWebviewProvider {
+	// ... 필요한 최소한의 로직만 추가 ...
+}
+```
+
+### 5.2. `private` 멤버로 인한 상속 제약 발생 시 해결 절차
+
+만약 `ClineWebviewProvider`의 `private` 속성(예: `disposables`) 때문에 기능 수정이 불가능하다면, 다음 절차를 따릅니다.
+
+1.  **무리한 재구현 금지**: `CaretProvider`에서 `resolveWebviewView`와 같은 거대한 메소드를 통째로 복사하여 재구현하는 것은 **엄격히 금지**됩니다. 이는 버그 발생의 주요 원인이 됩니다.
+2.  **원본 파일 백업**: `src/core/webview/index.ts` 파일의 백업(`index-ts.cline`)을 생성합니다.
+3.  **최소한의 직접 수정**: `src/core/webview/index.ts` 파일에서 문제가 되는 `private` 속성을 `protected`로 변경합니다. 이는 단 한 줄의 수정으로, 가장 안전하고 명확한 해결책입니다.
+
+    ```typescript
+    // BEFORE
+    private disposables: vscode.Disposable[] = [];
+
+    // AFTER
+    // CARET MODIFICATION: Allow child classes to access disposables for proper extension.
+    protected disposables: vscode.Disposable[] = [];
+    ```
+
+4.  **`CaretProvider`에서 오버라이딩**: 이제 `CaretProvider`에서 `protected`가 된 멤버를 안전하게 사용하여 필요한 로직을 오버라이드합니다.
+
+이 절차는 "최소 수정의 원칙"을 지키면서, 동시에 깨끗하고 유지보수 가능한 코드를 작성하는 최선의 방법입니다.
+
+## 6. 빌드 시스템
+
+### 6.1. 통합 빌드 프로세스
 
 Caret은 Cline의 기존 빌드 시스템을 최대한 활용:
 
@@ -448,15 +490,15 @@ npm run compile
 cd webview-ui && npm run build
 ```
 
-### 5.2. 빌드 설정 최적화
+### 6.2. 빌드 설정 최적화
 
 -   **tsconfig.json**: `src/`와 `caret-src/` 경로 포함
 -   **package.json**: Cline 스크립트 확장
 -   **vite.config.ts**: Caret 컴포넌트 경로 추가
 
-## 6. 개발 워크플로우
+## 7. 개발 워크플로우
 
-### 6.1. 새 기능 개발
+### 7.1. 새 기능 개발
 
 1. **요구사항 분석**: Cline 기존 기능으로 충족 가능한지 확인
 2. **구현 방식 결정**: 확장 vs 교체 vs 신규 추가
@@ -470,15 +512,15 @@ cd webview-ui && npm run build
 3. **Caret 기능 호환성 검증**
 4. **문서 업데이트**
 
-## 7. 품질 관리
+## 8. 품질 관리
 
-### 7.1. 테스트 전략
+### 8.1. 테스트 전략
 
 -   **Cline 기능**: 원본 테스트 그대로 유지
 -   **Caret 확장**: 100% 테스트 커버리지 목표
 -   **통합 테스트**: Cline-Caret 연동 검증
 
-### 7.2. 로깅 시스템 (Cline 패턴 확장)
+### 8.2. 로깅 시스템 (Cline 패턴 확장)
 
 ```typescript
 // caret-src/utils/caret-logger.ts
@@ -506,9 +548,9 @@ export const caretLogger = new CaretLogger("Core")
 caretLogger.logWithContext("info", "Caret feature initialized", { feature: "welcome" })
 ```
 
-## 8. Cline 패턴 활용 모범 사례
+## 9. Cline 패턴 활용 모범 사례
 
-### 8.1. 스트리밍 처리 모범 사례
+### 9.1. 스트리밍 처리 모범 사례
 
 -   **잠금 메커니즘**: race condition 방지를 위한 적절한 잠금 사용
 -   **부분 업데이트**: 스트리밍 중 부분 콘텐츠 안전 처리
@@ -526,9 +568,9 @@ caretLogger.logWithContext("info", "Caret feature initialized", { feature: "welc
 -   **컨텍스트 관리**: 자동 대화 축약으로 메모리 효율성 확보
 -   **재시도 로직**: 일시적 오류에 대한 견고한 재시도 메커니즘
 
-## 9. 메시지 플로우 분석 및 순환 메시지 방지
+## 10. 메시지 플로우 분석 및 순환 메시지 방지
 
-### 9.1. Cline 메시지 시스템 이해
+### 10.1. Cline 메시지 시스템 이해
 
 Cline은 **gRPC 기반 메시지 시스템**을 사용하여 webview와 백엔드 간 통신:
 
@@ -798,9 +840,9 @@ function preventSubscriptionOverride() {
 }
 ```
 
-## 10. Frontend-Backend Interaction Patterns
+## 11. Frontend-Backend Interaction Patterns
 
-### 10.1. uiLanguage 전용 업데이트 패턴 ✨ **실제 구현됨**
+### 11.1. uiLanguage 전용 업데이트 패턴 ✨ **실제 구현됨**
 
 **문제**: ExtensionStateContext.tsx에서 `setChatSettings`가 uiLanguage만 변경되어도 모든 설정을 백엔드로 전송하여 순환 메시지 발생
 
@@ -862,9 +904,9 @@ setUILanguage: async (language: string) => {
 -   apiConfiguration 부분 업데이트
 -   기타 설정 변경
 
-## 11. Circular Message Prevention
+## 12. Circular Message Prevention
 
-### 11.1. 순환 메시지 발생 메커니즘
+### 12.1. 순환 메시지 발생 메커니즘
 
 **일반적인 순환 메시지 패턴**:
 
@@ -962,3 +1004,29 @@ sequenceDiagram
 -   실제 Extension Host 환경에서의 검증 의무화
 -   체계적인 문제 분석 및 해결 방법론 확립
 -   재발 방지를 위한 개발 프로세스 개선
+
+</file_content>
+
+Now that you have the latest state of the file, try the operation again with fewer, more precise SEARCH blocks. For large files especially, it may be prudent to try to limit yourself to <5 SEARCH/REPLACE blocks at a time, then wait for the user to respond with the result of the operation before following up with another replace_in_file call to make additional edits.
+(If you run into this error 3 times in a row, you may use the write_to_file tool as a fallback.)
+
+</error><environment_details>
+# VSCode Visible Files
+caret-docs/development/caret-architecture-and-implementation-guide.mdx
+
+# VSCode Open Tabs
+
+caret-docs/development/caret-architecture-and-implementation-guide.mdx
+
+# Current Time
+
+2025. 6.  24. 오후 8:04:50 (Asia/Seoul, UTC+9:00)
+
+# Context Window Usage
+
+242,993 / 1,048.576K tokens used (23%)
+
+# Current Mode
+
+ACT MODE
+</environment_details>

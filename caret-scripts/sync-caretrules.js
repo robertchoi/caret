@@ -14,7 +14,7 @@ console.log("🔄 Caret Rules 동기화 시작...\n")
 
 // 파일 경로 설정
 const SOURCE_FILE = ".caretrules"
-const TARGET_FILES = [".cursorrules", ".windsurfrules"]
+const TARGET_FILES = [".cursorrules", ".windsurfrules", ".clinerules"]
 
 // 메인 실행
 function main() {

@@ -49,22 +49,22 @@
 	"contributes": {
 		"walkthroughs": [
 			{
-				"id": "ClineWalkthrough",
-				"title": "Meet Cline, your new coding partner",
-				"description": "Cline codes like a developer because it thinks like one. Here are 5 ways to put it to work:",
+				"id": "CaretWalkthrough",
+				"title": "Meet Caret, your new coding partner",
+				"description": "Caret codes like a developer because it thinks like one. Here are 5 ways to put it to work:",
 				"steps": [
 					{
 						"id": "welcome",
 						"title": "Start with a Goal, Not Just a Prompt",
-						"description": "Tell Cline what you want to achieve. It plans, asks, and then codes, like a true partner.",
+						"description": "Tell Caret what you want to achieve. It plans, asks, and then codes, like a true partner.",
 						"media": {
 							"markdown": "walkthrough/step1.md"
 						}
 					},
 					{
 						"id": "learn",
-						"title": "Let Cline Learn Your Codebase",
-						"description": "Point Cline to your project. It builds understanding to make smart, context-aware changes.",
+						"title": "Let Caret Learn Your Codebase",
+						"description": "Point Caret to your project. It builds understanding to make smart, context-aware changes.",
 						"media": {
 							"markdown": "walkthrough/step2.md"
 						}
@@ -72,7 +72,7 @@
 					{
 						"id": "advanced-features",
 						"title": "Always Use the Best AI Models",
-						"description": "Cline empowers you with State-of-the-Art AI, connecting to top models (Anthropic, Gemini, OpenAI & more).",
+						"description": "Caret empowers you with State-of-the-Art AI, connecting to top models (Anthropic, Gemini, OpenAI & more).",
 						"media": {
 							"markdown": "walkthrough/step3.md"
 						}
@@ -88,7 +88,7 @@
 					{
 						"id": "getting-started",
 						"title": "You're Always in Control",
-						"description": "Review Cline's plans and diffs. Approve changes before they happen. No surprises.",
+						"description": "Review Caret's plans and diffs. Approve changes before they happen. No surprises.",
 						"media": {
 							"markdown": "walkthrough/step5.md"
 						},
@@ -119,93 +119,93 @@
 			"caret-ActivityBar": [
 				{
 					"type": "webview",
-					"id": "claude-dev.SidebarProvider",
+					"id": "caret.SidebarProvider",
 					"name": "Caret"
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "cline.plusButtonClicked",
+				"command": "caret.plusButtonClicked",
 				"title": "New Task",
 				"icon": "$(add)"
 			},
 			{
-				"command": "cline.mcpButtonClicked",
+				"command": "caret.mcpButtonClicked",
 				"title": "MCP Servers",
 				"icon": "$(server)"
 			},
 			{
-				"command": "cline.historyButtonClicked",
+				"command": "caret.historyButtonClicked",
 				"title": "History",
 				"icon": "$(history)"
 			},
 			{
-				"command": "cline.popoutButtonClicked",
+				"command": "caret.popoutButtonClicked",
 				"title": "Open in Editor",
 				"icon": "$(link-external)"
 			},
 			{
-				"command": "cline.accountButtonClicked",
+				"command": "caret.accountButtonClicked",
 				"title": "Account",
 				"icon": "$(account)"
 			},
 			{
-				"command": "cline.settingsButtonClicked",
+				"command": "caret.settingsButtonClicked",
 				"title": "Settings",
 				"icon": "$(settings-gear)"
 			},
 			{
-				"command": "cline.openInNewTab",
+				"command": "caret.openInNewTab",
 				"title": "Open In New Tab",
-				"category": "Cline"
+				"category": "Caret"
 			},
 			{
-				"command": "cline.dev.createTestTasks",
+				"command": "caret.dev.createTestTasks",
 				"title": "Create Test Tasks",
-				"category": "Cline",
-				"when": "cline.isDevMode"
+				"category": "Caret",
+				"when": "caret.isDevMode"
 			},
 			{
-				"command": "cline.addToChat",
-				"title": "Add to Cline",
-				"category": "Cline"
+				"command": "caret.addToChat",
+				"title": "Add to Caret",
+				"category": "Caret"
 			},
 			{
-				"command": "cline.addTerminalOutputToChat",
-				"title": "Add to Cline",
-				"category": "Cline"
+				"command": "caret.addTerminalOutputToChat",
+				"title": "Add to Caret",
+				"category": "Caret"
 			},
 			{
-				"command": "cline.focusChatInput",
+				"command": "caret.focusChatInput",
 				"title": "Jump to Chat Input",
-				"category": "Cline"
+				"category": "Caret"
 			},
 			{
-				"command": "cline.generateGitCommitMessage",
-				"title": "Generate Commit Message with Cline",
-				"category": "Cline",
+				"command": "caret.generateGitCommitMessage",
+				"title": "Generate Commit Message with Caret",
+				"category": "Caret",
 				"icon": "$(robot)"
 			},
 			{
-				"command": "cline.explainCode",
-				"title": "Explain with Cline",
-				"category": "Cline"
+				"command": "caret.explainCode",
+				"title": "Explain with Caret",
+				"category": "Caret"
 			},
 			{
-				"command": "cline.improveCode",
-				"title": "Improve with Cline",
-				"category": "Cline"
+				"command": "caret.improveCode",
+				"title": "Improve with Caret",
+				"category": "Caret"
 			},
 			{
-				"command": "cline.openWalkthrough",
+				"command": "caret.openWalkthrough",
 				"title": "Open Walkthrough",
-				"category": "Cline"
+				"category": "Caret"
 			}
 		],
 		"keybindings": [
 			{
-				"command": "cline.addToChat",
+				"command": "caret.addToChat",
 				"key": "cmd+'",
 				"mac": "cmd+'",
 				"win": "ctrl+'",
@@ -213,11 +213,11 @@
 				"when": "editorHasSelection"
 			},
 			{
-				"command": "cline.generateGitCommitMessage",
+				"command": "caret.generateGitCommitMessage",
 				"when": "scmProvider == git"
 			},
 			{
-				"command": "cline.focusChatInput",
+				"command": "caret.focusChatInput",
 				"key": "cmd+'",
 				"mac": "cmd+'",
 				"win": "ctrl+'",
@@ -228,127 +228,97 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "cline.plusButtonClicked",
-					"group": "navigation@1",
-					"when": "view == claude-dev.SidebarProvider"
-				},
-				{
-					"command": "cline.mcpButtonClicked",
-					"group": "navigation@2",
-					"when": "view == claude-dev.SidebarProvider"
-				},
-				{
-					"command": "cline.historyButtonClicked",
-					"group": "navigation@3",
-					"when": "view == claude-dev.SidebarProvider"
-				},
-				{
-					"command": "cline.popoutButtonClicked",
-					"group": "navigation@4",
-					"when": "view == claude-dev.SidebarProvider"
-				},
-				{
-					"command": "cline.accountButtonClicked",
-					"group": "navigation@5",
-					"when": "view == claude-dev.SidebarProvider"
-				},
-				{
-					"command": "cline.settingsButtonClicked",
-					"group": "navigation@6",
-					"when": "view == claude-dev.SidebarProvider"
-				},
-				{
-					"command": "cline.plusButtonClicked",
+					"command": "caret.plusButtonClicked",
 					"group": "navigation@1",
 					"when": "view == caret.SidebarProvider"
 				},
 				{
-					"command": "cline.mcpButtonClicked",
+					"command": "caret.mcpButtonClicked",
 					"group": "navigation@2",
 					"when": "view == caret.SidebarProvider"
 				},
 				{
-					"command": "cline.historyButtonClicked",
+					"command": "caret.historyButtonClicked",
 					"group": "navigation@3",
 					"when": "view == caret.SidebarProvider"
 				},
 				{
-					"command": "cline.popoutButtonClicked",
+					"command": "caret.popoutButtonClicked",
 					"group": "navigation@4",
 					"when": "view == caret.SidebarProvider"
 				},
 				{
-					"command": "cline.accountButtonClicked",
+					"command": "caret.accountButtonClicked",
 					"group": "navigation@5",
 					"when": "view == caret.SidebarProvider"
 				},
 				{
-					"command": "cline.settingsButtonClicked",
+					"command": "caret.settingsButtonClicked",
 					"group": "navigation@6",
 					"when": "view == caret.SidebarProvider"
 				}
 			],
 			"editor/title": [
 				{
-					"command": "cline.plusButtonClicked",
+					"command": "caret.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider"
 				},
 				{
-					"command": "cline.mcpButtonClicked",
+					"command": "caret.mcpButtonClicked",
 					"group": "navigation@2",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider"
 				},
 				{
-					"command": "cline.historyButtonClicked",
+					"command": "caret.historyButtonClicked",
 					"group": "navigation@3",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider"
 				},
 				{
-					"command": "cline.popoutButtonClicked",
+					"command": "caret.popoutButtonClicked",
 					"group": "navigation@4",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider"
 				},
 				{
-					"command": "cline.accountButtonClicked",
+					"command": "caret.accountButtonClicked",
 					"group": "navigation@5",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider"
 				},
 				{
-					"command": "cline.settingsButtonClicked",
+					"command": "caret.settingsButtonClicked",
 					"group": "navigation@6",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider"
 				}
 			],
 			"editor/context": [
 				{
-					"command": "cline.addToChat",
+					"command": "caret.addToChat",
 					"group": "navigation",
 					"when": "editorHasSelection"
 				}
 			],
 			"terminal/context": [
 				{
-					"command": "cline.addTerminalOutputToChat",
+					"command": "caret.addTerminalOutputToChat",
 					"group": "navigation"
 				}
 			],
 			"scm/title": [
 				{
-					"command": "cline.generateGitCommitMessage",
+					"command": "caret.generateGitCommitMessage",
 					"group": "navigation",
 					"when": "scmProvider == git"
 				}
 			],
 			"commandPalette": [
 				{
-					"command": "cline.generateGitCommitMessage",
+					"command": "caret.generateGitCommitMessage",
 					"when": "scmProvider == git"
 				}
 			]
 		},
 		"configuration": {
-			"title": "Cline",
+			"title": "Caret",
 			"properties": {}
 		}
 	},
@@ -452,7 +422,7 @@
 		"vitest": "^2.1.8"
 	},
 	"dependencies": {
-		"@anthropic-ai/sdk": "^0.37.0",
+		"@anthropic-ai/sdk": "^0.37.0",	
 		"@anthropic-ai/vertex-sdk": "^0.6.4",
 		"@aws-sdk/client-bedrock-runtime": "^3.826.0",
 		"@aws-sdk/credential-providers": "^3.826.0",

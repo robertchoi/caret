@@ -14,6 +14,7 @@ const aliasResolverPlugin = {
 	name: "alias-resolver",
 	setup(build) {
 		const aliases = {
+			"@caret": path.resolve(__dirname, "caret-src"),
 			"@": path.resolve(__dirname, "src"),
 			"@api": path.resolve(__dirname, "src/api"),
 			"@core": path.resolve(__dirname, "src/core"),
@@ -143,7 +144,7 @@ const baseConfig = {
 // Extension-specific configuration
 const extensionConfig = {
 	...baseConfig,
-	entryPoints: ["src/extension.ts"],
+	entryPoints: ["caret-src/extension.ts"],
 	outfile: `${destDir}/extension.js`,
 	external: ["vscode"],
 }

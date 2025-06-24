@@ -4,7 +4,7 @@ import * as path from "path"
 import { ensureRulesDirectoryExists } from "../../src/core/storage/disk"
 import { cwd } from "../../src/core/task"
 
-interface UpdateRuleFileContentParams {
+export interface UpdateRuleFileContentParams {
 	rulePath: string
 	content?: string
 	isGlobal: boolean

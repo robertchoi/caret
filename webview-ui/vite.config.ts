@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => {
 	console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 	return {
+		base: "./", // CARET MODIFICATION: Use relative paths for assets in webview
 		plugins: [react(), tailwindcssPlugin(), writePortToFile()],
 		test: {
 			environment: "jsdom",

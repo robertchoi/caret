@@ -78,7 +78,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// 테스트 호환성을 위한 기본 명령어 등록
 	context.subscriptions.push(
-		vscode.commands.registerCommand("cline.plusButtonClicked", async (webview: any) => {
+		vscode.commands.registerCommand("caret.plusButtonClicked", async (webview: any) => {
 			outputChannel?.appendLine("[DEBUG] plusButtonClicked called")
 			// 기본 동작: 웹뷰에 메시지 전송 (CaretProvider에서 처리)
 			// TODO: 실제 채팅 기능 구현 시 확장
@@ -86,14 +86,14 @@ export async function activate(context: vscode.ExtensionContext) {
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("cline.mcpButtonClicked", async (webview: any) => {
+		vscode.commands.registerCommand("caret.mcpButtonClicked", async (webview: any) => {
 			outputChannel?.appendLine("[DEBUG] mcpButtonClicked called")
 			// TODO: MCP 기능 구현 시 확장
 		}),
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("cline.historyButtonClicked", async (webview: any) => {
+		vscode.commands.registerCommand("caret.historyButtonClicked", async (webview: any) => {
 			outputChannel?.appendLine("[DEBUG] historyButtonClicked called")
 			// 기본 동작: 히스토리 표시 (CaretProvider에서 처리)
 			// TODO: 실제 히스토리 기능 구현 시 확장
@@ -101,21 +101,21 @@ export async function activate(context: vscode.ExtensionContext) {
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("cline.popoutButtonClicked", async (webview: any) => {
+		vscode.commands.registerCommand("caret.popoutButtonClicked", async (webview: any) => {
 			outputChannel?.appendLine("[DEBUG] popoutButtonClicked called")
 			// TODO: 새 탭에서 열기 기능 구현 시 확장
 		}),
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("cline.accountButtonClicked", async (webview: any) => {
+		vscode.commands.registerCommand("caret.accountButtonClicked", async (webview: any) => {
 			outputChannel?.appendLine("[DEBUG] accountButtonClicked called")
 			// TODO: 계정 기능 구현 시 확장
 		}),
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("cline.settingsButtonClicked", async (webview: any) => {
+		vscode.commands.registerCommand("caret.settingsButtonClicked", async (webview: any) => {
 			outputChannel?.appendLine("[DEBUG] settingsButtonClicked called")
 			// TODO: 설정 기능 구현 시 확장
 		}),

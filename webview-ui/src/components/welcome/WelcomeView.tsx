@@ -77,6 +77,18 @@ const WelcomeView = () => {
 		setApiErrorMessage(validateApiConfiguration(apiConfiguration))
 	}, [apiConfiguration])
 
+	// CARET DEBUG: Add console.log to check the value of caretBanner
+	useEffect(() => {
+		console.log("🖼️ [WelcomeView] caretBanner value:", caretBanner)
+		if (caretBanner) {
+			console.log(
+				`🖼️ [WelcomeView] caretBanner length: ${caretBanner.length}, starts with: ${caretBanner.substring(0, 30)}`,
+			)
+		} else {
+			console.log("🖼️ [WelcomeView] caretBanner is empty or undefined.")
+		}
+	}, [caretBanner])
+
 	// Helper to render sections consistently (preserving original Cline pattern)
 	const renderSection = (
 		headerKey: string,

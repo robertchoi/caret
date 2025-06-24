@@ -215,7 +215,7 @@ describe("PersonaTemplateSelector", () => {
 
 		// Wait for the component to render - check for the actual rendered text
 		await waitFor(() => {
-			expect(screen.getByText("selector.title")).toBeInTheDocument()
+			expect(screen.getByText("AI Agent Template Character Settings")).toBeInTheDocument()
 		})
 
 		// Now characters should be rendered immediately since we passed them as props
@@ -243,7 +243,7 @@ describe("PersonaTemplateSelector", () => {
 
 		// Wait for the component to render - check for the actual rendered text
 		await waitFor(() => {
-			expect(screen.getByText("selector.title")).toBeInTheDocument()
+			expect(screen.getByText("AI Agent Template Character Settings")).toBeInTheDocument()
 		})
 
 		// Wait for characters to render and find the button
@@ -251,7 +251,10 @@ describe("PersonaTemplateSelector", () => {
 			expect(screen.getByText("Sarang")).toBeInTheDocument()
 		})
 
-		const selectButtons = screen.getAllByText("selector.selectButtonText")
+		
+
+		const selectButtons = screen.getAllByText("Select")
+
 		fireEvent.click(selectButtons[0])
 
 		// Check if onSelectPersona was called with the correct data

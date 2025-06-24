@@ -3,8 +3,8 @@
 // Original backed up to: file-proto.cline
 syntax = "proto3";
 
-package cline;
-option java_package = "bot.cline.proto";
+package caret;
+option java_package = "team.caret.proto";
 option java_multiple_files = true;
 
 import "common.proto";
@@ -191,5 +191,3 @@ message ToggleWorkflowRequest {
   bool enabled = 3;
   bool is_global = 4;
 }
-
-

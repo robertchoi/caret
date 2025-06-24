@@ -4,8 +4,8 @@ import { updateGlobalState } from "../../storage/state"
 
 export async function updateTerminalConnectionTimeout(
 	controller: Controller,
-	request: proto.cline.Int64Request,
-): Promise<proto.cline.Int64> {
+	request: proto.caret.Int64Request,
+): Promise<proto.caret.Int64> {
 	const timeoutValue = request.value
 
 	// Update the terminal connection timeout setting in the state
@@ -13,6 +13,7 @@ export async function updateTerminalConnectionTimeout(
 
 	// Broadcast state update to all webviews
 	await controller.postStateToWebview()
+	await controller.postStateToWebview()
 
-	return proto.cline.Int64.create({ value: timeoutValue })
+	return proto.caret.Int64.create({ value: timeoutValue })
 }

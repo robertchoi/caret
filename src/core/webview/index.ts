@@ -1,5 +1,6 @@
-// CARET MODIFICATION: Added data.cline.bot to CSP connect-src for PostHog telemetry. Original backed up as index-ts.cline
-// Purpose: Fix CSP errors preventing PostHog from connecting to data.cline.bot domain
+// CARET MODIFICATION: Changed several private members to protected to allow for proper subclassing by CaretProvider.
+// Original backed up to: src/core/webview/index-ts.cline
+// Purpose: Enable extension of WebviewProvider without re-implementing the entire class, adhering to DRY principles.
 import axios from "axios"
 import * as vscode from "vscode"
 import { getNonce } from "./getNonce"
@@ -24,14 +25,14 @@ export class WebviewProvider implements vscode.WebviewViewProvider {
 	private static activeInstances: Set<WebviewProvider> = new Set()
 	private static clientIdMap = new Map<WebviewProvider, string>()
 	public view?: vscode.WebviewView | vscode.WebviewPanel
-	private disposables: vscode.Disposable[] = []
+	protected disposables: vscode.Disposable[] = []
 	controller: Controller
 	private clientId: string
 
 	constructor(
 		readonly context: vscode.ExtensionContext,
-		private readonly outputChannel: vscode.OutputChannel,
-		private readonly providerType: WebviewProviderType = WebviewProviderType.TAB, // Default to tab provider
+		protected readonly outputChannel: vscode.OutputChannel,
+		protected readonly providerType: WebviewProviderType = WebviewProviderType.TAB, // Default to tab provider
 	) {
 		WebviewProvider.activeInstances.add(this)
 		this.clientId = uuidv4()
@@ -165,7 +166,7 @@ export class WebviewProvider implements vscode.WebviewViewProvider {
 							await sendThemeEvent(JSON.stringify(theme))
 						}
 					}
-					if (e && e.affectsConfiguration("cline.mcpMarketplace.enabled")) {
+					if (e && e.affectsConfiguration("caret.mcpMarketplace.enabled")) {
 						// Update state when marketplace tab setting changes
 						await this.controller.postStateToWebview()
 					}
@@ -194,7 +195,7 @@ export class WebviewProvider implements vscode.WebviewViewProvider {
 	 * @returns A template string literal containing the HTML that should be
 	 * rendered within the webview panel
 	 */
-	private getHtmlContent(webview: vscode.Webview): string {
+	protected getHtmlContent(webview: vscode.Webview): string {
 		// Get the local path to main script run in the webview,
 		// then convert it to a uri we can use in the webview.
 
@@ -306,7 +307,7 @@ export class WebviewProvider implements vscode.WebviewViewProvider {
 	 * @returns A template string literal containing the HTML that should be
 	 * rendered within the webview panel
 	 */
-	private async getHMRHtmlContent(webview: vscode.Webview): Promise<string> {
+	protected async getHMRHtmlContent(webview: vscode.Webview): Promise<string> {
 		const localPort = await this.getDevServerPort()
 		const localServerUrl = `localhost:${localPort}`
 

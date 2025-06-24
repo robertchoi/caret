@@ -35,17 +35,17 @@ const TS_PROTO_OPTIONS = [
 // To add a new service, simply add it to this map and run this script
 // The service handler will be automatically discovered and used by grpc-handler.ts
 const serviceNameMap = {
-	account: "cline.AccountService",
-	browser: "cline.BrowserService",
-	checkpoints: "cline.CheckpointsService",
-	file: "cline.FileService",
-	mcp: "cline.McpService",
-	state: "cline.StateService",
-	task: "cline.TaskService",
-	web: "cline.WebService",
-	models: "cline.ModelsService",
-	slash: "cline.SlashService",
-	ui: "cline.UiService",
+	account: "caret.AccountService",
+	browser: "caret.BrowserService",
+	checkpoints: "caret.CheckpointsService",
+	file: "caret.FileService",
+	mcp: "caret.McpService",
+	state: "caret.StateService",
+	task: "caret.TaskService",
+	web: "caret.WebService",
+	models: "caret.ModelsService",
+	slash: "caret.SlashService",
+	ui: "caret.UiService",
 	// Add new services here - no other code changes needed!
 }
 const serviceDirs = Object.keys(serviceNameMap).map((serviceKey) => path.join(ROOT_DIR, "src/core/controller", serviceKey))
@@ -418,8 +418,8 @@ async function ensureProtoFilesExist() {
 			// Create template proto file
 			const protoContent = `syntax = "proto3";
 
-package cline;
-option java_package = "bot.cline.proto";
+package caret;
+option java_package = "team.caret.proto";
 option java_multiple_files = true;
 
 import "common.proto";

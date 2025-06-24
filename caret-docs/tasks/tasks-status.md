@@ -3,10 +3,6 @@
 
 ## 진행 중인 작업 (Working)
 ### luke (담당자)
-- **Task #001:** 캐럿 아키텍처 초기화 및 설정 (코드 중심)
-  - 요약: VSCode Extension 기본 구조 및 빌드 시스템 구축
-  [001-01-plan-caret-architect-initialize.md](./001-01-plan-caret-architect-initialize.md) 
-
 - **Task #002:** 페르소나 기능 복원 
   - 요약: AI 페르소나 시스템 복구 및 개선
   [002-01-plan-persona-feature-restoration.md](./002-01-plan-persona-feature-restoration.md) 
@@ -37,4 +33,9 @@
   - 요약: i18n 적용과 JSON 관리 체계화를 통한 API 프로바이더 구조 개선
   [009-01-plan-api-provider-structure-improvement.md](./009-01-plan-api-provider-structure-improvement.md)
 
-## 완료된 작업 (Complete)
+## 완료된 작업번호:담당자 (Complete)
+- **Task #001:luke** 캐럿 아키텍처 초기화 및 설정 (코드 중심)
+  - 요약: VSCode Extension 기본 구조 및 빌드 시스템 구축  
+  [001-01-plan-caret-architect-initialize.md](./completed/001-01-plan-caret-architect-initialize.md) 
+- **Task #011:luke** 디버그 호스트 UI 버튼 동작 불능 문제 해결 
+  [011-01-plan-debug-host-duplication.md](./completed/011-01-plan-debug-host-duplication.md)

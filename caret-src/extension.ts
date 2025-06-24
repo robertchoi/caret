@@ -1,19 +1,12 @@
 import * as vscode from "vscode"
-import * as path from "node:path"
-import assert from "node:assert"
+import { setTimeout as setTimeoutPromise } from "node:timers/promises"
+import { Logger } from "../src/services/logging/Logger"
 import { CaretProvider, CARET_SIDEBAR_ID, CARET_TAB_PANEL_ID } from "./core/webview/CaretProvider"
+import { sendSettingsButtonClickedEvent } from "../src/core/controller/ui/subscribeToSettingsButtonClicked"
 import { WebviewProviderType } from "../src/shared/webview/types"
 import { caretLogger } from "./utils/caret-logger"
-import { Logger } from "../src/services/logging/Logger"
-import { sendMcpButtonClickedEvent } from "../src/core/controller/ui/subscribeToMcpButtonClicked"
-import { sendHistoryButtonClickedEvent } from "../src/core/controller/ui/subscribeToHistoryButtonClicked"
-import { sendAccountButtonClickedEvent } from "../src/core/controller/ui/subscribeToAccountButtonClicked"
-import { sendSettingsButtonClickedEvent } from "../src/core/controller/ui/subscribeToSettingsButtonClicked"
-import { setTimeout as setTimeoutPromise } from "node:timers/promises"
 
 let outputChannel: vscode.OutputChannel
-
-const { IS_DEV, DEV_WORKSPACE_FOLDER } = process.env
 
 export async function activate(context: vscode.ExtensionContext) {
 	outputChannel = vscode.window.createOutputChannel("Caret")
@@ -21,6 +14,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	Logger.initialize(outputChannel)
 	caretLogger.setOutputChannel(outputChannel)
+	caretLogger.info("Caret extension activating...")
 	caretLogger.extensionActivated()
 
 	const sidebarWebviewProvider = new CaretProvider(context, outputChannel, WebviewProviderType.SIDEBAR)
@@ -57,52 +51,74 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand("caret.plusButtonClicked", async () => {
-			const instance = CaretProvider.getSidebarInstance()
+			caretLogger.info("Command 'caret.plusButtonClicked' triggered.")
+			const instance = CaretProvider.getVisibleInstance()
 			if (instance) {
+				caretLogger.info(
+					`Found visible instance with client ID: ${instance.getClientId()}. Controller exists: ${!!instance.controller}`,
+				)
 				await instance.controller.clearTask()
-				await instance.controller.postStateToWebview()
+			} else {
+				caretLogger.warn("No visible Caret instance found.")
 			}
 		}),
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("caret.mcpButtonClicked", () => sendMcpButtonClickedEvent(WebviewProviderType.SIDEBAR)),
+		vscode.commands.registerCommand("caret.mcpButtonClicked", () => {
+			caretLogger.info("Command 'caret.mcpButtonClicked' triggered.")
+			const instance = CaretProvider.getVisibleInstance()
+			if (instance) {
+				caretLogger.info(
+					`Found visible instance with client ID: ${instance.getClientId()}. Controller exists: ${!!instance.controller}`,
+				)
+				instance.controller.handleMcpButtonClick()
+			} else {
+				caretLogger.warn("No visible Caret instance found.")
+			}
+		}),
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("caret.historyButtonClicked", () =>
-			sendHistoryButtonClickedEvent(WebviewProviderType.SIDEBAR),
-		),
+		vscode.commands.registerCommand("caret.historyButtonClicked", () => {
+			caretLogger.info("Command 'caret.historyButtonClicked' triggered.")
+			const instance = CaretProvider.getVisibleInstance()
+			if (instance) {
+				caretLogger.info(
+					`Found visible instance with client ID: ${instance.getClientId()}. Controller exists: ${!!instance.controller}`,
+				)
+				instance.controller.handleHistoryButtonClick()
+			} else {
+				caretLogger.warn("No visible Caret instance found.")
+			}
+		}),
 	)
 
 	context.subscriptions.push(vscode.commands.registerCommand("caret.popoutButtonClicked", openCaretInNewTab))
 	context.subscriptions.push(vscode.commands.registerCommand("caret.openInNewTab", openCaretInNewTab))
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("caret.accountButtonClicked", () =>
-			sendAccountButtonClickedEvent(WebviewProviderType.SIDEBAR),
-		),
+		vscode.commands.registerCommand("caret.accountButtonClicked", () => {
+			caretLogger.info("Command 'caret.accountButtonClicked' triggered.")
+			const instance = CaretProvider.getVisibleInstance()
+			if (instance) {
+				caretLogger.info(
+					`Found visible instance with client ID: ${instance.getClientId()}. Controller exists: ${!!instance.controller}`,
+				)
+				instance.controller.handleAccountButtonClick()
+			} else {
+				caretLogger.warn("No visible Caret instance found.")
+			}
+		}),
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("caret.settingsButtonClicked", () =>
-			sendSettingsButtonClickedEvent(WebviewProviderType.SIDEBAR),
-		),
+		vscode.commands.registerCommand("caret.settingsButtonClicked", () => {
+			caretLogger.info("Command 'caret.settingsButtonClicked' triggered. Sending event.")
+			sendSettingsButtonClickedEvent()
+		}),
 	)
-
-	// --- DEV MODE ---
-	if (IS_DEV === "true") {
-		assert(DEV_WORKSPACE_FOLDER, "DEV_WORKSPACE_FOLDER must be set in development mode for hot-reloading.")
-		const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(DEV_WORKSPACE_FOLDER, "src/**/*"))
-		const reload = (uri: vscode.Uri) => {
-			outputChannel.appendLine(`[DEV MODE] File changed: ${uri.fsPath}. Reloading...`)
-			vscode.commands.executeCommand("workbench.action.reloadWindow")
-		}
-		watcher.onDidChange(reload)
-		watcher.onDidCreate(reload)
-		watcher.onDidDelete(reload)
-		context.subscriptions.push(watcher)
-	}
+	caretLogger.info("Caret extension activated and all commands registered.")
 }
 
 export function deactivate() {

@@ -1,3 +1,4 @@
+// CARET MODIFICATION: Added caretrules support with priority system. Original backed up as vscode-ts.cline
 import execa from "execa"
 import * as path from "path"
 import * as fs from "fs"
@@ -116,7 +117,9 @@ export async function spawnVSCode(workspacePath: string, vsixPath?: string): Pro
 		"workbench.startupEditor": "none",
 
 		// Auto-open Cline on startup
-		"cline.autoOpenOnStartup": true,
+		// MOD
+		// CARET MODIFICATION: modified to CaretID
+		"caret.autoOpenOnStartup": true,
 
 		// Show the activity bar and sidebar
 		"workbench.activityBar.visible": true,
@@ -150,7 +153,7 @@ export async function spawnVSCode(workspacePath: string, vsixPath?: string): Pro
 		},
 		{
 			key: "alt+shift+c",
-			command: "cline.openInNewTab",
+			command: "caret.openInNewTab",
 			when: "viewContainer.workbench.view.extension.saoudrizwan.claude-dev-ActivityBar.enabled",
 		},
 	]

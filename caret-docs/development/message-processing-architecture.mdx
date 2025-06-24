@@ -126,7 +126,7 @@ export async function handleGrpcRequest(
 ```typescript
 // src/core/controller/grpc-service-config.ts
 const serviceHandlers = {
-	"cline.ModelsService": {
+	"caret.ModelsService": {
 		requestHandler: async (controller, method, message) => {
 			// Unary 요청 처리
 		},
@@ -261,7 +261,7 @@ service NewFeatureService {
 }
 
 // 2. 서비스 핸들러 등록
-"cline.NewFeatureService": {
+"caret.NewFeatureService": {
     requestHandler: async (controller, method, message) => {
         return await processNewFeature(controller, message)
     }

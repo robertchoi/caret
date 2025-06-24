@@ -131,7 +131,7 @@ describe("Chat Integration Tests", () => {
 			panel.webview.onDidReceiveMessage((message) => {
 				if (
 					message.type === "grpc_request" &&
-					message.grpc_request?.service === "cline.TaskService" &&
+					message.grpc_request?.service === "caret.TaskService" &&
 					message.grpc_request?.method === "askResponse"
 				) {
 					resolve(message)
@@ -147,7 +147,7 @@ describe("Chat Integration Tests", () => {
 		// Verify gRPC request was sent with correct parameters
 		const response = await approvalPromise
 		assert.equal(response.type, "grpc_request")
-		assert.equal(response.grpc_request.service, "cline.TaskService")
+		assert.equal(response.grpc_request.service, "caret.TaskService")
 		assert.equal(response.grpc_request.method, "askResponse")
 		assert.equal(response.grpc_request.message.responseType, "yesButtonClicked")
 	})

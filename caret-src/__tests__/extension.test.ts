@@ -334,12 +334,12 @@ describe("Extension", () => {
 			await activate(mockContext)
 
 			// Verify all commands are registered
-			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("cline.plusButtonClicked", expect.any(Function))
-			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("cline.mcpButtonClicked", expect.any(Function))
-			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("cline.historyButtonClicked", expect.any(Function))
-			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("cline.popoutButtonClicked", expect.any(Function))
-			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("cline.accountButtonClicked", expect.any(Function))
-			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("cline.settingsButtonClicked", expect.any(Function))
+			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("caret.plusButtonClicked", expect.any(Function))
+			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("caret.mcpButtonClicked", expect.any(Function))
+			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("caret.historyButtonClicked", expect.any(Function))
+			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("caret.popoutButtonClicked", expect.any(Function))
+			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("caret.accountButtonClicked", expect.any(Function))
+			expect(vscode.commands.registerCommand).toHaveBeenCalledWith("caret.settingsButtonClicked", expect.any(Function))
 		})
 
 		it("should handle plusButtonClicked command", async () => {
@@ -350,7 +350,7 @@ describe("Extension", () => {
 
 			// Find and execute the plusButtonClicked command
 			const commandCalls = vi.mocked(vscode.commands.registerCommand).mock.calls
-			const plusButtonCall = commandCalls.find((call) => call[0] === "cline.plusButtonClicked")
+			const plusButtonCall = commandCalls.find((call) => call[0] === "caret.plusButtonClicked")
 			expect(plusButtonCall).toBeDefined()
 
 			const commandHandler = plusButtonCall![1] as Function
@@ -366,7 +366,7 @@ describe("Extension", () => {
 			await activate(mockContext)
 
 			const commandCalls = vi.mocked(vscode.commands.registerCommand).mock.calls
-			const mcpButtonCall = commandCalls.find((call) => call[0] === "cline.mcpButtonClicked")
+			const mcpButtonCall = commandCalls.find((call) => call[0] === "caret.mcpButtonClicked")
 			expect(mcpButtonCall).toBeDefined()
 
 			const commandHandler = mcpButtonCall![1] as Function
@@ -382,7 +382,7 @@ describe("Extension", () => {
 			await activate(mockContext)
 
 			const commandCalls = vi.mocked(vscode.commands.registerCommand).mock.calls
-			const historyButtonCall = commandCalls.find((call) => call[0] === "cline.historyButtonClicked")
+			const historyButtonCall = commandCalls.find((call) => call[0] === "caret.historyButtonClicked")
 			expect(historyButtonCall).toBeDefined()
 
 			const commandHandler = historyButtonCall![1] as Function
@@ -398,7 +398,7 @@ describe("Extension", () => {
 			await activate(mockContext)
 
 			const commandCalls = vi.mocked(vscode.commands.registerCommand).mock.calls
-			const popoutButtonCall = commandCalls.find((call) => call[0] === "cline.popoutButtonClicked")
+			const popoutButtonCall = commandCalls.find((call) => call[0] === "caret.popoutButtonClicked")
 			expect(popoutButtonCall).toBeDefined()
 
 			const commandHandler = popoutButtonCall![1] as Function
@@ -414,7 +414,7 @@ describe("Extension", () => {
 			await activate(mockContext)
 
 			const commandCalls = vi.mocked(vscode.commands.registerCommand).mock.calls
-			const accountButtonCall = commandCalls.find((call) => call[0] === "cline.accountButtonClicked")
+			const accountButtonCall = commandCalls.find((call) => call[0] === "caret.accountButtonClicked")
 			expect(accountButtonCall).toBeDefined()
 
 			const commandHandler = accountButtonCall![1] as Function
@@ -430,7 +430,7 @@ describe("Extension", () => {
 			await activate(mockContext)
 
 			const commandCalls = vi.mocked(vscode.commands.registerCommand).mock.calls
-			const settingsButtonCall = commandCalls.find((call) => call[0] === "cline.settingsButtonClicked")
+			const settingsButtonCall = commandCalls.find((call) => call[0] === "caret.settingsButtonClicked")
 			expect(settingsButtonCall).toBeDefined()
 
 			const commandHandler = settingsButtonCall![1] as Function

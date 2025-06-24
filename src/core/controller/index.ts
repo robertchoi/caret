@@ -72,6 +72,7 @@ export class Controller {
 		private readonly outputChannel: vscode.OutputChannel,
 		postMessage: (message: ExtensionMessage) => Thenable<boolean> | undefined,
 	) {
+		caretLogger.info(`Controller constructor called. ID: ${this.id}`)
 		this.outputChannel.appendLine("ClineProvider instantiated")
 		this.postMessage = postMessage
 

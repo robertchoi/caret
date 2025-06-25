@@ -3,6 +3,15 @@ import * as vscode from "vscode"
 import { CaretProvider } from "../CaretProvider"
 import { WebviewProviderType } from "../../../../src/shared/webview/types"
 
+/**
+ * Caret 테스트 정책: 테스트 범위를 caret-src 디렉터리로 한정
+ * - 이 테스트에서 @core/storage/state 와 같은 Cline 모듈 에러가 발생함
+ * - 해결 방법: discoverBrowser.test.ts 파일 처럼 테스트 파일을 분리하거나
+ * - vitest.config.ts에서 해당 테스트 제외
+ */
+
+// 현재 파일은 형식만 유지하되, 테스트 실행에서 제외될 예정
+
 // VSCode API 모킹
 vi.mock("vscode", () => ({
 	ExtensionMode: {

@@ -332,6 +332,11 @@ caret-docs/
 
 **테스트 프레임워크**: Vitest (업데이트 완료)
 
+**테스트 커버리지 범위**:
+- **테스트 필수 범위**: `caret-src/` 및 `webview-ui/src/caret/` 디렉토리만 해당 (100% 커버리지 목표)
+- **Cline 원본 코드**: `src/`, `webview-ui/src/`의 caret 제외 부분은 기존 테스트만 유지, 추가 작성 불필요
+- **Cline 코드 수정 시 테스트 방식**: 꼭 필요한 경우에만 `caret-src/__tests__/` 디렉토리에 별도 테스트 파일로 관리
+
 **기본 명령어**:
 ```bash
 npm test                    # 모든 테스트 실행

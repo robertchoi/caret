@@ -47,7 +47,10 @@
 		"section.globalWorkflows": "Global Workflows",
 		"section.localWorkflows": "Local Workflows",
 		"workflowsDescription": "Workflows allow you to define a series of steps for Cline to perform repetitive tasks like deploying services or submitting PRs. To run a workflow, type /workflow-name in the chat.",
-		"toggleError": "Rule toggle error"
+		"toggleError": "Rule toggle error",
+		"section.personaManagement": "Persona Management",
+    	"button.selectPersonaTemplate": "Select Persona Template",
+    	"button.changePersonaTemplate": "Change Persona Template"
 	},
 	"rulesModal": {
 		"tooltip.manageRulesWorkflows": "Manage Cline Rules & Workflows",

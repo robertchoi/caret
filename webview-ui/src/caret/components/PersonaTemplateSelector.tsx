@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import { vscode } from "@/utils/vscode"
 import { t } from "@/caret/utils/i18n"
 import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react"
+import styled from "styled-components"
 import type { TemplateCharacter, PersonaInstruction } from "../../../../src/shared/persona"
 
 interface PersonaTemplateSelectorProps {
@@ -13,6 +14,26 @@ interface PersonaTemplateSelectorProps {
 	testCharacters?: TemplateCharacter[]
 }
 
+const CharacterTab = styled.button<{ isActive: boolean }>`
+	border: none;
+	background: none;
+	padding: 0.5rem;
+	margin: 0 0.5rem;
+	cursor: pointer;
+	opacity: ${(props) => (props.isActive ? 1 : 0.5)};
+	border-bottom: 2px solid ${(props) => (props.isActive ? "var(--vscode-focusBorder)" : "transparent")};
+	transition: all 0.2s ease-in-out;
+
+	&:hover {
+		opacity: 0.8;
+	}
+
+	img {
+		border: 2px solid ${(props) => (props.isActive ? "var(--vscode-focusBorder)" : "transparent")};
+		transition: all 0.2s ease-in-out;
+	}
+`
+
 export const PersonaTemplateSelector: React.FC<PersonaTemplateSelectorProps> = ({
 	isOpen,
 	onClose,
@@ -22,6 +43,7 @@ export const PersonaTemplateSelector: React.FC<PersonaTemplateSelectorProps> = (
 }) => {
 	const [characters, setCharacters] = useState<TemplateCharacter[]>(testCharacters || [])
 	const [selectedInstruction, setSelectedInstruction] = useState<string>("")
+	const [activeTab, setActiveTab] = useState<string>("")
 
 	useEffect(() => {
 		vscode.postMessage({
@@ -37,7 +59,13 @@ export const PersonaTemplateSelector: React.FC<PersonaTemplateSelectorProps> = (
 		const handleMessage = (event: MessageEvent) => {
 			const message = event.data
 			if (message.type === "RESPONSE_TEMPLATE_CHARACTERS") {
-				setCharacters(message.payload)
+				const chars = message.payload
+				setCharacters(chars)
+				// Set default active tab to the first character or the default character
+				const defaultChar = chars.find((c: TemplateCharacter) => c.isDefault) || (chars.length > 0 ? chars[0] : null)
+				if (defaultChar) {
+					setActiveTab(defaultChar.character)
+				}
 			}
 			if (message.type === "RESPONSE_RULE_FILE_CONTENT" && message.payload.ruleName === "custom_instructions.md") {
 				setSelectedInstruction(message.payload.content)
@@ -62,43 +90,99 @@ export const PersonaTemplateSelector: React.FC<PersonaTemplateSelectorProps> = (
 		onClose()
 	}
 
+	// Find the currently selected character
+	const getSelectedCharacter = () => {
+		if (!activeTab || characters.length === 0) return null;
+		return characters.find((char) => char.character === activeTab) || characters[0];
+	}
+
+	const activeCharacter = getSelectedCharacter();
+	const personaDetails = activeCharacter ? 
+		((activeCharacter[currentLocale as keyof typeof activeCharacter] as any) || activeCharacter.en) : null;
+	const isCurrentlySelected = activeCharacter ? 
+		JSON.stringify(personaDetails?.customInstruction, null, 2) === selectedInstruction : false;
+
+	// 이미지 경로 문제 해결
+	const fixImageUri = (uri: string): string => {
+		if (!uri) return "";
+		
+		// asset: 스키마 문제 해결
+		if (uri.startsWith('asset:')) {
+			// asset:/assets/template_characters/sarang.png 형태의 경로를
+			// /assets/template_characters/sarang.png 형태로 변환
+			return uri.replace('asset:', '');
+		}
+		return uri;
+	}
+	
+	// 이미지 로드 오류 처리
+	const logImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+		console.error('이미지 로드 오류:', e);
+		console.log('src URL:', (e.target as HTMLImageElement).src);
+	}
+
 	return (
-		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-			<div className="bg-[var(--vscode-sideBar-background)] rounded-lg shadow-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-				<div className="flex justify-between items-center mb-4">
+		<div className="fixed inset-0 bg-opacity-50 bg-[rgba(0,0,0,0.6)] backdrop-filter backdrop-blur-sm flex items-center justify-center z-50 px-6">
+			<div className="bg-[var(--vscode-sideBar-background)] rounded-lg shadow-lg p-6 w-full max-w-xl max-h-[80vh] overflow-hidden flex flex-col mx-4">
+				<div className="flex justify-between items-center mb-2">
 					<h2 className="text-lg font-semibold">{t("selector.title", "persona")}</h2>
 					<VSCodeButton appearance="icon" aria-label="Close" onClick={onClose}>
 						<span className="codicon codicon-close"></span>
 					</VSCodeButton>
 				</div>
-				<p className="text-sm text-[var(--vscode-descriptionForeground)] mb-4">{t("selector.description", "persona")}</p>
-				<VSCodeDivider />
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+				<p className="text-sm text-[var(--vscode-descriptionForeground)] mb-2">{t("selector.description", "persona")}</p>
+				
+				{/* Character Tabs */}
+				<div className="flex justify-center mb-4 border-b border-[var(--vscode-settings-headerBorder)]">					
 					{characters.map((char) => {
-						const personaDetails = (char[currentLocale as keyof typeof char] as any) || char.en
-						const isSelected = JSON.stringify(personaDetails.customInstruction, null, 2) === selectedInstruction
+						const isActive = activeTab === char.character;
 						return (
-							<div
-								key={char.character}
-								className={`flex flex-col items-center p-4 border rounded-md ${isSelected ? "border-blue-500" : "border-[var(--vscode-settings-headerBorder)]"}`}>
-								<img
-									src={char.avatarUri}
-									alt={personaDetails.name}
-									className="w-24 h-24 rounded-full object-cover mb-2"
+							<CharacterTab 
+								key={char.character} 
+								isActive={isActive} 
+								onClick={() => setActiveTab(char.character)}
+								aria-label={`${char.character} tab`}
+							>
+								<img 
+									src={fixImageUri(char.avatarUri)} 
+									alt={char.character} 
+									className="w-14 h-14 rounded-full object-cover"
+									onError={logImageError}
 								/>
-								<h3 className="font-bold text-center">{personaDetails.name}</h3>
-								<p className="text-xs text-center text-[var(--vscode-descriptionForeground)] mb-4 h-10">
-									{personaDetails.description}
-								</p>
-								<VSCodeButton onClick={() => handleSelect(char)} disabled={isSelected}>
-									{isSelected
-										? t("selector.selectedButtonText", "persona")
-										: t("selector.selectButtonText", "persona")}
-								</VSCodeButton>
-							</div>
-						)
+							</CharacterTab>
+						);
 					})}
 				</div>
+
+				{/* Selected Character Content */}
+				{activeCharacter && personaDetails && (
+					<div className="flex flex-col items-center overflow-y-auto">
+						<h3 className="text-xl font-bold mb-2">{personaDetails.name}</h3>
+						
+						{/* Character Illustration */}
+						<div className="w-full bg-[var(--vscode-editor-background)] rounded-md mb-4 flex justify-center">
+							<img 
+								src={fixImageUri(activeCharacter.introIllustrationUri)} 
+								alt={`${personaDetails.name} illustration`} 
+								className="max-h-48 object-contain my-2"
+								onError={logImageError}
+							/>
+						</div>
+						
+						{/* Description */}
+						<p className="text-sm text-center mb-4 px-4">{personaDetails.description}</p>
+						
+						{/* Select Button */}
+						<VSCodeButton 
+							onClick={() => handleSelect(activeCharacter)} 
+							disabled={isCurrentlySelected}
+							className="w-full">
+							{isCurrentlySelected
+								? t("selector.selectedButtonText", "persona")
+								: t("selector.selectButtonText", "persona")}
+						</VSCodeButton>
+					</div>
+				)}
 			</div>
 		</div>
 	)

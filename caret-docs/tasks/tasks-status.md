@@ -7,6 +7,11 @@
   - 요약: AI 페르소나 시스템 복구 및 개선
   [002-01-plan-persona-feature-restoration.md](./002-01-plan-persona-feature-restoration.md) 
 
+### Alpha (담당자)
+- **Task #012:** 테스트 커버리지 정상화 (일시 중단)
+  - 요약: 테스트 실패 분석 및 임시 해결책 적용, 일부 테스트 파일의 실패 테스트 skip 처리
+  [012-01-test-coverage-normalization.md](./012-01-test-coverage-normalization.md)
+
 ### justin (담당자)
 
 ## 대기 중인 작업 (Pending)

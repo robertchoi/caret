@@ -25,6 +25,10 @@
 		"learnMoreCaretGit": "Caret GitHub에서 더 알아보기"
 	},
 	"rules": {
+		"section.personaManagement": "페르소나 관리",
+		"button.selectPersonaTemplate": "페르소나 템플릿 선택",
+		"button.changePersonaTemplate": "페르소나 템플릿 변경",
+		"section.globalRules": "전역 규칙",
 		"title": "Cline 규칙 및 워크플로우 관리",
 		"globalRules": "전역 규칙",
 		"workspaceRules": "워크스페이스 규칙",

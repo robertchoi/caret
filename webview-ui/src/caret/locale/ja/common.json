@@ -36,7 +36,11 @@
 		"caretrules": "Caretルール (.caretrules)",
 		"clinerules": "Clineルール (.clinerules)",
 		"cursorrules": "Cursorルール (.cursorrules)",
-		"windsurfrules": "Windsurfルール (.windsurfrules)"
+		"windsurfrules": "Windsurfルール (.windsurfrules)",
+		"section.personaManagement": "ペルソナ管理",
+    	"button.selectPersonaTemplate": "ペルソナテンプレートを選択",
+    	"button.changePersonaTemplate": "ペルソナテンプレートを変更",
+    	"section.globalRules": "グローバルルール"
 	},
 	"settings": {
 		"uiLanguage": {

@@ -148,6 +148,26 @@
 - **백업**: Cline 원본 파일 `src/shared/WebviewMessage.ts`, `src/core/controller/index.ts` 수정 전 백업 파일 생성 완료.
 - **CARET MODIFICATION 주석**: 상기 Cline 원본 파일 수정 시 주석 추가 (현재 진행 중 - 완전성 및 정확성 검토 필요).
 
+### 현재 미해결 문제 (2025-06-25)
+
+#### 1. 페르소나 이미지가 여전히 로드되지 않음
+- **문제 상황**: `asset:` 스키마 이미지가 CSP(Content Security Policy) 위반으로 로드되지 않음
+- **시도한 해결책**:
+  - CSP 설정에 `asset:` 스키마 명시적으로 추가 (`CaretProvider.ts`)
+  - 와일드카드 `*`를 추가하여 CSP 정책 확장
+  - 로그 추가하여 디버깅 (`CSP img-src 값을 콘솔에 출력`)
+  - `fixImageUri` 함수로 `asset:` 스키마를 일반 경로로 변환 시도
+- **남은 이슈**: 이러한 변경에도 불구하고 이미지가 여전히 표시되지 않음
+- **추가 조사 방향**: VSCode 웹뷰의 CSP 처리 방식, 실제 적용되는 CSP 헤더 검사, `vscode-resource:` 스키마 활용 검토
+
+#### 2. PersonaManagement의 번역(i18n)이 적용되지 않음
+- **문제 상황**: `rules.section.personaManagement`, `persona.normalState`, `persona.thinkingState` 등의 키를 사용한 번역이 표시되지 않고 키 그대로 노출됨
+- **확인 사항**:
+  - 번역 키가 `common.json`과 `persona.json` 파일에 올바르게 존재함
+  - `t()` 함수 사용법은 정확함
+  - 다른 UI 요소의 번역은 정상 작동함
+- **추가 조사 방향**: 네임스페이스 설정 확인, 웹뷰에서 locale 파일 로드 여부 검사, i18n 초기화 시점 검토
+
 ---
 ### ⚠️ 현재까지 작업 현황 및 문제점 (다른 AI 모델 인계용)
 
@@ -221,6 +241,16 @@
 
 3. 템플릿 페르소나 선택 창
  - 템플릿 패르소나 선택은 세로 스크롤로 하지말고 4개의 캐릭터 탭으로 표기 하여 선택하게 할 수 있게 할 것 (4개 단위로 아래로 추가 되도록 디자인)
- - `002-5-persona-template-ui-implementation-persona-selector.jpg` 참고
+  `002-5-persona-template-ui-implementation-persona-selector.jpg` 참고
+ - 현재는 아래로 죽 늘어선 모양이고, 제대로 이미지 로딩 되지 않음
+ - 아래는 로그
+ Refused to load the image 'asset:/assets/template_characters/sarang.png' because it violates the following Content Security Policy directive: "img-src 'self' https://*.vscode-cdn.net https: data:".
 
+19:48:31.160 index.html:1 Refused to load the image 'asset:/assets/template_characters/ichika.png' because it violates the following Content Security Policy directive: "img-src 'self' https://*.vscode-cdn.net https: data:".
+
+19:48:31.160 index.html:1 Refused to load the image 'asset:/assets/template_characters/cyan.png' because it violates the following Content Security Policy directive: "img-src 'self' https://*.vscode-cdn.net https: data:".
+
+19:48:31.160 index.html:1 Refused to load the image 'asset:/assets/template_characters/ubuntu.png' because it violates the following Content Security Policy directive: "img-src 'self' https://*.vscode-cdn.net https: data:".
+
+19:48:36.837 index.html:1 [Deprecation] Custom state pseudo classes have been changed from ":--visual-viewport-height" to ":state(visual-viewport-height)". See more here: https://github.com/w3c/csswg-drafts/issues/4805
  

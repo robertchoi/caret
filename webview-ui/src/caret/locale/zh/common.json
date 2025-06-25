@@ -25,6 +25,10 @@
 		"learnMoreCaretGit": "在Caret GitHub上了解更多"
 	},
 	"rules": {
+		"section.personaManagement": "角色管理",
+    	"button.selectPersonaTemplate": "选择角色模板",
+    	"button.changePersonaTemplate": "更改角色模板",
+    "section.globalRules": "全局规则",
 		"title": "Cline规则和工作流管理",
 		"globalRules": "全局规则",
 		"workspaceRules": "工作区规则",

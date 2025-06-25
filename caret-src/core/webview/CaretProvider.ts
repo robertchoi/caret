@@ -116,6 +116,7 @@ export class CaretProvider extends ClineWebviewProvider {
 	}
 
 	protected override getHtmlContent(webview: vscode.Webview): string {
+		// Get the original HTML content
 		const originalHtml = super.getHtmlContent(webview)
 		let caretBannerDataUri = ""
 		try {
@@ -124,12 +125,36 @@ export class CaretProvider extends ClineWebviewProvider {
 		} catch (e) {
 			/* ignore */
 		}
-
+		
+		// Update the title
 		let updatedHtml = originalHtml.replace(/<title>Cline<\/title>/, `<title>Caret</title>`)
+		
+		// Add caret banner for the UI
 		updatedHtml = updatedHtml.replace(
 			`window.clineClientId = "\${this.clientId}";`,
-			`window.clineClientId = "\${this.clientId}";\n                    window.caretBanner = "${caretBannerDataUri}";`,
+			`window.clineClientId = "\${this.clientId}";
+                    window.caretBanner = "${caretBannerDataUri}";`,
 		)
+		
+		// Update Content-Security-Policy to allow data: URLs and asset URLs for persona images
+		updatedHtml = updatedHtml.replace(
+			/content="([^"]*)"/,
+			(match, csp) => {
+				// Only modify the img-src policy
+				const policies = csp.split('; ')
+				const updatedPolicies = policies.map(policy => {
+					if (policy.startsWith('img-src')) {
+						// CARET MODIFICATION: 이미지 로딩을 위한 CSP 설정 강화
+						const imgSrcValue = `img-src 'self' ${webview.cspSource} https://*.vscode-cdn.net https: data: blob: asset: vscode-resource: *`;
+						console.log('[CaretProvider] Setting CSP img-src:', imgSrcValue);
+						return imgSrcValue
+				}
+					return policy
+				})
+				return `content="${updatedPolicies.join('; ')}"`
+			}
+		)
+		
 		return updatedHtml
 	}
 
@@ -139,6 +164,7 @@ export class CaretProvider extends ClineWebviewProvider {
 	}
 
 	protected override async getHMRHtmlContent(webview: vscode.Webview): Promise<string> {
+		// Get the original HMR HTML content
 		const originalHtml = await super.getHMRHtmlContent(webview)
 		let caretBannerDataUri = ""
 		try {
@@ -148,11 +174,29 @@ export class CaretProvider extends ClineWebviewProvider {
 			/* ignore */
 		}
 
+		// Update the title
 		let updatedHtml = originalHtml.replace(/<title>Cline<\/title>/, `<title>Caret</title>`)
+		
+		// Add caret banner for the UI
 		updatedHtml = updatedHtml.replace(
 			`window.clineClientId = "\${this.clientId}";`,
-			`window.clineClientId = "\${this.clientId}";\n\t\t\t\t\t\twindow.caretBanner = "${caretBannerDataUri}";`,
+			`window.clineClientId = "\${this.clientId}";
+						window.caretBanner = "${caretBannerDataUri}";`,
 		)
+		
+		// Update Content-Security-Policy for HMR mode to allow data: URLs and asset URLs
+		const cspRegex = /const csp = \[(.*?)\]/s  // Use 's' flag for multiline matching
+		if (cspRegex.test(updatedHtml)) {
+			updatedHtml = updatedHtml.replace(cspRegex, (match, cspContent) => {
+				// Find and replace the img-src line
+				const updatedCspContent = cspContent.replace(
+					/`img-src [^`]+`/,
+					`\`img-src 'self' \${webview.cspSource} https://*.vscode-cdn.net https: data: blob: asset: vscode-resource:\``
+				)
+				return `const csp = [${updatedCspContent}]`
+			})
+		}
+		
 		return updatedHtml
 	}
 }

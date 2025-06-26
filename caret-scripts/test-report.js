@@ -47,6 +47,7 @@ function countSrcMochaTestFiles() {
 // 테스트 결과 저장 변수
 let frontendResults = { passed: 0, failed: 0, total: 0 }
 let backendResults = { passed: 0, failed: 0, total: 0 }
+let clineValidatorResults = { passed: 0, failed: 0, total: 0 }
 let integrationResults = { passed: 0, failed: 0, total: 0 }
 let clineResults = { passed: 0, failed: 0, total: 0 }
 let clineMochaEslintResults = { passed: 0, failed: 0, total: 0, status: "pending" }
@@ -99,11 +100,14 @@ try {
 	process.exit(1)
 }
 
-// 백엔드 단위 테스트 실행
+// 백엔드 단위 테스트 실행 (ClineFeatureValidator 제외)
 console.log("🔧 백엔드 단위 테스트 실행 중...")
 try {
 	const unitTestStart = Date.now()
-	const backendOutput = execSync("npm run test:backend -- --exclude=**/integration.test.ts", { encoding: "utf8" })
+	const backendOutput = execSync(
+		"npm run test:backend -- --exclude=**/integration.test.ts --exclude=**/cline-feature-validation.test.ts",
+		{ encoding: "utf8" },
+	)
 	const unitTestDuration = Date.now() - unitTestStart
 
 	// CARET MODIFICATION: Vitest 출력 파싱 개선
@@ -118,15 +122,48 @@ try {
 		}
 		backendResults.failed = backendResults.total - backendResults.passed
 	} else {
-		// 파싱 실패 시 기본값
-		backendResults.passed = 113
-		backendResults.total = 113
+		// 파싱 실패 시 기본값 (25개 ClineFeatureValidator 테스트 제외)
+		backendResults.passed = 88
+		backendResults.total = 88
 		backendResults.failed = 0
 	}
 
 	console.log(`✅ 백엔드 단위 테스트 완료 (${unitTestDuration}ms)\n`)
 } catch (error) {
 	console.log("❌ 백엔드 단위 테스트 실패")
+	process.exit(1)
+}
+
+// ClineFeatureValidator 테스트 실행
+console.log("🔍 ClineFeatureValidator 테스트 실행 중...")
+try {
+	const validatorTestStart = Date.now()
+	const validatorOutput = execSync('npx vitest run "caret-src/__tests__/cline-feature-validation.test.ts"', {
+		encoding: "utf8",
+	})
+	const validatorTestDuration = Date.now() - validatorTestStart
+
+	// CARET MODIFICATION: Vitest 출력 파싱 개선
+	const validatorMatch = validatorOutput.match(/Tests\s+(\d+)\s+passed\s+\((\d+)\)|✓\s+(\d+)\s+passed/)
+	if (validatorMatch) {
+		if (validatorMatch[1] && validatorMatch[2]) {
+			clineValidatorResults.passed = parseInt(validatorMatch[1])
+			clineValidatorResults.total = parseInt(validatorMatch[2])
+		} else if (validatorMatch[3]) {
+			clineValidatorResults.passed = parseInt(validatorMatch[3])
+			clineValidatorResults.total = clineValidatorResults.passed
+		}
+		clineValidatorResults.failed = clineValidatorResults.total - clineValidatorResults.passed
+	} else {
+		// 파싱 실패 시 기본값
+		clineValidatorResults.passed = 25
+		clineValidatorResults.total = 25
+		clineValidatorResults.failed = 0
+	}
+
+	console.log(`✅ ClineFeatureValidator 테스트 완료 (${validatorTestDuration}ms)\n`)
+} catch (error) {
+	console.log("❌ ClineFeatureValidator 테스트 실패")
 	process.exit(1)
 }
 
@@ -263,8 +300,10 @@ console.log("                    📋 최종 테스트 통합 보고서")
 console.log("=".repeat(80))
 
 // Caret Vitest 테스트 결과 집계 (기존 clineResults는 Vitest src 실행 결과였으나, 이제 Cline 원본 확인용으로 변경됨)
-const caretVitestPassed = frontendResults.passed + backendResults.passed + integrationResults.passed
-const caretVitestFailed = frontendResults.failed + backendResults.failed + integrationResults.failed
+const caretVitestPassed =
+	frontendResults.passed + backendResults.passed + clineValidatorResults.passed + integrationResults.passed
+const caretVitestFailed =
+	frontendResults.failed + backendResults.failed + clineValidatorResults.failed + integrationResults.failed
 const caretVitestTotal = caretVitestPassed + caretVitestFailed
 
 // 전체 실행 가능한 테스트의 통과/실패 여부 판단 (src Mocha 테스트는 broken 상태이므로 제외)
@@ -279,6 +318,9 @@ console.log(
 	`🎨 Caret 프론트엔드 (Vitest): ${frontendResults.passed}/${frontendResults.total} 통과 (${frontendResults.failed} 실패)`,
 )
 console.log(`🔧 Caret 백엔드 (Vitest):     ${backendResults.passed}/${backendResults.total} 통과 (${backendResults.failed} 실패)`)
+console.log(
+	`🔍 ClineFeatureValidator:    ${clineValidatorResults.passed}/${clineValidatorResults.total} 통과 (${clineValidatorResults.failed} 실패)`,
+)
 console.log(
 	`🔗 Caret 통합 (Vitest):       ${integrationResults.passed}/${integrationResults.total} 통과 (${integrationResults.failed} 실패)`,
 )

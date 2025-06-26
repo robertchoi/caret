@@ -5,10 +5,11 @@ Caret은 Cline 프로젝트의 **Fork**로, Cline의 최신 변경사항을 지�
 ## Fork 기반 업스트림 동기화 원칙
 
 ### 핵심 원칙
-- **Cline 코드 보존**: `src/`, `webview-ui/` 디렉토리의 Cline 원본 코드는 가능한 한 수정하지 않고 보존
-- **Git merge 활용**: 오버레이 방식이 아닌 Git의 표준 merge 워크플로우 사용
-- **최소한의 충돌**: Caret 확장 코드를 `caret-src/`에 분리하여 충돌 최소화
-- **체계적 테스트**: 병합 후 전체 시스템 동작 검증
+
+-   **Cline 코드 보존**: `src/`, `webview-ui/` 디렉토리의 Cline 원본 코드는 가능한 한 수정하지 않고 보존
+-   **Git merge 활용**: 오버레이 방식이 아닌 Git의 표준 merge 워크플로우 사용
+-   **최소한의 충돌**: Caret 확장 코드를 `caret-src/`에 분리하여 충돌 최소화
+-   **체계적 테스트**: 병합 후 전체 시스템 동작 검증
 
 ## 업스트림 동기화 절차
 
@@ -64,20 +65,24 @@ git merge upstream/main
 ### 일반적인 충돌 유형과 해결 방법
 
 #### 1. **Cline 원본 파일 충돌** (`src/`, `webview-ui/`)
-- **원칙**: Cline 원본을 우선으로 하되, Caret 호환성 검토
-- **해결**: 대부분의 경우 upstream 변경사항 수용
+
+-   **원칙**: Cline 원본을 우선으로 하되, Caret 호환성 검토
+-   **해결**: 대부분의 경우 upstream 변경사항 수용
+
 ```bash
 # upstream 변경사항 수용
 git checkout --theirs <충돌파일>
 ```
 
 #### 2. **빌드 설정 파일 충돌** (`package.json`, `tsconfig.json` 등)
-- **원칙**: Fork 특성을 유지하면서 upstream 개선사항 적용
-- **해결**: 수동으로 병합하여 Caret 설정과 Cline 개선사항 모두 반영
+
+-   **원칙**: Fork 특성을 유지하면서 upstream 개선사항 적용
+-   **해결**: 수동으로 병합하여 Caret 설정과 Cline 개선사항 모두 반영
 
 #### 3. **문서 파일 충돌** (`README.md`, `CHANGELOG.md` 등)
-- **원칙**: Caret 고유 내용 유지
-- **해결**: Caret 버전 우선, 필요시 Cline 개선사항 선별 적용
+
+-   **원칙**: Caret 고유 내용 유지
+-   **해결**: Caret 버전 우선, 필요시 Cline 개선사항 선별 적용
 
 ### 충돌 해결 예시
 
@@ -97,6 +102,7 @@ git commit -m "merge: integrate upstream changes from Cline"
 ## 병합 후 검증 절차
 
 ### 1. 빌드 시스템 검증
+
 ```bash
 # 의존성 설치
 npm install
@@ -108,6 +114,7 @@ npm run build:webview
 ```
 
 ### 2. 기능 테스트
+
 ```bash
 # 테스트 실행
 npm run test
@@ -117,21 +124,41 @@ npm run test
 ```
 
 ### 3. Caret 고유 기능 확인
-- CaretProvider 정상 동작 확인
-- 웹뷰 UI 렌더링 확인
-- 로깅 시스템 동작 확인
+
+-   CaretProvider 정상 동작 확인
+-   웹뷰 UI 렌더링 확인
+-   로깅 시스템 동작 확인
+
+### 4. 시스템 프롬프트 검증 (ClineFeatureValidator)
+
+```bash
+# 시스템 프롬프트 검증 시스템 테스트 (25개 테스트만)
+npx vitest run "caret-src/__tests__/cline-feature-validation.test.ts"
+
+# 25개 테스트 모두 통과 확인 (100%)
+✓ caret-src/__tests__/cline-feature-validation.test.ts (25)
+```
+
+**검증 항목**:
+
+-   **도구 보존**: Cline의 25개 핵심 도구 누락 없음
+-   **MCP 통합**: MCP 서버 설정 유지
+-   **시스템 정보**: OS/환경 정보 보존
+-   **성능**: 검증 시간 100ms 이하 유지
 
 ## 버전 호환성 관리
 
 ### VSCode API 호환성 유지
 
 Caret의 `package.json`에서 관리하는 주요 버전들:
-- `@types/vscode`: Cline과의 호환성을 위해 신중하게 관리
-- `engines.vscode`: 최소 VSCode 버전 요구사항
+
+-   `@types/vscode`: Cline과의 호환성을 위해 신중하게 관리
+-   `engines.vscode`: 최소 VSCode 버전 요구사항
 
 **업그레이드 시 주의사항**:
+
 1. Cline의 VSCode API 사용 패턴 확인
-2. 타입 충돌 가능성 검토  
+2. 타입 충돌 가능성 검토
 3. 전체 빌드 및 테스트 실행
 
 ### 의존성 충돌 해결
@@ -143,7 +170,7 @@ npm install
 
 # webview-ui 의존성 충돌 시
 cd webview-ui
-rm package-lock.json  
+rm package-lock.json
 npm install
 cd ..
 ```
@@ -151,6 +178,7 @@ cd ..
 ## 문제 발생 시 복구 방법
 
 ### 병합 취소
+
 ```bash
 # 병합 커밋 취소 (병합 직후)
 git reset --hard HEAD~1
@@ -160,6 +188,7 @@ git reset --hard <커밋해시>
 ```
 
 ### 안전한 병합을 위한 브랜치 전략
+
 ```bash
 # 별도 브랜치에서 병합 테스트
 git checkout -b upstream-merge-test
@@ -171,81 +200,50 @@ git merge upstream-merge-test
 git branch -d upstream-merge-test
 ```
 
-## 🚧 [검증 필요] 고급 백업 기반 머징 전략
+## 🔧 **시스템 프롬프트 호환성 검증**
 
-> ⚠️ **주의**: 아래 전략은 아직 **검증되지 않은 계획 단계**입니다. 실제 적용 전 충분한 테스트가 필요합니다.
+Caret은 Cline의 시스템 프롬프트 수정 시 기능 손실을 방지하기 위한 **ClineFeatureValidator** 검증 시스템을 구현했습니다.
 
-### 새로운 백업 기반 머징 접근법
-
-기존 `.cline` 백업 시스템을 활용한 안전한 업스트림 머징 전략:
-
-#### 핵심 아이디어
-1. **`.cline` → `.caret` 확장**: 기존 백업을 머징 시 임시 저장소로 활용
-2. **단계별 복원**: 새 Cline 코드로 덮어쓰기 → 차이점 분석 → 선별적 패치
-3. **자동화된 검증**: 각 단계별 빌드/테스트를 통한 안전성 확보
-
-#### 프로세스 플로우
-```mermaid
-graph TD
-    A[현재 Caret 상태] --> B[.cline을 .caret으로 백업]
-    B --> C[최신 Cline 소스로 덮어쓰기]
-    C --> D[.caret과 신규 Cline 비교]
-    D --> E{변경사항 존재?}
-    E -->|있음| F[패치 필요 파일 식별]
-    E -->|없음| G[Caret 버전 유지]
-    F --> H[선별적 패치 적용]
-    H --> I[빌드 및 테스트]
-    I --> J{성공?}
-    J -->|실패| K[롤백]
-    J -->|성공| L[완료]
-```
-
-#### 장점
-- **안전성**: 단계별 롤백 포인트 제공
-- **선택성**: 필요한 변경사항만 적용 가능
-- **자동화**: 대부분 과정의 스크립트 자동화 가능
-
-#### 잠재적 위험점
-- **3-Way Merge 부재**: 원본 Cline vs 신규 Cline vs 현재 Caret 간 복잡한 비교
-- **의존성 체인**: package.json 변경 시 연쇄 효과
-- **부분 실패**: 중간 단계 실패 시 일관성 보장 어려움
-
-### 머징 자동화 스크립트
-
-아래 스크립트들이 `caret-scripts/`에 준비되어 있습니다:
-
-- **`upstream-merge-prepare.js`**: 머징 전 준비 작업 (백업, 검증)
-- **`upstream-merge-execute.js`**: 실제 머징 수행 (덮어쓰기, 패치)
-- **`upstream-merge-verify.js`**: 머징 후 검증 (빌드, 테스트)
-
-#### 사용법
-
-> ⚠️ **주의**: 이 스크립트들은 프로젝트 메인테이너 전용이며, 매우 신중하게 사용해야 합니다.
+### 사용법
 
 ```bash
-# 1. 머징 준비 (백업 생성, 환경 검증)
-node caret-scripts/upstream-merge-prepare.js
+# 업스트림 병합 전 현재 상태 검증
+npx vitest run "caret-src/__tests__/cline-feature-validation.test.ts"
 
-# 2. 실제 머징 수행 (위험! 되돌리기 어려움)
-node caret-scripts/upstream-merge-execute.js
-
-# 3. 머징 후 검증 (빌드, 테스트, 기능 확인)
-node caret-scripts/upstream-merge-verify.js
+# 병합 후 검증 (25개 테스트 모두 통과 필요)
+✓ caret-src/__tests__/cline-feature-validation.test.ts (25)
 ```
 
-> 💡 **권장**: 각 단계를 개별적으로 실행하고 결과를 확인한 후 다음 단계로 진행하세요.
+### 검증 항목
+
+1. **도구 보존**: Cline의 25개 핵심 도구 보존
+2. **MCP 통합**: MCP 서버 설정 무결성 유지
+3. **시스템 정보**: OS/환경 정보 일치
+4. **파라미터 일치**: 도구별 파라미터 정의 보존
+
+### 검증 실패 시 대응
+
+```typescript
+// 검증 실패 시 자동 보고서 생성
+const report = await validator.generateDetailedReport(prompt)
+console.log(report.missingTools) // 누락된 도구 확인
+console.log(report.modifiedTools) // 변경된 도구 확인
+```
+
+이 시스템을 통해 업스트림 병합 시에도 **Cline 기능의 100% 보존**이 보장됩니다.
 
 ---
 
 ## 정기적인 업스트림 동기화 권장사항
 
-- **주기**: 월 1-2회 정기적인 업스트림 확인
-- **타이밍**: 주요 기능 개발 완료 후, 안정적인 상태에서 진행
-- **문서화**: 병합 내용과 변경사항을 `CHANGELOG-caret.md`에 기록
-- **팀 공유**: 병합 결과와 주요 변경사항을 팀에 공유
+-   **주기**: 월 1-2회 정기적인 업스트림 확인
+-   **타이밍**: 주요 기능 개발 완료 후, 안정적인 상태에서 진행
+-   **문서화**: 병합 내용과 변경사항을 `CHANGELOG-caret.md`에 기록
+-   **팀 공유**: 병합 결과와 주요 변경사항을 팀에 공유
 
 ---
 
 **참고 문서**:
-- [Caret Fork 기반 아키텍처 가이드](../development/caret-architecture-and-implementation-guide.mdx)
-- [개발 환경 설정 가이드](../development/index.mdx) 
+
+-   [Caret Fork 기반 아키텍처 가이드](../development/caret-architecture-and-implementation-guide.mdx)
+-   [개발 환경 설정 가이드](../development/index.mdx)

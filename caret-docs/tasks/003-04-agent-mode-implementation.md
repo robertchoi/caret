@@ -12,11 +12,13 @@
 **핵심 목적**: caret-zero의 기존 JSON 시스템을 003-04 오버레이 시스템 기준에 맞게 평가/이전하고, Cline 기능 누락 없이 완전한 Agent 모드 구현
 
 ### **세부 목표**
-1. **caret-zero JSON 평가**: 기존 JSON 템플릿들의 품질과 완성도 검증
+1. **caret-zero JSON 평가**: 기존 JSON 템플릿들의 품질과 완성도 검증 및 보강
+  - caret-zero, cline, 혹은 AI가 인지하고 있는 cursor의 system_prompt들의 내용과도 교차 검증 검토
 2. **Cline 기능 보존**: web_fetch 등 누락된 기능 식별 및 복원
 3. **003-04 시스템 통합**: 오버레이 시스템 기준에 맞는 구조로 재구성
 4. **Plan/Act 완전 제거**: plan_mode_respond 등 잔존 제약사항 제거
 5. **하드코딩 JSON 변환**: 누락된 Cline 하드코딩 부분을 JSON으로 추가 변환
+
 
 ## ⚠️ **작업 범위 및 분할 고려사항**
 

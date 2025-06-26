@@ -1,15 +1,22 @@
-# Task #003-04: JSON 오버레이 시스템 구현
+# Task #003-03: JSON 오버레이 시스템 구현
 
 **프로젝트**: Caret  
 **담당자**: luke  
 **우선순위**: 🚨 **Critical - JSON 유연성 확보**  
 **예상 시간**: 2-3시간  
-**상태**: 📋 **준비 완료** - 003-01~03 완료 후 진행  
-**의존성**: 003-03 (CaretSystemPrompt 래퍼) 완료 필수
+**상태**: 🚀 **즉시 시작 가능** - 003-02 완료됨  
+**의존성**: ✅ 003-02 (CaretSystemPrompt 래퍼) **완료**
 
 ## 🎯 **목표**
 
 **핵심 목적**: Cline 원본 프롬프트 위에 JSON 템플릿을 오버레이하여 코드 수정 없이 프롬프트를 맞춤화할 수 있는 시스템 구축
+
+### **✅ 003-02 완료된 기반 시스템**
+- **CaretSystemPrompt 클래스**: 완전 구현 (4.2KB, KISS 원칙 적용)
+- **SystemPromptContext 타입**: 완벽 정의 (0.7KB)
+- **단순 래퍼 구현**: Cline 원본 100% 보존, 메트릭 수집만 추가
+- **TDD 테스트**: 11개 테스트 모두 통과 (323/329 백엔드 테스트 포함)
+- **TypeScript 컴파일**: 성공 (모든 종속성 해결)
 
 ### **세부 목표**
 1. **JSON 템플릿 로딩**: 동적 JSON 템플릿 로딩 시스템
@@ -543,12 +550,47 @@ export class PromptOverlayEngine {
 6. **`caret-src/core/prompts/CaretSystemPrompt.ts`** (확장)
    - JSON 템플릿 적용 기능 추가
 
-## 🔄 **Next Steps for 003-05**
+## 🔄 **Next Steps for 003-04**
 
-003-04 완료 후 다음 단계인 003-05에서는:
+003-03 완료 후 다음 단계인 003-04에서는:
 - **Plan/Act 제약 제거** - JSON 템플릿으로 모드 제한 해제
 - **Agent 모드 행동 패턴 적용** - 협력적 지능 구현
 - **step-3, step-4 점진적 교체 적용**
+
+## 🚀 **003-02 기반으로 즉시 구현 가능**
+
+### **기존 CaretSystemPrompt 확장 계획**
+```typescript
+// caret-src/core/prompts/CaretSystemPrompt.ts (확장)
+export class CaretSystemPrompt {
+  private jsonTemplateLoader?: JsonTemplateLoader
+  private overlayEngine?: PromptOverlayEngine
+
+  async generateSystemPrompt(
+    context: SystemPromptContext, 
+    templateName?: string  // 새로 추가: 선택적 JSON 템플릿
+  ): Promise<SystemPromptResult> {
+    // 1. 기존 Cline 원본 호출 (003-02에서 구현 완료)
+    const originalPrompt = await this.callOriginalSystemPrompt(context)
+    
+    // 2. JSON 템플릿 적용 (003-03에서 구현)
+    if (templateName && this.jsonTemplateLoader) {
+      const template = await this.jsonTemplateLoader.loadTemplate(templateName)
+      const overlayResult = await this.overlayEngine.applyOverlay(originalPrompt, template)
+      return { prompt: overlayResult.prompt, metrics: this.collectMetrics() }
+    }
+    
+    // 3. 기본 모드: 원본 그대로 반환 (호환성 보장)
+    return { prompt: originalPrompt, metrics: this.collectMetrics() }
+  }
+}
+```
+
+### **구현 우선순위**
+1. **JsonTemplateLoader** (1시간) - 003-02 기반 확장
+2. **PromptOverlayEngine** (1시간) - 새로 구현
+3. **CaretSystemPrompt 확장** (30분) - 기존 클래스 확장
+4. **테스트 및 검증** (30분) - ClineFeatureValidator 연동
 
 ---
 

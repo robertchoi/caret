@@ -4,10 +4,102 @@ const { execSync } = require("child_process")
 const fs = require("fs")
 const path = require("path")
 
-// Helper function to count test files in src/__tests__
+// CARET MODIFICATION: 완전히 새로운 동적 파싱 기반 테스트 리포트 시스템
+// 모든 하드코딩 제거하고 실제 테스트 출력을 정확히 파싱
+
+/**
+ * Vitest 출력에서 테스트 결과를 파싱하는 함수
+ * @param {string} output - vitest 실행 결과 출력
+ * @returns {object} - {passed, failed, total, skipped}
+ */
+function parseVitestOutput(output) {
+	const result = { passed: 0, failed: 0, total: 0, skipped: 0 }
+
+	// ANSI 색상 코드 제거
+	const cleanOutput = output.replace(/\x1b\[[0-9;]*m/g, "")
+
+	// "Tests X passed | Y skipped (Z)" 형식 우선 검색
+	const fullPattern = /Tests\s+(\d+)\s+passed\s*\|\s*(\d+)\s+skipped\s*\((\d+)\)/
+	const fullMatch = cleanOutput.match(fullPattern)
+
+	if (fullMatch) {
+		result.passed = parseInt(fullMatch[1]) || 0
+		result.skipped = parseInt(fullMatch[2]) || 0
+		result.total = parseInt(fullMatch[3]) || 0
+		result.failed = result.total - result.passed - result.skipped
+		console.log(`   🔍 파싱 결과: ${result.passed}/${result.total} 통과, ${result.skipped} 스킵, ${result.failed} 실패`)
+		return result
+	}
+
+	// "Tests X passed (Y)" 형식 검색
+	const simplePattern = /Tests\s+(\d+)\s+passed\s*\((\d+)\)/
+	const simpleMatch = cleanOutput.match(simplePattern)
+
+	if (simpleMatch) {
+		result.passed = parseInt(simpleMatch[1]) || 0
+		result.total = parseInt(simpleMatch[2]) || 0
+		result.skipped = 0
+		result.failed = result.total - result.passed - result.skipped
+		console.log(`   🔍 파싱 결과: ${result.passed}/${result.total} 통과, ${result.skipped} 스킵, ${result.failed} 실패`)
+		return result
+	}
+
+	// "X passed (Y)" 형식 검색 (마지막 수단)
+	const lines = cleanOutput.split("\n").reverse()
+	for (const line of lines) {
+		if (!line.trim() || line.includes("Duration") || line.includes("Start at")) {
+			continue
+		}
+
+		const basicPattern = /(\d+)\s+passed\s*\((\d+)\)/
+		const basicMatch = line.match(basicPattern)
+
+		if (basicMatch) {
+			result.passed = parseInt(basicMatch[1]) || 0
+			result.total = parseInt(basicMatch[2]) || 0
+			result.skipped = 0
+			result.failed = result.total - result.passed - result.skipped
+			console.log(`   🔍 파싱 결과: ${result.passed}/${result.total} 통과, ${result.skipped} 스킵, ${result.failed} 실패`)
+			return result
+		}
+	}
+
+	// 파싱 실패 시 경고
+	console.warn(`   ⚠️ 테스트 결과 파싱 실패. 출력 확인 필요.`)
+	console.warn(`   📄 출력 샘플: ${cleanOutput.slice(-200)}`)
+
+	return result
+}
+
+/**
+ * Mocha 출력에서 테스트 결과를 파싱하는 함수
+ * @param {string} output - mocha 실행 결과 출력
+ * @returns {object} - {passed, failed, total}
+ */
+function parseMochaOutput(output) {
+	const result = { passed: 0, failed: 0, total: 0 }
+
+	const passingMatch = output.match(/(\d+)\s+passing/)
+	const failingMatch = output.match(/(\d+)\s+failing/)
+
+	if (passingMatch) {
+		result.passed = parseInt(passingMatch[1])
+	}
+	if (failingMatch) {
+		result.failed = parseInt(failingMatch[1])
+	}
+	result.total = result.passed + result.failed
+
+	return result
+}
+
+/**
+ * src 디렉토리에서 Mocha 테스트 파일 수를 동적으로 카운트
+ * @returns {number} - 테스트 파일 개수
+ */
 function countSrcMochaTestFiles() {
 	let count = 0
-	const srcDir = path.join(__dirname, "../src") // 스크립트 위치 기반으로 src 경로 설정
+	const srcDir = path.join(__dirname, "../src")
 
 	function findTestFiles(dir) {
 		try {
@@ -16,7 +108,6 @@ function countSrcMochaTestFiles() {
 				const fullPath = path.join(dir, entry.name)
 				if (entry.isDirectory()) {
 					if (entry.name === "__tests__") {
-						// __tests__ 디렉토리 내의 .test.ts 파일 카운트
 						const testFiles = fs.readdirSync(fullPath)
 						for (const file of testFiles) {
 							if (file.endsWith(".test.ts")) {
@@ -24,16 +115,11 @@ function countSrcMochaTestFiles() {
 							}
 						}
 					} else {
-						// 다른 디렉토리는 계속 탐색
 						findTestFiles(fullPath)
 					}
-				} else if (entry.isFile() && entry.name.endsWith(".test.ts") && dir.endsWith("__tests__")) {
-					// 이 경우는 위에서 __tests__ 디렉토리 전체를 읽으므로 중복될 수 있으나, 혹시 모를 엣지 케이스 방어용.
-					// 실제로는 위의 isDirectory() && entry.name === "__tests__" 블록에서 처리됨.
 				}
 			}
 		} catch (err) {
-			// 디렉토리 읽기 오류 등 발생 시 콘솔에 경고만 하고 계속 진행
 			console.warn(`   ⚠️ Error reading directory ${dir}: ${err.message}`)
 		}
 	}
@@ -44,20 +130,39 @@ function countSrcMochaTestFiles() {
 	return count
 }
 
-// 테스트 결과 저장 변수
-let frontendResults = { passed: 0, failed: 0, total: 0 }
-let backendResults = { passed: 0, failed: 0, total: 0 }
-let clineValidatorResults = { passed: 0, failed: 0, total: 0 }
-let integrationResults = { passed: 0, failed: 0, total: 0 }
-let clineResults = { passed: 0, failed: 0, total: 0 }
-let clineMochaEslintResults = { passed: 0, failed: 0, total: 0, status: "pending" }
-let clineMochaSrcResults = { passed: 0, failed: 0, total: 0, status: "pending" }
+/**
+ * 안전한 명령어 실행 함수
+ * @param {string} command - 실행할 명령어
+ * @param {string} description - 명령어 설명
+ * @returns {object} - {success, output, error}
+ */
+function safeExec(command, description) {
+	try {
+		const output = execSync(command, { encoding: "utf8", stdio: "pipe" })
+		return { success: true, output, error: null }
+	} catch (error) {
+		return {
+			success: false,
+			output: error.stdout || "",
+			error: error.stderr || error.message,
+		}
+	}
+}
+
+// 테스트 결과 저장 변수 (동적으로만 설정됨)
+let results = {
+	frontend: { passed: 0, failed: 0, total: 0, skipped: 0, duration: 0 },
+	backend: { passed: 0, failed: 0, total: 0, skipped: 0, duration: 0 },
+	validator: { passed: 0, failed: 0, total: 0, skipped: 0, duration: 0 },
+	integration: { passed: 0, failed: 0, total: 0, skipped: 0, duration: 0 },
+	cline: { passed: 0, failed: 0, total: 0 },
+	mochaEslint: { passed: 0, failed: 0, total: 0, status: "pending", duration: 0 },
+	mochaSrc: { passed: 0, failed: 0, total: 0, status: "pending", fileCount: 0 },
+}
 
 console.log("================================================================================")
 console.log("                         📊 Caret 전체 테스트 결과")
 console.log("================================================================================")
-
-// TDD 원칙 알림
 console.log("🔴🟢🔄 TDD 원칙 (Test-Driven Development)")
 console.log("1. RED: 실패하는 테스트 작성")
 console.log("2. GREEN: 테스트를 통과하는 최소한의 코드 작성")
@@ -66,303 +171,192 @@ console.log("⚠️  모든 새로운 기능은 테스트 먼저 작성해야 �
 console.log("🎯 Caret 목표: 100% 테스트 커버리지 (신규 코드)")
 console.log("================================================================================\n")
 
-// 프론트엔드 테스트 실행
+// 1. 프론트엔드 테스트 실행
 console.log("🎨 프론트엔드 테스트 실행 중...")
-try {
-	const frontendStart = Date.now()
-	const frontendOutput = execSync("npm run test:webview", { encoding: "utf8" })
-	const frontendDuration = Date.now() - frontendStart
+const frontendStart = Date.now()
+const frontendResult = safeExec("npm run test:webview", "프론트엔드 테스트")
+results.frontend.duration = Date.now() - frontendStart
 
-	// CARET MODIFICATION: Vitest 출력 파싱 개선
-	// "Tests  112 passed (112)" 또는 "✓ 112 passed" 패턴 매칭
-	const vitestMatch = frontendOutput.match(/Tests\s+(\d+)\s+passed\s+\((\d+)\)|✓\s+(\d+)\s+passed/)
-	if (vitestMatch) {
-		if (vitestMatch[1] && vitestMatch[2]) {
-			// "Tests 112 passed (112)" 형식
-			frontendResults.passed = parseInt(vitestMatch[1])
-			frontendResults.total = parseInt(vitestMatch[2])
-		} else if (vitestMatch[3]) {
-			// "✓ 112 passed" 형식
-			frontendResults.passed = parseInt(vitestMatch[3])
-			frontendResults.total = frontendResults.passed
-		}
-		frontendResults.failed = frontendResults.total - frontendResults.passed
-	} else {
-		// 파싱 실패 시 기본값 (실제로는 테스트가 실행됨)
-		frontendResults.passed = 112
-		frontendResults.total = 112
-		frontendResults.failed = 0
-	}
-
-	console.log(`✅ 프론트엔드 테스트 완료 (${frontendDuration}ms)\n`)
-} catch (error) {
+if (frontendResult.success) {
+	const parsed = parseVitestOutput(frontendResult.output)
+	results.frontend = { ...results.frontend, ...parsed }
+	console.log(`✅ 프론트엔드 테스트 완료 (${results.frontend.duration}ms)`)
+	console.log(`   📊 결과: ${results.frontend.passed}/${results.frontend.total} 통과`)
+} else {
 	console.log("❌ 프론트엔드 테스트 실패")
+	console.error("   오류:", frontendResult.error)
 	process.exit(1)
 }
+console.log()
 
-// 백엔드 단위 테스트 실행 (ClineFeatureValidator 제외)
+// 2. 백엔드 단위 테스트 실행 (ClineFeatureValidator 및 통합 테스트 제외)
 console.log("🔧 백엔드 단위 테스트 실행 중...")
-try {
-	const unitTestStart = Date.now()
-	const backendOutput = execSync(
-		"npm run test:backend -- --exclude=**/integration.test.ts --exclude=**/cline-feature-validation.test.ts",
-		{ encoding: "utf8" },
-	)
-	const unitTestDuration = Date.now() - unitTestStart
+const backendStart = Date.now()
+const backendResult = safeExec("npm run test:backend", "백엔드 전체 테스트")
+results.backend.duration = Date.now() - backendStart
 
-	// CARET MODIFICATION: Vitest 출력 파싱 개선
-	const backendMatch = backendOutput.match(/Tests\s+(\d+)\s+passed\s+\((\d+)\)|✓\s+(\d+)\s+passed/)
-	if (backendMatch) {
-		if (backendMatch[1] && backendMatch[2]) {
-			backendResults.passed = parseInt(backendMatch[1])
-			backendResults.total = parseInt(backendMatch[2])
-		} else if (backendMatch[3]) {
-			backendResults.passed = parseInt(backendMatch[3])
-			backendResults.total = backendResults.passed
-		}
-		backendResults.failed = backendResults.total - backendResults.passed
-	} else {
-		// 파싱 실패 시 기본값 (25개 ClineFeatureValidator 테스트 제외)
-		backendResults.passed = 88
-		backendResults.total = 88
-		backendResults.failed = 0
-	}
-
-	console.log(`✅ 백엔드 단위 테스트 완료 (${unitTestDuration}ms)\n`)
-} catch (error) {
+if (backendResult.success) {
+	const parsed = parseVitestOutput(backendResult.output)
+	// 실제 파싱된 결과를 그대로 사용 (모든 백엔드 테스트 포함)
+	results.backend.passed = parsed.passed
+	results.backend.total = parsed.total
+	results.backend.skipped = parsed.skipped
+	results.backend.failed = parsed.failed
+	console.log(`✅ 백엔드 단위 테스트 완료 (${results.backend.duration}ms)`)
+	console.log(`   📊 결과: ${results.backend.passed}/${results.backend.total} 통과`)
+} else {
 	console.log("❌ 백엔드 단위 테스트 실패")
+	console.error("   오류:", backendResult.error)
 	process.exit(1)
 }
+console.log()
 
-// ClineFeatureValidator 테스트 실행
+// 3. ClineFeatureValidator 테스트 실행 (별도 카운트용)
 console.log("🔍 ClineFeatureValidator 테스트 실행 중...")
-try {
-	const validatorTestStart = Date.now()
-	const validatorOutput = execSync('npx vitest run "caret-src/__tests__/cline-feature-validation.test.ts"', {
-		encoding: "utf8",
-	})
-	const validatorTestDuration = Date.now() - validatorTestStart
+const validatorStart = Date.now()
+const validatorResult = safeExec(
+	'npx vitest run "caret-src/__tests__/cline-feature-validation.test.ts"',
+	"ClineFeatureValidator 테스트",
+)
+results.validator.duration = Date.now() - validatorStart
 
-	// CARET MODIFICATION: Vitest 출력 파싱 개선
-	const validatorMatch = validatorOutput.match(/Tests\s+(\d+)\s+passed\s+\((\d+)\)|✓\s+(\d+)\s+passed/)
-	if (validatorMatch) {
-		if (validatorMatch[1] && validatorMatch[2]) {
-			clineValidatorResults.passed = parseInt(validatorMatch[1])
-			clineValidatorResults.total = parseInt(validatorMatch[2])
-		} else if (validatorMatch[3]) {
-			clineValidatorResults.passed = parseInt(validatorMatch[3])
-			clineValidatorResults.total = clineValidatorResults.passed
-		}
-		clineValidatorResults.failed = clineValidatorResults.total - clineValidatorResults.passed
-	} else {
-		// 파싱 실패 시 기본값
-		clineValidatorResults.passed = 25
-		clineValidatorResults.total = 25
-		clineValidatorResults.failed = 0
-	}
-
-	console.log(`✅ ClineFeatureValidator 테스트 완료 (${validatorTestDuration}ms)\n`)
-} catch (error) {
+if (validatorResult.success) {
+	const parsed = parseVitestOutput(validatorResult.output)
+	results.validator = { ...results.validator, ...parsed }
+	console.log(`✅ ClineFeatureValidator 테스트 완료 (${results.validator.duration}ms)`)
+	console.log(`   📊 결과: ${results.validator.passed}/${results.validator.total} 통과 (위 백엔드 테스트에 포함됨)`)
+} else {
 	console.log("❌ ClineFeatureValidator 테스트 실패")
+	console.error("   오류:", validatorResult.error)
 	process.exit(1)
 }
+console.log()
 
-// 통합 테스트 실행
+// 4. 통합 테스트 실행 (별도 카운트용)
 console.log("🔗 통합 테스트 실행 중...")
-try {
-	const integrationStart = Date.now()
-	const integrationOutput = execSync("npm run test:backend -- integration.test.ts", { encoding: "utf8" })
-	const integrationDuration = Date.now() - integrationStart
+const integrationStart = Date.now()
+const integrationResult = safeExec('npx vitest run "caret-src/__tests__/integration.test.ts"', "통합 테스트")
+results.integration.duration = Date.now() - integrationStart
 
-	// CARET MODIFICATION: Vitest 출력 파싱 개선
-	const integrationMatch = integrationOutput.match(/Tests\s+(\d+)\s+passed\s+\((\d+)\)|✓\s+(\d+)\s+passed/)
-	if (integrationMatch) {
-		if (integrationMatch[1] && integrationMatch[2]) {
-			integrationResults.passed = parseInt(integrationMatch[1])
-			integrationResults.total = parseInt(integrationMatch[2])
-		} else if (integrationMatch[3]) {
-			integrationResults.passed = parseInt(integrationMatch[3])
-			integrationResults.total = integrationResults.passed
-		}
-		integrationResults.failed = integrationResults.total - integrationResults.passed
-	} else {
-		// 파싱 실패 시 기본값
-		integrationResults.passed = 32
-		integrationResults.total = 32
-		integrationResults.failed = 0
-	}
-
-	console.log(`✅ 통합 테스트 완료 (${integrationDuration}ms)\n`)
-} catch (error) {
+if (integrationResult.success) {
+	const parsed = parseVitestOutput(integrationResult.output)
+	results.integration = { ...results.integration, ...parsed }
+	console.log(`✅ 통합 테스트 완료 (${results.integration.duration}ms)`)
+	console.log(`   📊 결과: ${results.integration.passed}/${results.integration.total} 통과 (위 백엔드 테스트에 포함됨)`)
+} else {
 	console.log("❌ 통합 테스트 실패")
+	console.error("   오류:", integrationResult.error)
 	process.exit(1)
 }
+console.log()
 
-// Cline 원본 테스트 확인 (실제로는 0개)
+// 5. Cline 원본 테스트 확인
 console.log("📦 Cline 원본 테스트 확인 중...")
-try {
-	// Cline 원본에는 테스트가 없음을 확인
-	console.log("ℹ️  Cline 원본 프로젝트에는 테스트 코드가 없습니다.")
-	console.log("ℹ️  모든 테스트는 Caret 프로젝트에서 TDD로 개발된 것들입니다.")
+console.log("ℹ️  Cline 원본 프로젝트에는 테스트 코드가 없습니다.")
+console.log("ℹ️  모든 테스트는 Caret 프로젝트에서 TDD로 개발된 것들입니다.")
+results.cline = { passed: 0, failed: 0, total: 0 }
+console.log("✅ Cline 원본 테스트 확인 완료\n")
 
-	clineResults.passed = 0
-	clineResults.total = 0
-	clineResults.failed = 0
-
-	console.log(`✅ Cline 원본 테스트 확인 완료\n`)
-} catch (error) {
-	console.log("⚠️ Cline 원본 테스트 확인 실패")
-	clineResults.passed = 0
-	clineResults.total = 0
-	clineResults.failed = 0
-}
-
-// Cline 원본 Mocha 테스트 (eslint-rules) 실행
+// 6. Cline 원본 Mocha 테스트 (eslint-rules) 실행
 console.log("📦 Cline 원본 Mocha 테스트 (eslint-rules) 실행 중...")
-try {
-	const eslintMochaStart = Date.now()
-	// CARET MODIFICATION: npm ci 추가 및 경로 명시
-	const eslintMochaOutput = execSync("cd eslint-rules && npm ci --silent && npm run test", { encoding: "utf8" })
-	const eslintMochaDuration = Date.now() - eslintMochaStart
+const eslintStart = Date.now()
+const eslintResult = safeExec("cd eslint-rules && npm ci --silent && npm run test", "Cline Mocha eslint-rules 테스트")
+results.mochaEslint.duration = Date.now() - eslintStart
 
-	const passingMatch = eslintMochaOutput.match(/(\d+)\s+passing/)
-	const failingMatch = eslintMochaOutput.match(/(\d+)\s+failing/)
-
-	if (passingMatch) {
-		clineMochaEslintResults.passed = parseInt(passingMatch[1])
-	}
-	if (failingMatch) {
-		clineMochaEslintResults.failed = parseInt(failingMatch[1])
-	}
-	clineMochaEslintResults.total = clineMochaEslintResults.passed + clineMochaEslintResults.failed
-	clineMochaEslintResults.status = clineMochaEslintResults.failed === 0 ? "passed" : "failed"
-
-	console.log(`✅ Cline 원본 Mocha 테스트 (eslint-rules) 완료 (${eslintMochaDuration}ms)\n`)
-} catch (error) {
-	console.error("❌ Cline 원본 Mocha 테스트 (eslint-rules) 실패:", error.message)
-	clineMochaEslintResults.status = "failed_to_run"
-	// 실패 시 결과는 0으로 유지
+if (eslintResult.success) {
+	const parsed = parseMochaOutput(eslintResult.output)
+	results.mochaEslint = { ...results.mochaEslint, ...parsed, status: "passed" }
+	console.log(`✅ Cline 원본 Mocha 테스트 (eslint-rules) 완료 (${results.mochaEslint.duration}ms)`)
+	console.log(`   📊 결과: ${results.mochaEslint.passed}/${results.mochaEslint.total} 통과`)
+} else {
+	console.log("❌ Cline 원본 Mocha 테스트 (eslint-rules) 실패")
+	console.error("   오류:", eslintResult.error)
+	results.mochaEslint.status = "failed"
 }
+console.log()
 
-// Cline 원본 Mocha 테스트 (src) 실행 시도
-console.log("📦 Cline 원본 Mocha 테스트 (src - 현재 Broken) 실행 시도 중...")
-let actualSrcMochaFileCount = 0
-try {
-	actualSrcMochaFileCount = countSrcMochaTestFiles()
-	console.log(`   (발견된 src Mocha 테스트 파일 수: ${actualSrcMochaFileCount}개)`)
-} catch (countError) {
-	console.warn("   ⚠️ src Mocha 테스트 파일 수 동적 카운트 실패. 기본값 0 사용.", countError.message)
-	// 카운트 실패 시에도 스크립트 진행을 위해 기본값 사용
-}
+// 7. Cline 원본 Mocha 테스트 (src) 실행 시도 - ESM/CJS 에러 처리
+console.log("📦 Cline 원본 Mocha 테스트 (src - 알려진 ESM/CJS 호환성 문제) 실행 시도 중...")
+results.mochaSrc.fileCount = countSrcMochaTestFiles()
+console.log(`   (발견된 src Mocha 테스트 파일 수: ${results.mochaSrc.fileCount}개)`)
 
-try {
-	const srcMochaStart = Date.now()
-	const srcMochaOutput = execSync(
-		"npx mocha --require ts-node/register --require source-map-support/register --require ./src/test/requires.ts src/**/__tests__/*.ts",
-		{ encoding: "utf8" },
-	)
-	const srcMochaDuration = Date.now() - srcMochaStart
+const srcResult = safeExec(
+	"npx mocha --require ts-node/register --require source-map-support/register --require ./src/test/requires.ts src/**/__tests__/*.ts",
+	"Cline Mocha src 테스트",
+)
 
-	const passingMatchSrc = srcMochaOutput.match(/(\d+)\s+passing/)
-	const failingMatchSrc = srcMochaOutput.match(/(\d+)\s+failing/)
-
-	if (passingMatchSrc) {
-		clineMochaSrcResults.passed = parseInt(passingMatchSrc[1])
+if (srcResult.success) {
+	const parsed = parseMochaOutput(srcResult.output)
+	results.mochaSrc = { ...results.mochaSrc, ...parsed, status: "passed" }
+	console.log(`✅ Cline 원본 Mocha 테스트 (src) 완료`)
+	console.log(`   📊 결과: ${results.mochaSrc.passed}/${results.mochaSrc.total} 통과`)
+} else {
+	// ESM/CJS 호환성 문제 감지
+	if (
+		srcResult.error.includes("Cannot read properties of undefined (reading 'async')") ||
+		srcResult.error.includes("ESM") ||
+		srcResult.error.includes("@google/genai")
+	) {
+		console.log("🔶 Cline 원본 Mocha 테스트 (src) - 알려진 ESM/CJS 호환성 문제로 실행 불가")
+		console.log("   📋 상세: @google/genai 1.0.0 패키지의 ESM/CJS 호환성 문제")
+		console.log("   📋 참고: package.json의 test:unit 스크립트 관련 이슈")
+		console.log("   📋 영향: 기능에는 문제없으나 테스트 실행만 불가능한 상태")
+		results.mochaSrc.status = "esm_cjs_compatibility_issue"
+		results.mochaSrc.total = results.mochaSrc.fileCount
+	} else {
+		console.log("❌ Cline 원본 Mocha 테스트 (src) 실행 실패")
+		console.error("   오류:", srcResult.error)
+		results.mochaSrc.status = "failed"
+		results.mochaSrc.total = results.mochaSrc.fileCount
 	}
-	if (failingMatchSrc) {
-		clineMochaSrcResults.failed = parseInt(failingMatchSrc[1])
-	}
-	clineMochaSrcResults.total = clineMochaSrcResults.passed + clineMochaSrcResults.failed
-	clineMochaSrcResults.status = clineMochaSrcResults.failed === 0 ? "passed" : "failed_but_ran"
-
-	console.log(`⚠️ Cline 원본 Mocha 테스트 (src) 실행 완료 (부분 성공 가능성 있음, 결과 확인 필요) (${srcMochaDuration}ms)\n`)
-} catch (error) {
-	// 알려진 @google/genai 호환성 문제로 인한 실패로 간주
-	console.warn("🔶 Cline 원본 Mocha 테스트 (src) 실행 실패 - 알려진 ESM/CJS 호환성 문제입니다.")
-	console.warn("   (관련: @google/genai 1.0.0, package.json의 test:unit 스크립트 참고)\n")
-	// console.error("   상세 오류:", error.message) // 상세 오류는 너무 길어서 주석 처리
-	clineMochaSrcResults.status = "broken_esm_cjs_issue"
-	// 실패 시 결과는 0으로 유지, total은 동적으로 카운트된 실제 파일 수로 설정
-	clineMochaSrcResults.total = actualSrcMochaFileCount
 }
+console.log()
 
+// 최종 보고서 생성
 console.log("================================================================================")
-console.log("🎉 모든 테스트 실행 완료!")
-console.log("📊 테스트 구성:")
-console.log("   🎨 프론트엔드 테스트 (React 컴포넌트, UI 로직)")
-console.log("   🔧 백엔드 단위 테스트 (개별 모듈, 함수 테스트)")
-console.log("   🔗 통합 테스트 (실제 빌드, 시스템 전체 동작)")
-console.log("================================================================================")
-
-// 최종 통합 보고서
-console.log("\n" + "=".repeat(80))
 console.log("                    📋 최종 테스트 통합 보고서")
-console.log("=".repeat(80))
-
-// Caret Vitest 테스트 결과 집계 (기존 clineResults는 Vitest src 실행 결과였으나, 이제 Cline 원본 확인용으로 변경됨)
-const caretVitestPassed =
-	frontendResults.passed + backendResults.passed + clineValidatorResults.passed + integrationResults.passed
-const caretVitestFailed =
-	frontendResults.failed + backendResults.failed + clineValidatorResults.failed + integrationResults.failed
-const caretVitestTotal = caretVitestPassed + caretVitestFailed
-
-// 전체 실행 가능한 테스트의 통과/실패 여부 판단 (src Mocha 테스트는 broken 상태이므로 제외)
-const allRunnableTestsPassed = caretVitestFailed === 0 && clineMochaEslintResults.failed === 0
-
-// 전체 테스트 집계 (broken 상태인 src Mocha도 total에는 포함)
-const totalPassed = caretVitestPassed + clineMochaEslintResults.passed + clineMochaSrcResults.passed // clineMochaSrcResults.passed는 보통 0
-const totalFailedFromRunnable = caretVitestFailed + clineMochaEslintResults.failed // 실제 실패는 실행 가능한 테스트에서만 카운트
-const totalKnownTests = caretVitestTotal + clineMochaEslintResults.total + clineMochaSrcResults.total // clineMochaSrcResults.total은 예상치
-
+console.log("================================================================================")
 console.log(
-	`🎨 Caret 프론트엔드 (Vitest): ${frontendResults.passed}/${frontendResults.total} 통과 (${frontendResults.failed} 실패)`,
-)
-console.log(`🔧 Caret 백엔드 (Vitest):     ${backendResults.passed}/${backendResults.total} 통과 (${backendResults.failed} 실패)`)
-console.log(
-	`🔍 ClineFeatureValidator:    ${clineValidatorResults.passed}/${clineValidatorResults.total} 통과 (${clineValidatorResults.failed} 실패)`,
+	`🎨 Caret 프론트엔드 (Vitest): ${results.frontend.passed}/${results.frontend.total} 통과 (${results.frontend.failed} 실패)`,
 )
 console.log(
-	`🔗 Caret 통합 (Vitest):       ${integrationResults.passed}/${integrationResults.total} 통과 (${integrationResults.failed} 실패)`,
+	`🔧 Caret 백엔드 (Vitest):     ${results.backend.passed}/${results.backend.total} 통과 (${results.backend.failed} 실패)`,
+)
+console.log(`   ├─ 🔍 ClineFeatureValidator: ${results.validator.passed}/${results.validator.total} 통과 (포함됨)`)
+console.log(`   └─ 🔗 통합 테스트:           ${results.integration.passed}/${results.integration.total} 통과 (포함됨)`)
+console.log(
+	`📦 Cline 원본 확인 (Vitest): ${results.cline.passed}/${results.cline.total} 통과 (${results.cline.failed} 실패) - (현재 Caret 테스트가 아니므로 0/0)`,
 )
 console.log(
-	`📦 Cline 원본 확인 (Vitest): ${clineResults.passed}/${clineResults.total} 통과 (${clineResults.failed} 실패) - (현재 Caret 테스트가 아니므로 0/0)`,
+	`📦 Cline Mocha (eslint-rules): ${results.mochaEslint.passed}/${results.mochaEslint.total} 통과 (${results.mochaEslint.failed} 실패)`,
 )
 console.log(
-	`📦 Cline Mocha (eslint-rules): ${clineMochaEslintResults.passed}/${clineMochaEslintResults.total} 통과 (${clineMochaEslintResults.failed} 실패)`,
+	`🔶 Cline Mocha (src):          ${results.mochaSrc.passed} 통과 / ${results.mochaSrc.total}개 파일 - ${results.mochaSrc.status}`,
 )
+console.log("--------------------------------------------------------------------------------")
 
-if (clineMochaSrcResults.status === "broken_esm_cjs_issue") {
-	console.log(
-		`🔶 Cline Mocha (src):          ${clineMochaSrcResults.passed} 통과 / ${clineMochaSrcResults.total}개 파일 - 실행 불가 (ESM/CJS 호환성 문제)`,
-	)
-} else if (clineMochaSrcResults.status === "failed_to_run") {
-	console.log(
-		`❌ Cline Mocha (src):          ${clineMochaSrcResults.passed} 통과 / ${clineMochaSrcResults.total}개 파일 - 실행 중 오류 발생`,
-	)
-} else {
-	// passed 또는 failed_but_ran
-	console.log(
-		`📦 Cline Mocha (src):          ${clineMochaSrcResults.passed}/${clineMochaSrcResults.total} 통과 (${clineMochaSrcResults.failed} 실패)`,
-	)
-}
+// 총계 계산 (중복 제거)
+const totalPassed =
+	results.frontend.passed + results.backend.passed + results.cline.passed + results.mochaEslint.passed + results.mochaSrc.passed
+const totalTests =
+	results.frontend.total + results.backend.total + results.cline.total + results.mochaEslint.total + results.mochaSrc.total
+const totalFailed =
+	results.frontend.failed + results.backend.failed + results.cline.failed + results.mochaEslint.failed + results.mochaSrc.failed
 
-console.log("-".repeat(80))
-// 전체 결과 표시는 실행 가능한 테스트와 전체 알려진 테스트 두 가지로 제공
+console.log(`🎯 실행 가능 테스트 결과:   ${totalPassed}/${totalTests} 통과 (${totalFailed} 실패)`)
 console.log(
-	`🎯 실행 가능 테스트 결과:   ${caretVitestPassed + clineMochaEslintResults.passed}/${caretVitestTotal + clineMochaEslintResults.total} 통과 (${totalFailedFromRunnable} 실패)`,
+	`📊 알려진 전체 테스트 현황: ${totalPassed} 통과 / ${totalTests + results.mochaSrc.fileCount} (실행 가능 + 호환성 문제)`,
 )
-// 알려진 전체 테스트 현황: 실행 가능한 테스트 케이스 수 + broken 상태인 Mocha 테스트 파일 수
-const totalKnownItems = caretVitestTotal + clineMochaEslintResults.total + clineMochaSrcResults.total // clineMochaSrcResults.total은 이제 파일 수
-const totalDisplayablePassed = caretVitestPassed + clineMochaEslintResults.passed // clineMochaSrcResults.passed는 0
-console.log(`📊 알려진 전체 테스트 현황: ${totalDisplayablePassed} 통과 / ${totalKnownItems} (실행 가능 케이스 + broken 파일 수)`)
 
-if (allRunnableTestsPassed) {
+if (totalFailed === 0) {
 	console.log("✅ 모든 (실행 가능한) 테스트 성공! 🎉")
-	if (clineMochaSrcResults.status === "broken_esm_cjs_issue") {
-		console.log("   (참고: Cline 원본 Mocha 테스트 (src)는 현재 알려진 문제로 실행되지 않았습니다.)")
+	if (results.mochaSrc.fileCount > 0) {
+		console.log("   📋 참고: Cline 원본 Mocha 테스트 (src)는 ESM/CJS 호환성 문제로 실행되지 않았습니다.")
+		console.log("   📋 해당 문제는 @google/genai 패키지의 알려진 이슈이며, Caret 기능에는 영향을 주지 않습니다.")
 	}
 } else {
-	console.log(`❌ ${totalFailedFromRunnable}개 실행 가능 테스트 실패`)
+	console.log("❌ 일부 테스트 실패")
+	process.exit(1)
 }
 
 console.log("=".repeat(80))

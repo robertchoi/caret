@@ -273,6 +273,13 @@ export class Controller {
 						isGlobal: true,
 						content: JSON.stringify(message.payload.personaInstruction, null, 2),
 					})
+
+					// Send confirmation back to webview
+					this.postMessageToWebview({
+						type: "PERSONA_UPDATED",
+						payload: { success: true },
+					})
+
 					await this.postStateToWebview()
 				}
 				break
@@ -288,10 +295,66 @@ export class Controller {
 						"template_characters",
 						"template_characters.json",
 					)
-					const templates = await fs.readFile(templatePath, "utf-8")
+					const templatesRaw = await fs.readFile(templatePath, "utf-8")
+					const templates = JSON.parse(templatesRaw)
+
+					// CARET MODIFICATION: Convert image URIs to base64 data URIs
+					const templatesWithBase64Images = await Promise.all(
+						templates.map(async (template: any) => {
+							const convertImageUri = async (uri: string): Promise<string> => {
+								if (!uri || !uri.startsWith("asset:/assets/")) return uri
+
+								try {
+									const imagePath = path.join(
+										this.context.extensionPath,
+										"caret-assets",
+										uri.replace("asset:/assets/", ""),
+									)
+									caretLogger.info(`[Controller] Loading image: ${imagePath}`)
+
+									if (
+										await fs
+											.access(imagePath)
+											.then(() => true)
+											.catch(() => false)
+									) {
+										const imageBuffer = await fs.readFile(imagePath)
+										const ext = path.extname(imagePath).toLowerCase()
+										const mimeType =
+											ext === ".png"
+												? "image/png"
+												: ext === ".jpg" || ext === ".jpeg"
+													? "image/jpeg"
+													: ext === ".webp"
+														? "image/webp"
+														: "image/png"
+										const base64 = `data:${mimeType};base64,${imageBuffer.toString("base64")}`
+										caretLogger.info(
+											`[Controller] Image loaded successfully, size: ${imageBuffer.length} bytes`,
+										)
+										return base64
+									} else {
+										caretLogger.warn(`[Controller] Image not found: ${imagePath}`)
+										return uri
+									}
+								} catch (error) {
+									caretLogger.error(`[Controller] Error loading image ${uri}: ${error}`)
+									return uri
+								}
+							}
+
+							return {
+								...template,
+								avatarUri: await convertImageUri(template.avatarUri),
+								thinkingAvatarUri: await convertImageUri(template.thinkingAvatarUri),
+								introIllustrationUri: await convertImageUri(template.introIllustrationUri),
+							}
+						}),
+					)
+
 					this.postMessageToWebview({
 						type: "RESPONSE_TEMPLATE_CHARACTERS",
-						payload: JSON.parse(templates),
+						payload: templatesWithBase64Images,
 					})
 				} catch (error) {
 					caretLogger.error(`[Controller] Error reading template_characters.json: ${error}`)

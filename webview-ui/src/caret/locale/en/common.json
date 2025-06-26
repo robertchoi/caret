@@ -32,25 +32,38 @@
 		"learnMore": "Learn More"
 	},
 	"rules": {
-		"tab.rules": "Rules",
-		"tab.workflows": "Workflows",
+		"tab": {
+			"rules": "Rules",
+			"workflows": "Workflows"
+		},
+		"section": {
+			"personaManagement": "Persona Management",
+			"globalRules": "Global Rules",
+			"workspaceRules": "Workspace Rules",
+			"globalWorkflows": "Global Workflows",
+			"localWorkflows": "Local Workflows"
+		},
+		"subTitle": {
+			"caretRules": "Caret Rules (.caretrules)",
+			"clineRules": "Cline Rules (.clinerules)",
+			"cursorRules": "Cursor Rules (.cursorrules)",
+			"windsurfRules": "Windsurf Rules (.windsurfrules)"
+		},
+		"button": {
+			"selectPersonaTemplate": "Select Template Character",
+			"changePersonaTemplate": "Change Persona Template"
+		},
+		"description": {
+			"personaManagement": "Choose an AI persona that matches your coding style and preferences.",
+			"rulesDescription": "Rules allow you to provide system-level guidance. Think of them as a persistent way to include context and preferences for your projects or globally for every conversation.",
+			"workflowsDescription": "Workflows allow you to define a series of steps for Cline to perform repetitive tasks like deploying services or submitting PRs. To run a workflow, type /workflow-name in the chat."
+		},
+		"action": {
+			"newRuleFile": "New rule file..."
+		},
 		"title": "Cline Rules & Workflow Management",
-		"description": "Rules allow you to provide system-level guidance. Think of them as a persistent way to include context and preferences for your projects or globally for every conversation.",
 		"docsLink": "Docs",
-		"section.globalRules": "Global Rules",
-		"action.newRuleFile": "New rule file...",
-		"section.workspaceRules": "Workspace Rules",
-		"subTitle.caretRules": "Caret Rules (.caretrules)",
-		"subTitle.clineRules": "Cline Rules (.clinerules)",
-		"subTitle.cursorRules": "Cursor Rules (.cursorrules)",
-		"subTitle.windsurfRules": "Windsurf Rules (.windsurfrules)",
-		"section.globalWorkflows": "Global Workflows",
-		"section.localWorkflows": "Local Workflows",
-		"workflowsDescription": "Workflows allow you to define a series of steps for Cline to perform repetitive tasks like deploying services or submitting PRs. To run a workflow, type /workflow-name in the chat.",
-		"toggleError": "Rule toggle error",
-		"section.personaManagement": "Persona Management",
-    	"button.selectPersonaTemplate": "Select Persona Template",
-    	"button.changePersonaTemplate": "Change Persona Template"
+		"toggleError": "Rule toggle error"
 	},
 	"rulesModal": {
 		"tooltip.manageRulesWorkflows": "Manage Cline Rules & Workflows",

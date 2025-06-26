@@ -28,57 +28,91 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 		setIsSelectorOpen(false)
 		caretWebviewLogger.debug("Persona template selector modal closed.")
 	}
-	
+
 	// Load current persona data
 	useEffect(() => {
 		// Request template characters
 		vscode.postMessage({
 			type: "REQUEST_TEMPLATE_CHARACTERS",
 		})
-		
+
 		// Request current custom instructions
 		vscode.postMessage({
 			type: "REQUEST_RULE_FILE_CONTENT",
 			payload: { ruleName: "custom_instructions.md", isGlobal: true },
 		})
 	}, [])
-	
+
 	// Listen for message responses
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
 			const message = event.data
-			
+
 			// Handle template characters response
 			if (message.type === "RESPONSE_TEMPLATE_CHARACTERS") {
 				const characters: TemplateCharacter[] = message.payload
+				caretWebviewLogger.debug("Received template characters:", characters)
+
 				// Find selected persona based on current instruction
-				if (currentInstruction && characters.length > 0) {
-					const matchedPersona = characters.find(char => {
+				if (currentInstruction && currentInstruction.trim() && characters.length > 0) {
+					caretWebviewLogger.debug("Current instruction:", currentInstruction)
+
+					const matchedPersona = characters.find((char) => {
 						const localeDetails = (char[currentLocale as keyof typeof char] as any) || char.en
-						return JSON.stringify(localeDetails.customInstruction, null, 2) === currentInstruction
+						const personaJson = JSON.stringify(localeDetails.customInstruction, null, 2)
+						caretWebviewLogger.debug(`Comparing with ${char.character}:`, personaJson)
+						return personaJson === currentInstruction
 					})
+
 					if (matchedPersona) {
+						caretWebviewLogger.debug("Found matched persona:", matchedPersona.character)
 						setSelectedPersona(matchedPersona)
 					} else {
-						// Set default persona
-						const defaultPersona = characters.find(c => c.isDefault) || characters[0]
+						caretWebviewLogger.debug("No matched persona found, using default")
+						// Set default persona if no match
+						const defaultPersona = characters.find((c) => c.isDefault) || characters[0]
 						if (defaultPersona) setSelectedPersona(defaultPersona)
 					}
+				} else if (characters.length > 0) {
+					// If no current instruction, set default persona
+					const defaultPersona = characters.find((c) => c.isDefault) || characters[0]
+					if (defaultPersona) setSelectedPersona(defaultPersona)
 				}
 			}
-			
+
 			// Store current custom instruction
-			if (message.type === "RESPONSE_RULE_FILE_CONTENT" && 
-				message.payload.ruleName === "custom_instructions.md") {
+			if (message.type === "RESPONSE_RULE_FILE_CONTENT" && message.payload.ruleName === "custom_instructions.md") {
 				setCurrentInstruction(message.payload.content)
 			}
+
+			// Handle persona update success - refresh data
+			if (message.type === "PERSONA_UPDATED") {
+				// Reload template characters and current instruction
+				vscode.postMessage({
+					type: "REQUEST_TEMPLATE_CHARACTERS",
+				})
+				vscode.postMessage({
+					type: "REQUEST_RULE_FILE_CONTENT",
+					payload: { ruleName: "custom_instructions.md", isGlobal: true },
+				})
+			}
 		}
-		
+
 		window.addEventListener("message", handleMessage)
 		return () => {
 			window.removeEventListener("message", handleMessage)
 		}
 	}, [currentLocale, currentInstruction])
+
+	// Additional effect to ensure proper loading when component remounts
+	useEffect(() => {
+		if (currentInstruction && currentInstruction.trim()) {
+			// Re-request template characters to ensure proper matching
+			vscode.postMessage({
+				type: "REQUEST_TEMPLATE_CHARACTERS",
+			})
+		}
+	}, [currentInstruction])
 
 	const handlePersonaSelected = (personaInstruction: PersonaInstruction) => {
 		caretWebviewLogger.debug("Persona selected:", personaInstruction)
@@ -87,6 +121,9 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 			type: "UPDATE_PERSONA_CUSTOM_INSTRUCTION", // New message type
 			payload: { personaInstruction: personaInstruction }, // The selected persona instruction data
 		} as WebviewMessage)
+
+		// Update current instruction to trigger re-matching
+		setCurrentInstruction(JSON.stringify(personaInstruction, null, 2))
 
 		// Close modal after selection
 		setIsSelectorOpen(false)
@@ -100,26 +137,30 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 	}
 
 	return (
-		<div className={className}>
-			<div className="text-sm font-normal mb-2">{t("rules.section.personaManagement")}</div>
-			
+		<div className={className} data-testid="persona-management">
+			<div className="text-sm font-normal mb-2">{t("rules.section.personaManagement", "common")}</div>
+
 			{/* Display selected persona images when available */}
 			{selectedPersona && (
 				<div className="mb-4 mt-2">
 					<div className="flex justify-center space-x-4 mb-2">
 						<div className="text-center">
-							<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1">{t("persona.normalState")}</div>
-							<img 
-								src={selectedPersona.avatarUri} 
-								alt={`${getPersonaName()} normal`} 
+							<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1">
+								{t("normalState", "persona")}
+							</div>
+							<img
+								src={selectedPersona.avatarUri}
+								alt={`${getPersonaName()} normal`}
 								className="w-20 h-20 rounded-full object-cover border-2 border-[var(--vscode-settings-headerBorder)]"
 							/>
 						</div>
 						<div className="text-center">
-							<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1">{t("persona.thinkingState")}</div>
-							<img 
-								src={selectedPersona.thinkingAvatarUri} 
-								alt={`${getPersonaName()} thinking`} 
+							<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1">
+								{t("thinkingState", "persona")}
+							</div>
+							<img
+								src={selectedPersona.thinkingAvatarUri}
+								alt={`${getPersonaName()} thinking`}
 								className="w-20 h-20 rounded-full object-cover border-2 border-[var(--vscode-settings-headerBorder)]"
 							/>
 						</div>
@@ -127,10 +168,14 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 					<div className="text-center text-sm font-medium">{getPersonaName()}</div>
 				</div>
 			)}
-			
-			<VSCodeButton appearance="secondary" onClick={handleSelectPersonaTemplate}>
-				{selectedPersona ? t("rules.button.changePersonaTemplate") : t("rules.button.selectPersonaTemplate")}
-			</VSCodeButton>
+
+			<div className="flex justify-end">
+				<VSCodeButton appearance="secondary" onClick={handleSelectPersonaTemplate}>
+					{selectedPersona
+						? t("rules.button.changePersonaTemplate", "common")
+						: t("rules.button.selectPersonaTemplate", "common")}
+				</VSCodeButton>
+			</div>
 
 			{isSelectorOpen && (
 				<PersonaTemplateSelector

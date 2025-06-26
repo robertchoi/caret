@@ -121,40 +121,46 @@ export class CaretProvider extends ClineWebviewProvider {
 		let caretBannerDataUri = ""
 		try {
 			const bannerPath = path.join(this.context.extensionPath, "caret-assets", "caret-main-banner.webp")
-			caretBannerDataUri = `data:image/webp;base64,${fs.readFileSync(bannerPath).toString("base64")}`
+			// CARET MODIFICATION: 배너 이미지 로딩 디버깅 추가
+			caretLogger.info(`[CaretProvider] Attempting to load banner from: ${bannerPath}`)
+			if (fs.existsSync(bannerPath)) {
+				const fileBuffer = fs.readFileSync(bannerPath)
+				caretBannerDataUri = `data:image/webp;base64,${fileBuffer.toString("base64")}`
+				caretLogger.info(`[CaretProvider] Banner loaded successfully, size: ${fileBuffer.length} bytes`)
+			} else {
+				caretLogger.error(`[CaretProvider] Banner file not found: ${bannerPath}`)
+			}
 		} catch (e) {
-			/* ignore */
+			// CARET MODIFICATION: 오류 로깅 추가
+			caretLogger.error(`[CaretProvider] Error loading banner image:`, e)
 		}
-		
+
 		// Update the title
 		let updatedHtml = originalHtml.replace(/<title>Cline<\/title>/, `<title>Caret</title>`)
-		
+
 		// Add caret banner for the UI
 		updatedHtml = updatedHtml.replace(
-			`window.clineClientId = "\${this.clientId}";`,
+			/window\.clineClientId = "[^"]*";/,
 			`window.clineClientId = "\${this.clientId}";
                     window.caretBanner = "${caretBannerDataUri}";`,
 		)
-		
+
 		// Update Content-Security-Policy to allow data: URLs and asset URLs for persona images
-		updatedHtml = updatedHtml.replace(
-			/content="([^"]*)"/,
-			(match, csp) => {
-				// Only modify the img-src policy
-				const policies = csp.split('; ')
-				const updatedPolicies = policies.map(policy => {
-					if (policy.startsWith('img-src')) {
-						// CARET MODIFICATION: 이미지 로딩을 위한 CSP 설정 강화
-						const imgSrcValue = `img-src 'self' ${webview.cspSource} https://*.vscode-cdn.net https: data: blob: asset: vscode-resource: *`;
-						console.log('[CaretProvider] Setting CSP img-src:', imgSrcValue);
-						return imgSrcValue
+		updatedHtml = updatedHtml.replace(/content="([^"]*)"/, (match, csp) => {
+			// Only modify the img-src policy
+			const policies = csp.split("; ")
+			const updatedPolicies = policies.map((policy) => {
+				if (policy.startsWith("img-src")) {
+					// CARET MODIFICATION: 이미지 로딩을 위한 CSP 설정 강화
+					const imgSrcValue = `img-src 'self' ${webview.cspSource} https://*.vscode-cdn.net https: data: blob: asset: vscode-resource: *`
+					console.log("[CaretProvider] Setting CSP img-src:", imgSrcValue)
+					return imgSrcValue
 				}
-					return policy
-				})
-				return `content="${updatedPolicies.join('; ')}"`
-			}
-		)
-		
+				return policy
+			})
+			return `content="${updatedPolicies.join("; ")}"`
+		})
+
 		return updatedHtml
 	}
 
@@ -169,34 +175,43 @@ export class CaretProvider extends ClineWebviewProvider {
 		let caretBannerDataUri = ""
 		try {
 			const bannerPath = path.join(this.context.extensionPath, "caret-assets", "caret-main-banner.webp")
-			caretBannerDataUri = `data:image/webp;base64,${fs.readFileSync(bannerPath).toString("base64")}`
+			// CARET MODIFICATION: 배너 이미지 로딩 디버깅 추가
+			caretLogger.info(`[CaretProvider] HMR - Attempting to load banner from: ${bannerPath}`)
+			if (fs.existsSync(bannerPath)) {
+				const fileBuffer = fs.readFileSync(bannerPath)
+				caretBannerDataUri = `data:image/webp;base64,${fileBuffer.toString("base64")}`
+				caretLogger.info(`[CaretProvider] HMR - Banner loaded successfully, size: ${fileBuffer.length} bytes`)
+			} else {
+				caretLogger.error(`[CaretProvider] HMR - Banner file not found: ${bannerPath}`)
+			}
 		} catch (e) {
-			/* ignore */
+			// CARET MODIFICATION: 오류 로깅 추가
+			caretLogger.error(`[CaretProvider] HMR - Error loading banner image:`, e)
 		}
 
 		// Update the title
 		let updatedHtml = originalHtml.replace(/<title>Cline<\/title>/, `<title>Caret</title>`)
-		
+
 		// Add caret banner for the UI
 		updatedHtml = updatedHtml.replace(
-			`window.clineClientId = "\${this.clientId}";`,
+			/window\.clineClientId = "[^"]*";/,
 			`window.clineClientId = "\${this.clientId}";
 						window.caretBanner = "${caretBannerDataUri}";`,
 		)
-		
+
 		// Update Content-Security-Policy for HMR mode to allow data: URLs and asset URLs
-		const cspRegex = /const csp = \[(.*?)\]/s  // Use 's' flag for multiline matching
+		const cspRegex = /const csp = \[(.*?)\]/s // Use 's' flag for multiline matching
 		if (cspRegex.test(updatedHtml)) {
 			updatedHtml = updatedHtml.replace(cspRegex, (match, cspContent) => {
 				// Find and replace the img-src line
 				const updatedCspContent = cspContent.replace(
 					/`img-src [^`]+`/,
-					`\`img-src 'self' \${webview.cspSource} https://*.vscode-cdn.net https: data: blob: asset: vscode-resource:\``
+					`\`img-src 'self' \${webview.cspSource} https://*.vscode-cdn.net https: data: blob: asset: vscode-resource:\``,
 				)
 				return `const csp = [${updatedCspContent}]`
 			})
 		}
-		
+
 		return updatedHtml
 	}
 }

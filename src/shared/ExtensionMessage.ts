@@ -26,6 +26,7 @@ export interface ExtensionMessage {
 		| "grpc_response"
 		| "RESPONSE_TEMPLATE_CHARACTERS"
 		| "RESPONSE_RULE_FILE_CONTENT"
+		| "PERSONA_UPDATED"
 	text?: string
 	action?: "didBecomeVisible" | "accountLogoutClicked" | "responseTemplateCharacters"
 	state?: ExtensionState

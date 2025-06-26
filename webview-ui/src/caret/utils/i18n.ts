@@ -12,6 +12,7 @@ import koPersona from "../locale/ko/persona.json"
 import enPersona from "../locale/en/persona.json"
 import jaPersona from "../locale/ja/persona.json"
 import zhPersona from "../locale/zh/persona.json"
+
 import { getLocalizedUrl, getUrl, type CaretLocalizedUrlKey, type CaretUrlKey, type SupportedLanguage } from "../constants/urls"
 
 // JSON 파일에서 번역 데이터 로드
@@ -76,7 +77,12 @@ const getNestedValue = (obj: any, path: string): any => {
 }
 
 // 템플릿 변수를 치환하는 함수
-const replaceTemplateVariables = (text: string, language: SupportedLanguage): string => {
+const replaceTemplateVariables = (text: any, language: SupportedLanguage): string => {
+	// 타입 체크: 문자열이 아니면 문자열로 변환하거나 그대로 반환
+	if (typeof text !== "string") {
+		return String(text)
+	}
+
 	return (
 		text
 			// 교육 프로그램 링크
@@ -99,7 +105,7 @@ export const t = (key: string, namespace: string = "common", language?: Supporte
 
 	if (namespaceData) {
 		const value = getNestedValue(namespaceData, key)
-		if (value) {
+		if (value !== undefined && value !== null) {
 			return replaceTemplateVariables(value, currentLang)
 		}
 	}
@@ -108,7 +114,7 @@ export const t = (key: string, namespace: string = "common", language?: Supporte
 	const enNamespaceData = translations.en[namespace as keyof (typeof translations)["en"]]
 	if (enNamespaceData) {
 		const value = getNestedValue(enNamespaceData, key)
-		if (value) {
+		if (value !== undefined && value !== null) {
 			return replaceTemplateVariables(value, "en")
 		}
 	}

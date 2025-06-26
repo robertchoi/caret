@@ -7,18 +7,20 @@
   - 요약: AI 페르소나 시스템 복구 및 개선
   [002-01-plan-persona-feature-restoration.md](./002-01-plan-persona-feature-restoration.md) 
 
-### Alpha (담당자)
+- **Task #003:** 시스템 프롬프트 복원 (담당자: luke)
+  - 요약: 시스템 프롬프트 관리 기능 복구
+  [003-system-prompt-restoration.md](./003-system-prompt-restoration.md) 
+
+
 - **Task #012:** 테스트 커버리지 정상화 (일시 중단)
   - 요약: 테스트 실패 분석 및 임시 해결책 적용, 일부 테스트 파일의 실패 테스트 skip 처리
   [012-01-test-coverage-normalization.md](./012-01-test-coverage-normalization.md)
+
 
 ### justin (담당자)
 
 ## 대기 중인 작업 (Pending)
 
-- **Task #003:** Mode 및 시스템 프롬프트 복원 (담당자: TBD)
-  - 요약: 모드 시스템 및 프롬프트 관리 기능 복구
-  [003-01-plan-mode-system-prompt-restoration.md](./003-01-plan-mode-system-prompt-restoration.md) 
 - **Task #004:** MDX 문서 시스템 구축 및 통합 (담당자: TBD)
   - 요약: 문서화 시스템 구축 및 통합
   [004-01-plan-mdx-documentation-system.md](./004-01-plan-mdx-documentation-system.md) 

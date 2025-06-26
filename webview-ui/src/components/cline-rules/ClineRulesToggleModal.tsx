@@ -291,7 +291,7 @@ const ClineRulesToggleModal: React.FC = () => {
 					<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-4">
 						{currentView === "rules" ? (
 							<p>
-								{t("rules.description")}
+								{t("rules.description.rulesDescription")}
 								<VSCodeLink
 									href="#"
 									onClick={() =>
@@ -306,7 +306,7 @@ const ClineRulesToggleModal: React.FC = () => {
 							</p>
 						) : (
 							<p>
-								{t("rules.workflowsDescription")}{" "}
+								{t("rules.description.workflowsDescription")}{" "}
 								<VSCodeLink
 									href="#"
 									onClick={() =>

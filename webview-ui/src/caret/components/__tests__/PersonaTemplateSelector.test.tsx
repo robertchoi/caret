@@ -208,8 +208,15 @@ describe("PersonaTemplateSelector", () => {
 			/>,
 		)
 
-		// Check if the component requests characters on mount
+		// When testCharacters are provided, it should NOT request characters
+		// Only REQUEST_RULE_FILE_CONTENT should be called
 		expect(vscode.postMessage).toHaveBeenCalledWith({
+			type: "REQUEST_RULE_FILE_CONTENT",
+			payload: { ruleName: "custom_instructions.md", isGlobal: true },
+		})
+
+		// Should NOT call REQUEST_TEMPLATE_CHARACTERS when testCharacters are provided
+		expect(vscode.postMessage).not.toHaveBeenCalledWith({
 			type: "REQUEST_TEMPLATE_CHARACTERS",
 		})
 
@@ -220,14 +227,26 @@ describe("PersonaTemplateSelector", () => {
 
 		// Now characters should be rendered immediately since we passed them as props
 
-		// Check if characters are rendered
+		// Check if the default character (Sarang) is rendered
 		await waitFor(
 			() => {
 				expect(screen.getByText("Sarang")).toBeInTheDocument()
-				expect(screen.getByText("Ichika")).toBeInTheDocument()
 			},
 			{ timeout: 3000 },
 		)
+
+		// Check if character tabs are rendered
+		expect(screen.getByLabelText("sarang tab")).toBeInTheDocument()
+		expect(screen.getByLabelText("ichika tab")).toBeInTheDocument()
+
+		// Click on ichika tab to see if it switches
+		const ichikaTab = screen.getByLabelText("ichika tab")
+		fireEvent.click(ichikaTab)
+
+		// Now Ichika should be displayed
+		await waitFor(() => {
+			expect(screen.getByText("Ichika")).toBeInTheDocument()
+		})
 	})
 
 	it("should call onSelectPersona with correct instruction when a character is selected", async () => {
@@ -250,8 +269,6 @@ describe("PersonaTemplateSelector", () => {
 		await waitFor(() => {
 			expect(screen.getByText("Sarang")).toBeInTheDocument()
 		})
-
-		
 
 		const selectButtons = screen.getAllByText("Select")
 

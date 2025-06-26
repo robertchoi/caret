@@ -175,6 +175,24 @@
       "immediate_verification_principle": "File creation/modification followed by immediate compile/test for early problem detection",
       "rule_sync_omission_prevention": "caretrules.ko.md modification MUST be followed by node caret-scripts/sync-caretrules.js execution"
     },
+    "session_continuity": {
+      "next_session_guide_location": "caret-docs/work-logs/{username}/next-session-guide.md",
+      "purpose": "AI session transition with perfect context preservation",
+      "update_timing": "Mandatory creation/update after each subtask completion",
+      "standard_structure": {
+        "current_progress": "Completed work, current state, verification results",
+        "important_decisions": "Design decisions, constraints, cautions",
+        "next_step_preparation": "Next task goals, required files, verification methods",
+        "developer_notes": "Design intent, alternative considerations, future improvements"
+      },
+      "ai_session_transition_checklist": [
+        "Current work completion confirmation: commit all changes",
+        "next-session-guide.md update: record current situation and next steps",
+        "Verification results recording: passed tests and confirmed functions",
+        "Important decision documentation: design intent and constraints",
+        "Next session preparation: enable new AI to start work immediately"
+      ]
+    },
     "development_method_evolution": {
       "change_detection": "Immediately document when new development patterns, tools, or methodologies are introduced",
       "guide_synchronization": "Prioritize updates when inconsistencies between actual implementation and documentation are found",

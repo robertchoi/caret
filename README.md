@@ -150,7 +150,7 @@ npm run install:all
 
 ```powershell
 # Windows 사용자 권장
-.\clean-build-package.ps1
+.\caret-release-build.ps1
 ```
 
 이 스크립트들은 백엔드와 프론트엔드 의존성 설치, Protocol Buffer 컴파일까지 모든 필요한 단계를 자동으로 처리해줍니다.
@@ -265,14 +265,16 @@ Caret 프로젝트는 다음 TDD 원칙을 준수합니다:
 
 ### 6. VSIX 릴리즈 패키징 (로컬 빌드용)
 
-개발된 확장 프로그램을 `.vsix` 파일로 패키징하여 로컬 설치 또는 배포 준비를 할 수 있습니다.
+개발된 확장 프로그램을 `.vsix` 파일로 패키징하여 로컬 설치 또는 배포 준비를 할 수 있습니다. Caret에서는 다음 두 가지 릴리즈 빌드 방법을 제공합니다.
+
+#### 6-1. JavaScript 스크립트 방식 (모든 환경)
 
 ```bash
 # 프로젝트 루트에서 실행
 npm run package:release
 ```
 
-이 스크립트는 다음 작업을 수행합니다:
+이 명령어는 `node ./caret-scripts/package-release.js`를 실행하여 다음 작업을 수행합니다:
 - `package.json`에서 버전을 읽어옵니다.
 - 타임스탬프를 생성합니다.
 - `output/` 디렉토리가 없으면 생성합니다.
@@ -280,7 +282,30 @@ npm run package:release
 - 전체 클린 빌드를 실행합니다 (`npm run protos`, `npm run compile`, `npm run build:webview`).
 - `vsce package` 명령을 사용하여 `output/caret-{version}-{YYYYMMDDHHMM}.vsix` 형식으로 패키징합니다.
 
-생성된 `.vsix` 파일은 `output/` 디렉토리에서 찾을 수 있습니다.
+#### 6-2. PowerShell 스크립트 방식 (Windows 환경)
+
+```powershell
+# 프로젝트 루트에서 실행
+./caret-release-build.ps1
+```
+
+이 스크립트는 더 자세한 빌드 과정을 제공하며 다음과 같은 기능을 포함합니다:
+- 색상 출력으로 가시성 높은 로그 제공
+- 환경 확인 (Node.js, npm, vsce 설치 여부)
+- 버전 정보 확인 및 업데이트 옵션
+- 의존성 설치 통합
+- 이전 빌드 정리 (선택적)
+- 테스트 자동 실행 (선택적)
+- 완전한 프로덕션 빌드 생성
+- VS Code에 생성된 VSIX를 바로 설치하는 옵션
+
+스크립트 실행 옵션:
+```powershell
+# 테스트 건너뛰기, 상세 로그, 출력 디렉토리 지정 예시
+./caret-release-build.ps1 -SkipTests -Verbose -OutputDir "my-release"
+```
+
+생성된 `.vsix` 파일은 지정된 출력 디렉토리(기본값: `release/`)에서 찾을 수 있습니다.
 
 ## 테스트 및 품질 관리 🧪
 

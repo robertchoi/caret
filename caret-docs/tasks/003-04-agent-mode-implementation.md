@@ -4,18 +4,18 @@
 **담당자**: luke  
 **우선순위**: 🚨 **Critical - JSON 시스템 통합 및 완성**  
 **예상 시간**: 4-6시간 (작업 범위에 따라 분할 필요)  
-**상태**: 📋 **준비 완료** - 003-01~04 완료 후 진행  
-**의존성**: 003-04 (JSON 오버레이 시스템) 완료 필수
+**상태**: 🚀 **즉시 시작 가능** - 003-03 완료됨  
+**의존성**: ✅ 003-03 (JSON 오버레이 시스템) **완료**
 
 ## 🎯 **목표**
 
-**핵심 목적**: caret-zero의 기존 JSON 시스템을 003-04 오버레이 시스템 기준에 맞게 평가/이전하고, Cline 기능 누락 없이 완전한 Agent 모드 구현
+**핵심 목적**: caret-zero의 기존 JSON 시스템을 003-03 오버레이 시스템 기준에 맞게 평가/이전하고, Cline 기능 누락 없이 완전한 Agent 모드 구현
 
 ### **세부 목표**
 1. **caret-zero JSON 평가**: 기존 JSON 템플릿들의 품질과 완성도 검증 및 보강
   - caret-zero, cline, 혹은 AI가 인지하고 있는 cursor의 system_prompt들의 내용과도 교차 검증 검토
 2. **Cline 기능 보존**: web_fetch 등 누락된 기능 식별 및 복원
-3. **003-04 시스템 통합**: 오버레이 시스템 기준에 맞는 구조로 재구성
+3. **003-03 시스템 통합**: 오버레이 시스템 기준에 맞는 구조로 재구성
 4. **Plan/Act 완전 제거**: plan_mode_respond 등 잔존 제약사항 제거
 5. **하드코딩 JSON 변환**: 누락된 Cline 하드코딩 부분을 JSON으로 추가 변환
 
@@ -26,11 +26,11 @@
 - caret-zero에 15개+ JSON 섹션 파일 검토 필요
 - 3개 rules 파일 평가 및 통합
 - Cline 707줄 하드코딩과의 완전성 비교
-- 003-04 오버레이 시스템 구조로 재구성
+- 003-03 오버레이 시스템 구조로 재구성
 
 **🚨 분할 권장사항**:
 ```
-Phase A (2-3시간): caret-zero → 003-04 시스템 통합
+Phase A (2-3시간): caret-zero → 003-03 시스템 통합
 - JSON 구조 평가 및 변환
 - 기본 기능 보존 검증
 
@@ -49,7 +49,7 @@ Phase B (2-3시간): Cline 하드코딩 누락 부분 JSON 변환
 const reuseStrategy = {
   preserve: "검증된 JSON 구조와 내용은 최대한 보존",
   enhance: "누락된 Cline 기능을 선별적으로 추가",
-  standardize: "003-04 오버레이 시스템 구조로 통일",
+  standardize: "003-03 오버레이 시스템 구조로 통일",
   validate: "ClineFeatureValidator로 완전성 검증",
   optimize: "간결하고 명료한 표현으로 개선"
 }
@@ -58,7 +58,7 @@ const reuseStrategy = {
 const identifiedIssues = [
   "plan_mode_respond 도구 잔존 (Plan/Act 미완 제거)",
   "web_fetch 누락 가능성 (Claude4 전용 도구)",
-  "003-04 오버레이 구조와 차이 (통합 필요)",
+  "003-03 오버레이 구조와 차이 (통합 필요)",
   "일부 도구 설명 간소화 (상세도 부족 가능성)",
   "rules 구조 최적화 필요"
 ]
@@ -67,7 +67,7 @@ const identifiedIssues = [
 ### **단계별 통합 전략**
 ```
 1. 평가 (Assessment): caret-zero vs Cline 완전성 비교
-2. 변환 (Conversion): 003-04 오버레이 구조로 변환
+2. 변환 (Conversion): 003-03 오버레이 구조로 변환
 3. 보완 (Supplement): 누락된 기능 JSON으로 추가
 4. 검증 (Validation): ClineFeatureValidator로 완전성 확인
 5. 최적화 (Optimization): 간결성과 명료성 개선

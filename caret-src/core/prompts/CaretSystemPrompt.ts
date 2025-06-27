@@ -1,6 +1,8 @@
 import { SYSTEM_PROMPT } from "@src/core/prompts/system"
 import { CaretLogger } from "../../utils/caret-logger"
 import { SystemPromptContext, SystemPromptMetrics, SystemPromptResult } from "./types"
+import { JsonTemplateLoader } from "./JsonTemplateLoader"
+import { PromptOverlayEngine } from "./PromptOverlayEngine"
 
 /**
  * Caret System Prompt Wrapper
@@ -8,22 +10,27 @@ import { SystemPromptContext, SystemPromptMetrics, SystemPromptResult } from "./
  * Wraps Cline's original SYSTEM_PROMPT function to provide:
  * - 100% compatibility with Cline
  * - Metrics collection
- * - Future JSON overlay capabilities
+ * - JSON overlay capabilities for prompt customization
  *
  * Design Principles:
  * - KISS (Keep It Simple, Stupid) - Just wrap, don't modify
  * - 100% feature preservation
  * - Minimal overhead
+ * - JSON overlay system for advanced customization
  */
 export class CaretSystemPrompt {
 	private caretLogger: CaretLogger
 	private metrics: SystemPromptMetrics[]
+	private templateLoader: JsonTemplateLoader
+	private overlayEngine: PromptOverlayEngine
 
-	constructor() {
+	constructor(extensionPath: string) {
 		this.caretLogger = CaretLogger.getInstance()
 		this.metrics = []
+		this.templateLoader = new JsonTemplateLoader(extensionPath)
+		this.overlayEngine = new PromptOverlayEngine()
 
-		this.caretLogger.info("[CaretSystemPrompt] Initialized")
+		this.caretLogger.info("[CaretSystemPrompt] Initialized with JSON overlay system")
 	}
 
 	/**
@@ -61,6 +68,84 @@ export class CaretSystemPrompt {
 			}
 		} catch (error) {
 			this.caretLogger.error("[CaretSystemPrompt] Failed to generate system prompt", error)
+			throw error
+		}
+	}
+
+	/**
+	 * Generate system prompt with JSON template overlay
+	 *
+	 * @param context System prompt context
+	 * @param templateNames Array of template names to apply
+	 * @returns Promise<SystemPromptResult> Enhanced prompt with templates applied
+	 */
+	async generateSystemPromptWithTemplates(context: SystemPromptContext, templateNames: string[]): Promise<SystemPromptResult> {
+		const startTime = Date.now()
+
+		try {
+			this.caretLogger.info("[CaretSystemPrompt] Generating system prompt with templates", {
+				cwd: context.cwd,
+				templateNames,
+				templateCount: templateNames.length,
+			})
+
+			// Step 1: Generate base prompt from Cline
+			const basePrompt = await this.callOriginalSystemPrompt(context)
+			this.caretLogger.info("[CaretSystemPrompt] Base prompt generated", {
+				basePromptLength: basePrompt.length,
+			})
+
+			// Step 2: Apply JSON templates
+			let enhancedPrompt = basePrompt
+			const appliedTemplates: string[] = []
+
+			for (const templateName of templateNames) {
+				try {
+					const template = await this.templateLoader.loadTemplate(templateName)
+					const overlayResult = await this.overlayEngine.applyOverlay(enhancedPrompt, template)
+
+					if (overlayResult.success) {
+						enhancedPrompt = overlayResult.prompt
+						appliedTemplates.push(templateName)
+						this.caretLogger.info("[CaretSystemPrompt] Template applied successfully", {
+							templateName,
+							templateVersion: template.metadata.version,
+							promptLengthChange: overlayResult.prompt.length - basePrompt.length,
+						})
+					} else {
+						this.caretLogger.warn("[CaretSystemPrompt] Template application failed", {
+							templateName,
+							warnings: overlayResult.warnings,
+						})
+					}
+				} catch (error) {
+					this.caretLogger.error("[CaretSystemPrompt] Template loading failed", {
+						templateName,
+						error: error.toString(),
+					})
+				}
+			}
+
+			// Step 3: Collect enhanced metrics
+			const metrics: SystemPromptMetrics = {
+				generationTime: Date.now() - startTime,
+				promptLength: enhancedPrompt.length,
+				toolCount: this.extractToolCount(enhancedPrompt),
+				mcpServerCount: context.mcpHub.getServers().length,
+				timestamp: Date.now(),
+				appliedTemplates,
+				enhancementRatio: enhancedPrompt.length / basePrompt.length,
+			}
+
+			this.metrics.push(metrics)
+			await this.logEnhancedPromptGeneration(context, basePrompt, enhancedPrompt, metrics, appliedTemplates)
+
+			return {
+				prompt: enhancedPrompt,
+				metrics,
+			}
+		} catch (error) {
+			this.caretLogger.error("[CaretSystemPrompt] Failed to generate enhanced system prompt", error)
 			throw error
 		}
 	}
@@ -106,6 +191,47 @@ export class CaretSystemPrompt {
 			this.caretLogger.warn("[CaretSystemPrompt] Slow prompt generation detected", {
 				generationTime: metrics.generationTime,
 				threshold: 5,
+			})
+		}
+	}
+
+	/**
+	 * Log enhanced prompt generation details
+	 */
+	private async logEnhancedPromptGeneration(
+		context: SystemPromptContext,
+		basePrompt: string,
+		enhancedPrompt: string,
+		metrics: SystemPromptMetrics,
+		appliedTemplates: string[],
+	): Promise<void> {
+		this.caretLogger.info("[CaretSystemPrompt] Enhanced system prompt generated successfully", {
+			basePromptLength: basePrompt.length,
+			enhancedPromptLength: enhancedPrompt.length,
+			enhancementRatio: metrics.enhancementRatio,
+			generationTime: metrics.generationTime,
+			toolCount: metrics.toolCount,
+			mcpServerCount: metrics.mcpServerCount,
+			appliedTemplates,
+			templatesApplied: appliedTemplates.length,
+			lengthIncrease: enhancedPrompt.length - basePrompt.length,
+		})
+
+		// Performance warning (10ms threshold for enhanced prompts)
+		if (metrics.generationTime > 10) {
+			this.caretLogger.warn("[CaretSystemPrompt] Slow enhanced prompt generation detected", {
+				generationTime: metrics.generationTime,
+				threshold: 10,
+				templatesApplied: appliedTemplates.length,
+			})
+		}
+
+		// Log template application summary
+		if (appliedTemplates.length > 0) {
+			this.caretLogger.info("[CaretSystemPrompt] Template application summary", {
+				successfulTemplates: appliedTemplates,
+				enhancementPercentage: Math.round((metrics.enhancementRatio! - 1) * 100),
+				avgLengthPerTemplate: Math.round((enhancedPrompt.length - basePrompt.length) / appliedTemplates.length),
 			})
 		}
 	}

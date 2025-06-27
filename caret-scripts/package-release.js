@@ -91,5 +91,59 @@ runCommand("npm run build:webview", "Webview UI Production Build")
 const vsceCmd = `npx vsce package --out "${outputPath}"`
 runCommand(vsceCmd, "VSIX Packaging with VSCE")
 
+// 7. Check package size
+function getFileSizeInMB(filePath) {
+	const stats = fs.statSync(filePath)
+	const fileSizeInBytes = stats.size
+	const fileSizeInMB = fileSizeInBytes / (1024 * 1024)
+	return fileSizeInMB.toFixed(2)
+}
+
+function formatSize(size) {
+	if (size < 1) {
+		return `${(size * 1024).toFixed(2)} KB`
+	}
+	return `${size} MB`
+}
+
+function analyzePackageSize() {
+	console.log("\n📊 Analyzing package size...")
+
+	try {
+		const packageSizeInMB = getFileSizeInMB(outputPath)
+		console.log(`📦 Package size: ${formatSize(packageSizeInMB)}`)
+
+		// Warning thresholds
+		const WARNING_THRESHOLD_MB = 300
+		const CRITICAL_THRESHOLD_MB = 750
+
+		if (packageSizeInMB > CRITICAL_THRESHOLD_MB) {
+			console.log("\n❗❗❗ CRITICAL SIZE WARNING ❗❗❗")
+			console.log(`📢 Package size is extremely large (${packageSizeInMB} MB)!`)
+			console.log("📢 This may cause issues with extension installation and performance.")
+			console.log("📢 Consider reviewing .vscodeignore to exclude unnecessary files.")
+		} else if (packageSizeInMB > WARNING_THRESHOLD_MB) {
+			console.log("\n⚠️ SIZE WARNING ⚠️")
+			console.log(`📢 Package size is quite large (${packageSizeInMB} MB).`)
+			console.log("📢 Consider optimizing the package by updating .vscodeignore.")
+		} else {
+			console.log("✅ Package size is within acceptable range.")
+		}
+
+		return packageSizeInMB
+	} catch (error) {
+		console.error(`❌ Failed to analyze package size: ${error.message}`)
+		return null
+	}
+}
+
+const packageSize = analyzePackageSize()
+
 console.log(`\n🎉 Successfully packaged VSIX: ${outputPath}`)
-console.log("✨ Caret release packaging process completed! ✨")
+console.log(`📦 Final package size: ${formatSize(packageSize)} MB`)
+console.log("\n✨ Caret release packaging process completed! ✨")
+console.log("\n👉 To examine which files are included in your VSIX package, you can:")
+console.log("   1. Rename the .vsix file to .zip")
+console.log("   2. Extract the contents")
+console.log("   3. Check the 'extension' folder to see all included files")
+console.log("\n👉 Or use the 'vsce ls' command to list files that will be included in the package")

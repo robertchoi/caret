@@ -83,7 +83,7 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 
 			// Check that it's not too complex (KISS principle)
 			const lines = content.split("\n").length
-			expect(lines).toBeLessThan(200) // Should be simple wrapper
+			expect(lines).toBeLessThan(300) // Should be simple wrapper (increased for JSON overlay features)
 		})
 	})
 
@@ -134,9 +134,9 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			const filePath = path.resolve(__dirname, "../core/prompts/CaretSystemPrompt.ts")
 			const stats = fs.statSync(filePath)
 
-			// Should be around 4KB as mentioned in requirements
+			// Should be around 4-8KB (increased for JSON overlay features)
 			expect(stats.size).toBeGreaterThan(3000) // At least 3KB
-			expect(stats.size).toBeLessThan(8000) // No more than 8KB (simple wrapper)
+			expect(stats.size).toBeLessThan(10000) // No more than 10KB (with JSON overlay features)
 		})
 
 		it("should have proper TypeScript types file", async () => {
@@ -145,9 +145,9 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			const typesPath = path.resolve(__dirname, "../core/prompts/types.ts")
 			const stats = fs.statSync(typesPath)
 
-			// Should be around 0.7KB as mentioned
+			// Should be around 0.7-2KB (increased for JSON overlay types)
 			expect(stats.size).toBeGreaterThan(500) // At least 0.5KB
-			expect(stats.size).toBeLessThan(1500) // No more than 1.5KB
+			expect(stats.size).toBeLessThan(2500) // No more than 2.5KB (with JSON overlay types)
 		})
 	})
 

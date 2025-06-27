@@ -1,8 +1,7 @@
-# Default
+# Default - Basic VSCode Extension Files
 .vscode/**
 .vscode-test/**
 out/**
-node_modules/**
 src/**
 .gitignore
 .yarnrc
@@ -14,13 +13,46 @@ vsc-extension-quickstart.md
 **/*.ts
 **/.vscode-test.*
 
-# Custom
+# Custom Ignored Files
 demo.gif
 .nvmrc
 .gitattributes
 .prettierignore
+.eslintignore
+.prettierrc
+.github/**
+.husky/**
 
-# Ignore all webview-ui files except the build directory (https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/frameworks/hello-world-react-cra/.vscodeignore)
+# Configuration Files
+*.config.ts
+*.config.js
+*.env*
+vitest.config.*
+
+# Specific Project Files
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+README.*.md
+
+# Development Scripts
+caret-scripts/**
+scripts/**
+
+# Dev Directories
+eslint-rules/**
+webview-ui/tests/**
+coverage/**
+.changeset/**
+__tests__/**
+__mocks__/**
+.turbo
+dist-standalone/**
+
+# Build Files
+tsconfig.tsbuildinfo
+
+# Ignore all webview-ui files except the build directory
 webview-ui/src/**
 webview-ui/public/**
 webview-ui/index.html
@@ -28,12 +60,35 @@ webview-ui/README.md
 webview-ui/package.json
 webview-ui/package-lock.json
 webview-ui/node_modules/**
+webview-ui/cypress/**
+webview-ui/cypress.*
+webview-ui/*.config.*
+webview-ui/tsconfig*
+webview-ui/.env*
 **/.gitignore
 
-# Ignore docs
-docs/**
+# Ignore all node_modules EXCEPT specific dependencies that are needed
+node_modules/**
 
-# Fix issue where codicons don't get packaged (https://github.com/microsoft/vscode-extension-samples/issues/692)
+# Ignore documentation files
+caret-docs/**
+docs/**
+evals/**
+
+# Ignore backup and build files
+**/*.cline
+**/*.backup
+**/*.bak
+**/*.log
+**/*.tgz
+**/*.zip
+*.vsix
+
+# Ignore Proto source files
+proto/**
+!proto/build/**
+
+# Fix issue where codicons don't get packaged
 !node_modules/@vscode/codicons/dist/codicon.css
 !node_modules/@vscode/codicons/dist/codicon.ttf
 
@@ -44,5 +99,12 @@ docs/**
 # Include default themes JSON files used in getTheme
 !src/integrations/theme/default-themes/**
 
-# Include icons
+# Include necessary assets
 !assets/icons/**
+!caret-assets/icons/**
+!caret-assets/template_characters/**
+!caret-assets/rules/**
+
+# Include compiled output
+!dist/**
+!webview-ui/build/**

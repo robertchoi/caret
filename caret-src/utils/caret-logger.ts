@@ -12,11 +12,20 @@ export enum CaretLogLevel {
 }
 
 export class CaretLogger {
+	private static instance: CaretLogger
 	private outputChannel: OutputChannel | null = null
 	private logLevel: CaretLogLevel = CaretLogLevel.DEBUG
 
 	constructor(outputChannel?: OutputChannel) {
 		this.outputChannel = outputChannel || null
+	}
+
+	// CARET MODIFICATION: Singleton pattern support
+	static getInstance(outputChannel?: OutputChannel): CaretLogger {
+		if (!CaretLogger.instance) {
+			CaretLogger.instance = new CaretLogger(outputChannel)
+		}
+		return CaretLogger.instance
 	}
 
 	setOutputChannel(outputChannel: OutputChannel): void {

@@ -64,6 +64,9 @@ caret-docs/**
 docs/**
 evals/**
 
+# Ignore test templates
+caret-assets/test-templates/**
+
 # Ignore backup and build files
 **/*.cline
 **/*.backup

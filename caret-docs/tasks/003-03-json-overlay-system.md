@@ -546,17 +546,12 @@ export class PromptOverlayEngine {
    - PromptTemplate, OverlayResult 등 타입 추가 완료
    - 완전한 타입 안전성 확보
 
-4. **`caret-assets/prompt-templates/`** ✅
-   - `alpha-personality.json` - Alpha Yang AI 메이드 페르소나
-   - `tdd-focused.json` - TDD 방법론 강화 템플릿  
-   - `enhanced-debugging.json` - 체계적 디버깅 접근법
-
-5. **`caret-src/__tests__/json-overlay-*.test.ts`** ✅
+4. **`caret-src/__tests__/json-overlay-*.test.ts`** ✅
    - `json-overlay-system.test.ts` - 시스템 단위 테스트
    - `json-overlay-integration.test.ts` - 통합 테스트
    - `json-overlay-real-files.test.ts` - 실제 파일 시스템 테스트
 
-6. **`caret-src/core/prompts/CaretSystemPrompt.ts`** ✅ (확장)
+5. **`caret-src/core/prompts/CaretSystemPrompt.ts`** ✅ (확장)
    - `generateSystemPromptWithTemplates()` 메서드 추가
    - 완전한 JSON 템플릿 적용 기능
 

@@ -22,12 +22,21 @@ import { PromptTemplate, TemplateValidationResult } from "./types"
 export class JsonTemplateLoader {
 	private templateCache: Map<string, PromptTemplate>
 	private templateDir: string
+	private isTestEnvironment: boolean
 
-	constructor(extensionPath: string) {
+	constructor(extensionPath: string, useTestTemplates: boolean = false) {
 		this.templateCache = new Map()
-		this.templateDir = path.join(extensionPath, "caret-assets", "prompt-templates")
-
-		caretLogger.info(`[JsonTemplateLoader] Initialized with template directory: ${this.templateDir}`, "JSON_LOADER")
+		this.isTestEnvironment = useTestTemplates
+		
+		// CARET MODIFICATION: Use test-templates directory for tests
+		if (useTestTemplates) {
+			this.templateDir = path.join(extensionPath, "caret-assets", "test-templates")
+			caretLogger.info(`[JsonTemplateLoader] Initialized with TEST template directory: ${this.templateDir}`, "JSON_LOADER")
+		} else {
+			// CARET MODIFICATION: Use sections directory for system prompt JSON files
+			this.templateDir = path.join(extensionPath, "caret-src", "core", "prompts", "sections")
+			caretLogger.info(`[JsonTemplateLoader] Initialized with sections directory: ${this.templateDir}`, "JSON_LOADER")
+		}
 	}
 
 	/**
@@ -93,9 +102,9 @@ export class JsonTemplateLoader {
 			if (!template.metadata) {
 				errors.push("Missing metadata section")
 			} else {
-				if (!template.metadata.name) errors.push("Missing metadata.name")
-				if (!template.metadata.version) errors.push("Missing metadata.version")
-				if (!template.metadata.description) errors.push("Missing metadata.description")
+				if (!template.metadata.name) { errors.push("Missing metadata.name") }
+				if (!template.metadata.version) { errors.push("Missing metadata.version") }
+				if (!template.metadata.description) { errors.push("Missing metadata.description") }
 				if (!template.metadata.compatibleWith || !Array.isArray(template.metadata.compatibleWith)) {
 					errors.push("Missing or invalid metadata.compatibleWith")
 				}
@@ -108,8 +117,8 @@ export class JsonTemplateLoader {
 						errors.push("add.sections must be an array")
 					} else {
 						template.add.sections.forEach((section, index) => {
-							if (!section.id) errors.push(`add.sections[${index}] missing id`)
-							if (!section.content) errors.push(`add.sections[${index}] missing content`)
+							if (!section.id) { errors.push(`add.sections[${index}] missing id`) }
+							if (!section.content) { errors.push(`add.sections[${index}] missing content`) }
 							if (
 								!["before_tools", "after_tools", "before_objective", "after_objective"].includes(section.position)
 							) {
@@ -139,8 +148,8 @@ export class JsonTemplateLoader {
 						errors.push("modify.targetSections must be an array")
 					} else {
 						template.modify.targetSections.forEach((mod, index) => {
-							if (!mod.target) errors.push(`modify.targetSections[${index}] missing target`)
-							if (!mod.replacement) errors.push(`modify.targetSections[${index}] missing replacement`)
+							if (!mod.target) { errors.push(`modify.targetSections[${index}] missing target`) }
+							if (!mod.replacement) { errors.push(`modify.targetSections[${index}] missing replacement`) }
 							if (typeof mod.preserveFormat !== "boolean") {
 								errors.push(`modify.targetSections[${index}] preserveFormat must be boolean`)
 							}

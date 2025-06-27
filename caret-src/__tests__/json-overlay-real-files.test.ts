@@ -67,8 +67,9 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 			isClaude4ModelFamily: false,
 		}
 
-		// Initialize with real extension path
-		caretSystemPrompt = new CaretSystemPrompt(projectRoot)
+		// Initialize with real extension path and test mode enabled
+		// This will use caret-assets/test-templates directory for test templates
+		caretSystemPrompt = new CaretSystemPrompt(projectRoot, true)
 
 		// Clear all mocks
 		vi.clearAllMocks()

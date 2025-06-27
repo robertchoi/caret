@@ -190,20 +190,20 @@
 				}
 			}
 		},
-		"plan_mode_respond": {
-			"description": "Respond to the user in PLAN MODE",
+		"new_task": {
+			"description": "Request to create a new task with preloaded context covering the conversation with the user up to this point and key information for continuing with the new task",
 			"params": {
-				"response": {
+				"context": {
 					"type": "string",
 					"required": true,
-					"desc": "The response to provide"
-				},
-				"options": {
-					"type": "string",
-					"required": false,
-					"desc": "Array of options for the user (optional)"
+					"desc": "The context to preload the new task with. Should include: 1. Current Work, 2. Key Technical Concepts, 3. Relevant Files and Code, 4. Problem Solving, 5. Pending Tasks and Next Steps"
 				}
 			}
+		},
+		"load_mcp_documentation": {
+			"description": "Load documentation about creating MCP servers. This tool should be used when the user requests to create or install an MCP server",
+			"params": {}
 		}
+
 	}
 }

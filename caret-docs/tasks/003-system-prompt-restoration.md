@@ -4,7 +4,7 @@
 **담당자**: luke  
 **우선순위**: 🚨 **Critical - 기본 기능 완전성**  
 **전체 기간**: 1주 (실제 작업 시간)  
-**상태**: 🔄 **재설계 중** - 이전 접근 방식 폐기 후 새로 시작
+**상태**: 🔄 **작업 중**
 
 ## 🚨 **문제 정의**
 
@@ -57,54 +57,53 @@ const jsonPromptValidation = {
 - **최적화**: 의미 보존하면서 토큰 효율성 향상
 - **검증 필수**: 모든 변경사항은 기능 검증 통과 필수
 
-### **Plan/Act 모드의 구체적 문제점**
+### **Plan/Act 모드의 변경 → Ask/Agent 모드**
 
-**❌ Plan 모드의 제약사항**:
-- **파일 편집 불가**: 논의만 가능, 실제 협업 작업 불가
-- **수동적 태도**: 분석만 하고 실행하지 않음
-- **비효율적 워크플로우**: 개발자가 일일이 Act 모드로 전환해야 함
+**🔄 변경 배경**: 
+- 기존 Cline의 Plan/Act 분업화 워크플로우는 비효율적
+- Plan: 계획만 세우고 문서 작성 불가 → 설계 단계 활용 어려움
+- Act: 강제적 행동, 논의 불가 → 중단 후 Plan으로 돌아가야 함
 
-**❌ Act 모드의 문제 행동**:
-1. **성급한 행동**: 충분한 분석 없이 즉시 작업 시작
-2. **불완전한 분석**: 코드 분석을 끝까지 완료하지 않음
-3. **근시안적 사고**: 전체 그림을 보지 않고 발견된 문제만 해결
-4. **고집스러운 시도**: 해결 불가능한 문제도 끝까지 시도하여 상황 악화
-5. **도움 요청 회피**: 개발자에게 쉽게 도움을 요청하지 않음
+**✨ 새로운 모드 시스템**:
 
-**🎯 Agent 모드 통합의 배경**:
-- **Workflow Rule 설정 기능**: 새로운 rule 설정 기능으로 단일 모드에서도 다양한 작업 패턴 지원 가능
-- **모드 전환 비용 제거**: Plan/Act 전환 없이 상황에 맞는 적절한 행동
-- **통합된 지능**: 분석과 실행을 자연스럽게 결합한 협력적 접근
-
-**🎯 Agent 모드로 해결할 목표**:
-```typescript
-// ✅ Agent 모드의 개선된 행동 (Workflow Rule 기반)
-const agentModeGoals = {
-  collaboration: "생각하며 협업 - 분석과 실행을 자연스럽게 결합",
-  thoroughAnalysis: "문제 발견 시 전체 맥락 파악 후 행동",
-  helpSeeking: "어려운 문제는 개발자와 협력하여 해결",
-  balancedApproach: "분석과 실행의 적절한 균형",
-  contextualThinking: "부분 문제를 전체 아키텍처 관점에서 접근",
-  workflowAdaptation: "Rule 설정에 따른 유연한 작업 패턴 적용"
+#### **🤖 Agent 모드 (기본값)**
+```json
+{
+  "mode": "agent",
+  "isDefault": true,
+  "uiPosition": "first",
+  "description": "생각하며 협업하는 지능형 AI 어시스턴트"
 }
 ```
 
-### **이전 시도의 실패 분석**
+**Agent 모드의 핵심 개선**:
+- **협력적 지능**: 분석과 실행을 자연스럽게 결합
+- **전체적 사고**: 부분 문제를 아키텍처 관점에서 접근  
+- **균형잡힌 접근**: 충분한 분석 후 적절한 행동
+- **도움 요청**: 어려운 문제는 개발자와 협력
+- **Workflow Rule 적응**: 상황에 맞는 유연한 작업 패턴
 
-**❌ 003-01~04에서 범한 설계 오류들**:
-1. **Cline 원본 파싱/재구성 시도** - 정보 손실 발생
-2. **과도한 추상화** - extractXXX, analyzeClineFeatures 등
-3. **전체 대체 시도** - Cline 707줄을 JSON으로 완전 교체
-4. **복잡한 파이프라인** - generateCustomPrompt → loadTemplate → analyzeClineFeatures → merge
-5. **성능 개선 과장** - 0.24ms 차이를 "92.8% 개선"으로 표현
+#### **💬 Ask 모드 (보조 옵션)**
+```json
+{
+  "mode": "ask", 
+  "isDefault": false,
+  "uiPosition": "second",
+  "description": "코딩 없이 전문적 조언과 분석 제공"
+}
+```
 
-**🔍 실제 테스트에서 드러난 문제들**:
-- Template loading 실패 시 SYSTEM_PROMPT 폴백 작동 안함
-- web_fetch 등 핵심 도구 누락
-- Tool extraction이 단순 목록만 반환 (상세 설명 없음)
-- 4/8 테스트 실패 (50% 실패율)
+**Ask 모드의 특징**:
+- **질의응답 전용**: 코드 실행 없이 전문적 조언 제공
+- **분석 중심**: SW 개발 전문가 관점의 상담 역할
+- **사용자 주도**: 직접 코딩을 원하는 사용자를 위한 옵션
 
-## 🎯 **올바른 해결 방향**
+**🎯 구현 요구사항**:
+1. **JSON 템플릿**: plan_mode_respond 제거, agent/ask 모드별 템플릿 생성
+2. **UI 변경**: Plan/Act 버튼 → Ask/Agent 버튼, Agent 기본값
+3. **프롬프트 로직**: 모드별 다른 시스템 프롬프트 적용
+4. **검증**: 기존 기능 손실 없이 모드 전환 구현 
+
 
 ### **핵심 설계 철학: Cline 원본 보존 + JSON 오버레이**
 
@@ -169,16 +168,31 @@ class CaretPromptSystem {
 | **003-02** | Cline 원본 래퍼 구현 | SYSTEM_PROMPT 단순 래퍼, 검증 통과 확인 | 2-3시간 |
 | **003-03** | JSON 오버레이 시스템 구현 | 기본 JSON 로딩, 오버레이 적용, 검증 통과 | 2-3시간 |
 
-### **🎯 Phase 3: Agent 모드 구현**
+### **🎯 Phase 3: 핵심 시스템 통합 (가장 중요한 단계)**
 | Task | 제목 | 목표 | 예상 시간 |
 |------|------|------|-----------|
-| **003-04** | Plan/Act 제거 및 Agent 모드 적용 | 모드 제약 해제, 협력적 행동 패턴 적용 | 3-4시간 |
+| **003-04** | **Cline 시스템 프롬프트 JSON 변환** | **하드코딩된 707줄 → JSON 섹션별 분해, 기능 100% 보존** | **3-4시간** |
+| **003-05** | **CaretSystemPrompt 통합 구현** | **src/core/prompts/system.ts와 CaretSystemPrompt 연결, 검증 시스템 통과** | **2-3시간** |
 
-### **📚 Phase 4: 문서화 및 성능 평가**
+**🚨 Phase 3 핵심 구현 내용**:
+- **003-04**: Cline의 하드코딩된 시스템 프롬프트를 caret-src/core/prompts/sections/ JSON 파일들로 완전 변환
+- **003-05**: src/core/prompts/system.ts에서 CaretSystemPrompt 클래스 호출하도록 통합, SYSTEM_PROMPT 함수 오버라이드
+
+### **🔄 Phase 4: Plan/Act → Ask/Agent 모드 전환**
 | Task | 제목 | 목표 | 예상 시간 |
 |------|------|------|-----------|
-| **003-05** | Cline 머징 고려 개발가이드 문서화 | 향후 Cline 업데이트 대응 방안 및 시스템 유지보수 가이드 | 2-3시간 |
-| **003-06** | 성능평가 및 개선사항 보고서 생성 | 기존 Cline 대비 개선사항 측정, 성능 분석, 종합 보고서 작성 | 2-3시간 |
+| **003-06** | **Ask/Agent 모드 JSON 템플릿 구현** | **plan_mode_respond 제거, agent/ask 모드별 프롬프트 템플릿 생성** | **2-3시간** |
+| **003-07** | **UI 모드 전환 구현** | **프런트엔드 Plan/Act 버튼을 Ask/Agent로 변경, Agent 기본값 설정** | **2-3시간** |
+
+**🎯 Phase 4 핵심 구현 내용**:
+- **003-06**: plan_mode_respond 도구 완전 제거, Agent/Ask 모드별 차별화된 프롬프트 생성
+- **003-07**: webview-ui에서 Plan/Act UI를 Ask/Agent로 변경, 백엔드 연동
+
+### **📚 Phase 5: 문서화 및 성능 평가**
+| Task | 제목 | 목표 | 예상 시간 |
+|------|------|------|-----------|
+| **003-08** | Cline 머징 고려 개발가이드 문서화 | 향후 Cline 업데이트 대응 방안 및 시스템 유지보수 가이드 | 2-3시간 |
+| **003-09** | 성능평가 및 개선사항 보고서 생성 | 기존 Cline 대비 개선사항 측정, 성능 분석, 종합 보고서 작성 | 2-3시간 |
 
 ## 🔧 **핵심 설계 원칙**
 
@@ -284,17 +298,44 @@ class CaretPromptSystem {
 
 ## �� **참고 자료**
 
-### **분석 대상 파일들**
-- `src/core/prompts/system.ts` - Cline 메인 프롬프트 (707줄)
-- `src/core/prompts/model_prompts/claude4.ts` - Claude4 표준
-- `src/core/prompts/model_prompts/claude4-experimental.ts` - 실험 기능
-- `caret-zero/src/core/prompts/` - 이전 시도 참고용
+### **🔍 분석 대상 파일들**  
+```typescript
+// Cline 원본 시스템 (하드코딩)
+src/core/prompts/system.ts                    // 메인 시스템 프롬프트 (707줄)
+src/core/prompts/model_prompts/claude4.ts    // Claude4 표준 모델
+src/core/prompts/model_prompts/claude4-experimental.ts // 실험 기능
 
-### **검증 도구 (새로 구현)**
+// caret-zero 기존 구현 (JSON) - 이미 완성됨! ✅
+caret-src/core/prompts/CaretSystemPrompt.ts  // 메인 래퍼 클래스
+caret-src/core/prompts/sections/*.json       // JSON 템플릿들  
+caret-src/core/prompts/JsonTemplateLoader.ts // JSON 로딩 시스템
+caret-src/core/prompts/PromptOverlayEngine.ts // 오버레이 엔진
+```
+
+### **📋 Plan/Act → Ask/Agent 변경 포인트**
+```typescript
+// UI 변경 대상 파일들
+webview-ui/src/components/ChatView/ChatView.tsx  // Plan/Act 버튼 UI
+src/shared/ExtensionMessage.ts                   // plan_mode_respond 타입
+src/core/task/index.ts                          // plan_mode_respond 핸들러  
+src/core/prompts/system.ts                      // plan_mode_respond 도구 정의
+
+// 프롬프트 변경 대상  
+src/core/prompts/system.ts:558-566              // Plan/Act 모드 설명 부분
+src/core/prompts/system.ts:265-272              // plan_mode_respond 도구 정의
+```
+
+### **🔧 검증 도구 (이미 구현됨)**
 - **Cline 기능 검증 시스템** - 모든 도구와 기능 자동 검증
-- **점진적 교체 검증** - 단계별 변경 시 안전성 확인
+- **점진적 교체 검증** - 단계별 변경 시 안전성 확인  
 - Vitest 기반 TDD 테스트 시스템
 - CaretLogger를 통한 상세 로깅
+
+### **⚡ 핵심 누락 업무 요약**
+1. **003-04**: 🚨 **가장 중요** - Cline 하드코딩 → JSON 완전 변환
+2. **003-05**: CaretSystemPrompt와 SYSTEM_PROMPT 함수 연결
+3. **003-06**: plan_mode_respond 제거 + Agent/Ask 프롬프트 생성
+4. **003-07**: UI Plan/Act → Ask/Agent 버튼 변경
 
 ---
 

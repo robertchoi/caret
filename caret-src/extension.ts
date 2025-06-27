@@ -5,6 +5,7 @@ import { CaretProvider, CARET_SIDEBAR_ID, CARET_TAB_PANEL_ID } from "./core/webv
 import { sendSettingsButtonClickedEvent } from "../src/core/controller/ui/subscribeToSettingsButtonClicked"
 import { WebviewProviderType } from "../src/shared/webview/types"
 import { caretLogger } from "./utils/caret-logger"
+import { CaretSystemPrompt } from "./core/prompts/CaretSystemPrompt"
 
 let outputChannel: vscode.OutputChannel
 
@@ -16,6 +17,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	caretLogger.setOutputChannel(outputChannel)
 	caretLogger.info("Caret extension activating...")
 	caretLogger.extensionActivated()
+
+	// CARET MODIFICATION: Initialize CaretSystemPrompt singleton with extensionPath
+	// This resolves the extensionPath dependency for JSON-based system prompt generation
+	try {
+		const extensionPath = context.extensionPath
+		CaretSystemPrompt.getInstance(extensionPath)
+		caretLogger.success("CaretSystemPrompt initialized with JSON-based prompt system", "SYSTEM")
+	} catch (error) {
+		caretLogger.error("Failed to initialize CaretSystemPrompt", "SYSTEM")
+		caretLogger.error(error.toString(), "SYSTEM")
+	}
 
 	const sidebarWebviewProvider = new CaretProvider(context, outputChannel, WebviewProviderType.SIDEBAR)
 

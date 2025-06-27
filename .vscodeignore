@@ -52,23 +52,12 @@ dist-standalone/**
 # Build Files
 tsconfig.tsbuildinfo
 
-# Ignore all webview-ui files except the build directory
-webview-ui/src/**
-webview-ui/public/**
-webview-ui/index.html
-webview-ui/README.md
-webview-ui/package.json
-webview-ui/package-lock.json
-webview-ui/node_modules/**
-webview-ui/cypress/**
-webview-ui/cypress.*
-webview-ui/*.config.*
-webview-ui/tsconfig*
-webview-ui/.env*
-**/.gitignore
+# 🚨 CRITICAL: Exclude entire caret-zero directory (contains huge node_modules)
+caret-zero/**
 
-# Ignore all node_modules EXCEPT specific dependencies that are needed
+# 🚨 CRITICAL: Exclude all node_modules except specific whitelisted ones
 node_modules/**
+webview-ui/node_modules/**
 
 # Ignore documentation files
 caret-docs/**
@@ -87,6 +76,22 @@ evals/**
 # Ignore Proto source files
 proto/**
 !proto/build/**
+
+# Ignore all webview-ui files except the build directory
+webview-ui/src/**
+webview-ui/public/**
+webview-ui/index.html
+webview-ui/README.md
+webview-ui/package.json
+webview-ui/package-lock.json
+webview-ui/cypress/**
+webview-ui/cypress.*
+webview-ui/*.config.*
+webview-ui/tsconfig*
+webview-ui/.env*
+**/.gitignore
+
+# 🎯 INCLUDE ONLY: Essential runtime dependencies
 
 # Fix issue where codicons don't get packaged
 !node_modules/@vscode/codicons/dist/codicon.css

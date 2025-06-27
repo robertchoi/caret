@@ -137,25 +137,20 @@ Caret은 [Cline](https://github.com/cline/cline) 프로젝트의 **Fork 기반 �
     
     이 구조를 통해 **Cline의 강력한 기능을 그대로 활용**하면서, **Caret만의 고유한 기능을 안전하게 확장**할 수 있습니다.
 
-### 2. 의존성 설치 (권장)
+### 2. 의존성 설치
 
-Caret 프로젝트의 모든 의존성을 가장 쉽게 설치하는 방법은 제공된 스크립트를 사용하는 것입니다.
+Caret 프로젝트의 모든 의존성을 설치하는 방법입니다.
 
 ```bash
-# 모든 플랫폼에서 권장
+# 모든 플랫폼에서 권장 - 루트와 webview-ui 의존성을 한번에 설치
 npm run install:all
 ```
 
-또는 Windows 환경에서는 아래 PowerShell 스크립트를 사용할 수도 있습니다.
+이 명령어는 다음과 같은 작업을 수행합니다:
+- 루트 프로젝트의 의존성 설치 (`npm install`)
+- webview-ui 디렉토리의 의존성 설치 (`cd webview-ui && npm install`)
 
-```powershell
-# Windows 사용자 권장
-.\caret-release-build.ps1
-```
-
-이 스크립트들은 백엔드와 프론트엔드 의존성 설치, Protocol Buffer 컴파일까지 모든 필요한 단계를 자동으로 처리해줍니다.
-
-> **중요**: 이 자동 설정 스크립트를 먼저 시도하시는 것을 강력히 권장합니다. 대부분의 경우 이 방법으로 충분합니다.
+> **참고**: `npm run install:all`은 **의존성 설치 전용** 명령어입니다. VSIX 파일 빌드와는 별개의 작업입니다.
 
 ### 3. 수동 설정 (문제 발생 시)
 
@@ -263,24 +258,28 @@ Caret 프로젝트는 다음 TDD 원칙을 준수합니다:
 
 자세한 테스트 가이드는 **[테스트 가이드](./caret-docs/development/testing-guide.mdx)**를 참조하세요.
 
-### 6. VSIX 릴리즈 패키징 (로컬 빌드용)
+### 6. VSIX 릴리즈 패키징 🎯
 
-개발된 확장 프로그램을 `.vsix` 파일로 패키징하여 로컬 설치 또는 배포 준비를 할 수 있습니다. Caret에서는 다음 두 가지 릴리즈 빌드 방법을 제공합니다.
+개발된 확장 프로그램을 `.vsix` 파일로 패키징하여 로컬 설치 또는 배포할 수 있습니다. 
+**모든 빌드 결과물은 `output/` 디렉토리에 `caret-{버전}-{날짜시간}.vsix` 형식으로 생성됩니다.**
 
-#### 6-1. JavaScript 스크립트 방식 (모든 환경)
+#### 6-1. JavaScript 스크립트 방식 (✅ 권장 - 모든 환경)
 
 ```bash
 # 프로젝트 루트에서 실행
 npm run package:release
 ```
 
-이 명령어는 `node ./caret-scripts/package-release.js`를 실행하여 다음 작업을 수행합니다:
-- `package.json`에서 버전을 읽어옵니다.
-- 타임스탬프를 생성합니다.
-- `output/` 디렉토리가 없으면 생성합니다.
-- 이전 빌드 아티팩트(`webview-ui/build/`, `dist/`)를 정리합니다.
-- 전체 클린 빌드를 실행합니다 (`npm run protos`, `npm run compile`, `npm run build:webview`).
-- `vsce package` 명령을 사용하여 `output/caret-{version}-{YYYYMMDDHHMM}.vsix` 형식으로 패키징합니다.
+**이 명령어로 생성되는 파일**: `output/caret-0.1.0-202501271545.vsix`
+
+이 명령어는 다음 작업을 자동으로 수행합니다:
+- ✅ `package.json`에서 버전 정보 읽기
+- ✅ 타임스탬프 생성 (YYYYMMDDHHMM 형식)
+- ✅ `output/` 디렉토리 생성 (없는 경우)
+- ✅ 이전 빌드 정리 (`webview-ui/build/`, `dist/`)
+- ✅ 전체 클린 빌드 (`npm run protos`, `npm run compile`, `npm run build:webview`)
+- ✅ VSIX 패키징 (`vsce package --out output/caret-{버전}-{타임스탬프}.vsix`)
+- ✅ 패키지 크기 분석 및 경고 (300MB/750MB 임계값)
 
 #### 6-2. PowerShell 스크립트 방식 (Windows 환경)
 
@@ -289,23 +288,30 @@ npm run package:release
 ./caret-release-build.ps1
 ```
 
-이 스크립트는 더 자세한 빌드 과정을 제공하며 다음과 같은 기능을 포함합니다:
-- 색상 출력으로 가시성 높은 로그 제공
-- 환경 확인 (Node.js, npm, vsce 설치 여부)
-- 버전 정보 확인 및 업데이트 옵션
-- 의존성 설치 통합
-- 이전 빌드 정리 (선택적)
-- 테스트 자동 실행 (선택적)
-- 완전한 프로덕션 빌드 생성
-- VS Code에 생성된 VSIX를 바로 설치하는 옵션
+**이 스크립트로 생성되는 파일**: `output/caret-0.1.0-202501271545.vsix`
+
+PowerShell 스크립트의 추가 기능:
+- 🎨 색상 출력으로 가시성 높은 로그
+- 🔍 환경 확인 (Node.js, npm, vsce 설치 여부)
+- 📦 버전 정보 확인 및 업데이트 옵션
+- 🧪 테스트 자동 실행 (선택적)
+- 💾 생성된 VSIX를 VS Code에 바로 설치하는 옵션
 
 스크립트 실행 옵션:
 ```powershell
-# 테스트 건너뛰기, 상세 로그, 출력 디렉토리 지정 예시
-./caret-release-build.ps1 -SkipTests -Verbose -OutputDir "my-release"
+# 테스트 건너뛰기, 상세 로그 예시
+./caret-release-build.ps1 -SkipTests -Verbose
+
+# 출력 디렉토리 변경 예시
+./caret-release-build.ps1 -OutputDir "my-release"
 ```
 
-생성된 `.vsix` 파일은 지정된 출력 디렉토리(기본값: `release/`)에서 찾을 수 있습니다.
+#### 🚀 빌드 결과 확인
+
+두 방법 모두 동일한 결과를 생성합니다:
+- **위치**: `output/caret-{버전}-{날짜시간}.vsix`
+- **예시**: `output/caret-0.1.0-202501271545.vsix`
+- **설치**: `code --install-extension output/caret-0.1.0-202501271545.vsix`
 
 ## 테스트 및 품질 관리 🧪
 

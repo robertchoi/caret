@@ -94,3 +94,6 @@ test-results.json
 
 # Backup files
 *.cline
+
+# Temporary submodule reference (서브모듈로 임시 참조)
+caret-zero/

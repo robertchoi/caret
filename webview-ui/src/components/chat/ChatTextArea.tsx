@@ -36,7 +36,8 @@ import { EmptyRequest, StringRequest } from "@shared/proto/common"
 import { FileSearchRequest, RelativePathsRequest } from "@shared/proto/file"
 import { UpdateApiConfigurationRequest } from "@shared/proto/models"
 import { convertApiConfigurationToProto } from "@shared/proto-conversions/models/api-configuration-conversion"
-import { PlanActMode, TogglePlanActModeRequest } from "@shared/proto/state"
+// CARET MODIFICATION: Chatbot/Agent 용어 통일 - PlanActMode 제거
+import { ChatbotAgentMode, ToggleChatbotAgentModeRequest } from "@shared/proto/state"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import React, { forwardRef, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import DynamicTextArea from "react-textarea-autosize"
@@ -44,6 +45,8 @@ import { useClickAway, useEvent, useWindowSize } from "react-use"
 import styled from "styled-components"
 import ClineRulesToggleModal from "../cline-rules/ClineRulesToggleModal"
 import ServersToggleModal from "./ServersToggleModal"
+// CARET MODIFICATION: 다국어 지원을 위한 i18n import
+import { t } from "@/caret/utils/i18n"
 
 const getImageDimensions = (dataUrl: string): Promise<{ width: number; height: number }> => {
 	return new Promise((resolve, reject) => {
@@ -90,9 +93,13 @@ interface GitCommit {
 	description: string
 }
 
-const PLAN_MODE_COLOR = "var(--vscode-inputValidation-warningBorder)"
+// CARET MODIFICATION: Ask mode color for Chatbot/Agent system (완전 통일)
+// CARET MODIFICATION: CHATBOT 모드 브랜드 컬러 - 더 선명한 블루 계열로 가시성 개선
+const CHATBOT_MODE_COLOR = "var(--vscode-textLink-foreground)"
 
-const SwitchOption = styled.div<{ isActive: boolean }>`
+const SwitchOption = styled.div.withConfig({
+	shouldForwardProp: (prop) => prop !== "isActive",
+})<{ isActive: boolean }>`
 	padding: 2px 8px;
 	color: ${(props) => (props.isActive ? "white" : "var(--vscode-input-foreground)")};
 	z-index: 1;
@@ -121,13 +128,15 @@ const SwitchContainer = styled.div<{ disabled: boolean }>`
 	user-select: none; // Prevent text selection
 `
 
-const Slider = styled.div<{ isAct: boolean; isPlan?: boolean }>`
+const Slider = styled.div.withConfig({
+	shouldForwardProp: (prop) => !["isAgent", "isChatbot"].includes(prop),
+})<{ isAgent: boolean; isChatbot?: boolean }>`
 	position: absolute;
 	height: 100%;
 	width: 50%;
-	background-color: ${(props) => (props.isPlan ? PLAN_MODE_COLOR : "var(--vscode-focusBorder)")};
+	background-color: ${(props) => (props.isChatbot ? CHATBOT_MODE_COLOR : "var(--vscode-focusBorder)")};
 	transition: transform 0.2s ease;
-	transform: translateX(${(props) => (props.isAct ? "100%" : "0%")});
+	transform: translateX(${(props) => (props.isAgent ? "100%" : "0%")});
 `
 
 const ButtonGroup = styled.div`
@@ -209,7 +218,9 @@ const ModelButtonWrapper = styled.div`
 	max-width: 100%; // Don't overflow parent
 `
 
-const ModelDisplayButton = styled.a<{ isActive?: boolean; disabled?: boolean }>`
+const ModelDisplayButton = styled.a.withConfig({
+	shouldForwardProp: (prop) => prop !== "isActive",
+})<{ isActive?: boolean; disabled?: boolean }>`
 	padding: 0px 0px;
 	height: 20px;
 	width: 100%;
@@ -989,8 +1000,8 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			}
 		}, [apiConfiguration, openRouterModels])
 
-		const onModeToggle = useCallback(() => {
-			// if (textAreaDisabled) return
+		const onChatbotAgentModeToggle = useCallback(() => {
+			// CARET MODIFICATION: Chatbot/Agent 통일 - 올바른 API와 타입 사용
 			let changeModeDelay = 0
 			if (showModelSelector) {
 				// user has model selector open, so we should save it before switching modes
@@ -998,9 +1009,10 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				changeModeDelay = 250 // necessary to let the api config update (we send message and wait for it to be saved) FIXME: this is a hack and we ideally should check for api config changes, then wait for it to be saved, before switching modes
 			}
 			setTimeout(() => {
-				const newMode = chatSettings.mode === "plan" ? PlanActMode.ACT : PlanActMode.PLAN
-				StateServiceClient.togglePlanActMode(
-					TogglePlanActModeRequest.create({
+				// CARET MODIFICATION: Chatbot/Agent 통일된 로직
+				const newMode = chatSettings.mode === "chatbot" ? ChatbotAgentMode.AGENT_MODE : ChatbotAgentMode.CHATBOT_MODE
+				StateServiceClient.toggleChatbotAgentMode(
+					ToggleChatbotAgentModeRequest.create({
 						chatSettings: {
 							mode: newMode,
 							preferredLanguage: chatSettings.preferredLanguage,
@@ -1020,7 +1032,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			}, changeModeDelay)
 		}, [chatSettings.mode, showModelSelector, submitApiConfig, inputValue, selectedImages, selectedFiles])
 
-		useShortcut("Meta+Shift+a", onModeToggle, { disableTextInputs: false }) // important that we don't disable the text input here
+		useShortcut("Meta+Shift+a", onChatbotAgentModeToggle, { disableTextInputs: false }) // important that we don't disable the text input here
 
 		const handleContextButtonClick = useCallback(() => {
 			// Focus the textarea first
@@ -1568,7 +1580,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 								isDraggingOver && !showUnsupportedFileError // Only show drag outline if not showing error
 									? "2px dashed var(--vscode-focusBorder)"
 									: isTextAreaFocused
-										? `1px solid ${chatSettings.mode === "plan" ? PLAN_MODE_COLOR : "var(--vscode-focusBorder)"}`
+										? `1px solid ${chatSettings.mode === "chatbot" ? CHATBOT_MODE_COLOR : "var(--vscode-focusBorder)"}`
 										: "none",
 							outlineOffset: isDraggingOver && !showUnsupportedFileError ? "1px" : "0px", // Add offset for drag-over outline
 						}}
@@ -1728,25 +1740,28 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							</ModelContainer>
 						</ButtonGroup>
 					</div>
-					{/* Tooltip for Plan/Act toggle remains outside the conditional rendering */}
+					{/* CARET MODIFICATION: Chatbot/Agent 다국어 UI - 완전 통일된 시스템 */}
 					<Tooltip
 						style={{ zIndex: 1000 }}
 						visible={shownTooltipMode !== null}
-						tipText={`In ${shownTooltipMode === "act" ? "Act" : "Plan"}  mode, Cline will ${shownTooltipMode === "act" ? "complete the task immediately" : "gather information to architect a plan"}`}
-						hintText={`Toggle w/ ${metaKeyChar}+Shift+A`}>
-						<SwitchContainer data-testid="mode-switch" disabled={false} onClick={onModeToggle}>
-							<Slider isAct={chatSettings.mode === "act"} isPlan={chatSettings.mode === "plan"} />
+						tipText={shownTooltipMode === "agent" ? t("mode.tooltip.agent") : t("mode.tooltip.chatbot")}
+						hintText={t("mode.tooltip.toggle", "common").replace("{{metaKey}}", metaKeyChar)}>
+						<SwitchContainer
+							data-testid="chatbot-agent-mode-switch"
+							disabled={false}
+							onClick={onChatbotAgentModeToggle}>
+							<Slider isAgent={chatSettings.mode === "agent"} isChatbot={chatSettings.mode === "chatbot"} />
 							<SwitchOption
-								isActive={chatSettings.mode === "plan"}
-								onMouseOver={() => setShownTooltipMode("plan")}
+								isActive={chatSettings.mode === "chatbot"}
+								onMouseOver={() => setShownTooltipMode("chatbot")}
 								onMouseLeave={() => setShownTooltipMode(null)}>
-								Plan
+								{t("mode.chatbot.label")}
 							</SwitchOption>
 							<SwitchOption
-								isActive={chatSettings.mode === "act"}
-								onMouseOver={() => setShownTooltipMode("act")}
+								isActive={chatSettings.mode === "agent"}
+								onMouseOver={() => setShownTooltipMode("agent")}
 								onMouseLeave={() => setShownTooltipMode(null)}>
-								Act
+								{t("mode.agent.label")}
 							</SwitchOption>
 						</SwitchContainer>
 					</Tooltip>

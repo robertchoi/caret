@@ -14,7 +14,7 @@ service StateService {
   rpc subscribeToState(EmptyRequest) returns (stream State);
   rpc toggleFavoriteModel(StringRequest) returns (Empty);
   rpc resetState(ResetStateRequest) returns (Empty);
-  rpc togglePlanActMode(TogglePlanActModeRequest) returns (Empty);
+  rpc toggleChatbotAgentMode(ToggleChatbotAgentModeRequest) returns (Empty);  // CARET MODIFICATION: Chatbot/Agent 용어 통일
   rpc updateAutoApprovalSettings(AutoApprovalSettingsRequest) returns (Empty);
   rpc updateSettings(UpdateSettingsRequest) returns (Empty);
 }
@@ -40,19 +40,20 @@ message TerminalProfileUpdateResponse {
   bool has_busy_terminals = 3;
 }
 
-message TogglePlanActModeRequest {
+// CARET MODIFICATION: Chatbot/Agent 용어 통일
+message ToggleChatbotAgentModeRequest {
   Metadata metadata = 1;
   ChatSettings chat_settings = 2;
   optional ChatContent chat_content = 3;
 }
 
-enum PlanActMode {
-  PLAN = 0;
-  ACT = 1;
+enum ChatbotAgentMode {
+  CHATBOT_MODE = 0;    // CARET MODIFICATION: Chatbot/Agent 용어 통일 (기존 CHATBOT_MODE)
+  AGENT_MODE = 1;      // CARET MODIFICATION: Chatbot/Agent 용어 통일
 }
 
 message ChatSettings {
-  PlanActMode mode = 1;
+  ChatbotAgentMode mode = 1;
   optional string preferred_language = 2;
   optional string open_ai_reasoning_effort = 3;
   optional string ui_language = 4;  // CARET MODIFICATION: UI 표시 언어 (Caret 전용)
@@ -94,7 +95,7 @@ message UpdateSettingsRequest {
   Metadata metadata = 1;
   optional ApiConfiguration api_configuration = 2;
   optional string telemetry_setting = 3;
-  optional bool plan_act_separate_models_setting = 4;
+  optional bool chatbot_agent_separate_models_setting = 4;  // CARET MODIFICATION: Chatbot/Agent 용어 통일
   optional bool enable_checkpoints_setting = 5;
   optional bool mcp_marketplace_enabled = 6;
   optional ChatSettings chat_settings = 7;

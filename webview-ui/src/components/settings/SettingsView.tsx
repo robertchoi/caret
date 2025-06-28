@@ -7,7 +7,8 @@ import { validateApiConfiguration, validateModelId } from "@/utils/validate"
 import { vscode } from "@/utils/vscode"
 import { ExtensionMessage } from "@shared/ExtensionMessage"
 import { EmptyRequest, StringRequest } from "@shared/proto/common"
-import { PlanActMode, ResetStateRequest, TogglePlanActModeRequest, UpdateSettingsRequest } from "@shared/proto/state"
+// CARET MODIFICATION: Chatbot/Agent 용어 통일 - PlanActMode 제거
+import { ChatbotAgentMode, ResetStateRequest, ToggleChatbotAgentModeRequest, UpdateSettingsRequest } from "@shared/proto/state"
 import { VSCodeButton, VSCodeCheckbox, VSCodeLink, VSCodeTextArea } from "@vscode/webview-ui-toolkit/react"
 import { CheckCheck, FlaskConical, Info, LucideIcon, Settings, SquareMousePointer, SquareTerminal, Webhook } from "lucide-react"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
@@ -195,7 +196,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 			// caretWebviewLogger.debug("[DEBUG] Saving settings with chatSettings:", chatSettings); // CARET MODIFICATION: 주석 처리
 			await StateServiceClient.updateSettings(
 				UpdateSettingsRequest.create({
-					planActSeparateModelsSetting,
+					chatbotAgentSeparateModelsSetting: planActSeparateModelsSetting,
 					telemetrySetting,
 					enableCheckpointsSetting,
 					mcpMarketplaceEnabled,
@@ -436,7 +437,9 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		}
 	}
 
-	const handlePlanActModeChange = async (tab: "plan" | "act") => {
+	// CARET MODIFICATION: Chatbot/Agent 통일 - 직접 비교
+	const handleChatbotAgentModeChange = async (tab: "chatbot" | "agent") => {
+		// CARET MODIFICATION: Chatbot/Agent 통일 - 직접 모드 비교
 		if (tab === chatSettings.mode) {
 			return
 		}
@@ -445,10 +448,11 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		await handleSubmit(true)
 
 		try {
-			await StateServiceClient.togglePlanActMode(
-				TogglePlanActModeRequest.create({
+			await StateServiceClient.toggleChatbotAgentMode(
+				ToggleChatbotAgentModeRequest.create({
 					chatSettings: {
-						mode: tab === "plan" ? PlanActMode.PLAN : PlanActMode.ACT,
+						// CARET MODIFICATION: Chatbot/Agent 통일 - 직접 모드 사용
+						mode: tab === "chatbot" ? ChatbotAgentMode.CHATBOT_MODE : ChatbotAgentMode.AGENT_MODE,
 						preferredLanguage: chatSettings.preferredLanguage,
 						openAiReasoningEffort: chatSettings.openAIReasoningEffort,
 					},
@@ -456,8 +460,8 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 			)
 		} catch (error) {
 			// CARET MODIFICATION: console.error to logger
-			// console.error("Failed to toggle Plan/Act mode:", error)
-			caretWebviewLogger.error("Failed to toggle Plan/Act mode:", error)
+			// console.error("Failed to toggle Chatbot/Agent mode:", error)
+			caretWebviewLogger.error("Failed to toggle Chatbot/Agent mode:", error)
 		}
 	}
 
@@ -614,41 +618,35 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 									{renderSectionHeader("api-config")}
 									<Section>
 										{/* Tabs container */}
-										{planActSeparateModelsSetting ? (
-											<div className="rounded-md mb-5 bg-[var(--vscode-panel-background)]">
-												<div className="flex gap-[1px] mb-[10px] -mt-2 border-0 border-b border-solid border-[var(--vscode-panel-border)]">
-													<TabButton
-														isActive={chatSettings.mode === "plan"}
-														onClick={() => handlePlanActModeChange("plan")}>
-														Plan Mode
-													</TabButton>
-													<TabButton
-														isActive={chatSettings.mode === "act"}
-														onClick={() => handlePlanActModeChange("act")}>
-														Act Mode
-													</TabButton>
-												</div>
-
-												{/* Content container */}
-												<div className="-mb-3">
-													<ApiOptions
-														key={chatSettings.mode}
-														showModelOptions={true}
-														apiErrorMessage={apiErrorMessage}
-														modelIdErrorMessage={modelIdErrorMessage}
-													/>
-												</div>
+										{/* CARET MODIFICATION: Chatbot/Agent 버튼을 항상 표시 (조건부 제거) */}
+										<div className="rounded-md mb-5 bg-[var(--vscode-panel-background)]">
+											<div className="flex gap-[1px] mb-[10px] -mt-2 border-0 border-b border-solid border-[var(--vscode-panel-border)]">
+												{/* CARET MODIFICATION: Chatbot/Agent 통일 - 올바른 모드 비교 */}
+												<TabButton
+													isActive={chatSettings.mode === "agent"}
+													onClick={() => handleChatbotAgentModeChange("agent")}>
+													🤖 Agent
+												</TabButton>
+												<TabButton
+													isActive={chatSettings.mode === "chatbot"}
+													onClick={() => handleChatbotAgentModeChange("chatbot")}>
+													💬 Chatbot
+												</TabButton>
 											</div>
-										) : (
-											<ApiOptions
-												key={"single"}
-												showModelOptions={true}
-												apiErrorMessage={apiErrorMessage}
-												modelIdErrorMessage={modelIdErrorMessage}
-											/>
-										)}
+
+											{/* Content container - 체크박스 상태에 따라 다른 키 사용 */}
+											<div className="-mb-3">
+												<ApiOptions
+													key={planActSeparateModelsSetting ? chatSettings.mode : "single"}
+													showModelOptions={true}
+													apiErrorMessage={apiErrorMessage}
+													modelIdErrorMessage={modelIdErrorMessage}
+												/>
+											</div>
+										</div>
 
 										<div className="mb-[5px]">
+											{/* CARET MODIFICATION: Plan/Act -> Chatbot/Agent 텍스트 업데이트 */}
 											<VSCodeCheckbox
 												className="mb-[5px]"
 												checked={planActSeparateModelsSetting}
@@ -656,12 +654,13 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 													const checked = e.target.checked === true
 													setPlanActSeparateModelsSetting(checked)
 												}}>
-												Use different models for Plan and Act modes
+												Use different models for Ask and Agent modes
 											</VSCodeCheckbox>
 											<p className="text-xs mt-[5px] text-[var(--vscode-descriptionForeground)]">
-												Switching between Plan and Act mode will persist the API and model used in the
-												previous mode. This may be helpful e.g. when using a strong reasoning model to
-												architect a plan for a cheaper coding model to act on.
+												Switching between Ask and Agent mode will persist the API and model used in the
+												previous mode. This may be helpful e.g. when using a strong reasoning model for
+												expert consultation (Ask) and a cheaper coding model for collaborative development
+												(Agent).
 											</p>
 										</div>
 									</Section>

@@ -1148,8 +1148,11 @@ export class Task {
 		const pendingContextWarning = await this.fileContextTracker.retrieveAndClearPendingFileContextWarning()
 		const hasPendingFileContextWarnings = pendingContextWarning && pendingContextWarning.length > 0
 
+		// CARET MODIFICATION: Chatbot/Agent 용어 통일 - Cline 호환 모드로 변환하여 전달
+		// CARET MODIFICATION: Chatbot/Agent 모드를 Cline 호환 plan/act로 매핑
+		const clineCompatibleMode = this.chatSettings?.mode === "chatbot" ? "plan" : "act"
 		const [taskResumptionMessage, userResponseMessage] = formatResponse.taskResumption(
-			this.chatSettings?.mode === "plan" ? "plan" : "act",
+			clineCompatibleMode,
 			agoText,
 			cwd,
 			wasRecent,
@@ -5072,11 +5075,13 @@ export class Task {
 		details += "\n\n# Context Window Usage"
 		details += `\n${lastApiReqTotalTokens.toLocaleString()} / ${(contextWindow / 1000).toLocaleString()}K tokens used (${usagePercentage}%)`
 
+		// CARET MODIFICATION: Chatbot/Agent 용어 통일 - 모드 표시 수정
 		details += "\n\n# Current Mode"
-		if (this.chatSettings.mode === "plan") {
-			details += "\nPLAN MODE\n" + formatResponse.planModeInstructions()
+		// CARET MODIFICATION: Chatbot 모드에서는 읽기 전용 동작
+		if (this.chatSettings.mode === "chatbot") {
+			details += "\nASK MODE\n" + formatResponse.planModeInstructions()
 		} else {
-			details += "\nACT MODE"
+			details += "\nAGENT MODE"
 		}
 
 		return `<environment_details>\n${details.trim()}\n</environment_details>`

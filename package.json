@@ -319,7 +319,23 @@
 		},
 		"configuration": {
 			"title": "Caret",
-			"properties": {}
+			"properties": {
+				"caret.systemPrompt.mode": {
+					"type": "string",
+					"enum": ["cline", "caret"],
+					"default": "caret",
+					"description": "System prompt mode: Cline (original hardcoded) or Caret (JSON-based)",
+					"enumDescriptions": [
+						"Use Cline's original hardcoded system prompt (727 lines)",
+						"Use Caret's JSON-based system prompt (customizable)"
+					]
+				},
+				"caret.systemPrompt.fallbackToCline": {
+					"type": "boolean",
+					"default": true,
+					"description": "Automatically fallback to Cline system when Caret system fails"
+				}
+			}
 		}
 	},
 	"scripts": {

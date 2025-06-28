@@ -1,209 +1,47 @@
 {
-	"tools": {
-		"execute_command": {
-			"description": "Request to execute a CLI command on the system",
-			"params": {
-				"command": {
-					"type": "string",
-					"required": true,
-					"desc": "CLI command to execute"
-				},
-				"requires_approval": {
-					"type": "boolean",
-					"required": true,
-					"desc": "True for potentially impactful operations"
-				}
+	"metadata": {
+		"name": "TOOL_DEFINITIONS",
+		"version": "1.0.0",
+		"description": "Complete tool definitions and usage instructions for Caret system with Ask/Agent mode filtering",
+		"compatibleWith": ["caret-1.0", "cline-compatible"],
+		"author": "Caret Team",
+		"tags": ["tools", "definitions", "usage", "ask-agent-modes"]
+	},
+	"add": {
+		"sections": [
+			{
+				"id": "tool_definitions_header",
+				"title": "TOOL DEFINITIONS",
+				"content": "The following tools are available for your use. Available tools depend on your current mode:\n\n**AGENT MODE**: All tools except plan_mode_respond (full implementation capabilities)\n**CHATBOT MODE**: Read-only tools only (read_file, search_files, list_files, list_code_definition_names)\n\n# Available Tools",
+				"position": "after_tools",
+				"priority": 10
+			},
+			{
+				"id": "agent_mode_tools",
+				"title": "AGENT MODE TOOLS (Full Implementation)",
+				"content": "## execute_command\nDescription: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Commands will be executed in the current working directory.\nParameters:\n- command (required): The CLI command to execute. This should be valid for the current operating system. Ensure the command is properly formatted and does not contain any harmful instructions.\n- requires_approval (required): A boolean indicating whether this command requires explicit user approval before execution in case the user has auto-approve mode enabled. Set to 'true' for potentially impactful operations like installing/uninstalling packages, deleting/overwriting files, system configuration changes, network operations, or any commands that could have unintended side effects. Set to 'false' for safe operations like reading files/directories, running development servers, building projects, and other non-destructive operations.\nUsage:\n<execute_command>\n<command>Your command here</command>\n<requires_approval>true or false</requires_approval>\n</execute_command>\n\n## write_to_file\nDescription: Request to write content to a file at the specified path. If the file exists, it will be overwritten with the provided content. If the file doesn't exist, it will be created. This tool will automatically create any directories needed to write the file.\nParameters:\n- path (required): The path of the file to write to (relative to the current working directory)\n- content (required): The content to write to the file. ALWAYS provide the COMPLETE intended content of the file, without any truncation or omissions. You MUST include ALL parts of the file, even if they haven't been modified.\nUsage:\n<write_to_file>\n<path>File path here</path>\n<content>\nYour file content here\n</content>\n</write_to_file>\n\n## replace_in_file\nDescription: Request to replace sections of content in an existing file using SEARCH/REPLACE blocks that define exact changes to specific parts of the file. This tool should be used when you need to make targeted changes to specific parts of a file.\nParameters:\n- path (required): The path of the file to modify (relative to the current working directory)\n- diff (required): One or more SEARCH/REPLACE blocks following this exact format:\n  ```\n  ------- SEARCH\n  [exact content to find]\n  =======\n  [new content to replace with]\n  +++++++ REPLACE\n  ```\n  Critical rules:\n  1. SEARCH content must match the associated file section to find EXACTLY\n  2. SEARCH/REPLACE blocks will ONLY replace the first match occurrence\n  3. Keep SEARCH/REPLACE blocks concise\n  4. Special operations: To move code: Use two SEARCH/REPLACE blocks; To delete code: Use empty REPLACE section\nUsage:\n<replace_in_file>\n<path>File path here</path>\n<diff>\nSearch and replace blocks here\n</diff>\n</replace_in_file>\n\n## browser_action\nDescription: Request to interact with a Puppeteer-controlled browser. Every action, except `close`, will be responded to with a screenshot of the browser's current state, along with any new console logs. You may only perform one browser action per message, and wait for the user's response including a screenshot and logs to determine the next action.\nParameters:\n- action (required): The action to perform (launch, click, type, scroll_down, scroll_up, close)\n- url (optional): Use this for providing the URL for the `launch` action\n- coordinate (optional): The X and Y coordinates for the `click` action\n- text (optional): Use this for providing the text for the `type` action\nUsage:\n<browser_action>\n<action>Action to perform</action>\n<url>URL to launch the browser at (optional)</url>\n<coordinate>x,y coordinates (optional)</coordinate>\n<text>Text to type (optional)</text>\n</browser_action>\n\n## use_mcp_tool\nDescription: Request to use a tool provided by a connected MCP server. Each MCP server can provide multiple tools with different capabilities.\nParameters:\n- server_name (required): The name of the MCP server providing the tool\n- tool_name (required): The name of the tool to execute\n- arguments (required): A JSON object containing the tool's input parameters\nUsage:\n<use_mcp_tool>\n<server_name>server name here</server_name>\n<tool_name>tool name here</tool_name>\n<arguments>\n{\n  \"param1\": \"value1\",\n  \"param2\": \"value2\"\n}\n</arguments>\n</use_mcp_tool>\n\n## access_mcp_resource\nDescription: Access a resource provided by a connected MCP server. Resources are content or data that MCP servers can provide.\nParameters:\n- server_name (required): The name of the MCP server providing the resource\n- uri (required): The URI of the resource to access\nUsage:\n<access_mcp_resource>\n<server_name>server name here</server_name>\n<uri>resource uri here</uri>\n</access_mcp_resource>\n\n## ask_followup_question\nDescription: Ask the user a followup question to gather additional information needed to continue with the task.\nParameters:\n- question (required): The question to ask the user\n- options (optional): Array of options for the user to choose from\nUsage:\n<ask_followup_question>\n<question>Your question here</question>\n<options>[\"Option 1\", \"Option 2\", \"Option 3\"]</options>\n</ask_followup_question>\n\n## attempt_completion\nDescription: Attempt to complete the task. Use this when you believe you have successfully completed the user's request.\nParameters:\n- result (required): A detailed summary of what was accomplished\n- command (optional): A CLI command to demonstrate the result\nUsage:\n<attempt_completion>\n<result>Your detailed summary here</result>\n<command>command to demonstrate result (optional)</command>\n</attempt_completion>\n\n## new_task\nDescription: Request to create a new task with preloaded context covering the conversation with the user up to this point.\nParameters:\n- context (required): The context to preload the new task with\nUsage:\n<new_task>\n<context>Your context summary here</context>\n</new_task>",
+				"position": "after_tools",
+				"priority": 20
+			},
+			{
+				"id": "shared_tools",
+				"title": "SHARED TOOLS (Available in Both Modes)",
+				"content": "## read_file\nDescription: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. Automatically extracts raw text from PDF and DOCX files.\nParameters:\n- path (required): The path of the file to read (relative to the current working directory)\nUsage:\n<read_file>\n<path>File path here</path>\n</read_file>\n\n## search_files\nDescription: Request to perform a regex search across files in a specified directory, providing context-rich results. This tool searches for patterns or specific content across multiple files, displaying each match with encapsulating context.\nParameters:\n- path (required): The path of the directory to search in (relative to the current working directory). This directory will be recursively searched.\n- regex (required): The regular expression pattern to search for. Uses Rust regex syntax.\n- file_pattern (optional): Glob pattern to filter files (e.g., '*.ts' for TypeScript files). If not provided, it will search all files (*).\nUsage:\n<search_files>\n<path>Directory path here</path>\n<regex>Your regex pattern here</regex>\n<file_pattern>file pattern here (optional)</file_pattern>\n</search_files>\n\n## list_files\nDescription: Request to list files and directories within the specified directory. If recursive is true, it will list all files and directories recursively.\nParameters:\n- path (required): The path of the directory to list contents for (relative to the current working directory)\n- recursive (optional): Whether to list files recursively. Use true for recursive listing, false or omit for top-level only.\nUsage:\n<list_files>\n<path>Directory path here</path>\n<recursive>true or false (optional)</recursive>\n</list_files>\n\n## list_code_definition_names\nDescription: Request to list definition names (classes, functions, methods, etc.) used in source code files at the top level of the specified directory. This tool provides insights into the codebase structure and important constructs.\nParameters:\n- path (required): The path of the directory (relative to the current working directory) to list top level source code definitions for.\nUsage:\n<list_code_definition_names>\n<path>Directory path here</path>\n</list_code_definition_names>",
+				"position": "after_tools",
+				"priority": 30
 			}
-		},
-		"read_file": {
-			"description": "Request to read the contents of a file at the specified path",
-			"params": {
-				"path": {
-					"type": "string",
-					"required": true,
-					"desc": "Path to file to read"
-				}
-			}
-		},
-		"write_to_file": {
-			"description": "Create or overwrite file",
-			"params": {
-				"path": {
-					"type": "string",
-					"required": true,
-					"desc": "Path to write file"
-				},
-				"content": {
-					"type": "string",
-					"required": true,
-					"desc": "Complete file content"
-				}
-			}
-		},
-		"replace_in_file": {
-			"description": "Make targeted changes to file",
-			"params": {
-				"path": {
-					"type": "string",
-					"required": true,
-					"desc": "Path to file to modify"
-				},
-				"diff": {
-					"type": "string",
-					"required": true,
-					"desc": "SEARCH/REPLACE blocks following this exact format: '^SEARCH^\n[exact content to find]\n^=====^\n[new content to replace with]\n^REPLACE^'"
-				}
-			}
-		},
-		"search_files": {
-			"description": "Perform regex search across files",
-			"params": {
-				"path": {
-					"type": "string",
-					"required": true,
-					"desc": "Directory path to search in"
-				},
-				"regex": {
-					"type": "string",
-					"required": true,
-					"desc": "Regex pattern to search for"
-				},
-				"file_pattern": {
-					"type": "string",
-					"required": false,
-					"desc": "Glob pattern to filter files (optional)"
-				}
-			}
-		},
-		"list_files": {
-			"description": "List files and directories",
-			"params": {
-				"path": {
-					"type": "string",
-					"required": true,
-					"desc": "Directory path to list contents for"
-				},
-				"recursive": {
-					"type": "boolean",
-					"required": false,
-					"desc": "List recursively (optional)"
-				}
-			}
-		},
-		"list_code_definition_names": {
-			"description": "List top-level code definition names",
-			"params": {
-				"path": {
-					"type": "string",
-					"required": true,
-					"desc": "Directory path to list definitions for"
-				}
-			}
-		},
-		"browser_action": {
-			"description": "Request to interact with a Puppeteer-controlled browser. Every action, except `close`, will be responded to with a screenshot of the browser's current state, along with any new console logs. You may only perform one browser action per message, and wait for the user's response including a screenshot and logs to determine the next action.\\n- The sequence of actions **must always start with** launching the browser at a URL, and **must always end with** closing the browser. If you need to visit a new URL that is not possible to navigate to from the current webpage, you must first close the browser, then launch again at the new URL.\\n- While the browser is active, only the `browser_action` tool can be used. No other tools should be called during this time. You may proceed to use other tools only after closing the browser. For example if you run into an error and need to fix a file, you must close the browser, then use other tools to make the necessary changes, then re-launch the browser to verify the result.\\n- The browser window has a resolution of **${browserSettings.viewport.width}x${browserSettings.viewport.height}** pixels. When performing any click actions, ensure the coordinates are within this resolution range.",
-			"params": {
-				"action": {
-					"type": "string",
-					"required": true,
-					"desc": "Action to perform (launch, click, type, scroll_down, scroll_up, close)"
-				},
-				"url": {
-					"type": "string",
-					"required": false,
-					"desc": "URL to launch the browser at (optional). Ensure the URL is valid and includes the appropriate protocol (e.g. http://localhost:3000/page, file:///path/to/file.html, etc.)"
-				},
-				"coordinate": {
-					"type": "string",
-					"required": false,
-					"desc": "The X and Y coordinates for the `click` action. Coordinates should be within the **${browserSettings.viewport.width}x${browserSettings.viewport.height}** resolution. Always click in the center of an element (icon, button, link, etc.) based on coordinates derived from a screenshot."
-				},
-				"text": {
-					"type": "string",
-					"required": false,
-					"desc": "Use this for providing the text for the `type` action."
-				}
-			}
-		},
-		"use_mcp_tool": {
-			"description": "Use a tool provided by an MCP server",
-			"params": {
-				"server_name": {
-					"type": "string",
-					"required": true,
-					"desc": "Name of the MCP server"
-				},
-				"tool_name": {
-					"type": "string",
-					"required": true,
-					"desc": "Name of the tool to execute"
-				},
-				"arguments": {
-					"type": "string",
-					"required": true,
-					"desc": "JSON object of tool arguments"
-				}
-			}
-		},
-		"access_mcp_resource": {
-			"description": "Access a resource provided by an MCP server",
-			"params": {
-				"server_name": {
-					"type": "string",
-					"required": true,
-					"desc": "Name of the MCP server"
-				},
-				"uri": {
-					"type": "string",
-					"required": true,
-					"desc": "URI of the resource to access"
-				}
-			}
-		},
-		"ask_followup_question": {
-			"description": "Ask the user a followup question",
-			"params": {
-				"question": {
-					"type": "string",
-					"required": true,
-					"desc": "The question to ask the user"
-				},
-				"options": {
-					"type": "string",
-					"required": false,
-					"desc": "Array of options for the user (optional)"
-				}
-			}
-		},
-		"attempt_completion": {
-			"description": "Attempt to complete the task",
-			"params": {
-				"result": {
-					"type": "string",
-					"required": true,
-					"desc": "Final result description"
-				},
-				"command": {
-					"type": "string",
-					"required": false,
-					"desc": "Command to demonstrate result (optional)"
-				}
-			}
-		},
-		"new_task": {
-			"description": "Request to create a new task with preloaded context covering the conversation with the user up to this point and key information for continuing with the new task",
-			"params": {
-				"context": {
-					"type": "string",
-					"required": true,
-					"desc": "The context to preload the new task with. Should include: 1. Current Work, 2. Key Technical Concepts, 3. Relevant Files and Code, 4. Problem Solving, 5. Pending Tasks and Next Steps"
-				}
-			}
-		},
-		"load_mcp_documentation": {
-			"description": "Load documentation about creating MCP servers. This tool should be used when the user requests to create or install an MCP server",
-			"params": {}
-		}
-
+		],
+		"behaviors": [
+			"Use tools step-by-step with each use informed by previous results",
+			"Use one tool per message and wait for results",
+			"Follow exact XML formatting for tool calls",
+			"Set requires_approval appropriately for safety",
+			"In CHATBOT MODE: Use only read-only tools (read_file, search_files, list_files, list_code_definition_names)",
+			"In AGENT MODE: Use all tools except plan_mode_respond for full implementation capabilities",
+			"When in CHATBOT MODE and user requests implementation, suggest switching to AGENT MODE"
+		]
+	},
+	"modify": {
+		"personality": "mode-aware tool user that respects Chatbot/Agent mode restrictions and uses tools effectively and safely"
 	}
 }

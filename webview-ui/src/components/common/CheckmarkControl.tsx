@@ -266,7 +266,10 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
 	)
 }
 
-const Container = styled.div<{ isMenuOpen?: boolean; $isCheckedOut?: boolean }>`
+// CARET MODIFICATION: styled-components prop forwarding 개선 - isMenuOpen prop 전달 방지
+const Container = styled.div.withConfig({
+	shouldForwardProp: (prop) => prop !== "isMenuOpen",
+})<{ isMenuOpen?: boolean; $isCheckedOut?: boolean }>`
 	display: flex;
 	align-items: center;
 	padding: 4px 0;
@@ -288,7 +291,9 @@ const Label = styled.span<{ $isCheckedOut?: boolean }>`
 	flex-shrink: 0;
 `
 
-const DottedLine = styled.div<{ small?: boolean; $isCheckedOut?: boolean }>`
+const DottedLine = styled.div.withConfig({
+	shouldForwardProp: (prop) => prop !== "small",
+})<{ small?: boolean; $isCheckedOut?: boolean }>`
 	flex: ${(props) => (props.small ? "0 0 5px" : "1")};
 	min-width: ${(props) => (props.small ? "5px" : "5px")};
 	height: 1px;
@@ -308,7 +313,9 @@ const ButtonGroup = styled.div`
 	flex-shrink: 0;
 `
 
-const CustomButton = styled.button<{ disabled?: boolean; isActive?: boolean; $isCheckedOut?: boolean }>`
+const CustomButton = styled.button.withConfig({
+	shouldForwardProp: (prop) => prop !== "isActive",
+})<{ disabled?: boolean; isActive?: boolean; $isCheckedOut?: boolean }>`
 	background: ${(props) =>
 		props.isActive || props.disabled
 			? props.$isCheckedOut

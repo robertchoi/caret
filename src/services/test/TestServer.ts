@@ -284,11 +284,13 @@ export function createTestServer(webviewProvider?: WebviewProvider): http.Server
 						await visibleWebview.controller.postStateToWebview()
 					}
 
-					// Ensure we're in Act mode before initiating the task
+					// CARET MODIFICATION: Chatbot/Agent 용어 통일 - Ensure we're in Agent mode before initiating the task
 					const { chatSettings } = await visibleWebview.controller.getStateToPostToWebview()
-					if (chatSettings.mode === "plan") {
-						// Switch to Act mode if currently in Plan mode
-						await visibleWebview.controller.togglePlanActModeWithChatSettings({ mode: "act" })
+					// CARET MODIFICATION: Chatbot 모드에서는 자동 Agent 전환
+					if (chatSettings.mode === "chatbot") {
+						// Switch to Agent mode if currently in Ask mode
+						// CARET MODIFICATION: Chatbot/Agent 통일 - 올바른 메서드명 사용
+						await visibleWebview.controller.toggleChatbotAgentModeWithChatSettings({ mode: "agent" })
 					}
 
 					// Initialize tool call tracker
@@ -615,7 +617,9 @@ async function autoRespondToAsk(webviewProvider: WebviewProvider, askType: Cline
 				try {
 					if (webviewProvider.controller) {
 						Logger.log("Auto-toggling to Act mode from Plan mode")
-						await webviewProvider.controller.togglePlanActModeWithChatSettings({ mode: "act" })
+						// CARET MODIFICATION: Chatbot/Agent 용어 통일 - 메서드명 및 모드값 변경
+						// CARET MODIFICATION: Chatbot/Agent 통일 - 올바른 메서드명 사용
+						await webviewProvider.controller.toggleChatbotAgentModeWithChatSettings({ mode: "agent" })
 					}
 				} catch (error) {
 					Logger.log(`Error toggling to Act mode: ${error}`)

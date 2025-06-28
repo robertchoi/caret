@@ -23,7 +23,7 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 			hasUILanguage: request.uiLanguage !== undefined,
 			uiLanguageValue: request.uiLanguage,
 			otherSettings: {
-				planActSeparateModelsSetting: request.planActSeparateModelsSetting !== undefined,
+				chatbotAgentSeparateModelsSetting: request.chatbotAgentSeparateModelsSetting !== undefined,
 				enableCheckpointsSetting: request.enableCheckpointsSetting !== undefined,
 				mcpMarketplaceEnabled: request.mcpMarketplaceEnabled !== undefined,
 				mcpResponsesCollapsed: request.mcpResponsesCollapsed !== undefined,
@@ -48,9 +48,9 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 			await controller.updateTelemetrySetting(request.telemetrySetting as TelemetrySetting)
 		}
 
-		// Update plan/act separate models setting
-		if (request.planActSeparateModelsSetting !== undefined) {
-			await controller.context.globalState.update("planActSeparateModelsSetting", request.planActSeparateModelsSetting)
+		// CARET MODIFICATION: Chatbot/Agent 용어 통일 - planActSeparateModelsSetting → chatbotAgentSeparateModelsSetting
+		if (request.chatbotAgentSeparateModelsSetting !== undefined) {
+			await controller.context.globalState.update("planActSeparateModelsSetting", request.chatbotAgentSeparateModelsSetting)
 		}
 
 		// Update checkpoints setting
@@ -112,7 +112,7 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 			!request.apiConfiguration &&
 			!request.telemetrySetting &&
 			!request.chatSettings &&
-			request.planActSeparateModelsSetting === undefined &&
+			request.chatbotAgentSeparateModelsSetting === undefined &&
 			request.enableCheckpointsSetting === undefined &&
 			request.mcpMarketplaceEnabled === undefined &&
 			request.mcpResponsesCollapsed === undefined &&

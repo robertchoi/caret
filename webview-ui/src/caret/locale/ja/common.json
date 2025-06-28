@@ -42,6 +42,23 @@
     	"button.changePersonaTemplate": "ペルソナテンプレートを変更",
     	"section.globalRules": "グローバルルール"
 	},
+	"mode": {
+		"chatbot": {
+			"label": "💬 チャットボット",
+			"title": "チャットボットモード",
+			"description": "専門コンサルティングと分析"
+		},
+		"agent": {
+			"label": "🤖 エージェント",
+			"title": "エージェントモード",
+			"description": "協働開発と実装"
+		},
+		"tooltip": {
+			"chatbot": "チャットボットモードでは、Caretが専門コンサルティングと分析を提供します",
+			"agent": "エージェントモードでは、Caretがソリューション実装のために協働します",
+			"toggle": "切り替え: {{metaKey}}+Shift+A"
+		}
+	},
 	"settings": {
 		"uiLanguage": {
 			"label": "UI言語",

@@ -14,24 +14,43 @@ export const SYSTEM_PROMPT = async (
 	browserSettings: BrowserSettings,
 	isClaude4ModelFamily: boolean = false,
 	extensionPath?: string, // CARET MODIFICATION: CaretSystemPrompt 연결을 위한 extensionPath
-	mode: 'ask' | 'agent' = 'agent' // CARET MODIFICATION: Ask/Agent 모드 지원
+	mode: 'ask' | 'agent' = 'agent' // CARET MODIFICATION: Chatbot/Agent 모드 지원
 ) => {
-	// CARET MODIFICATION: CaretSystemPrompt 우선 시도
+	// CARET MODIFICATION: 단순한 Cline/Caret 모드 선택 시스템 (003-04)
 	if (extensionPath) {
 		try {
+			const { SystemPromptConfigManager } = await import('../../../caret-src/core/config/SystemPromptConfig')
 			const { CaretSystemPrompt } = await import('../../../caret-src/core/prompts/CaretSystemPrompt')
-			const caretPrompt = CaretSystemPrompt.getInstance(extensionPath)
-			
-			return await caretPrompt.generateFromJsonSections(
-				cwd,
-				supportsBrowserUse,
-				mcpHub,
-				browserSettings,
-				isClaude4ModelFamily,
-				mode
-			)
+
+			const configManager = SystemPromptConfigManager.getInstance()
+			const config = await configManager.getConfig()
+
+			// 설정에 따른 모드 선택
+			if (config.mode === 'caret') {
+				// Caret JSON 시스템 사용
+				const caretPrompt = CaretSystemPrompt.getInstance(extensionPath)
+				const result = await caretPrompt.generateFromJsonSections(
+					cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily, mode
+				)
+				
+				// 003-11, 003-12에서 활용할 수 있는 로깅
+				configManager.logModeUsage('caret', 'system_prompt_generation')
+				console.log('[CARET] Generated prompt via Caret JSON system')
+				return result
+				
+			} else {
+				// Cline 원본 시스템 사용
+				const result = ORIGINAL_CLINE_SYSTEM_PROMPT(cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily)
+				
+				// 003-11, 003-12에서 활용할 수 있는 로깅
+				configManager.logModeUsage('cline', 'system_prompt_generation')
+				console.log('[CARET] Generated prompt via Cline original system')
+				return result
+			}
+
 		} catch (error) {
-			console.warn('[CARET] CaretSystemPrompt failed, falling back to original:', error)
+			console.warn(`[CARET] Caret system failed, falling back to Cline original:`, error)
+			// 에러시 안전한 fallback
 		}
 	}
 
@@ -43,6 +62,18 @@ export const SYSTEM_PROMPT = async (
     return SYSTEM_PROMPT_CLAUDE4(cwd, supportsBrowserUse, mcpHub, browserSettings)
   }
 
+	// CARET MODIFICATION: Cline 원본 프롬프트 보존 함수로 분리
+	return ORIGINAL_CLINE_SYSTEM_PROMPT(cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily)
+}
+
+// CARET MODIFICATION: Cline 원본 시스템 프롬프트 보존 (성능 비교용)
+function ORIGINAL_CLINE_SYSTEM_PROMPT(
+	cwd: string,
+	supportsBrowserUse: boolean,
+	mcpHub: McpHub,
+	browserSettings: BrowserSettings,
+	isClaude4ModelFamily: boolean
+): string {
 	return `You are Cline, a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices.
 
 ====

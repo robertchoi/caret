@@ -1,9 +1,10 @@
 import { ApiConfiguration, ApiProvider, BedrockModelId } from "@shared/api"
 import { ChatSettings } from "@shared/ChatSettings"
+// CARET MODIFICATION: Chatbot/Agent 용어 통일
 import {
 	ApiConfiguration as ProtoApiConfiguration,
 	ChatSettings as ProtoChatSettings,
-	PlanActMode,
+	ChatbotAgentMode,
 } from "../../../shared/proto/state"
 
 /**
@@ -256,9 +257,10 @@ export function convertProtoApiConfigurationToApiConfiguration(protoConfig: Prot
 /**
  * Converts domain ChatSettings objects to proto ChatSettings objects
  */
+// CARET MODIFICATION: Chatbot/Agent 용어 통일 (settings-conversion.ts의 중복 함수)
 export function convertChatSettingsToProtoChatSettings(chatSettings: ChatSettings): ProtoChatSettings {
 	return ProtoChatSettings.create({
-		mode: chatSettings.mode === "plan" ? PlanActMode.PLAN : PlanActMode.ACT,
+		mode: chatSettings.mode === "chatbot" ? ChatbotAgentMode.CHATBOT_MODE : ChatbotAgentMode.AGENT_MODE,
 		preferredLanguage: chatSettings.preferredLanguage,
 		openAiReasoningEffort: chatSettings.openAIReasoningEffort,
 	})
@@ -270,7 +272,7 @@ export function convertChatSettingsToProtoChatSettings(chatSettings: ChatSetting
 export function convertProtoChatSettingsToChatSettings(protoChatSettings: ProtoChatSettings): ChatSettings {
 	// eslint-disable-next-line eslint-rules/no-protobuf-object-literals
 	return {
-		mode: protoChatSettings.mode === PlanActMode.PLAN ? "plan" : "act",
+		mode: protoChatSettings.mode === ChatbotAgentMode.CHATBOT_MODE ? "chatbot" : "agent",
 		preferredLanguage: protoChatSettings.preferredLanguage,
 		openAIReasoningEffort: protoChatSettings.openAiReasoningEffort as "low" | "medium" | "high" | undefined,
 	}

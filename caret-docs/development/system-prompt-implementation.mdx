@@ -6,90 +6,99 @@
 
 ## 🎯 **개요**
 
-Caret은 Cline의 707라인 하드코딩된 시스템 프롬프트를 **JSON 기반 모듈형 시스템**으로 완전히 재설계했습니다. 이는 **Ask/Agent 모드**, **협력적 AI 태도**, **메타인지 시스템**을 통합하여 Cursor 수준의 자연스러운 협업 경험을 제공합니다.
+Caret은 Cline의 707라인 하드코딩된 시스템 프롬프트를 **JSON 기반 모듈형 시스템**으로 완전히 재설계했습니다. 이는 **Chatbot/Agent 모드**, **협력적 AI 태도**, **메타인지 시스템**을 통합하여 Cursor 수준의 자연스러운 협업 경험을 제공합니다.
 
 ## 📜 **기술 배경**
 
 ### **특허 기술 기반**
+
 이 모듈형 시스템 프롬프트 아키텍처는 CARETIVE INC의 특허 출원 기술("프롬프트 정보 최적화 방법 및 시스템")을 기반으로 구현되었습니다.
 
 **핵심 기술:**
-- **이중 표현 방식**: 마크다운-JSON 구조로 인간 가독성과 AI 효율성 동시 달성
-- **모듈형 JSON 시스템**: 하드코딩된 프롬프트를 JSON 모듈로 분해하여 관리
-- **동적 로딩**: 컨텍스트에 따른 선택적 모듈 로딩
-- **검증 기반 안전성**: 기능 보존을 보장하는 자동 검증 시스템
+
+-   **이중 표현 방식**: 마크다운-JSON 구조로 인간 가독성과 AI 효율성 동시 달성
+-   **모듈형 JSON 시스템**: 하드코딩된 프롬프트를 JSON 모듈로 분해하여 관리
+-   **동적 로딩**: 컨텍스트에 따른 선택적 모듈 로딩
+-   **검증 기반 안전성**: 기능 보존을 보장하는 자동 검증 시스템
 
 ### **라이센스**
-- **오픈소스**: Apache 2.0 라이센스
-- **저작권**: CARETIVE INC (2024-2025)
-- **특허 관련**: 상업적 이용 시 help@caretive.ai 문의
 
-
+-   **오픈소스**: Apache 2.0 라이센스
+-   **저작권**: CARETIVE INC (2024-2025)
+-   **특허 관련**: 상업적 이용 시 help@caretive.ai 문의
 
 ## 🏗️ **Caret 시스템 프롬프트 철학**
 
-### **1. Ask/Agent 모드 철학**
+### **1. Chatbot/Agent 모드 철학**
 
 #### **Agent Mode (기본값) - Cursor 방식**
+
 ```json
 {
-  "philosophy": "자유로운 협력적 지능",
-  "default_mode": true,
-  "tool_access": "모든 도구 자유롭게 사용",
-  "collaboration_style": "생각과 실행을 자연스럽게 결합",
-  "user_experience": "Cursor 수준의 효율적 협업"
+	"philosophy": "자유로운 협력적 지능",
+	"default_mode": true,
+	"tool_access": "모든 도구 자유롭게 사용",
+	"collaboration_style": "생각과 실행을 자연스럽게 결합",
+	"user_experience": "Cursor 수준의 효율적 협업"
 }
 ```
 
 #### **Ask Mode (안전모드) - 컨설팅 전용**
+
 ```json
 {
-  "philosophy": "안전한 전문가 컨설팅",
-  "safety_first": "시스템 변경 절대 불가",
-  "read_only_tools": ["read_file", "search_files", "list_files"],
-  "transition_guidance": "구현 요청 시 Agent 모드 전환 적극 안내",
-  "expert_consultation": "전문적 조언과 분석에 집중"
+	"philosophy": "안전한 전문가 컨설팅",
+	"safety_first": "시스템 변경 절대 불가",
+	"read_only_tools": ["read_file", "search_files", "list_files"],
+	"transition_guidance": "구현 요청 시 Agent 모드 전환 적극 안내",
+	"expert_consultation": "전문적 조언과 분석에 집중"
 }
 ```
 
 ### **2. 협력적 AI 태도 (5개 핵심 원칙)**
 
 #### **Quality-First Collaboration**
-- **원칙**: 속도보다 정확성과 품질 우선
-- **행동**: 불확실할 때 적극적으로 도움 요청
-- **목표**: 완벽한 결과물 추구
+
+-   **원칙**: 속도보다 정확성과 품질 우선
+-   **행동**: 불확실할 때 적극적으로 도움 요청
+-   **목표**: 완벽한 결과물 추구
 
 #### **Complete and Evidence-Based Analysis**
-- **원칙**: "Found it!" 증후군 방지
-- **행동**: 완전한 분석 후 결론, 추측보다 검증
-- **목표**: 체계적이고 철저한 문제 해결
+
+-   **원칙**: "Found it!" 증후군 방지
+-   **행동**: 완전한 분석 후 결론, 추측보다 검증
+-   **목표**: 체계적이고 철저한 문제 해결
 
 #### **Pattern Recognition and Reuse**
-- **원칙**: 기존 코드 활용 및 배치 처리
-- **행동**: 새로 만들기 전에 기존 패턴 검색
-- **목표**: 효율성과 일관성 극대화
+
+-   **원칙**: 기존 코드 활용 및 배치 처리
+-   **행동**: 새로 만들기 전에 기존 패턴 검색
+-   **목표**: 효율성과 일관성 극대화
 
 #### **Natural Development Partnership**
-- **원칙**: Cursor 스타일 자연스러운 협업
-- **행동**: "How about we..." 스타일 제안
-- **목표**: 개발자와의 자연스러운 파트너십
+
+-   **원칙**: Cursor 스타일 자연스러운 협업
+-   **행동**: "How about we..." 스타일 제안
+-   **목표**: 개발자와의 자연스러운 파트너십
 
 #### **Self-Monitoring and Learning**
-- **원칙**: 메타인지 및 시스템 개선 요청
-- **행동**: 반복 실수 시 룰 개선 요청
-- **목표**: 지속적인 시스템 진화
+
+-   **원칙**: 메타인지 및 시스템 개선 요청
+-   **행동**: 반복 실수 시 룰 개선 요청
+-   **목표**: 지속적인 시스템 진화
 
 ## 📁 **JSON 시스템 아키텍처**
 
 ### **파일 구조**
+
 ```typescript
 📁 caret-src/core/prompts/ (Caret JSON 시스템)
 ├── sections/ (15개 파일) - 모듈형 프롬프트 구조
-│   ├── BASE_PROMPT_INTRO.json - Caret 정체성 + Ask/Agent 모드
+│   ├── BASE_PROMPT_INTRO.json - Caret 정체성 + Chatbot/Agent 모드
 │   ├── COLLABORATIVE_PRINCIPLES.json - 5개 협력 원칙 (Caret 고유)
 │   ├── TOOL_DEFINITIONS.json - 15개 도구 완전 보존
 │   ├── TOOL_USE_GUIDELINES.json - 협력적 도구 사용
-│   ├── ASK_AGENT_MODES.json - Ask/Agent 철학 (Caret 고유)
+│   ├── CHATBOT_AGENT_MODES.json - Chatbot/Agent 철학 (Caret 고유)
 │   ├── TOOLS_HEADER.json - 도구 섹션 헤더
 │   ├── TOOL_USE_FORMAT.json - XML 포맷 설명
 │   ├── TOOL_USE_EXAMPLES.json - 도구 사용 예제
@@ -117,19 +126,19 @@ graph TB
         JsonLoader[JsonTemplateLoader.ts<br>JSON 로딩]
         SystemIntegration[system.ts<br>통합 포인트]
     end
-    
+
     subgraph "JSON Files"
         Sections[sections/<br>15개 모듈]
         Rules[rules/<br>3개 규칙]
         Sections --> JsonLoader
         Rules --> JsonLoader
     end
-    
+
     subgraph "Fallback System"
         ClineOriginal[Cline 원본<br>src/core/prompts/system.ts]
         SystemIntegration -->|오류 시| ClineOriginal
     end
-    
+
     CaretSystemPrompt --> JsonLoader
     JsonLoader --> SystemIntegration
     SystemIntegration --> FinalPrompt[최종 시스템 프롬프트]
@@ -162,45 +171,36 @@ ClineFeatureValidator (메인 컨트롤러)
 ### **1. 시스템 프롬프트 생성**
 
 ```typescript
-import { CaretSystemPrompt } from '@caret-src/core/prompts/CaretSystemPrompt'
+import { CaretSystemPrompt } from "@caret-src/core/prompts/CaretSystemPrompt"
 
 // 싱글톤 인스턴스 가져오기
 const systemPrompt = CaretSystemPrompt.getInstance(extensionPath)
 
 // JSON에서 프롬프트 생성
-const prompt = await systemPrompt.generateFromJsonSections(
-  cwd, 
-  supportsBrowserUse, 
-  mcpHub, 
-  browserSettings
-)
+const prompt = await systemPrompt.generateFromJsonSections(cwd, supportsBrowserUse, mcpHub, browserSettings)
 
 // Fallback 시스템 (오류 시 자동 적용)
 if (!prompt) {
-  // 자동으로 Cline 원본 사용
-  console.log("JSON 시스템 오류, Cline 원본 사용")
+	// 자동으로 Cline 원본 사용
+	console.log("JSON 시스템 오류, Cline 원본 사용")
 }
 ```
 
 ### **2. 검증 시스템 사용**
 
 ```typescript
-import { ClineFeatureValidator } from '@caret-src/core/verification'
+import { ClineFeatureValidator } from "@caret-src/core/verification"
 
 const validator = new ClineFeatureValidator()
 
 // 전체 기능 검증
-const result = await validator.validateAllFeatures(
-  originalPrompt, 
-  newPrompt, 
-  { variant: "default", strictMode: true }
-)
+const result = await validator.validateAllFeatures(originalPrompt, newPrompt, { variant: "default", strictMode: true })
 
 // 검증 결과 확인
 if (result.isValid) {
-  console.log("✅ 모든 기능 보존됨")
+	console.log("✅ 모든 기능 보존됨")
 } else {
-  console.log("❌ 기능 누락 발견:", result.missingFeatures)
+	console.log("❌ 기능 누락 발견:", result.missingFeatures)
 }
 
 // 성능 메트릭 확인
@@ -211,6 +211,7 @@ console.log("검증 성능:", metrics)
 ### **3. JSON 파일 수정 절차**
 
 #### **사전 준비**
+
 ```bash
 # 검증 시스템 테스트
 npm run test caret-src/__tests__/cline-feature-validation.test.ts
@@ -220,140 +221,156 @@ npm run test caret-src/__tests__/cline-feature-validation.test.ts
 ```
 
 #### **수정 작업**
+
 1. **백업 생성**: 수정 전 `.cline` 백업 파일 생성
 2. **점진적 수정**: 작은 단위로 변경
 3. **즉시 검증**: 각 변경 후 검증 실행
 4. **CARET MODIFICATION 주석**: 모든 수정에 명확한 주석
 
 #### **예시: BASE_PROMPT_INTRO.json 수정**
+
 ```json
 {
-  "introduction": "You are Caret, an AI coding partner. In AGENT MODE (default), you naturally combine thinking with action to solve problems. In ASK MODE (safety), you provide consultation without system changes. You read context well, work collaboratively, and focus on practical solutions.",
-  "collaboration_principles": {
-    "title": "COLLABORATION PRINCIPLES",
-    "quality_first": "Prioritize accuracy over speed",
-    "help_seeking": "Ask for clarification when uncertain",
-    "evidence_based": "Verify before concluding"
-  }
+	"introduction": "You are Caret, an AI coding partner. In AGENT MODE (default), you naturally combine thinking with action to solve problems. In ASK MODE (safety), you provide consultation without system changes. You read context well, work collaboratively, and focus on practical solutions.",
+	"collaboration_principles": {
+		"title": "COLLABORATION PRINCIPLES",
+		"quality_first": "Prioritize accuracy over speed",
+		"help_seeking": "Ask for clarification when uncertain",
+		"evidence_based": "Verify before concluding"
+	}
 }
 ```
 
 ## 📊 **성능 및 품질 메트릭**
 
 ### **검증 시스템 성능**
-- **실행 시간**: 평균 1ms 미만
-- **메모리 사용량**: 14MB 이하
-- **테스트 통과율**: 100% (25/25)
-- **코드 효율성**: 75% 코드 감소 (리팩토링 후)
+
+-   **실행 시간**: 평균 1ms 미만
+-   **메모리 사용량**: 14MB 이하
+-   **테스트 통과율**: 100% (25/25)
+-   **코드 효율성**: 75% 코드 감소 (리팩토링 후)
 
 ### **JSON 시스템 효율성**
-- **토큰 절약**: 약 30-40% 토큰 효율성 개선
-- **로딩 성능**: < 100ms 목표
-- **메모리 최적화**: JSON 캐싱으로 반복 로딩 방지
-- **모듈성**: 개별 섹션 독립적 수정 가능
+
+-   **토큰 절약**: 약 30-40% 토큰 효율성 개선
+-   **로딩 성능**: < 100ms 목표
+-   **메모리 최적화**: JSON 캐싱으로 반복 로딩 방지
+-   **모듈성**: 개별 섹션 독립적 수정 가능
 
 ### **실시간 모니터링**
+
 ```typescript
 // 성능 메트릭 확인
 const summary = validator.getPerformanceSummary()
 console.log({
-  totalValidations: summary.totalValidations,
-  averageTime: summary.averageTime,
-  peakMemory: summary.peakMemory,
-  totalErrors: summary.totalErrors,
+	totalValidations: summary.totalValidations,
+	averageTime: summary.averageTime,
+	peakMemory: summary.peakMemory,
+	totalErrors: summary.totalErrors,
 })
 
 // CaretLogger로 상세 로깅
 CaretLogger.info("시스템 프롬프트 생성 완료", {
-  sectionsLoaded: 15,
-  rulesLoaded: 3,
-  totalTokens: prompt.length,
-  loadTime: performance.now() - startTime
+	sectionsLoaded: 15,
+	rulesLoaded: 3,
+	totalTokens: prompt.length,
+	loadTime: performance.now() - startTime,
 })
 ```
 
 ## 🎯 **Caret vs Cline 비교**
 
 ### **기능 보존 (100%)**
-| 기능 | Cline 원본 | Caret JSON | 상태 |
-|------|------------|------------|------|
-| 도구 정의 | 15개 | 15개 | ✅ 완전 보존 |
-| MCP 지원 | ✅ | ✅ | ✅ 완전 보존 |
-| 브라우저 지원 | 조건부 | 조건부 | ✅ 완전 보존 |
-| 파일 편집 | SEARCH/REPLACE | SEARCH/REPLACE | ✅ 완전 보존 |
-| 시스템 정보 | 동적 삽입 | 동적 삽입 | ✅ 완전 보존 |
+
+| 기능          | Cline 원본     | Caret JSON     | 상태         |
+| ------------- | -------------- | -------------- | ------------ |
+| 도구 정의     | 15개           | 15개           | ✅ 완전 보존 |
+| MCP 지원      | ✅             | ✅             | ✅ 완전 보존 |
+| 브라우저 지원 | 조건부         | 조건부         | ✅ 완전 보존 |
+| 파일 편집     | SEARCH/REPLACE | SEARCH/REPLACE | ✅ 완전 보존 |
+| 시스템 정보   | 동적 삽입      | 동적 삽입      | ✅ 완전 보존 |
 
 ### **혁신적 개선사항**
-| 영역 | Cline | Caret | 개선 효과 |
-|------|-------|-------|----------|
-| 모드 시스템 | Plan/Act | Ask/Agent | 실용성 300% 향상 |
-| 협업 태도 | 기본적 | 5개 원칙 | 자연스러움 500% 향상 |
-| 메타인지 | 없음 | 완전 통합 | 자기 진단 능력 |
-| 모듈성 | 하드코딩 | JSON 모듈 | 유지보수성 1000% 향상 |
+
+| 영역        | Cline    | Caret         | 개선 효과             |
+| ----------- | -------- | ------------- | --------------------- |
+| 모드 시스템 | Plan/Act | Chatbot/Agent | 실용성 300% 향상      |
+| 협업 태도   | 기본적   | 5개 원칙      | 자연스러움 500% 향상  |
+| 메타인지    | 없음     | 완전 통합     | 자기 진단 능력        |
+| 모듈성      | 하드코딩 | JSON 모듈     | 유지보수성 1000% 향상 |
 
 ## 🚨 **주의사항 및 제약**
 
 ### **금지사항**
-- ❌ **Cline 원본 기능 제거**: 모든 기능 100% 보존 필수
-- ❌ **검증 없는 변경**: 모든 변경은 ClineFeatureValidator 통과 필수
-- ❌ **복잡한 추상화**: 단순하고 이해하기 쉬운 구조 유지
-- ❌ **Plan/Act 복원**: Ask/Agent 모드로 완전 전환됨
+
+-   ❌ **Cline 원본 기능 제거**: 모든 기능 100% 보존 필수
+-   ❌ **검증 없는 변경**: 모든 변경은 ClineFeatureValidator 통과 필수
+-   ❌ **복잡한 추상화**: 단순하고 이해하기 쉬운 구조 유지
+-   ❌ **Plan/Act 복원**: Chatbot/Agent 모드로 완전 전환됨
 
 ### **필수사항**
-- ✅ **백업 생성**: 수정 전 `.cline` 백업 필수
-- ✅ **CARET MODIFICATION 주석**: 모든 수정에 명확한 주석
-- ✅ **점진적 변경**: 작은 단위로 변경 후 즉시 검증
-- ✅ **문서 동기화**: 이 가이드와 관련 문서 업데이트
+
+-   ✅ **백업 생성**: 수정 전 `.cline` 백업 필수
+-   ✅ **CARET MODIFICATION 주석**: 모든 수정에 명확한 주석
+-   ✅ **점진적 변경**: 작은 단위로 변경 후 즉시 검증
+-   ✅ **문서 동기화**: 이 가이드와 관련 문서 업데이트
 
 ### **성능 기준**
-- **메모리 사용량**: 14MB 이하 유지
-- **로딩 시간**: 100ms 이하 목표
-- **검증 통과율**: 100% (25/25) 필수
-- **토큰 효율성**: 원본 대비 30% 이상 절약
+
+-   **메모리 사용량**: 14MB 이하 유지
+-   **로딩 시간**: 100ms 이하 목표
+-   **검증 통과율**: 100% (25/25) 필수
+-   **토큰 효율성**: 원본 대비 30% 이상 절약
 
 ## 🔄 **구현 완료 사항 (2025-01-27)**
 
 ### **✅ 003-04: JSON 시스템 완전 구현**
-- **18개 JSON 파일 검토 및 보강**: sections(15개) + rules(3개)
-- **Ask/Agent 모드 완전 구현**: Plan/Act 제거 및 새로운 철학 적용
-- **협력적 태도 통합**: COLLABORATIVE_PRINCIPLES.json 생성
-- **메타인지 시스템**: 자기 진단 및 시스템 개선 요청 능력
-- **검증 시스템 통합**: ClineFeatureValidator 25개 테스트 100% 통과
+
+-   **18개 JSON 파일 검토 및 보강**: sections(15개) + rules(3개)
+-   **Chatbot/Agent 모드 완전 구현**: Plan/Act 제거 및 새로운 철학 적용
+-   **협력적 태도 통합**: COLLABORATIVE_PRINCIPLES.json 생성
+-   **메타인지 시스템**: 자기 진단 및 시스템 개선 요청 능력
+-   **검증 시스템 통합**: ClineFeatureValidator 25개 테스트 100% 통과
 
 ### **핵심 성과**
+
 1. **완전한 기능 보존**: Cline 707줄 → Caret JSON 변환 시 0% 기능 손실
 2. **협력적 AI 구현**: Cursor 수준의 자연스러운 협업 경험
-3. **모드 시스템 혁신**: Plan/Act의 비효율성 → Ask/Agent의 실용성
+3. **모드 시스템 혁신**: Plan/Act의 비효율성 → Chatbot/Agent의 실용성
 4. **메타인지 통합**: AI의 자기 진단 및 시스템 개선 요청 능력
 
 ## 🔗 **관련 문서**
 
 ### **핵심 문서**
-- **[Task #003-04](../tasks/003-04-cline-system-prompt-json-conversion.md)**: JSON 변환 작업 완료 보고서
-- **[Caret Architecture Guide](./caret-architecture-and-implementation-guide.mdx)**: 전체 아키텍처
-- **[Testing Guide](./testing-guide.mdx)**: TDD 방법론
-- **[Upstream Merging Guide](../guides/upstream-merging.mdx)**: Cline 업데이트 통합
+
+-   **[Task #003-04](../tasks/003-04-cline-system-prompt-json-conversion.md)**: JSON 변환 작업 완료 보고서
+-   **[Caret Architecture Guide](./caret-architecture-and-implementation-guide.mdx)**: 전체 아키텍처
+-   **[Testing Guide](./testing-guide.mdx)**: TDD 방법론
+-   **[Upstream Merging Guide](../guides/upstream-merging.mdx)**: Cline 업데이트 통합
 
 ### **Task 시리즈**
-- **003-01**: ClineFeatureValidator 검증 시스템 ✅
-- **003-02**: JSON 템플릿 로딩 시스템 ✅  
-- **003-03**: JSON 오버레이 시스템 ✅
-- **003-04**: JSON 검토 및 보강 ✅
-- **003-05**: CaretSystemPrompt 통합 검증 (예정)
-- **003-06**: Ask/Agent JSON 템플릿 (예정)
+
+-   **003-01**: ClineFeatureValidator 검증 시스템 ✅
+-   **003-02**: JSON 템플릿 로딩 시스템 ✅
+-   **003-03**: JSON 오버레이 시스템 ✅
+-   **003-04**: JSON 검토 및 보강 ✅
+-   **003-05**: CaretSystemPrompt 통합 검증 (예정)
+-   **003-06**: Chatbot/Agent JSON 템플릿 (예정)
 
 ## 📞 **개발자 지원**
 
 ### **문제 해결 가이드**
+
 1. **검증 실패**: 25개 테스트 중 실패 시 즉시 롤백
 2. **성능 이슈**: 메모리 사용량 14MB 초과 시 최적화
 3. **기능 누락**: Cline 원본과 비교하여 누락 기능 확인
 4. **JSON 오류**: 구문 오류 시 자동으로 Fallback 시스템 작동
 
 ### **로깅 및 디버깅**
+
 ```typescript
 // CaretLogger DEBUG 레벨 활성화
-CaretLogger.setLevel('DEBUG')
+CaretLogger.setLevel("DEBUG")
 
 // 시스템 프롬프트 생성 과정 추적
 CaretLogger.debug("JSON 섹션 로딩 시작", { sectionCount: 15 })
@@ -362,6 +379,7 @@ CaretLogger.debug("최종 프롬프트 생성 완료", { tokenCount: prompt.leng
 ```
 
 ### **성능 최적화 팁**
+
 1. **JSON 캐싱**: 동일한 설정의 반복 로딩 방지
 2. **지연 로딩**: 필요한 섹션만 선택적 로딩
 3. **메모리 관리**: 싱글톤 패턴으로 인스턴스 재사용
@@ -369,6 +387,6 @@ CaretLogger.debug("최종 프롬프트 생성 완료", { tokenCount: prompt.leng
 
 ---
 
-**🎯 목표**: Cline의 모든 기능을 보존하면서 Cursor 수준의 협업 경험 제공!**
+**🎯 목표**: Cline의 모든 기능을 보존하면서 Cursor 수준의 협업 경험 제공!\*\*
 
-**🚀 혁신**: Ask/Agent 모드 + 협력적 AI 태도 + 메타인지 시스템 통합!** ✨☕
+**🚀 혁신**: Chatbot/Agent 모드 + 협력적 AI 태도 + 메타인지 시스템 통합!\*\* ✨☕

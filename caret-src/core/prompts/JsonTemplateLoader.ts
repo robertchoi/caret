@@ -27,7 +27,7 @@ export class JsonTemplateLoader {
 	constructor(extensionPath: string, useTestTemplates: boolean = false) {
 		this.templateCache = new Map()
 		this.isTestEnvironment = useTestTemplates
-		
+
 		// CARET MODIFICATION: Use test-templates directory for tests
 		if (useTestTemplates) {
 			this.templateDir = path.join(extensionPath, "caret-assets", "test-templates")
@@ -60,7 +60,17 @@ export class JsonTemplateLoader {
 			// EXACTLY following Controller pattern: path.join + fs.readFile + JSON.parse
 			const templatePath = path.join(this.templateDir, `${templateName}.json`)
 			const templateContent = await fs.readFile(templatePath, "utf-8")
-			const template = JSON.parse(templateContent) as PromptTemplate
+			const rawTemplate = JSON.parse(templateContent)
+
+			// CARET MODIFICATION: Support legacy JSON format alongside PromptTemplate format
+			let template: PromptTemplate
+			if (rawTemplate.metadata && rawTemplate.add) {
+				// Already in PromptTemplate format
+				template = rawTemplate as PromptTemplate
+			} else {
+				// Legacy format - convert to PromptTemplate
+				template = this.adaptLegacyFormat(rawTemplate, templateName)
+			}
 
 			// Validate template structure
 			const validationResult = await this.validateTemplate(template)
@@ -102,9 +112,15 @@ export class JsonTemplateLoader {
 			if (!template.metadata) {
 				errors.push("Missing metadata section")
 			} else {
-				if (!template.metadata.name) { errors.push("Missing metadata.name") }
-				if (!template.metadata.version) { errors.push("Missing metadata.version") }
-				if (!template.metadata.description) { errors.push("Missing metadata.description") }
+				if (!template.metadata.name) {
+					errors.push("Missing metadata.name")
+				}
+				if (!template.metadata.version) {
+					errors.push("Missing metadata.version")
+				}
+				if (!template.metadata.description) {
+					errors.push("Missing metadata.description")
+				}
 				if (!template.metadata.compatibleWith || !Array.isArray(template.metadata.compatibleWith)) {
 					errors.push("Missing or invalid metadata.compatibleWith")
 				}
@@ -117,8 +133,12 @@ export class JsonTemplateLoader {
 						errors.push("add.sections must be an array")
 					} else {
 						template.add.sections.forEach((section, index) => {
-							if (!section.id) { errors.push(`add.sections[${index}] missing id`) }
-							if (!section.content) { errors.push(`add.sections[${index}] missing content`) }
+							if (!section.id) {
+								errors.push(`add.sections[${index}] missing id`)
+							}
+							if (!section.content) {
+								errors.push(`add.sections[${index}] missing content`)
+							}
 							if (
 								!["before_tools", "after_tools", "before_objective", "after_objective"].includes(section.position)
 							) {
@@ -148,8 +168,12 @@ export class JsonTemplateLoader {
 						errors.push("modify.targetSections must be an array")
 					} else {
 						template.modify.targetSections.forEach((mod, index) => {
-							if (!mod.target) { errors.push(`modify.targetSections[${index}] missing target`) }
-							if (!mod.replacement) { errors.push(`modify.targetSections[${index}] missing replacement`) }
+							if (!mod.target) {
+								errors.push(`modify.targetSections[${index}] missing target`)
+							}
+							if (!mod.replacement) {
+								errors.push(`modify.targetSections[${index}] missing replacement`)
+							}
 							if (typeof mod.preserveFormat !== "boolean") {
 								errors.push(`modify.targetSections[${index}] preserveFormat must be boolean`)
 							}
@@ -188,7 +212,120 @@ export class JsonTemplateLoader {
 		}
 	}
 
-	// Removed resolveTemplatePath - using direct path.join like Controller pattern
+	// CARET MODIFICATION: Add legacy format adaptation
+	/**
+	 * Convert legacy JSON format to PromptTemplate format
+	 * Safely preserves existing content while adapting structure
+	 *
+	 * @param content Legacy JSON content
+	 * @param templateName Template filename for metadata
+	 * @returns PromptTemplate Converted template
+	 */
+	private adaptLegacyFormat(content: any, templateName: string): PromptTemplate {
+		caretLogger.info(`[JsonTemplateLoader] Converting legacy format for template: ${templateName}`, "JSON_LOADER")
+
+		// Generate metadata from legacy content
+		const metadata = {
+			name: templateName,
+			version: "1.0.0",
+			description: content.title || content.introduction || `Legacy template: ${templateName}`,
+			compatibleWith: ["caret-1.0", "cline-compatible"],
+			author: "Caret Team",
+			tags: ["legacy-converted"],
+		}
+
+		// Convert legacy content to sections
+		const sections: any[] = []
+
+		// Handle different legacy structures
+		if (content.introduction) {
+			// BASE_PROMPT_INTRO style
+			sections.push({
+				id: "base_introduction",
+				content: content.introduction,
+				position: "before_tools",
+				priority: 10,
+			})
+
+			// Add collaboration principles
+			if (content.collaboration_principles) {
+				sections.push({
+					id: "collaboration_principles",
+					title: content.collaboration_principles.title,
+					content: content.collaboration_principles.content,
+					position: "before_tools",
+					priority: 20,
+				})
+			}
+
+			// Add verification principles
+			if (content.verification_principles) {
+				sections.push({
+					id: "verification_principles",
+					title: content.verification_principles.title,
+					content: content.verification_principles.content,
+					position: "before_tools",
+					priority: 30,
+				})
+			}
+
+			// Add tool awareness
+			if (content.tool_awareness) {
+				sections.push({
+					id: "tool_awareness",
+					title: content.tool_awareness.title,
+					content: content.tool_awareness.content,
+					position: "before_tools",
+					priority: 40,
+				})
+			}
+
+			// Add tool use formatting
+			if (content.tool_use_header) {
+				const formattingContent = [
+					content.tool_use_description,
+					`## ${content.formatting_header}`,
+					content.formatting_description,
+					content.formatting_structure_example,
+					content.formatting_example_header,
+					`\`\`\`\n${content.formatting_example_code}\n\`\`\``,
+					content.formatting_note,
+				]
+					.filter(Boolean)
+					.join("\n\n")
+
+				sections.push({
+					id: "tool_use_formatting",
+					title: content.tool_use_header,
+					content: formattingContent,
+					position: "before_tools",
+					priority: 50,
+				})
+			}
+		} else {
+			// Generic legacy content conversion
+			const combinedContent = Object.entries(content)
+				.filter(([key, value]) => typeof value === "string")
+				.map(([key, value]) => `${key}: ${value}`)
+				.join("\n\n")
+
+			sections.push({
+				id: "legacy_content",
+				content: combinedContent,
+				position: "after_tools",
+				priority: 100,
+			})
+		}
+
+		return {
+			metadata,
+			add: {
+				sections: sections.length > 0 ? sections : undefined,
+				behaviors: [], // Legacy templates don't typically have behaviors
+			},
+			modify: {}, // Legacy templates don't have modifications
+		}
+	}
 
 	/**
 	 * Clear template cache

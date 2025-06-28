@@ -801,7 +801,7 @@ export const ExtensionStateContextProvider: React.FC<{
 							? convertApiConfigurationToProtoApiConfiguration(state.apiConfiguration)
 							: undefined,
 						telemetrySetting: state.telemetrySetting,
-						planActSeparateModelsSetting: state.planActSeparateModelsSetting,
+						chatbotAgentSeparateModelsSetting: state.planActSeparateModelsSetting,
 						enableCheckpointsSetting: state.enableCheckpointsSetting,
 						mcpMarketplaceEnabled: state.mcpMarketplaceEnabled,
 						mcpRichDisplayEnabled: state.mcpRichDisplayEnabled,

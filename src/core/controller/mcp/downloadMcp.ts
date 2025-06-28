@@ -71,9 +71,12 @@ export async function downloadMcp(controller: Controller, request: StringRequest
 - Once installed, demonstrate the server's capabilities by using one of its tools.
 Here is the project's README to help you get started:\n\n${mcpDetails.readmeContent}\n${mcpDetails.llmsInstallationContent}`
 
+		// CARET MODIFICATION: Chatbot/Agent 용어 통일 - plan/act → Chatbot/Agent
 		const { chatSettings } = await controller.getStateToPostToWebview()
-		if (chatSettings.mode === "plan") {
-			await controller.togglePlanActModeWithChatSettings({ mode: "act" })
+		// CARET MODIFICATION: Chatbot 모드에서는 MCP 설치 제한
+		if (chatSettings.mode === "chatbot") {
+			// CARET MODIFICATION: Chatbot/Agent 통일 - 올바른 메서드명 사용
+			await controller.toggleChatbotAgentModeWithChatSettings({ mode: "agent" })
 		}
 
 		// Initialize task and show chat view

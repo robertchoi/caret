@@ -214,7 +214,7 @@ chore: 빌드/설정 변경
 
 **파일 수정 전 필수 체크리스트**:
 1. **Cline 원본 파일인가?** (`src/`, `webview-ui/`, `proto/`, `scripts/`, `evals/`, `docs/`, `locales/`)
-2. **백업 생성했는가?** (`{파일명-확장자}.cline`)
+2. **백업 생성했는가?** (⚠️ **백업 규칙** 참조)
 3. **CARET MODIFICATION 주석 추가했는가?**
 4. **최소 수정 원칙 지켰는가?** (1-3라인 이내)
 5. **주석처리하지 않고 완전 대체했는가?**
@@ -222,6 +222,43 @@ chore: 빌드/설정 변경
 7. **저장 위치와 로드 위치 일치하는가?**
 8. **관련 파일들의 저장소 사용 패턴 일치하는가?**
 9. **🚨 룰 파일 수정 시**: `caretrules.ko.md` 변경 후 `node caret-scripts/sync-caretrules.js` 실행했는가?
+
+**🛡️ Cline 원본 파일 백업 규칙 (MANDATORY)**:
+
+**백업 대상 파일**:
+- `src/`, `webview-ui/`, `proto/`, `scripts/`, `evals/`, `docs/`, `locales/` 내 모든 파일
+- 루트의 설정 파일들 (`package.json`, `tsconfig.json`, `.vscode/settings.json` 등)
+
+**백업 생성 조건**:
+1. **신규 수정 시**: `.cline` 백업이 없으면 반드시 생성
+2. **기존 백업 존재 시**: 절대 덮어쓰지 않음 (기존 백업 보존)
+3. **백업 확인 방법**: `Get-ChildItem -Recurse -Filter "*.cline" | Where-Object { $_.Name -like "*파일명*" }`
+
+**백업 네이밍 규칙**:
+- 형식: `{원본파일명-확장자}.cline`
+- 예시: 
+  - `ChatTextArea.tsx` → `ChatTextArea.tsx.cline`
+  - `package.json` → `package-json.cline`
+  - `extension.ts` → `extension-ts.cline`
+
+**백업 생성 명령어 (PowerShell)**:
+```powershell
+# 백업 존재 확인
+Test-Path "파일경로.cline"
+
+# 백업이 없을 때만 생성
+if (!(Test-Path "파일경로.cline")) { Copy-Item "원본파일경로" "파일경로.cline" }
+```
+
+**백업 검증 절차**:
+1. 백업 파일 존재 확인
+2. 백업 파일이 수정 전 원본과 동일한지 확인
+3. 수정 후 언제든 백업으로 복구 가능한지 테스트
+
+**❌ 금지사항**:
+- 기존 `.cline` 백업 파일 덮어쓰기
+- 백업 없이 Cline 원본 파일 수정
+- 백업 파일 직접 편집 또는 수정
 
 **저장소 사용 원칙 (NEW)**:
 - chatSettings: workspaceState 사용 (프로젝트별 설정)

@@ -42,6 +42,23 @@
 		"cursorrules": "Cursor规则 (.cursorrules)",
 		"windsurfrules": "Windsurf规则 (.windsurfrules)"
 	},
+	"mode": {
+		"chatbot": {
+			"label": "💬 聊天机器人",
+			"title": "聊天机器人模式",
+			"description": "专家咨询和分析"
+		},
+		"agent": {
+			"label": "🤖 智能代理",
+			"title": "智能代理模式",
+			"description": "协作开发和实施"
+		},
+		"tooltip": {
+			"chatbot": "在聊天机器人模式下，Caret提供专家咨询和分析",
+			"agent": "在智能代理模式下，Caret协作实施解决方案",
+			"toggle": "切换: {{metaKey}}+Shift+A"
+		}
+	},
 	"settings": {
 		"uiLanguage": {
 			"label": "UI语言",

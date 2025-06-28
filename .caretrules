@@ -134,7 +134,7 @@
     },
     "file_modification_mandatory_checklist": [
       "Is this a Cline original file? (src/, webview-ui/, proto/, scripts/, evals/, docs/, locales/)",
-      "Did you create backup? ({filename-extension}.cline)",
+      "Did you create backup correctly? (Follow backup_safety_rules below)",
       "Did you add CARET MODIFICATION comment?",
       "Did you follow minimal modification principle? (1-3 lines within)",
       "Did you completely replace instead of commenting out old code?",
@@ -143,6 +143,33 @@
       "Do related files use consistent storage patterns?",
       "🚨 Rule file modification: Did you run node caret-scripts/sync-caretrules.js after caretrules.ko.md changes?"
     ],
+    "backup_safety_rules": {
+      "backup_naming": "{filename-extension}.cline (e.g., ChatTextArea.tsx.cline)",
+      "backup_target_directories": [
+        "src/, webview-ui/, proto/, scripts/, evals/, docs/, locales/",
+        "Root config files (package.json, tsconfig.json, .vscode/settings.json, etc.)"
+      ],
+      "backup_creation_conditions": [
+        "NEW modification: Create backup only if .cline backup does not exist",
+        "EXISTING backup: NEVER overwrite existing .cline backup files",
+        "VERIFICATION: Always check backup existence before creation"
+      ],
+      "powershell_commands": {
+        "check_backup_exists": "Test-Path 'filepath.cline'",
+        "create_backup_safely": "if (!(Test-Path 'filepath.cline')) { Copy-Item 'original' 'filepath.cline' }",
+        "find_existing_backups": "Get-ChildItem -Recurse -Filter '*.cline' | Where-Object { $_.Name -like '*filename*' }"
+      },
+      "forbidden_actions": [
+        "Overwriting existing .cline backup files",
+        "Modifying Cline original files without backup",
+        "Directly editing .cline backup files"
+      ],
+      "verification_steps": [
+        "Confirm backup file exists and is identical to pre-modification original",
+        "Test that backup can restore original functionality",
+        "Document modification reason and expected impact"
+      ]
+    },
     "storage_usage_principles": {
       "chatSettings": "workspaceState (project-specific settings)",
       "globalSettings": "globalState (global settings)",

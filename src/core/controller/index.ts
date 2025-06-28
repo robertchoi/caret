@@ -415,11 +415,15 @@ export class Controller {
 		telemetryService.updateTelemetryState(isOptedIn)
 	}
 
-	async togglePlanActModeWithChatSettings(chatSettings: ChatSettings, chatContent?: ChatContent) {
-		const didSwitchToActMode = chatSettings.mode === "act"
+	// CARET MODIFICATION: Chatbot/Agent 통일 - 메서드명과 로직 변경
+	async toggleChatbotAgentModeWithChatSettings(chatSettings: ChatSettings, chatContent?: ChatContent) {
+		const didSwitchToAgentMode = chatSettings.mode === "agent"
 
 		// Capture mode switch telemetry | Capture regardless of if we know the taskId
-		telemetryService.captureModeSwitch(this.task?.taskId ?? "0", chatSettings.mode)
+		// CARET MODIFICATION: Chatbot/Agent 모드로 telemetry 수정 (기존 plan/act 호환)
+		// CARET MODIFICATION: Chatbot/Agent 모드 텔레메트리 호환성 매핑
+		const telemetryMode = chatSettings.mode === "chatbot" ? "plan" : "act"
+		telemetryService.captureModeSwitch(this.task?.taskId ?? "0", telemetryMode)
 
 		// Get previous model info that we will revert to after saving current mode api info
 		const {
@@ -592,7 +596,7 @@ export class Controller {
 
 		if (this.task) {
 			this.task.chatSettings = chatSettings
-			if (this.task.isAwaitingPlanResponse && didSwitchToActMode) {
+			if (this.task.isAwaitingPlanResponse && didSwitchToAgentMode) {
 				this.task.didRespondToPlanAskBySwitchingMode = true
 				// Use chatContent if provided, otherwise use default message
 				await this.task.handleWebviewAskResponse(

@@ -12,31 +12,74 @@ import CodeBlock, { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock"
 import MermaidBlock from "@/components/common/MermaidBlock"
 import { WithCopyButton } from "./CopyButton"
 import { StateServiceClient } from "@/services/grpc-client"
-import { PlanActMode, TogglePlanActModeRequest } from "@shared/proto/state"
+// CARET MODIFICATION: Chatbot/Agent 용어 통일 - PlanActMode 제거
+import { ChatbotAgentMode, ToggleChatbotAgentModeRequest } from "@shared/proto/state"
 
-// Styled component for Act Mode text with more specific styling
-const ActModeHighlight: React.FC = () => (
+// CARET MODIFICATION: Chatbot/Agent 일관성 있는 UI 구현
+// Ask 모드 강조 컴포넌트 - 💬 Expert Consultation
+const ChatBotModeHighlight: React.FC = () => (
 	<span
 		onClick={() => {
-			StateServiceClient.togglePlanActMode(
-				TogglePlanActModeRequest.create({
+			StateServiceClient.toggleChatbotAgentMode(
+				ToggleChatbotAgentModeRequest.create({
 					chatSettings: {
-						mode: PlanActMode.ACT,
+						// CARET MODIFICATION: Chatbot/Agent 통일 - Chatbot 모드로 변경
+						mode: ChatbotAgentMode.CHATBOT_MODE,
 					},
 				}),
 			)
 		}}
-		title="Click to toggle to Act Mode"
+		title="Switch to Ask Mode - Expert Consultation"
+		className="text-[var(--vscode-textLink-foreground)] hover:opacity-90 cursor-pointer inline-flex items-center gap-1">
+		<div className="p-1 rounded-[12px] bg-[var(--vscode-editor-background)] flex items-center justify-start w-4 border-[1px] border-[var(--vscode-input-border)]">
+			<div className="rounded-full bg-[var(--vscode-textLink-foreground)] w-2 h-2" />
+		</div>
+		💬 Ask Mode (⌘⇧P)
+	</span>
+)
+
+// Agent 모드 강조 컴포넌트 - 🤖 Collaborative Development
+const AgentModeHighlight: React.FC = () => (
+	<span
+		onClick={() => {
+			StateServiceClient.toggleChatbotAgentMode(
+				ToggleChatbotAgentModeRequest.create({
+					chatSettings: {
+						// CARET MODIFICATION: Chatbot/Agent 통일 - Agent 모드로 변경
+						mode: ChatbotAgentMode.AGENT_MODE,
+					},
+				}),
+			)
+		}}
+		title="Switch to Agent Mode - Collaborative Development"
 		className="text-[var(--vscode-textLink-foreground)] hover:opacity-90 cursor-pointer inline-flex items-center gap-1">
 		<div className="p-1 rounded-[12px] bg-[var(--vscode-editor-background)] flex items-center justify-end w-4 border-[1px] border-[var(--vscode-input-border)]">
 			<div className="rounded-full bg-[var(--vscode-textLink-foreground)] w-2 h-2" />
 		</div>
-		Act Mode (⌘⇧A)
+		🤖 Agent Mode (⌘⇧A)
 	</span>
 )
 
-interface MarkdownBlockProps {
-	markdown?: string
+// CARET MODIFICATION: Chatbot/Agent 일관성 있는 텍스트 처리
+const transformChatbotAgentText = (text: string, mode: "chatbot" | "agent"): string => {
+	// Chatbot/Agent 용어로 통일된 텍스트 변환
+	if (mode === "chatbot") {
+		// Ask 모드 관련 텍스트 변환
+		return text
+			.replace(/PLAN MODE/gi, "ASK MODE")
+			.replace(/Plan Mode/gi, "Ask Mode")
+			.replace(/plan mode/gi, "ask mode")
+			.replace(/switch.*to.*act.*mode/gi, "switch to Agent mode")
+			.replace(/toggle.*to.*act.*mode/gi, "toggle to Agent mode")
+	} else {
+		// Agent 모드 관련 텍스트 변환
+		return text
+			.replace(/ACT MODE/gi, "AGENT MODE")
+			.replace(/Act Mode/gi, "Agent Mode")
+			.replace(/act mode/gi, "agent mode")
+			.replace(/switch.*to.*plan.*mode/gi, "switch to Ask mode")
+			.replace(/toggle.*to.*plan.*mode/gi, "toggle to Ask mode")
+	}
 }
 
 /**
@@ -80,21 +123,22 @@ const remarkUrlToLink = () => {
 }
 
 /**
- * Custom remark plugin that highlights "to Act Mode" mentions and adds keyboard shortcut hint
+ * Custom remark plugin that highlights "to Agent Mode" mentions and adds keyboard shortcut hint
+ * CARET MODIFICATION: Updated from Act Mode to Agent Mode for Chatbot/Agent system
  */
-const remarkHighlightActMode = () => {
+const remarkHighlightAgentMode = () => {
 	return (tree: Node) => {
 		visit(tree, "text", (node: any, index, parent) => {
-			// Case-insensitive regex to match "to Act Mode" in various capitalizations
+			// Case-insensitive regex to match "to Agent Mode" in various capitalizations
 			// Using word boundaries to avoid matching within words
 			// Added negative lookahead to avoid matching if already followed by the shortcut
-			const actModeRegex = /\bto\s+Act\s+Mode\b(?!\s*\(⌘⇧A\))/i
+			const agentModeRegex = /\bto\s+Agent\s+Mode\b(?!\s*\(⌘⇧A\))/i
 
-			if (!node.value.match(actModeRegex)) return
+			if (!node.value.match(agentModeRegex)) return
 
 			// Split the text by the matches
-			const parts = node.value.split(actModeRegex)
-			const matches = node.value.match(actModeRegex)
+			const parts = node.value.split(agentModeRegex)
+			const matches = node.value.match(agentModeRegex)
 
 			if (!matches || parts.length <= 1) return
 
@@ -104,23 +148,23 @@ const remarkHighlightActMode = () => {
 				// Add the text before the match
 				if (part) children.push({ type: "text", value: part })
 
-				// Add the match, but only make "Act Mode" bold (not the "to" part)
+				// Add the match, but only make "Agent Mode" bold (not the "to" part)
 				if (matches[i]) {
-					// Extract "to" and "Act Mode" parts
+					// Extract "to" and "Agent Mode" parts
 					const matchText = matches[i]
 					const toIndex = matchText.toLowerCase().indexOf("to")
-					const actModeIndex = matchText.toLowerCase().indexOf("act mode", toIndex + 2)
+					const agentModeIndex = matchText.toLowerCase().indexOf("agent mode", toIndex + 2)
 
-					if (toIndex !== -1 && actModeIndex !== -1) {
+					if (toIndex !== -1 && agentModeIndex !== -1) {
 						// Add "to" as regular text
-						const toPart = matchText.substring(toIndex, actModeIndex).trim()
+						const toPart = matchText.substring(toIndex, agentModeIndex).trim()
 						children.push({ type: "text", value: toPart + " " })
 
-						// Add "Act Mode" as bold with keyboard shortcut
-						const actModePart = matchText.substring(actModeIndex)
+						// Add "Agent Mode" as bold with keyboard shortcut
+						const agentModePart = matchText.substring(agentModeIndex)
 						children.push({
 							type: "strong",
-							children: [{ type: "text", value: `${actModePart} (⌘⇧A)` }],
+							children: [{ type: "text", value: `${agentModePart} (⌘⇧A)` }],
 						})
 					} else {
 						// Fallback if we can't parse it correctly
@@ -295,6 +339,17 @@ const StyledMarkdown = styled.div`
 			text-decoration: underline;
 		}
 	}
+
+	// CARET MODIFICATION: Chatbot/Agent 모드 텍스트 스타일링
+	.ask-mode-text {
+		color: var(--vscode-textLink-foreground);
+		font-weight: 500;
+	}
+
+	.agent-mode-text {
+		color: var(--vscode-textLink-foreground);
+		font-weight: 500;
+	}
 `
 
 const StyledPre = styled.pre<{ theme: any }>`
@@ -343,14 +398,50 @@ const PreWithCopyButton = ({
 	)
 }
 
-const MarkdownBlock = memo(({ markdown }: MarkdownBlockProps) => {
+interface MarkdownBlockProps {
+	markdown?: string
+	highlightOptions?: any
+	className?: string
+}
+
+const MarkdownBlock = memo(({ markdown, highlightOptions = {}, className }: MarkdownBlockProps) => {
+	const { chatSettings } = useExtensionState()
+	const [processedMarkdown, setProcessedMarkdown] = useState(markdown)
+
+	useEffect(() => {
+		// CARET MODIFICATION: Chatbot/Agent 일관성 있는 텍스트 변환
+		const transformedText = transformChatbotAgentText(markdown || "", chatSettings.mode)
+		setProcessedMarkdown(transformedText)
+	}, [markdown, chatSettings.mode])
+
+	// CARET MODIFICATION: Chatbot/Agent 모드별 동적 강조 표시
+	const processMarkdownForChatbotAgent = (content: string): string => {
+		const isInChatbotMode = chatSettings.mode === "chatbot"
+
+		// Ask 모드에 있을 때 Agent 모드로 전환 안내
+		if (isInChatbotMode) {
+			content = content.replace(
+				/(switch to|toggle to|change to)\s*(agent|act)\s*mode/gi,
+				(match) => `<ChatBotModeHighlight>${match}</ChatBotModeHighlight>`,
+			)
+		} else {
+			// Agent 모드에 있을 때 Ask 모드로 전환 안내
+			content = content.replace(
+				/(switch to|toggle to|change to)\s*(ask|plan)\s*mode/gi,
+				(match) => `<AgentModeHighlight>${match}</AgentModeHighlight>`,
+			)
+		}
+
+		return content
+	}
+
 	const { theme } = useExtensionState()
 
 	const [reactContent, setMarkdown] = useRemark({
 		remarkPlugins: [
 			remarkPreventBoldFilenames,
 			remarkUrlToLink,
-			remarkHighlightActMode,
+			remarkHighlightAgentMode,
 			remarkMath,
 			() => {
 				return (tree) => {
@@ -395,7 +486,7 @@ const MarkdownBlock = memo(({ markdown }: MarkdownBlockProps) => {
 					return <code {...props} />
 				},
 				strong: (props: ComponentProps<"strong">) => {
-					// Check if this is an "Act Mode" strong element by looking for the keyboard shortcut
+					// Check if this is an "Agent Mode" strong element by looking for the keyboard shortcut
 					// Handle both string children and array of children cases
 					const childrenText = React.Children.toArray(props.children)
 						.map((child) => {
@@ -406,11 +497,11 @@ const MarkdownBlock = memo(({ markdown }: MarkdownBlockProps) => {
 						})
 						.join("")
 
-					// Case-insensitive check for "Act Mode (⌘⇧A)" pattern
-					// This ensures we only style the exact "Act Mode" mentions with keyboard shortcut
+					// Case-insensitive check for "Agent Mode (⌘⇧A)" pattern
+					// This ensures we only style the exact "Agent Mode" mentions with keyboard shortcut
 					// Using case-insensitive flag to catch all capitalization variations
-					if (/^act mode\s*\(⌘⇧A\)$/i.test(childrenText)) {
-						return <ActModeHighlight />
+					if (/^agent mode\s*\(⌘⇧A\)$/i.test(childrenText)) {
+						return <AgentModeHighlight />
 					}
 
 					return <strong {...props} />
@@ -420,14 +511,18 @@ const MarkdownBlock = memo(({ markdown }: MarkdownBlockProps) => {
 	})
 
 	useEffect(() => {
-		setMarkdown(markdown || "")
-	}, [markdown, setMarkdown, theme])
+		setMarkdown(processedMarkdown || "")
+	}, [processedMarkdown, setMarkdown, theme])
 
 	return (
-		<div>
-			<StyledMarkdown className="ph-no-capture">{reactContent}</StyledMarkdown>
-		</div>
+		<StyledMarkdown
+			className={`markdown-block ph-no-capture ${className || ""}`}
+			data-chatbot-agent-mode={chatSettings.mode === "chatbot" ? "chatbot" : "agent"}>
+			{reactContent}
+		</StyledMarkdown>
 	)
 })
+
+MarkdownBlock.displayName = "MarkdownBlock"
 
 export default MarkdownBlock

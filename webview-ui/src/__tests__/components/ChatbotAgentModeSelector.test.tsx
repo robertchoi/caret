@@ -38,7 +38,7 @@ const MockChatbotAgentModeSelector = ({
 const MockModeIndicator = ({ currentMode }: { currentMode: "ask" | "agent" }) => {
 	const modeInfo = {
 		ask: {
-			title: "Ask Mode",
+			title: "Chatbot Mode",
 			description: "Expert Consultation - Analysis and advice without code changes",
 			icon: "💬",
 		},
@@ -123,7 +123,7 @@ describe("🚨 Critical Chatbot/Agent System Issues (RED Phase)", () => {
 		it("🔴 SHOULD FAIL: Tooltip mode strings should match ChatSettings values", () => {
 			// Current system might use "plan"/"act" strings in tooltips
 			const tooltipModeMapping = {
-				ask: "Ask mode tooltip",
+				ask: "Chatbot mode tooltip",
 				agent: "Agent mode tooltip",
 			}
 
@@ -164,7 +164,7 @@ describe("Chatbot/Agent 모드 선택기", () => {
 		expect(mockOnModeChange).toHaveBeenCalledWith("agent")
 	})
 
-	it("should show Ask mode as active when selected", () => {
+	it("should show Chatbot mode as active when selected", () => {
 		// TDD: Ask 모드 선택 시 버튼이 활성 상태로 표시되어야 함
 		render(<MockChatbotAgentModeSelector currentMode="ask" onModeChange={mockOnModeChange} />)
 
@@ -196,11 +196,11 @@ describe("Chatbot/Agent 모드 선택기", () => {
 })
 
 describe("Chatbot/Agent 모드 표시기", () => {
-	it("should show correct mode descriptions for Ask mode", () => {
+	it("should show correct mode descriptions for Chatbot mode", () => {
 		// TDD: Ask 모드 설명이 올바르게 표시되어야 함
 		render(<MockModeIndicator currentMode="ask" />)
 
-		expect(screen.getByText("Ask Mode")).toBeInTheDocument()
+		expect(screen.getByText("Chatbot Mode")).toBeInTheDocument()
 		expect(screen.getByText(/Expert Consultation/)).toBeInTheDocument()
 		expect(screen.getByText(/analysis and advice without code changes/)).toBeInTheDocument()
 		expect(screen.getByText("💬")).toBeInTheDocument()

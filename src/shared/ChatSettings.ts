@@ -6,6 +6,7 @@ export interface ChatSettings {
 	mode: "chatbot" | "agent"
 	preferredLanguage?: string // AI와의 대화 언어
 	uiLanguage?: string // CARET MODIFICATION: UI 표시 언어 (Caret 전용)
+	modeSystem?: string // CARET MODIFICATION: Interface mode system (Caret/Cline)
 	openAIReasoningEffort?: OpenAIReasoningEffort
 }
 
@@ -16,5 +17,6 @@ export const DEFAULT_CHAT_SETTINGS: ChatSettings = {
 	mode: "agent",
 	preferredLanguage: "English",
 	uiLanguage: "en", // CARET MODIFICATION: 기본 UI 언어는 영어 (VSCode 설정 따라감)
+	modeSystem: "caret", // CARET MODIFICATION: Default interface mode system
 	openAIReasoningEffort: "medium",
 }

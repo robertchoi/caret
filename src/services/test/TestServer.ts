@@ -288,7 +288,7 @@ export function createTestServer(webviewProvider?: WebviewProvider): http.Server
 					const { chatSettings } = await visibleWebview.controller.getStateToPostToWebview()
 					// CARET MODIFICATION: Chatbot 모드에서는 자동 Agent 전환
 					if (chatSettings.mode === "chatbot") {
-						// Switch to Agent mode if currently in Ask mode
+						// Switch to Agent mode if currently in Chatbot mode
 						// CARET MODIFICATION: Chatbot/Agent 통일 - 올바른 메서드명 사용
 						await visibleWebview.controller.toggleChatbotAgentModeWithChatSettings({ mode: "agent" })
 					}

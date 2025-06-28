@@ -93,20 +93,22 @@ interface GitCommit {
 	description: string
 }
 
-// CARET MODIFICATION: Ask mode color for Chatbot/Agent system (완전 통일)
-// CARET MODIFICATION: CHATBOT 모드 브랜드 컬러 - 더 선명한 블루 계열로 가시성 개선
-const CHATBOT_MODE_COLOR = "var(--vscode-textLink-foreground)"
+// CARET MODIFICATION: Chatbot mode color for Chatbot/Agent system (완전 통일)
+// CARET MODIFICATION: CHATBOT 모드 브랜드 컬러 - 에이전트와 동일한 선명도로 가시성 통일
+const CHATBOT_MODE_COLOR = "var(--vscode-focusBorder)"
 
 const SwitchOption = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== "isActive",
 })<{ isActive: boolean }>`
-	padding: 2px 8px;
+	padding: 2px 12px;
 	color: ${(props) => (props.isActive ? "white" : "var(--vscode-input-foreground)")};
 	z-index: 1;
 	transition: color 0.2s ease;
 	font-size: 12px;
 	width: 50%;
+	min-width: 50px;
 	text-align: center;
+	white-space: nowrap;
 
 	&:hover {
 		background-color: ${(props) => (!props.isActive ? "var(--vscode-toolbar-hoverBackground)" : "transparent")};
@@ -122,9 +124,9 @@ const SwitchContainer = styled.div<{ disabled: boolean }>`
 	overflow: hidden;
 	cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
 	opacity: ${(props) => (props.disabled ? 0.5 : 1)};
-	transform: scale(0.85);
+	transform: scale(0.9);
 	transform-origin: right center;
-	margin-left: -10px; // compensate for the transform so flex spacing works
+	margin-left: -8px; // compensate for the transform so flex spacing works
 	user-select: none; // Prevent text selection
 `
 
@@ -1017,6 +1019,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							mode: newMode,
 							preferredLanguage: chatSettings.preferredLanguage,
 							openAiReasoningEffort: chatSettings.openAIReasoningEffort,
+							modeSystem: chatSettings.modeSystem,
 						},
 						chatContent: {
 							message: inputValue.trim() ? inputValue : undefined,
@@ -1740,11 +1743,15 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							</ModelContainer>
 						</ButtonGroup>
 					</div>
-					{/* CARET MODIFICATION: Chatbot/Agent 다국어 UI - 완전 통일된 시스템 */}
+					{/* CARET MODIFICATION: Dynamic UI System - Caret/Cline interface switching */}
 					<Tooltip
 						style={{ zIndex: 1000 }}
 						visible={shownTooltipMode !== null}
-						tipText={shownTooltipMode === "agent" ? t("mode.tooltip.agent") : t("mode.tooltip.chatbot")}
+						tipText={
+							shownTooltipMode === "agent"
+								? t(`mode.tooltip.${chatSettings.modeSystem === "cline" ? "act" : "agent"}`)
+								: t(`mode.tooltip.${chatSettings.modeSystem === "cline" ? "plan" : "chatbot"}`)
+						}
 						hintText={t("mode.tooltip.toggle", "common").replace("{{metaKey}}", metaKeyChar)}>
 						<SwitchContainer
 							data-testid="chatbot-agent-mode-switch"
@@ -1755,13 +1762,13 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 								isActive={chatSettings.mode === "chatbot"}
 								onMouseOver={() => setShownTooltipMode("chatbot")}
 								onMouseLeave={() => setShownTooltipMode(null)}>
-								{t("mode.chatbot.label")}
+								{t(`mode.${chatSettings.modeSystem === "cline" ? "plan" : "chatbot"}.label`)}
 							</SwitchOption>
 							<SwitchOption
 								isActive={chatSettings.mode === "agent"}
 								onMouseOver={() => setShownTooltipMode("agent")}
 								onMouseLeave={() => setShownTooltipMode(null)}>
-								{t("mode.agent.label")}
+								{t(`mode.${chatSettings.modeSystem === "cline" ? "act" : "agent"}.label`)}
 							</SwitchOption>
 						</SwitchContainer>
 					</Tooltip>

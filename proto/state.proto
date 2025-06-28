@@ -57,6 +57,7 @@ message ChatSettings {
   optional string preferred_language = 2;
   optional string open_ai_reasoning_effort = 3;
   optional string ui_language = 4;  // CARET MODIFICATION: UI 표시 언어 (Caret 전용)
+  optional string mode_system = 5;  // CARET MODIFICATION: "caret" | "cline" 하이브리드 모드 시스템
 }
 
 message ChatContent {
@@ -105,6 +106,7 @@ message UpdateSettingsRequest {
   optional bool mcp_rich_display_enabled = 11;
   optional int64 terminal_output_line_limit = 12;
   optional string ui_language = 13; // CARET MODIFICATION: UI language setting (app-wide)
+  optional string mode_system = 14; // CARET MODIFICATION: "caret" | "cline" 하이브리드 모드 시스템
 }
 
 // Complete API Configuration message

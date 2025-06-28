@@ -139,3 +139,177 @@ interface CaretModeSettings {
 - **🔄 다음 목표**: UI 개선 + 하이브리드 설정 시스템 구현
 
 **다음 세션에서는 UI 통일성 개선부터 시작하여 설정 시스템 확장까지 완료 예정입니다.**
+
+# Next Session Guide - Caret-Cline 모드 시스템 정리
+
+**일시**: 2025-01-28 → 다음 세션  
+**작업자**: luke  
+**우선순위**: 🚨 **Critical - 시스템 혼란 상태 정리**
+
+## 🚨 **현재 문제 상황 요약**
+
+### **핵심 문제들**
+1. **채팅 기록 변조**: 과거 대화 내용이 현재 설정에 따라 동적으로 변경됨 (가장 심각)
+2. **모드 전환 혼란**: Caret/Cline 모드 전환이 예상대로 동작하지 않음
+3. **용어 혼재**: ASK 용어가 여전히 일부 남아있음  
+4. **시스템 프롬프트 오염**: Cline 원본을 수정해서 복잡해짐
+5. **설정 기본값 문제**: 모드 전환 시 올바른 기본값으로 설정되지 않음
+
+### **예상했던 동작**
+```
+Caret 모드: 기본값 Agent, 버튼 [Chatbot] [Agent]
+Cline 모드: 기본값 Plan, 버튼 [Plan] [Act]
+```
+
+### **실제 문제**
+- 모드가 마구 헷갈림
+- 채팅 창의 과거 대화가 현재 설정에 따라 변경됨
+- 설정과 버튼이 정확히 연동되지 않음
+
+## 📋 **다음 세션 작업 계획**
+
+### **Phase 1: 상황 파악 (30분)**
+
+#### **1.1 Git 상태 확인**
+```bash
+# 현재 변경된 파일들 확인
+git status
+git diff --name-only
+
+# 백업 파일들 확인
+find . -name "*.cline" -type f
+```
+
+#### **1.2 핵심 파일들 상태 점검**
+- `src/core/prompts/system.ts` (Cline 원본 시스템 프롬프트)
+- `webview-ui/src/components/common/MarkdownBlock.tsx` (채팅 기록 변조 원인)
+- `caret-src/core/prompts/CaretSystemPrompt.ts` (복잡해진 부분)
+- `webview-ui/src/components/chat/ChatTextArea.tsx` (모드 전환 UI)
+
+#### **1.3 문제 우선순위 재확인**
+1. 채팅 기록 변조 (최우선 - 사용자 신뢰 문제)
+2. 모드 전환 혼란 (기능 문제)
+3. 용어 통일 (일관성 문제)
+
+### **Phase 2: 원본 복원 (45분)**
+
+#### **2.1 Cline 원본 완전 복원**
+```bash
+# 시스템 프롬프트 원본 복원
+cp src/core/prompts/system-ts.cline src/core/prompts/system.ts
+
+# 기타 중요 파일들 원본 복원
+cp webview-ui/src/components/common/MarkdownBlock-tsx.cline webview-ui/src/components/common/MarkdownBlock.tsx
+```
+
+#### **2.2 복원 후 동작 확인**
+- 컴파일 성공 확인
+- 기본 Cline 기능 동작 확인
+- 채팅 기록 변조 문제 해결 확인
+
+### **Phase 3: 단순한 재설계 (90분)**
+
+#### **3.1 설계 원칙 재정립**
+```typescript
+// 목표: 단순하고 명확한 구조
+// 1. Cline 원본 시스템 프롬프트 절대 건드리지 않기
+// 2. UI 레이어에서만 표시 용어 변환
+// 3. 채팅 기록 무결성 절대 보장
+// 4. 내부 로직은 Cline 원본 그대로 유지
+```
+
+#### **3.2 UI 레이어 전용 용어 변환**
+- `MarkdownBlock.tsx`: 정적 텍스트만 변환, 동적 변환 금지
+- `ChatTextArea.tsx`: 버튼 텍스트만 변경
+- 과거 채팅 기록에는 절대 영향 주지 않기
+
+#### **3.3 모드 시스템 단순화**
+```typescript
+// 단순한 접근법
+interface SimpleModeSystem {
+  // UI에서만 버튼 텍스트 변경
+  // 내부적으로는 ask/agent 그대로 사용
+  // modeSystem 설정에 따라 UI 표시만 변경
+}
+```
+
+### **Phase 4: 검증 (30분)**
+
+#### **4.1 핵심 기능 테스트**
+1. **채팅 기록 무결성**: 과거 대화가 변경되지 않는지 확인
+2. **모드 전환**: Caret/Cline 모드 전환이 올바르게 동작하는지
+3. **기본값**: 각 모드의 올바른 기본값 설정 확인
+
+#### **4.2 컴파일 및 빌드 확인**
+```bash
+npm run compile
+cd webview-ui && npm run build
+```
+
+## ⚠️ **절대 금지사항**
+
+### **하지 말아야 할 것들**
+- ❌ `src/core/prompts/system.ts` (Cline 원본) 수정 금지
+- ❌ 채팅 기록에 영향을 주는 동적 변환 금지  
+- ❌ 복잡한 다층 변환 로직 구현 금지
+- ❌ 과거 대화 내용을 현재 설정에 따라 변경하는 로직 금지
+
+### **반드시 지켜야 할 원칙**
+- ✅ 단순함 우선 (KISS 원칙)
+- ✅ Cline 원본 보존 최우선
+- ✅ 채팅 기록 무결성 절대 보장
+- ✅ UI 표시만 변경, 내부 로직 보존
+
+## 🎯 **성공 기준**
+
+### **최소 성공 기준**
+1. **채팅 기록 무결성**: 과거 대화가 절대 변경되지 않음
+2. **기본 기능 동작**: Caret/Cline 기본 기능이 정상 동작
+3. **컴파일 성공**: 에러 없이 빌드 완료
+
+### **이상적 성공 기준**
+1. **명확한 모드 구분**: Caret(Chatbot/Agent) vs Cline(Plan/Act)
+2. **올바른 기본값**: Caret=Agent 기본, Cline=Plan 기본
+3. **용어 일관성**: UI에서 ASK 용어 완전 제거
+
+## 📁 **중요 파일 위치**
+
+### **절대 건드리면 안 되는 파일**
+- `src/core/prompts/system.ts` (Cline 원본 시스템 프롬프트)
+
+### **신중하게 수정할 파일들**
+- `webview-ui/src/components/common/MarkdownBlock.tsx` (채팅 표시)
+- `webview-ui/src/components/chat/ChatTextArea.tsx` (모드 전환 UI)
+- `caret-src/core/prompts/CaretSystemPrompt.ts` (Caret 확장)
+
+### **백업 파일들**
+- 모든 `.cline` 확장자 파일들 (복원 시 사용)
+
+## 🔧 **유용한 명령어**
+
+### **상태 확인**
+```bash
+# Git 상태
+git status
+git diff
+
+# 백업 파일 찾기
+find . -name "*.cline" -type f
+
+# 컴파일 확인
+npm run compile
+```
+
+### **복원 명령어**
+```bash
+# 중요 파일 복원 (필요시)
+cp src/core/prompts/system-ts.cline src/core/prompts/system.ts
+cp webview-ui/src/components/common/MarkdownBlock-tsx.cline webview-ui/src/components/common/MarkdownBlock.tsx
+```
+
+---
+
+**현재 상태**: ⚠️ **문제 상황 - 정리 필요**  
+**다음 목표**: 🔍 **문제 파악 → 원본 복원 → 단순한 재설계**  
+**예상 시간**: 3-4시간  
+**핵심 원칙**: **단순함 + Cline 원본 보존 + 채팅 기록 무결성**

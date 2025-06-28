@@ -12,6 +12,7 @@ export function convertChatSettingsToProtoChatSettings(chatSettings: ChatSetting
 		preferredLanguage: chatSettings.preferredLanguage,
 		openAiReasoningEffort: chatSettings.openAIReasoningEffort,
 		uiLanguage: chatSettings.uiLanguage, // CARET MODIFICATION: UI 언어 필드 추가
+		modeSystem: chatSettings.modeSystem, // CARET MODIFICATION: Mode system 필드 추가
 	})
 }
 
@@ -25,6 +26,7 @@ export function convertProtoChatSettingsToChatSettings(protoChatSettings: ProtoC
 		preferredLanguage: protoChatSettings.preferredLanguage,
 		openAIReasoningEffort: protoChatSettings.openAiReasoningEffort as "low" | "medium" | "high" | undefined,
 		uiLanguage: protoChatSettings.uiLanguage, // CARET MODIFICATION: UI 언어 필드 추가
+		modeSystem: protoChatSettings.modeSystem, // CARET MODIFICATION: Mode system 필드 추가
 	}
 }
 

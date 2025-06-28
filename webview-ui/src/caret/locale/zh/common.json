@@ -1,7 +1,7 @@
 {
 	"button": {
 		"freeStart": "免费开始",
-		"useOwnKey": "使用您的API密钥",
+		"useOwnKey": "使用您自己的API密钥",
 		"letsGo": "开始吧！",
 		"save": "保存",
 		"cancel": "取消",
@@ -10,7 +10,7 @@
 		"saveAndStart": "保存并开始"
 	},
 	"error": {
-		"generic": "发生错误。"
+		"generic": "发生了错误。"
 	},
 	"imageAlt": {
 		"caretBanner": "Caret标志横幅"
@@ -19,50 +19,89 @@
 		"apiKeySettings": "API密钥设置"
 	},
 	"text": {
-		"finalThoughts": "与{{appName}}一起开始您的精彩开发之旅！"
+		"finalThoughts": "与{{appName}}一起开始您精彩的开发之旅！"
 	},
 	"link": {
 		"learnMoreCaretGit": "在Caret GitHub上了解更多"
 	},
 	"rules": {
-		"section.personaManagement": "角色管理",
-    	"button.selectPersonaTemplate": "选择角色模板",
-    	"button.changePersonaTemplate": "更改角色模板",
-    "section.globalRules": "全局规则",
+		"tab": {
+			"rules": "规则",
+			"workflows": "工作流"
+		},
+		"section": {
+			"personaManagement": "角色管理",
+			"globalRules": "全局规则",
+			"workspaceRules": "工作空间规则",
+			"globalWorkflows": "全局工作流",
+			"localWorkflows": "本地工作流"
+		},
+		"subTitle": {
+			"caretRules": "Caret规则 (.caretrules)",
+			"clineRules": "Cline规则 (.clinerules)",
+			"cursorRules": "Cursor规则 (.cursorrules)",
+			"windsurfRules": "Windsurf规则 (.windsurfrules)"
+		},
+		"button": {
+			"selectPersonaTemplate": "选择模板角色",
+			"changePersonaTemplate": "更改角色模板"
+		},
+		"description": {
+			"personaManagement": "选择符合您编码风格和偏好的AI角色。",
+			"rulesDescription": "规则允许您为Cline提供系统级指导。将其视为为您的项目或全局的每次对话持续包含上下文和偏好的方法。",
+			"workflowsDescription": "工作流允许您定义一系列步骤，让Cline执行部署服务或提交PR等重复性任务。要运行工作流，请在聊天中输入 /工作流名称。"
+		},
+		"action": {
+			"newRuleFile": "新建规则文件..."
+		},
 		"title": "Cline规则和工作流管理",
-		"globalRules": "全局规则",
-		"workspaceRules": "工作区规则",
-		"globalWorkflows": "全局工作流",
-		"workspaceWorkflows": "工作区工作流",
-		"rulesDescription": "规则允许您为Cline提供系统级指导。将其视为为您的项目或全局对话持续包含上下文和偏好的方式。",
-		"workflowsDescription": "工作流允许您定义一系列步骤，供Cline执行重复性任务，如部署服务或提交PR。要运行工作流，请在聊天中输入/工作流名称。",
-		"toggleError": "规则切换错误",
-		"caretrules": "Caret规则 (.caretrules)",
-		"clinerules": "Cline规则 (.clinerules)",
-		"cursorrules": "Cursor规则 (.cursorrules)",
-		"windsurfrules": "Windsurf规则 (.windsurfrules)"
+		"toggleError": "规则切换错误"
 	},
 	"mode": {
 		"chatbot": {
 			"label": "💬 聊天机器人",
 			"title": "聊天机器人模式",
-			"description": "专家咨询和分析"
+			"description": "专家咨询和分析模式"
 		},
 		"agent": {
-			"label": "🤖 智能代理",
-			"title": "智能代理模式",
-			"description": "协作开发和实施"
+			"label": "🤖 智能体", 
+			"title": "智能体模式",
+			"description": "协作开发和实现模式"
+		},
+		"plan": {
+			"label": "📋 Plan",
+			"title": "计划模式",
+			"description": "策略制定和设计模式"
+		},
+		"act": {
+			"label": "⚡ Act", 
+			"title": "执行模式",
+			"description": "实施和执行模式"
 		},
 		"tooltip": {
 			"chatbot": "在聊天机器人模式下，Caret提供专家咨询和分析",
-			"agent": "在智能代理模式下，Caret协作实施解决方案",
-			"toggle": "切换: {{metaKey}}+Shift+A"
+			"agent": "在智能体模式下，Caret协作实现解决方案",
+			"plan": "在计划模式下制定策略和计划",
+			"act": "在执行模式下执行和实施计划",
+			"toggle": "切换：{{metaKey}}+Shift+A"
 		}
 	},
 	"settings": {
 		"uiLanguage": {
 			"label": "UI语言",
-			"description": "选择Caret用户界面元素（菜单、按钮、消息等）使用的语言。"
+			"description": "Caret用户界面元素（菜单、按钮、消息等）使用的语言。"
+		},
+		"modeSystem": {
+			"label": "界面模式",
+			"description": "在Caret和Cline用户界面样式中选择您偏好的模式。",
+			"options": {
+				"caret": "Caret",
+				"cline": "Cline"
+			}
+		},
+		"separateModels": {
+			"label": "为聊天机器人和智能体模式使用不同的模型",
+			"description": "在聊天机器人和智能体模式之间切换时，每种模式使用的API和模型设置将被保持。例如，在专家咨询（聊天机器人）中使用强大的推理模型，在协作开发（智能体）中使用成本效益高的编码模型时非常有用。"
 		}
 	}
 }

@@ -175,7 +175,8 @@ export class CaretSystemPrompt {
 		mcpHub: any, // McpHub type
 		browserSettings: any, // BrowserSettings type
 		isClaude4ModelFamily: boolean = false,
-		mode: "ask" | "agent" = "agent", // CARET MODIFICATION: Chatbot/Agent 모드 지원 추가
+		mode: "chatbot" | "agent" = "agent", // CARET MODIFICATION: Chatbot/Agent 모드 지원 추가
+		modeSystem?: string, // CARET MODIFICATION: Plan/Act 모드 지원 추가
 	): Promise<string> {
 		const startTime = Date.now()
 
@@ -186,7 +187,7 @@ export class CaretSystemPrompt {
 			)
 
 			// Step 1: Load and assemble base JSON sections
-			const baseSections = await this.loadAndAssembleBaseSections(mode)
+			const baseSections = await this.loadAndAssembleBaseSections(mode, modeSystem)
 
 			// Step 2: Generate dynamic sections (MCP, system info)
 			const dynamicSections = await this.generateDynamicSections(cwd, mcpHub)
@@ -227,7 +228,7 @@ export class CaretSystemPrompt {
 	/**
 	 * Load and assemble base JSON sections in correct order
 	 */
-	private async loadAndAssembleBaseSections(mode: "ask" | "agent" = "agent"): Promise<string[]> {
+	private async loadAndAssembleBaseSections(mode: "chatbot" | "agent" = "agent", modeSystem?: string): Promise<string[]> {
 		const SECTION_ORDER = [
 			"BASE_PROMPT_INTRO", // "You are..." introduction
 			"COLLABORATIVE_PRINCIPLES", // Caret's collaborative attitudes + meta-guidelines
@@ -248,7 +249,7 @@ export class CaretSystemPrompt {
 				// CARET MODIFICATION: mode별 도구 필터링 적용
 				let sectionContent: string
 				if (sectionName === "TOOL_DEFINITIONS") {
-					sectionContent = this.formatJsonSection(this.filterToolsByMode(template, mode))
+					sectionContent = this.formatJsonSection(this.filterToolsByMode(template, mode, modeSystem))
 				} else {
 					sectionContent = this.formatJsonSection(template)
 				}
@@ -465,7 +466,7 @@ export class CaretSystemPrompt {
 			content += `**Behavior:** ${template.agent_mode.behavior}\n\n`
 			content += `**Philosophy:** ${template.agent_mode.philosophy}\n\n`
 
-			// Ask Mode 섹션
+			// Chatbot Mode 섹션
 			content += `## ${template.chatbot_mode.title}\n\n`
 			content += `${template.chatbot_mode.description}\n\n`
 
@@ -639,9 +640,9 @@ export class CaretSystemPrompt {
 	}
 
 	/**
-	 * CARET MODIFICATION: Filter tools based on Chatbot/Agent mode
+	 * CARET MODIFICATION: Filter tools based on Chatbot/Agent and Plan/Act modes
 	 */
-	private filterToolsByMode(template: any, mode: "ask" | "agent"): any {
+	private filterToolsByMode(template: any, mode: "chatbot" | "agent", modeSystem?: string): any {
 		// If not a tool definitions object, return as-is
 		if (!template || !template.tools || !Array.isArray(template.tools)) {
 			return template
@@ -649,24 +650,55 @@ export class CaretSystemPrompt {
 
 		const filteredTemplate = { ...template }
 
-		if (mode === "ask") {
-			// Ask 모드: 읽기 전용 도구만 허용
-			const allowedTools = ["read_file", "search_files", "list_files", "list_code_definition_names"]
+		// CARET MODIFICATION: Plan/Act 모드 구현 (Cline 원본 로직)
+		if (modeSystem === "cline") {
+			if (mode === "chatbot") {
+				// Plan 모드: plan_mode_respond + 읽기 도구들만 허용
+				const allowedTools = [
+					"plan_mode_respond",
+					"read_file",
+					"search_files",
+					"list_files",
+					"list_code_definition_names",
+					"ask_followup_question",
+				]
 
-			filteredTemplate.tools = template.tools.filter((tool: any) => allowedTools.includes(tool.name))
+				filteredTemplate.tools = template.tools.filter((tool: any) => allowedTools.includes(tool.name))
 
-			this.caretLogger.info(
-				`[CaretSystemPrompt] Ask mode tool filtering: ${filteredTemplate.tools.length}/${template.tools.length} tools (${filteredTemplate.tools.map((t: any) => t.name).join(", ")})`,
-			)
-		} else if (mode === "agent") {
-			// Agent 모드: plan_mode_respond 제외한 모든 도구
-			const blockedTools = ["plan_mode_respond"]
+				this.caretLogger.info(
+					`[CaretSystemPrompt] Plan mode tool filtering: ${filteredTemplate.tools.length}/${template.tools.length} tools (${filteredTemplate.tools.map((t: any) => t.name).join(", ")})`,
+				)
+			} else {
+				// Act 모드: plan_mode_respond 제외한 모든 도구
+				const blockedTools = ["plan_mode_respond"]
 
-			filteredTemplate.tools = template.tools.filter((tool: any) => !blockedTools.includes(tool.name))
+				filteredTemplate.tools = template.tools.filter((tool: any) => !blockedTools.includes(tool.name))
 
-			this.caretLogger.info(
-				`[CaretSystemPrompt] Agent mode tool filtering: ${filteredTemplate.tools.length}/${template.tools.length} tools (blocked: ${blockedTools.join(", ")})`,
-			)
+				this.caretLogger.info(
+					`[CaretSystemPrompt] Act mode tool filtering: ${filteredTemplate.tools.length}/${template.tools.length} tools (blocked: ${blockedTools.join(", ")})`,
+				)
+			}
+		} else {
+			// Caret 모드: 기존 Chatbot/Agent 로직
+			if (mode === "chatbot") {
+				// Chatbot 모드: 읽기 전용 도구만 허용
+				const allowedTools = ["read_file", "search_files", "list_files", "list_code_definition_names"]
+
+				filteredTemplate.tools = template.tools.filter((tool: any) => allowedTools.includes(tool.name))
+
+				this.caretLogger.info(
+					`[CaretSystemPrompt] Chatbot mode tool filtering: ${filteredTemplate.tools.length}/${template.tools.length} tools (${filteredTemplate.tools.map((t: any) => t.name).join(", ")})`,
+				)
+			} else {
+				// Agent 모드: plan_mode_respond 제외한 모든 도구 (Caret에서는 plan_mode_respond 사용 안함)
+				const blockedTools = ["plan_mode_respond"]
+
+				filteredTemplate.tools = template.tools.filter((tool: any) => !blockedTools.includes(tool.name))
+
+				this.caretLogger.info(
+					`[CaretSystemPrompt] Agent mode tool filtering: ${filteredTemplate.tools.length}/${template.tools.length} tools (blocked: ${blockedTools.join(", ")})`,
+				)
+			}
 		}
 
 		return filteredTemplate

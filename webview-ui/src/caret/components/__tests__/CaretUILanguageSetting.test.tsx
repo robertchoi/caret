@@ -165,6 +165,7 @@ describe("CaretUILanguageSetting", () => {
 				mode: "plan",
 				openAIReasoningEffort: "high",
 				uiLanguage: "ko",
+				modeSystem: "caret", // CARET MODIFICATION: Include modeSystem in expected result
 			})
 		})
 	})

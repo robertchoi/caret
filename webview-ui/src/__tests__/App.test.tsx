@@ -168,6 +168,7 @@ describe("App Component - UI Language Switching", () => {
 			setDefaultTerminalProfile: vi.fn(),
 			setChatSettings: vi.fn(),
 			setUILanguage: vi.fn(),
+			setModeSystem: vi.fn(), // CARET MODIFICATION: Add modeSystem mock
 			setMcpServers: vi.fn(),
 			setGlobalClineRulesToggles: vi.fn(),
 			setLocalClineRulesToggles: vi.fn(),
@@ -259,6 +260,7 @@ describe("App Component - UI Language Switching", () => {
 			setDefaultTerminalProfile: vi.fn(),
 			setChatSettings: vi.fn(),
 			setUILanguage: vi.fn(),
+			setModeSystem: vi.fn(), // CARET MODIFICATION: Add modeSystem mock
 			setMcpServers: vi.fn(),
 			setGlobalClineRulesToggles: vi.fn(),
 			setLocalClineRulesToggles: vi.fn(),

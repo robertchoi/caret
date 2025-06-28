@@ -148,6 +148,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		mcpResponsesCollapsed,
 		setMcpResponsesCollapsed,
 		setApiConfiguration,
+		setModeSystem, // CARET MODIFICATION: Add modeSystem setter
 	} = useExtensionState()
 
 	// Store the original state to detect changes
@@ -654,13 +655,10 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 													const checked = e.target.checked === true
 													setPlanActSeparateModelsSetting(checked)
 												}}>
-												Use different models for Ask and Agent modes
+												{t("settings.separateModels.label")}
 											</VSCodeCheckbox>
 											<p className="text-xs mt-[5px] text-[var(--vscode-descriptionForeground)]">
-												Switching between Ask and Agent mode will persist the API and model used in the
-												previous mode. This may be helpful e.g. when using a strong reasoning model for
-												expert consultation (Ask) and a cheaper coding model for collaborative development
-												(Agent).
+												{t("settings.separateModels.description")}
 											</p>
 										</div>
 									</Section>
@@ -717,6 +715,34 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 											caretWebviewLogger.debug(
 												"🎯 General 탭! chatSettings not available, CaretUILanguageSetting not rendered.",
 											)}
+
+										{/* CARET MODIFICATION: Mode System Selection */}
+										{chatSettings && (
+											<div className="mb-[15px]">
+												<label className="block text-sm font-medium mb-2">
+													{t("settings.modeSystem.label")}
+												</label>
+												<div className="flex gap-2">
+													<VSCodeButton
+														appearance={chatSettings.modeSystem === "caret" ? "primary" : "secondary"}
+														onClick={() => {
+															setModeSystem("caret")
+														}}>
+														{t("settings.modeSystem.options.caret")}
+													</VSCodeButton>
+													<VSCodeButton
+														appearance={chatSettings.modeSystem === "cline" ? "primary" : "secondary"}
+														onClick={() => {
+															setModeSystem("cline")
+														}}>
+														{t("settings.modeSystem.options.cline")}
+													</VSCodeButton>
+												</div>
+												<p className="text-xs mt-[5px] text-[var(--vscode-descriptionForeground)]">
+													{t("settings.modeSystem.description")}
+												</p>
+											</div>
+										)}
 
 										<div className="mb-[5px]">
 											<VSCodeCheckbox

@@ -29,12 +29,12 @@ const ChatBotModeHighlight: React.FC = () => (
 				}),
 			)
 		}}
-		title="Switch to Ask Mode - Expert Consultation"
+		title="Switch to Chatbot Mode - Expert Consultation"
 		className="text-[var(--vscode-textLink-foreground)] hover:opacity-90 cursor-pointer inline-flex items-center gap-1">
 		<div className="p-1 rounded-[12px] bg-[var(--vscode-editor-background)] flex items-center justify-start w-4 border-[1px] border-[var(--vscode-input-border)]">
 			<div className="rounded-full bg-[var(--vscode-textLink-foreground)] w-2 h-2" />
 		</div>
-		💬 Ask Mode (⌘⇧P)
+		💬 Chatbot Mode (⌘⇧P)
 	</span>
 )
 
@@ -61,14 +61,19 @@ const AgentModeHighlight: React.FC = () => (
 )
 
 // CARET MODIFICATION: Chatbot/Agent 일관성 있는 텍스트 처리
-const transformChatbotAgentText = (text: string, mode: "chatbot" | "agent"): string => {
-	// Chatbot/Agent 용어로 통일된 텍스트 변환
+const transformChatbotAgentText = (text: string, mode: "chatbot" | "agent", modeSystem?: string): string => {
+	// Cline 모드일 때는 원래 Plan/Act 유지
+	if (modeSystem === "cline") {
+		return text // Plan/Act 그대로 유지
+	}
+
+	// Caret 모드일 때만 Chatbot/Agent 용어로 변환
 	if (mode === "chatbot") {
-		// Ask 모드 관련 텍스트 변환
+		// Chatbot 모드 관련 텍스트 변환
 		return text
-			.replace(/PLAN MODE/gi, "ASK MODE")
-			.replace(/Plan Mode/gi, "Ask Mode")
-			.replace(/plan mode/gi, "ask mode")
+			.replace(/PLAN MODE/gi, "CHATBOT MODE")
+			.replace(/Plan Mode/gi, "Chatbot Mode")
+			.replace(/plan mode/gi, "chatbot mode")
 			.replace(/switch.*to.*act.*mode/gi, "switch to Agent mode")
 			.replace(/toggle.*to.*act.*mode/gi, "toggle to Agent mode")
 	} else {
@@ -77,8 +82,8 @@ const transformChatbotAgentText = (text: string, mode: "chatbot" | "agent"): str
 			.replace(/ACT MODE/gi, "AGENT MODE")
 			.replace(/Act Mode/gi, "Agent Mode")
 			.replace(/act mode/gi, "agent mode")
-			.replace(/switch.*to.*plan.*mode/gi, "switch to Ask mode")
-			.replace(/toggle.*to.*plan.*mode/gi, "toggle to Ask mode")
+			.replace(/switch.*to.*plan.*mode/gi, "switch to Chatbot mode")
+			.replace(/toggle.*to.*plan.*mode/gi, "toggle to Chatbot mode")
 	}
 }
 
@@ -341,7 +346,7 @@ const StyledMarkdown = styled.div`
 	}
 
 	// CARET MODIFICATION: Chatbot/Agent 모드 텍스트 스타일링
-	.ask-mode-text {
+	.chatbot-mode-text {
 		color: var(--vscode-textLink-foreground);
 		font-weight: 500;
 	}
@@ -410,26 +415,43 @@ const MarkdownBlock = memo(({ markdown, highlightOptions = {}, className }: Mark
 
 	useEffect(() => {
 		// CARET MODIFICATION: Chatbot/Agent 일관성 있는 텍스트 변환
-		const transformedText = transformChatbotAgentText(markdown || "", chatSettings.mode)
+		const transformedText = transformChatbotAgentText(markdown || "", chatSettings.mode, chatSettings.modeSystem)
 		setProcessedMarkdown(transformedText)
-	}, [markdown, chatSettings.mode])
+	}, [markdown, chatSettings.mode, chatSettings.modeSystem])
 
 	// CARET MODIFICATION: Chatbot/Agent 모드별 동적 강조 표시
 	const processMarkdownForChatbotAgent = (content: string): string => {
 		const isInChatbotMode = chatSettings.mode === "chatbot"
+		const isClineMode = chatSettings.modeSystem === "cline"
 
-		// Ask 모드에 있을 때 Agent 모드로 전환 안내
-		if (isInChatbotMode) {
-			content = content.replace(
-				/(switch to|toggle to|change to)\s*(agent|act)\s*mode/gi,
-				(match) => `<ChatBotModeHighlight>${match}</ChatBotModeHighlight>`,
-			)
+		if (isClineMode) {
+			// Cline 모드: Plan ↔ Act 전환 안내
+			if (isInChatbotMode) {
+				// Plan mode
+				content = content.replace(
+					/(switch to|toggle to|change to)\s*(act)\s*mode/gi,
+					(match) => `<ChatBotModeHighlight>${match}</ChatBotModeHighlight>`,
+				)
+			} else {
+				// Act mode
+				content = content.replace(
+					/(switch to|toggle to|change to)\s*(plan)\s*mode/gi,
+					(match) => `<AgentModeHighlight>${match}</AgentModeHighlight>`,
+				)
+			}
 		} else {
-			// Agent 모드에 있을 때 Ask 모드로 전환 안내
-			content = content.replace(
-				/(switch to|toggle to|change to)\s*(ask|plan)\s*mode/gi,
-				(match) => `<AgentModeHighlight>${match}</AgentModeHighlight>`,
-			)
+			// Caret 모드: Chatbot ↔ Agent 전환 안내
+			if (isInChatbotMode) {
+				content = content.replace(
+					/(switch to|toggle to|change to)\s*(agent)\s*mode/gi,
+					(match) => `<ChatBotModeHighlight>${match}</ChatBotModeHighlight>`,
+				)
+			} else {
+				content = content.replace(
+					/(switch to|toggle to|change to)\s*(chatbot)\s*mode/gi,
+					(match) => `<AgentModeHighlight>${match}</AgentModeHighlight>`,
+				)
+			}
 		}
 
 		return content

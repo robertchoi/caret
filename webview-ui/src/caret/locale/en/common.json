@@ -80,9 +80,21 @@
 			"title": "Agent Mode", 
 			"description": "Collaborative development and implementation"
 		},
+		"plan": {
+			"label": "📋 Plan",
+			"title": "Plan Mode",
+			"description": "Strategy formulation and design"
+		},
+		"act": {
+			"label": "⚡ Act", 
+			"title": "Act Mode",
+			"description": "Implementation and execution"
+		},
 		"tooltip": {
 			"chatbot": "In Chatbot mode, Caret provides expert consultation and analysis",
 			"agent": "In Agent mode, Caret collaborates to implement solutions",
+			"plan": "In Plan mode, formulate strategies and plans",
+			"act": "In Act mode, execute and implement plans",
 			"toggle": "Toggle w/ {{metaKey}}+Shift+A"
 		}
 	},
@@ -101,6 +113,18 @@
 				"ja": "Japanese (日本語)",
 				"zh": "Chinese (中文)"
 			}
+		},
+		"modeSystem": {
+			"label": "Interface Mode",
+			"description": "Choose your preferred interface style between Caret and Cline modes.",
+			"options": {
+				"caret": "Caret",
+				"cline": "Cline"
+			}
+		},
+		"separateModels": {
+			"label": "Use different models for Chatbot and Agent modes",
+			"description": "Switching between Chatbot and Agent mode will persist the API and model used in the previous mode. This may be helpful e.g. when using a strong reasoning model for expert consultation (Chatbot) and a cheaper coding model for collaborative development (Agent)."
 		}
 	}
 }

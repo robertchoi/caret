@@ -72,6 +72,8 @@ interface ExtensionStateContextType extends ExtensionState {
 	setChatSettings: (value: ChatSettings) => void
 	// CARET MODIFICATION: UI 언어만 업데이트하는 별도 함수
 	setUILanguage: (language: string) => void
+	// CARET MODIFICATION: Mode system (Caret/Cline interface) setter
+	setModeSystem: (modeSystem: string) => void
 	setMcpServers: (value: McpServer[]) => void
 	setGlobalClineRulesToggles: (toggles: Record<string, boolean>) => void
 	setLocalClineRulesToggles: (toggles: Record<string, boolean>) => void
@@ -880,6 +882,30 @@ export const ExtensionStateContextProvider: React.FC<{
 				console.log("[DEBUG] 🌐 setUILanguage completed:", language)
 			} catch (error) {
 				console.error("Failed to update UI language:", error)
+			}
+		},
+		// CARET MODIFICATION: Mode system setter for Caret/Cline interface switching
+		setModeSystem: async (modeSystem: string) => {
+			try {
+				// Update only modeSystem
+				await StateServiceClient.updateSettings(
+					UpdateSettingsRequest.create({
+						modeSystem, // Only update this field
+					}),
+				)
+
+				// Update frontend state
+				setState((prevState) => ({
+					...prevState,
+					chatSettings: {
+						...prevState.chatSettings,
+						modeSystem,
+					},
+				}))
+
+				console.log("[DEBUG] 🔧 setModeSystem completed:", modeSystem)
+			} catch (error) {
+				console.error("Failed to update mode system:", error)
 			}
 		},
 	}

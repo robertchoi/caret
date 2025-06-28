@@ -1697,7 +1697,27 @@ export class Task {
 		const supportsBrowserUse = modelSupportsBrowserUse && !disableBrowserTool // only enable browser use if the model supports it and the user hasn't disabled it
 
 		const isClaude4Model = isClaude4ModelFamily(this.api)
-		let systemPrompt = await SYSTEM_PROMPT(cwd, supportsBrowserUse, this.mcpHub, this.browserSettings, isClaude4Model)
+
+		// CARET MODIFICATION: Plan/Act 모드 지원 - modeSystem에 따른 프롬프트 생성
+		let systemPrompt: string
+		if (this.chatSettings.modeSystem === "cline") {
+			// Cline Plan/Act 모드: Cline 원본 SYSTEM_PROMPT 사용
+			// Plan/Act 로직은 Cline 원본 프롬프트에 최적화되어 있음
+
+			// Cline 원본에서는 extensionPath와 mode 파라미터가 없으므로 기본 호출
+			systemPrompt = await SYSTEM_PROMPT(cwd, supportsBrowserUse, this.mcpHub, this.browserSettings, isClaude4Model)
+		} else {
+			// Caret 모드: JSON 기반 개선된 프롬프트 사용 (mode 파라미터 포함)
+			systemPrompt = await SYSTEM_PROMPT(
+				cwd,
+				supportsBrowserUse,
+				this.mcpHub,
+				this.browserSettings,
+				isClaude4Model,
+				undefined,
+				this.chatSettings.mode,
+			)
+		}
 
 		await this.migratePreferredLanguageToolSetting()
 		const preferredLanguage = getLanguageKey(this.chatSettings.preferredLanguage as LanguageDisplay)
@@ -5075,14 +5095,9 @@ export class Task {
 		details += "\n\n# Context Window Usage"
 		details += `\n${lastApiReqTotalTokens.toLocaleString()} / ${(contextWindow / 1000).toLocaleString()}K tokens used (${usagePercentage}%)`
 
-		// CARET MODIFICATION: Chatbot/Agent 용어 통일 - 모드 표시 수정
-		details += "\n\n# Current Mode"
-		// CARET MODIFICATION: Chatbot 모드에서는 읽기 전용 동작
-		if (this.chatSettings.mode === "chatbot") {
-			details += "\nASK MODE\n" + formatResponse.planModeInstructions()
-		} else {
-			details += "\nAGENT MODE"
-		}
+		// CARET MODIFICATION: 모드 표시 완전 제거 - 과거 대화 일관성 보장
+		// 모드 정보는 시스템 프롬프트에서만 처리하여 과거 대화가 바뀌는 문제 해결
+		// 환경 세부사항은 파일, 터미널, 시간 등 실행 컨텍스트만 표시
 
 		return `<environment_details>\n${details.trim()}\n</environment_details>`
 	}

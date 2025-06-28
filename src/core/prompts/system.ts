@@ -14,7 +14,7 @@ export const SYSTEM_PROMPT = async (
 	browserSettings: BrowserSettings,
 	isClaude4ModelFamily: boolean = false,
 	extensionPath?: string, // CARET MODIFICATION: CaretSystemPrompt 연결을 위한 extensionPath
-	mode: 'ask' | 'agent' = 'agent' // CARET MODIFICATION: Chatbot/Agent 모드 지원
+	mode: 'chatbot' | 'agent' = 'agent' // CARET MODIFICATION: Chatbot/Agent 모드 지원
 ) => {
 	// CARET MODIFICATION: 단순한 Cline/Caret 모드 선택 시스템 (003-04)
 	if (extensionPath) {
@@ -67,7 +67,7 @@ export const SYSTEM_PROMPT = async (
 }
 
 // CARET MODIFICATION: Cline 원본 시스템 프롬프트 보존 (성능 비교용)
-function ORIGINAL_CLINE_SYSTEM_PROMPT(
+export function ORIGINAL_CLINE_SYSTEM_PROMPT(
 	cwd: string,
 	supportsBrowserUse: boolean,
 	mcpHub: McpHub,

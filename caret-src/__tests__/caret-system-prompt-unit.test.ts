@@ -83,7 +83,7 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 
 			// Check that it's not too complex (KISS principle)
 			const lines = content.split("\n").length
-			expect(lines).toBeLessThan(650) // Should be simple wrapper (increased for JSON overlay features and integration)
+			expect(lines).toBeLessThan(720) // Should be simple wrapper (increased for Plan/Act mode support and JSON overlay features)
 		})
 	})
 

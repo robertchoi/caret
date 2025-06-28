@@ -2,10 +2,10 @@
 	"metadata": {
 		"name": "TOOL_DEFINITIONS",
 		"version": "1.0.0",
-		"description": "Complete tool definitions and usage instructions for Caret system with Ask/Agent mode filtering",
+		"description": "Complete tool definitions and usage instructions for Caret system with Chatbot/Agent mode filtering",
 		"compatibleWith": ["caret-1.0", "cline-compatible"],
 		"author": "Caret Team",
-		"tags": ["tools", "definitions", "usage", "ask-agent-modes"]
+		"tags": ["tools", "definitions", "usage", "chatbot-agent-modes"]
 	},
 	"add": {
 		"sections": [

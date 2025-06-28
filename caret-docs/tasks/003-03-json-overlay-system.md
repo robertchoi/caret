@@ -199,7 +199,7 @@ export class JsonTemplateLoader {
   constructor(extensionPath: string) {
     this.caretLogger = CaretLogger.getInstance()
     this.templateCache = new Map()
-    this.templateDir = path.join(extensionPath, 'caret-assets', 'prompt-templates')
+    this.templateDir = path.join(extensionPath, 'caret-assets', 'test-templates')
   }
 
   async loadTemplate(templateName: string): Promise<PromptTemplate> {

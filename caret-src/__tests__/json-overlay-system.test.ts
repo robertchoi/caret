@@ -75,7 +75,7 @@ describe("JSON Overlay System (003-03) - TDD Implementation", () => {
 
 			expect(result).toEqual(mockTemplate)
 			expect(fs.readFile).toHaveBeenCalledWith(
-				path.join(mockExtensionPath, "caret-assets", "prompt-templates", "agent-foundation.json"),
+				path.join(mockExtensionPath, "caret-src", "core", "prompts", "sections", "agent-foundation.json"),
 				"utf-8",
 			)
 		})

@@ -83,12 +83,7 @@ export class CaretSystemPromptTDD {
 		const startTime = Date.now()
 
 		try {
-			this.caretLogger.info("[CaretSystemPromptTDD] Generating system prompt", {
-				cwd: context.cwd,
-				supportsBrowserUse: context.supportsBrowserUse,
-				isClaude4ModelFamily: context.isClaude4ModelFamily,
-				mcpServerCount: context.mcpHub.getServers().length,
-			})
+			this.caretLogger.info("[CaretSystemPromptTDD] Generating system prompt", `cwd: ${context.cwd}, supportsBrowserUse: ${context.supportsBrowserUse}, isClaude4ModelFamily: ${context.isClaude4ModelFamily}, mcpServerCount: ${context.mcpHub.getServers().length}`)
 
 			// Cline 원본 호출 (의존성 주입된 함수 사용)
 			const prompt = await this.systemPromptFn(
@@ -112,18 +107,10 @@ export class CaretSystemPromptTDD {
 
 			// 성능 경고 (5ms 이상 소요 시)
 			if (metrics.generationTime > 5) {
-				this.caretLogger.warn("[CaretSystemPromptTDD] Slow prompt generation detected", {
-					generationTime: metrics.generationTime,
-					threshold: 5,
-				})
+				this.caretLogger.warn("[CaretSystemPromptTDD] Slow prompt generation detected", `generationTime: ${metrics.generationTime}ms, threshold: 5ms`)
 			}
 
-			this.caretLogger.info("[CaretSystemPromptTDD] System prompt generated successfully", {
-				promptLength: prompt.length,
-				generationTime: metrics.generationTime,
-				toolCount: metrics.toolCount,
-				mcpServerCount: metrics.mcpServerCount,
-			})
+			this.caretLogger.info("[CaretSystemPromptTDD] System prompt generated successfully", `promptLength: ${prompt.length}, generationTime: ${metrics.generationTime}ms, toolCount: ${metrics.toolCount}, mcpServerCount: ${metrics.mcpServerCount}`)
 
 			return {
 				prompt,

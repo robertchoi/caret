@@ -5,6 +5,8 @@ export default defineConfig({
 	test: {
 		environment: "node",
 		globals: true,
+		// VSCode 모듈 모킹
+		setupFiles: ["./vitest.setup.ts"],
 		include: [
 			"caret-src/**/*.test.ts",
 			"!src/**/*", // Cline 원본 테스트 제외
@@ -25,11 +27,16 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			"@": path.resolve(__dirname, "./caret-src"),
+			"@": path.resolve(__dirname, "./src"),
+			"@caret": path.resolve(__dirname, "./caret-src"),
 			"@src": path.resolve(__dirname, "./src"),
+			"@core": path.resolve(__dirname, "./src/core"),
 			"@shared": path.resolve(__dirname, "./src/shared"),
 			"@utils": path.resolve(__dirname, "./src/utils"),
 			"@packages": path.resolve(__dirname, "./src/packages"),
+			"@services": path.resolve(__dirname, "./src/services"),
+			"@api": path.resolve(__dirname, "./src/api"),
+			"@integrations": path.resolve(__dirname, "./src/integrations"),
 		},
 	},
 })

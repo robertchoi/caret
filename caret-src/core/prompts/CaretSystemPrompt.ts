@@ -62,7 +62,7 @@ export class CaretSystemPrompt {
 		const startTime = Date.now()
 
 		try {
-			this.caretLogger.info(`[CaretSystemPrompt] Generating system prompt - cwd: ${context.cwd}, browser: ${context.supportsBrowserUse}, claude4: ${context.isClaude4ModelFamily}, mcpServers: ${context.mcpHub.getServers().length}`)
+			this.caretLogger.info(`Generating system prompt - cwd: ${context.cwd}, browser: ${context.supportsBrowserUse}, claude4: ${context.isClaude4ModelFamily}, mcpServers: ${context.mcpHub.getServers().length}`, "CaretSystemPrompt")
 
 			// Call Cline original SYSTEM_PROMPT exactly as-is
 			const prompt = await this.callOriginalSystemPrompt(context)
@@ -100,13 +100,11 @@ export class CaretSystemPrompt {
 		const startTime = Date.now()
 
 		try {
-			this.caretLogger.info(`[CaretSystemPrompt] Generating system prompt with templates - cwd: ${context.cwd}, templates: [${templateNames.join(', ')}], count: ${templateNames.length}`)
+			this.caretLogger.info(`Generating system prompt with templates - cwd: ${context.cwd}, templates: [${templateNames.join(', ')}], count: ${templateNames.length}`, "CaretSystemPrompt")
 
 			// Step 1: Generate base prompt from Cline
 			const basePrompt = await this.callOriginalSystemPrompt(context)
-			this.caretLogger.info("[CaretSystemPrompt] Base prompt generated", {
-				basePromptLength: basePrompt.length,
-			})
+			this.caretLogger.info(`Base prompt generated - length: ${basePrompt.length}`, "CaretSystemPrompt")
 
 			// Step 2: Apply JSON templates
 			let enhancedPrompt = basePrompt
@@ -120,22 +118,12 @@ export class CaretSystemPrompt {
 					if (overlayResult.success) {
 						enhancedPrompt = overlayResult.prompt
 						appliedTemplates.push(templateName)
-						this.caretLogger.info("[CaretSystemPrompt] Template applied successfully", {
-							templateName,
-							templateVersion: template.metadata.version,
-							promptLengthChange: overlayResult.prompt.length - basePrompt.length,
-						})
+											this.caretLogger.info(`Template applied successfully - ${templateName} v${template.metadata.version}, length change: ${overlayResult.prompt.length - basePrompt.length}`, "CaretSystemPrompt")
 					} else {
-						this.caretLogger.warn("[CaretSystemPrompt] Template application failed", {
-							templateName,
-							warnings: overlayResult.warnings,
-						})
+											this.caretLogger.warn(`Template application failed - ${templateName}: ${overlayResult.warnings.join(', ')}`, "CaretSystemPrompt")
 					}
 				} catch (error) {
-					this.caretLogger.error("[CaretSystemPrompt] Template loading failed", {
-						templateName,
-						error: error.toString(),
-					})
+									this.caretLogger.error(`Template loading failed - ${templateName}: ${error.toString()}`, "CaretSystemPrompt")
 				}
 			}
 
@@ -174,20 +162,16 @@ export class CaretSystemPrompt {
 		supportsBrowserUse: boolean,
 		mcpHub: any, // McpHub type
 		browserSettings: any, // BrowserSettings type  
-		isClaude4ModelFamily: boolean = false
+		isClaude4ModelFamily: boolean = false,
+		mode: 'ask' | 'agent' = 'agent' // CARET MODIFICATION: Ask/Agent 모드 지원 추가
 	): Promise<string> {
 		const startTime = Date.now()
 
 		try {
-			this.caretLogger.info("[CaretSystemPrompt] Generating system prompt from JSON sections", {
-				cwd,
-				supportsBrowserUse,
-				isClaude4ModelFamily,
-				mcpServerCount: mcpHub?.getServers?.()?.length ?? 0,
-			})
+					this.caretLogger.info(`Generating system prompt from JSON sections - cwd: ${cwd}, browser: ${supportsBrowserUse}, claude4: ${isClaude4ModelFamily}, mode: ${mode}, mcpServers: ${mcpHub?.getServers?.()?.length ?? 0}`, "CaretSystemPrompt")
 
 			// Step 1: Load and assemble base JSON sections
-			const baseSections = await this.loadAndAssembleBaseSections()
+			const baseSections = await this.loadAndAssembleBaseSections(mode)
 
 			// Step 2: Generate dynamic sections (MCP, system info)  
 			const dynamicSections = await this.generateDynamicSections(cwd, mcpHub)
@@ -208,11 +192,7 @@ export class CaretSystemPrompt {
 
 			// Log metrics
 			const generationTime = Date.now() - startTime
-			this.caretLogger.info("[CaretSystemPrompt] JSON sections prompt generated", {
-				promptLength: finalPrompt.length,
-				generationTime,
-				sectionCount: baseSections.length + dynamicSections.length + conditionalSections.length,
-			})
+					this.caretLogger.info(`JSON sections prompt generated - length: ${finalPrompt.length}, time: ${generationTime}ms, sections: ${baseSections.length + dynamicSections.length + conditionalSections.length}`, "CaretSystemPrompt")
 
 			return finalPrompt
 
@@ -234,7 +214,7 @@ export class CaretSystemPrompt {
 	/**
 	 * Load and assemble base JSON sections in correct order
 	 */
-	private async loadAndAssembleBaseSections(): Promise<string[]> {
+	private async loadAndAssembleBaseSections(mode: 'ask' | 'agent' = 'agent'): Promise<string[]> {
 		const SECTION_ORDER = [
 			'BASE_PROMPT_INTRO',      // "You are..." introduction
 			'COLLABORATIVE_PRINCIPLES', // Caret's collaborative attitudes + meta-guidelines
@@ -251,18 +231,20 @@ export class CaretSystemPrompt {
 		for (const sectionName of SECTION_ORDER) {
 			try {
 				const template = await this.templateLoader.loadTemplate(sectionName)
-				const sectionContent = this.formatJsonSection(template)
+				
+				// CARET MODIFICATION: mode별 도구 필터링 적용
+				let sectionContent: string
+				if (sectionName === 'TOOL_DEFINITIONS') {
+					sectionContent = this.formatJsonSection(this.filterToolsByMode(template, mode))
+				} else {
+					sectionContent = this.formatJsonSection(template)
+				}
+				
 				sections.push(sectionContent)
 				
-				this.caretLogger.debug("[CaretSystemPrompt] Loaded section", {
-					sectionName,
-					contentLength: sectionContent.length
-				})
+							this.caretLogger.debug(`Loaded section ${sectionName} (${sectionContent.length} chars, mode: ${mode})`, "CaretSystemPrompt")
 			} catch (error) {
-				this.caretLogger.warn("[CaretSystemPrompt] Failed to load section", {
-					sectionName,
-					error: error.toString()
-				})
+							this.caretLogger.warn(`Failed to load section ${sectionName}: ${error.toString()}`, "CaretSystemPrompt")
 				// Continue with other sections
 			}
 		}
@@ -444,18 +426,51 @@ export class CaretSystemPrompt {
 		if (template.title && template.agent_mode && template.ask_mode) {
 			let content = `\n\n====\n\n${template.title}\n\n`
 			content += `${template.mode_description}\n\n`
-			content += `- ${template.agent_mode.title}: ${template.agent_mode.description}\n`
-			content += ` - ${template.agent_mode.behavior}\n`
-			content += ` - ${template.agent_mode.philosophy}\n`
-			content += `- ${template.ask_mode.title}: ${template.ask_mode.description}\n`
-			content += ` - ${template.ask_mode.behavior}\n`
-			content += ` - ${template.ask_mode.guidance}\n\n`
 			
+			// Agent Mode 섹션
+			content += `## ${template.agent_mode.title}\n\n`
+			content += `${template.agent_mode.description}\n\n`
+			
+			if (template.agent_mode.capabilities) {
+				content += `**Capabilities:**\n`
+				for (const capability of template.agent_mode.capabilities) {
+					content += `- ${capability}\n`
+				}
+				content += `\n`
+			}
+			
+			if (template.agent_mode.available_tools) {
+				content += `**Available Tools:** ${template.agent_mode.available_tools}\n\n`
+			}
+			
+			content += `**Behavior:** ${template.agent_mode.behavior}\n\n`
+			content += `**Philosophy:** ${template.agent_mode.philosophy}\n\n`
+			
+			// Ask Mode 섹션
+			content += `## ${template.ask_mode.title}\n\n`
+			content += `${template.ask_mode.description}\n\n`
+			
+			if (template.ask_mode.capabilities) {
+				content += `**Capabilities:**\n`
+				for (const capability of template.ask_mode.capabilities) {
+					content += `- ${capability}\n`
+				}
+				content += `\n`
+			}
+			
+			if (template.ask_mode.available_tools) {
+				content += `**Available Tools:** ${template.ask_mode.available_tools}\n\n`
+			}
+			
+			content += `**Behavior:** ${template.ask_mode.behavior}\n\n`
+			content += `**Guidance:** ${template.ask_mode.guidance}\n\n`
+			
+			// Mode Philosophy 섹션
 			if (template.mode_philosophy) {
 				content += `## ${template.mode_philosophy.title}\n\n`
-				content += `${template.mode_philosophy.agent_default}\n`
-				content += `${template.mode_philosophy.ask_safety}\n`
-				content += `${template.mode_philosophy.natural_choice}\n`
+				content += `- ${template.mode_philosophy.agent_default}\n`
+				content += `- ${template.mode_philosophy.ask_safety}\n`
+				content += `- ${template.mode_philosophy.natural_choice}\n`
 			}
 			
 			return content
@@ -531,21 +546,11 @@ export class CaretSystemPrompt {
 	 * Log prompt generation details
 	 */
 	private async logPromptGeneration(context: SystemPromptContext, result: string, metrics: SystemPromptMetrics): Promise<void> {
-		this.caretLogger.info("[CaretSystemPrompt] System prompt generated successfully", {
-			promptLength: result.length,
-			generationTime: metrics.generationTime,
-			toolCount: metrics.toolCount,
-			mcpServerCount: metrics.mcpServerCount,
-			firstLine: result.split("\n")[0].substring(0, 100),
-			endsWithObjective: result.includes("OBJECTIVE"),
-		})
+		this.caretLogger.info("[CaretSystemPrompt] System prompt generated successfully", `promptLength: ${result.length}, generationTime: ${metrics.generationTime}ms, toolCount: ${metrics.toolCount}, mcpServerCount: ${metrics.mcpServerCount}, firstLine: "${result.split("\n")[0].substring(0, 100)}", endsWithObjective: ${result.includes("OBJECTIVE")}`)
 
 		// Performance warning (5ms threshold)
 		if (metrics.generationTime > 5) {
-			this.caretLogger.warn("[CaretSystemPrompt] Slow prompt generation detected", {
-				generationTime: metrics.generationTime,
-				threshold: 5,
-			})
+			this.caretLogger.warn("[CaretSystemPrompt] Slow prompt generation detected", `generationTime: ${metrics.generationTime}ms, threshold: 5ms`)
 		}
 	}
 
@@ -559,34 +564,16 @@ export class CaretSystemPrompt {
 		metrics: SystemPromptMetrics,
 		appliedTemplates: string[],
 	): Promise<void> {
-		this.caretLogger.info("[CaretSystemPrompt] Enhanced system prompt generated successfully", {
-			basePromptLength: basePrompt.length,
-			enhancedPromptLength: enhancedPrompt.length,
-			enhancementRatio: metrics.enhancementRatio,
-			generationTime: metrics.generationTime,
-			toolCount: metrics.toolCount,
-			mcpServerCount: metrics.mcpServerCount,
-			appliedTemplates,
-			templatesApplied: appliedTemplates.length,
-			lengthIncrease: enhancedPrompt.length - basePrompt.length,
-		})
+		this.caretLogger.info("[CaretSystemPrompt] Enhanced system prompt generated successfully", `basePromptLength: ${basePrompt.length}, enhancedPromptLength: ${enhancedPrompt.length}, enhancementRatio: ${metrics.enhancementRatio}, generationTime: ${metrics.generationTime}ms, toolCount: ${metrics.toolCount}, mcpServerCount: ${metrics.mcpServerCount}, templatesApplied: ${appliedTemplates.length}, lengthIncrease: ${enhancedPrompt.length - basePrompt.length}`)
 
 		// Performance warning (10ms threshold for enhanced prompts)
 		if (metrics.generationTime > 10) {
-			this.caretLogger.warn("[CaretSystemPrompt] Slow enhanced prompt generation detected", {
-				generationTime: metrics.generationTime,
-				threshold: 10,
-				templatesApplied: appliedTemplates.length,
-			})
+			this.caretLogger.warn("[CaretSystemPrompt] Slow enhanced prompt generation detected", `generationTime: ${metrics.generationTime}ms, threshold: 10ms, templatesApplied: ${appliedTemplates.length}`)
 		}
 
 		// Log template application summary
 		if (appliedTemplates.length > 0) {
-			this.caretLogger.info("[CaretSystemPrompt] Template application summary", {
-				successfulTemplates: appliedTemplates,
-				enhancementPercentage: Math.round((metrics.enhancementRatio! - 1) * 100),
-				avgLengthPerTemplate: Math.round((enhancedPrompt.length - basePrompt.length) / appliedTemplates.length),
-			})
+			this.caretLogger.info("[CaretSystemPrompt] Template application summary", `successfulTemplates: [${appliedTemplates.join(', ')}], enhancementPercentage: ${Math.round((metrics.enhancementRatio! - 1) * 100)}%, avgLengthPerTemplate: ${Math.round((enhancedPrompt.length - basePrompt.length) / appliedTemplates.length)}`)
 		}
 	}
 
@@ -613,5 +600,45 @@ export class CaretSystemPrompt {
 	clearMetrics(): void {
 		this.metrics = []
 		this.caretLogger.debug("[CaretSystemPrompt] Metrics cleared")
+	}
+
+	/**
+	 * CARET MODIFICATION: Filter tools based on Ask/Agent mode
+	 */
+	private filterToolsByMode(template: any, mode: 'ask' | 'agent'): any {
+		// If not a tool definitions object, return as-is
+		if (!template || !template.tools || !Array.isArray(template.tools)) {
+			return template
+		}
+
+		const filteredTemplate = { ...template }
+
+		if (mode === 'ask') {
+			// Ask 모드: 읽기 전용 도구만 허용
+			const allowedTools = [
+				'read_file',
+				'search_files', 
+				'list_files',
+				'list_code_definition_names'
+			]
+			
+			filteredTemplate.tools = template.tools.filter((tool: any) => 
+				allowedTools.includes(tool.name)
+			)
+			
+			this.caretLogger.info(`[CaretSystemPrompt] Ask mode tool filtering: ${filteredTemplate.tools.length}/${template.tools.length} tools (${filteredTemplate.tools.map((t: any) => t.name).join(', ')})`)
+			
+		} else if (mode === 'agent') {
+			// Agent 모드: plan_mode_respond 제외한 모든 도구
+			const blockedTools = ['plan_mode_respond']
+			
+			filteredTemplate.tools = template.tools.filter((tool: any) => 
+				!blockedTools.includes(tool.name)
+			)
+			
+			this.caretLogger.info(`[CaretSystemPrompt] Agent mode tool filtering: ${filteredTemplate.tools.length}/${template.tools.length} tools (blocked: ${blockedTools.join(', ')})`)
+		}
+
+		return filteredTemplate
 	}
 }

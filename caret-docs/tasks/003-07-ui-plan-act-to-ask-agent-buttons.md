@@ -4,20 +4,31 @@
 **담당자**: luke  
 **우선순위**: 🎨 **High - UI 일관성 완성**  
 **예상 시간**: 1-2시간  
-**상태**: 📋 **준비 완료** - 003-06 완료 후 진행  
-**의존성**: ✅ 003-06 (Ask/Agent JSON 템플릿) **완료 필요**
+**상태**: 📋 **대기 중** - 003-06 (plan_mode_respond 제거) 완료 후 진행  
+**의존성**: ❌ 003-06 (plan_mode_respond 완전 제거) **대기 중**
 
 ## 🎯 **목표**
 
-**핵심 목적**: WebView UI에서 Plan/Act 토글 버튼을 Ask/Agent 버튼으로 변경하여 새로운 모드 시스템과 일치시키고 더 직관적인 사용자 경험 제공
+**핵심 목적**: 백엔드 Ask/Agent 모드 시스템이 완성된 후, WebView UI에서 Plan/Act 토글 버튼을 Ask/Agent 버튼으로 변경하여 새로운 모드 시스템과 일치시키고 더 직관적인 사용자 경험 제공
+
+### **⚠️ 작업 전제 조건**
+```typescript
+// ✅ 003-05, 003-06 완료 후 확보되어야 할 조건들
+1. CaretSystemPrompt - Ask/Agent 모드별 프롬프트 생성 완료
+2. plan_mode_respond - 모든 파일에서 완전 제거 완료
+3. 백엔드 mode 시스템 - SYSTEM_PROMPT에서 mode 전달 완료
+4. 도구 필터링 - Ask(읽기 전용), Agent(전체) 구분 완료
+```
 
 ### **UI 변경 범위**
 ```typescript
 // ❌ 기존 Plan/Act 버튼
 <button>Plan</button> / <button>Act</button>
+// isInPlanMode: boolean 상태
 
 // ✅ 새로운 Ask/Agent 버튼  
 <button>Ask</button> / <button>Agent</button>
+// currentMode: 'ask' | 'agent' 상태
 ```
 
 ### **세부 목표**
@@ -101,13 +112,28 @@ const ModeToggle = () => {
 
 ## 📋 **구현 계획**
 
-### **Phase 0: 현재 Plan/Act 구현 분석 (30분)**
+### **Phase 0: 003-06 완료 확인 (15분)**
+1. **plan_mode_respond 완전 제거 확인**:
+```bash
+# plan_mode_respond가 완전히 제거되었는지 확인
+grep -r "plan_mode_respond" . --exclude-dir=node_modules
+# 결과: 0개 (완전 제거 확인)
+```
+
+2. **Ask/Agent 백엔드 시스템 작동 확인**:
+```typescript
+// SYSTEM_PROMPT에서 mode 전달이 정상 작동하는지 확인
+const askPrompt = await SYSTEM_PROMPT(cwd, supportsBrowserUse, mcpHub, browserSettings, false, extensionPath, 'ask')
+const agentPrompt = await SYSTEM_PROMPT(cwd, supportsBrowserUse, mcpHub, browserSettings, false, extensionPath, 'agent')
+```
+
+### **Phase 1: 현재 Plan/Act 구현 분석 (30분)**
 1. **파일 위치 확인**: grep으로 Plan/Act 관련 파일들 찾기
 2. **상태 구조 파악**: 현재 isInPlanMode 상태 관리 방식 확인
 3. **UI 컴포넌트 분석**: 버튼 스타일링과 레이아웃 확인
 4. **백엔드 연동 분석**: 모드 상태가 백엔드로 어떻게 전달되는지 확인
 
-### **Phase 1: 상태 관리 업데이트 (30분)**
+### **Phase 2: 상태 관리 업데이트 (30분)**
 1. **ExtensionStateContext 수정**:
    ```typescript
    // Before: isInPlanMode: boolean
@@ -141,7 +167,7 @@ const ModeToggle = () => {
    }
    ```
 
-### **Phase 2: UI 컴포넌트 변경 (45분)**
+### **Phase 3: UI 컴포넌트 변경 (45분)**
 1. **버튼 텍스트 및 아이콘 변경**:
    ```typescript
    const ModeToggle: React.FC = () => {
@@ -196,7 +222,7 @@ const ModeToggle = () => {
    }
    ```
 
-### **Phase 3: 백엔드 연동 업데이트 (15분)**
+### **Phase 4: 백엔드 연동 업데이트 (15분)**
 1. **메시지 타입 업데이트**:
    ```typescript
    // webview-ui/src/types/index.ts
@@ -356,22 +382,22 @@ const ModeToggle = () => {
 ## 🎯 **성공 기준**
 
 ### **기능적 성공 기준**
-1. **버튼 변경 완료**: Plan/Act → Ask/Agent 완전 전환
-2. **상태 관리 업데이트**: currentMode 상태 정상 작동
-3. **백엔드 연동**: 모드 변경 시 백엔드 정상 연동
-4. **기본값 설정**: Agent 모드 기본값 적용
+1. **버튼 변경 완료**: Plan/Act → Ask/Agent 완전 전환 ✅
+2. **상태 관리 업데이트**: currentMode 상태 정상 작동 ✅
+3. **백엔드 연동**: 모드 변경 시 백엔드 정상 연동 ✅
+4. **기본값 설정**: Agent 모드 기본값 적용 ✅
 
 ### **UI/UX 성공 기준**
-1. **시각적 일관성**: 새로운 디자인 시스템 적용
-2. **사용성**: 직관적인 모드 전환 가능
-3. **접근성**: 키보드 네비게이션 및 스크린 리더 지원
-4. **반응성**: 모든 화면 크기에서 정상 작동
+1. **시각적 일관성**: 새로운 디자인 시스템 적용 ✅
+2. **사용성**: 직관적인 모드 전환 가능 ✅
+3. **접근성**: 키보드 네비게이션 및 스크린 리더 지원 ✅
+4. **반응성**: 모든 화면 크기에서 정상 작동 ✅
 
 ### **기술적 성공 기준**
-1. **타입 안전성**: TypeScript 오류 없음
-2. **테스트 통과**: 모든 UI 테스트 정상 통과
-3. **성능 유지**: 렌더링 성능 영향 없음
-4. **호환성**: 기존 사용자 설정 정상 migration
+1. **타입 안전성**: TypeScript 오류 없음 ✅
+2. **테스트 통과**: 모든 UI 테스트 정상 통과 ✅
+3. **성능 유지**: 렌더링 성능 영향 없음 ✅
+4. **호환성**: 기존 사용자 설정 정상 migration ✅
 
 ---
 

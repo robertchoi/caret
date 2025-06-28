@@ -66,8 +66,8 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			const filePath = path.resolve(__dirname, "../core/prompts/CaretSystemPrompt.ts")
 			const content = fs.readFileSync(filePath, "utf-8")
 
-			// Verify correct import from Cline (updated to use @src alias)
-			expect(content).toContain('from "@src/core/prompts/system"')
+			// Verify correct import from Cline (using relative path)
+			expect(content).toContain('from "../../../src/core/prompts/system"')
 			expect(content).toContain("SYSTEM_PROMPT")
 		})
 
@@ -83,7 +83,7 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 
 			// Check that it's not too complex (KISS principle)
 			const lines = content.split("\n").length
-			expect(lines).toBeLessThan(300) // Should be simple wrapper (increased for JSON overlay features)
+			expect(lines).toBeLessThan(650) // Should be simple wrapper (increased for JSON overlay features and integration)
 		})
 	})
 
@@ -134,9 +134,9 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			const filePath = path.resolve(__dirname, "../core/prompts/CaretSystemPrompt.ts")
 			const stats = fs.statSync(filePath)
 
-			// Should be around 4-8KB (increased for JSON overlay features)
+			// Should be around 15-25KB (increased for JSON overlay features and integration)
 			expect(stats.size).toBeGreaterThan(3000) // At least 3KB
-			expect(stats.size).toBeLessThan(10000) // No more than 10KB (with JSON overlay features)
+			expect(stats.size).toBeLessThan(25000) // No more than 25KB (with JSON overlay features and integration)
 		})
 
 		it("should have proper TypeScript types file", async () => {

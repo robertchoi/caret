@@ -1,11 +1,21 @@
 import { describe, it, expect, vi } from "vitest"
 
-// Mock the Cline system module
+// Mock CaretSystemPrompt to avoid extensionPath issues
+vi.mock("../core/prompts/CaretSystemPrompt", () => ({
+	CaretSystemPrompt: {
+		getInstance: vi.fn(() => ({
+			generateFromJsonSections: vi.fn(async () => "You are Cline, an AI assistant powered by Claude. (Generated from JSON sections)")
+		}))
+	}
+}))
+
+// Mock the original Cline system module for fallback
 vi.mock("../../src/core/prompts/system", () => ({
-	SYSTEM_PROMPT: "You are Cline, an AI assistant powered by Claude.",
-	addUserInstructions: vi.fn((basePrompt: string, userInstructions?: string) => {
-		if (!userInstructions) return basePrompt
-		return `${basePrompt}\n\nUser Instructions:\n${userInstructions}`
+	SYSTEM_PROMPT: vi.fn(async (cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily) => {
+		return "You are Cline, an AI assistant powered by Claude. (Original Cline fallback)"
+	}),
+	addUserInstructions: vi.fn((globalClineRulesFileInstructions, localClineRulesFileInstructions, localCaretRulesFileInstructions, localCursorRulesFileInstructions, localCursorRulesDirInstructions, localWindsurfRulesFileInstructions, clineIgnoreInstructions, preferredLanguageInstructions) => {
+		return "User instructions added"
 	}),
 }))
 
@@ -13,15 +23,15 @@ import { SYSTEM_PROMPT, addUserInstructions } from "../core/prompts/system"
 
 describe("caret-src/core/prompts/system.ts", () => {
 	describe("SYSTEM_PROMPT export", () => {
-		it("should export SYSTEM_PROMPT from Cline", () => {
+		it("should export SYSTEM_PROMPT function from Cline", () => {
 			expect(SYSTEM_PROMPT).toBeDefined()
-			expect(typeof SYSTEM_PROMPT).toBe("string")
-			expect(SYSTEM_PROMPT.length).toBeGreaterThan(0)
+			expect(typeof SYSTEM_PROMPT).toBe("function")
 		})
 
-		it("should have proper system prompt content", () => {
-			expect(SYSTEM_PROMPT).toContain("You are Cline")
-			expect(SYSTEM_PROMPT).toContain("Claude")
+		it("should have proper system prompt content when called", async () => {
+			const result = await SYSTEM_PROMPT("/test/cwd", false, { getServers: () => [] }, {}, false)
+			expect(result).toContain("You are Cline")
+			expect(result).toContain("Claude")
 		})
 	})
 
@@ -32,15 +42,11 @@ describe("caret-src/core/prompts/system.ts", () => {
 		})
 
 		it("should add user instructions to system prompt", () => {
-			const basePrompt = "Base prompt"
-			const userInstructions = "User specific instructions"
-
-			const result = addUserInstructions(basePrompt, userInstructions)
+			const result = addUserInstructions("global", "local", "caret", "cursor", "cursorDir", "windsurf", "ignore", "lang")
 
 			expect(result).toBeDefined()
 			expect(typeof result).toBe("string")
-			expect(result).toContain(basePrompt)
-			expect(result).toContain(userInstructions)
+			expect(result).toContain("User instructions added")
 		})
 
 		it("should handle empty user instructions", () => {

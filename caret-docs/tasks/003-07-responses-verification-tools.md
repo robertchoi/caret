@@ -4,22 +4,58 @@
 **담당자**: luke  
 **우선순위**: 🔥 **High - Phase 2 안전한 시작**  
 **예상 시간**: 3-4시간  
-**상태**: 📋 **예정**  
+**상태**: 📋 **준비 완료 (Phase 1 기반)**  
 **의존성**: ✅ 003-06 (UI Chatbot/Agent 변경 + 통합 테스트) 완료
 
 ## 🎯 **목표: responses.ts 안전한 JSON 변환을 위한 검증 시스템 구축**
 
 ### **핵심 목적**
+- **system.ts 확장과 동일한 접근법**: 검증된 CaretSystemPrompt 패턴을 responses.ts에 적용
 - **2-stage 접근법 Phase 1**: responses.ts 안전한 변환을 위한 검증 도구 개발
 - **위험 분석**: responses.ts는 44회 사용되는 핵심 파일로 극도의 주의 필요
 - **완전한 검증**: 변환 전후 응답 품질, 형식, 일관성 자동 검증
 - **안전장치 구축**: 실시간 비교, 롤백 메커니즘, 품질 보장 시스템
 
+### **🏗️ system.ts 성공 경험 기반 확장**
+
+#### **✅ system.ts에서 검증된 패턴**
+```typescript
+// ✅ 성공한 시스템 - caret-src/core/prompts/system.ts
+export const SYSTEM_PROMPT = (
+  systemPromptOptions: SystemPromptOptions
+): Promise<string> => {
+  // CARET MODIFICATION: JSON 템플릿 기반 확장 시스템
+  if (systemPromptOptions.useCaretSystemPrompt) {
+    return CaretSystemPrompt.generateSystemPrompt(systemPromptOptions)
+  }
+  
+  // Cline 원본 호출 (100% 호환성 보장)
+  return ClineSystemPrompt.SYSTEM_PROMPT(systemPromptOptions)
+}
+```
+
+#### **🚀 responses.ts 확장 목표**
+```typescript
+// 🎯 목표: 동일한 패턴으로 responses.ts 확장
+export const formatResponse = {
+  // 44개 기존 함수들 모두 확장
+  v1: (params) => useCaretResponses 
+    ? CaretResponses.formatV1(params) 
+    : ClineResponses.formatV1(params),
+  
+  tool: (params) => useCaretResponses
+    ? CaretResponses.formatTool(params)
+    : ClineResponses.formatTool(params),
+  
+  // ... 44개 모든 응답 함수
+}
+```
+
 ### **responses.ts 변환 도전과제**
 
 #### **📊 복잡성 분석**
-- **파일 크기**: 301줄 (system.ts보다 복잡한 구조)
-- **사용 빈도**: 44회 참조 (매우 높은 의존성)
+- **파일 크기**: 301줄 (system.ts 727줄보다 작지만 더 복잡한 구조)
+- **사용 빈도**: 44회 참조 (system.ts 1회보다 매우 높은 의존성)
 - **응답 템플릿**: 다양한 시나리오별 응답 패턴 포함
 - **정확성 요구**: 사용자 경험에 직접적 영향
 
@@ -52,7 +88,9 @@ export class ResponsesAnalyzer {
       exportedResponses: this.extractExportedResponses(content),
       templateStructures: this.extractTemplateStructures(content),
       parameterPatterns: this.extractParameterPatterns(content),
-      conditionalLogic: this.extractConditionalLogic(content)
+      conditionalLogic: this.extractConditionalLogic(content),
+      // system.ts 분석에서 학습한 패턴 적용
+      extensionPoints: this.identifyExtensionPoints(content)
     }
   }
 
@@ -67,11 +105,21 @@ export class ResponsesAnalyzer {
         name: match[1],
         startIndex: match.index,
         signature: match[0],
-        // 함수 body 추출 로직
+        extensionStrategy: this.planExtensionStrategy(match[1])
       })
     }
     
     return functions
+  }
+
+  private planExtensionStrategy(functionName: string): ExtensionStrategy {
+    // system.ts 확장 경험을 기반으로 각 함수별 확장 전략 수립
+    return {
+      wrapperPattern: 'conditional_delegation', // CaretSystemPrompt와 동일한 패턴
+      backupRequired: true,
+      riskLevel: this.assessFunctionRisk(functionName),
+      testPriority: this.calculateTestPriority(functionName)
+    }
   }
 
   async findAllUsages(): Promise<Map<string, ResponseUsage[]>> {
@@ -87,6 +135,7 @@ interface ResponseAnalysis {
   templateStructures: TemplateStructure[]
   parameterPatterns: ParameterPattern[]
   conditionalLogic: ConditionalBlock[]
+  extensionPoints: ExtensionPoint[] // system.ts 경험 기반 추가
 }
 ```
 
@@ -101,7 +150,10 @@ export class ResponseUsageMapper {
       byFunction: this.groupByFunction(usages),
       byFile: this.groupByFile(usages),
       criticalPaths: this.identifyCriticalPaths(usages),
-      testCoverage: await this.analyzeTestCoverage(usages)
+      testCoverage: await this.analyzeTestCoverage(usages),
+      // system.ts 분석에서 학습한 패턴 추가
+      extensionReadiness: this.assessExtensionReadiness(usages),
+      carETConversionPlan: this.createCaretConversionPlan(usages)
     }
   }
 
@@ -126,6 +178,17 @@ export class ResponseUsageMapper {
       .filter(usage => this.isCriticalUsage(usage))
       .map(usage => this.toCriticalPath(usage))
   }
+
+  private createCaretConversionPlan(usages: ResponseUsage[]): CaretConversionPlan {
+    // system.ts 성공 경험을 기반으로 변환 계획 수립
+    return {
+      phase1Functions: this.identifyLowRiskFunctions(usages),
+      phase2Functions: this.identifyMediumRiskFunctions(usages),
+      phase3Functions: this.identifyHighRiskFunctions(usages),
+      wrapperStrategy: 'system_prompt_pattern', // 검증된 패턴 재사용
+      backupPlan: this.createBackupPlan(usages)
+    }
+  }
 }
 
 interface ResponseUsageMap {
@@ -133,17 +196,25 @@ interface ResponseUsageMap {
   byFile: Map<string, ResponseUsage[]>  
   criticalPaths: CriticalPath[]
   testCoverage: TestCoverageReport
+  extensionReadiness: ExtensionReadiness  // 새로 추가
+  carETConversionPlan: CaretConversionPlan // 새로 추가
 }
 ```
 
 ### **Phase 2: JSON 변환 시뮬레이터 (1시간)**
 
-#### **2.1 응답 변환 시뮬레이터**
+#### **2.1 응답 변환 시뮬레이터 (system.ts 경험 적용)**
 ```typescript
 // caret-src/core/verification/tools/ResponseSimulator.ts
 export class ResponseConversionSimulator {
   private analyzer: ResponsesAnalyzer
   private templateEngine: JsonTemplateLoader
+  private systemPromptExperience: SystemPromptLessons // system.ts에서 학습한 교훈
+
+  constructor() {
+    // system.ts 확장에서 학습한 경험 로드
+    this.systemPromptExperience = new SystemPromptLessons()
+  }
 
   async simulateConversion(): Promise<ConversionSimulation> {
     const analysis = await this.analyzer.analyzeResponsePatterns()
@@ -154,7 +225,11 @@ export class ResponseConversionSimulator {
       conversionPlan: conversionPlan,
       expectedStructure: await this.generateExpectedJsonStructure(analysis),
       riskAssessment: this.assessConversionRisks(analysis),
-      testScenarios: this.generateTestScenarios(analysis)
+      testScenarios: this.generateTestScenarios(analysis),
+      // system.ts 경험 기반 추가 항목들
+      systemPromptLessons: this.systemPromptExperience.getApplicableLessons(),
+      wrapperCodeGeneration: this.generateWrapperCode(analysis),
+      backupStrategy: this.planBackupStrategy(analysis)
     }
   }
 
@@ -164,15 +239,38 @@ export class ResponseConversionSimulator {
         original: f,
         targetJsonPath: this.mapToJsonPath(f),
         conversionStrategy: this.determineStrategy(f),
-        dependencies: this.findDependencies(f)
+        dependencies: this.findDependencies(f),
+        // system.ts 패턴 적용
+        wrapperTemplate: this.generateWrapperTemplate(f),
+        caretImplementation: this.planCaretImplementation(f),
+        clinePreservation: this.ensureClinePreservation(f)
       })),
       preservedLogic: this.identifyPreservedLogic(analysis),
       newTemplateStructure: this.designNewStructure(analysis)
     }
   }
 
+  private generateWrapperTemplate(functionDef: FunctionDef): WrapperTemplate {
+    // system.ts의 성공적인 래퍼 패턴을 responses.ts에 적용
+    return {
+      pattern: 'conditional_delegation',
+      template: `
+export const ${functionDef.name} = (params: ${functionDef.paramType}) => {
+  // CARET MODIFICATION: JSON 템플릿 기반 응답 시스템
+  if (useCaretResponses) {
+    return CaretResponses.${functionDef.name}(params)
+  }
+  
+  // Cline 원본 호출 (100% 호환성 보장)
+  return ClineResponses.${functionDef.name}(params)
+}`,
+      caretImplementation: this.planCaretResponseImplementation(functionDef),
+      clinePreservation: 'complete_backup_with_rename'
+    }
+  }
+
   async generateExpectedJsonStructure(analysis: ResponseAnalysis): Promise<ResponseJsonStructure> {
-    // responses.ts → JSON 구조 예상 결과 생성
+    // responses.ts → JSON 구조 예상 결과 생성 (system.ts 경험 활용)
     return {
       sections: {
         error_responses: this.extractErrorResponses(analysis),
@@ -181,16 +279,21 @@ export class ResponseConversionSimulator {
         context_responses: this.extractContextResponses(analysis)
       },
       templates: this.generateTemplateMap(analysis),
-      parameters: this.extractParameterSchemas(analysis)
+      parameters: this.extractParameterSchemas(analysis),
+      // system.ts JSON 구조에서 학습한 패턴 적용
+      systemIntegration: this.planSystemPromptIntegration(analysis),
+      chatbotAgentSupport: this.ensureChatbotAgentModeSupport(analysis)
     }
   }
 }
 ```
 
-#### **2.2 품질 비교 엔진**
+#### **2.2 품질 비교 엔진 (system.ts 검증 경험 활용)**
 ```typescript
 // caret-src/core/verification/tools/QualityComparator.ts
 export class ResponseQualityComparator {
+  private systemPromptBenchmarks: SystemPromptBenchmarks // system.ts 검증에서 얻은 기준
+
   async compareResponses(
     originalFunction: string,
     jsonTemplate: JsonResponseTemplate,
@@ -209,7 +312,11 @@ export class ResponseQualityComparator {
         converted: jsonResult,
         qualityScore: this.calculateQualityScore(originalResult, jsonResult),
         differences: this.findDifferences(originalResult, jsonResult),
-        compatibility: this.checkCompatibility(originalResult, jsonResult)
+        compatibility: this.checkCompatibility(originalResult, jsonResult),
+        // system.ts 검증에서 학습한 추가 검증 항목들
+        systemPromptCompatibility: this.checkSystemPromptCompatibility(originalResult, jsonResult),
+        chatbotAgentModeSupport: this.verifyChatbotAgentSupport(originalResult, jsonResult),
+        performanceImpact: this.measurePerformanceImpact(originalResult, jsonResult)
       })
     }
     
@@ -217,35 +324,40 @@ export class ResponseQualityComparator {
       overallScore: this.calculateOverallScore(results),
       passedTests: results.filter(r => r.qualityScore >= 0.95).length,
       failedTests: results.filter(r => r.qualityScore < 0.95),
-      recommendations: this.generateRecommendations(results)
+      recommendations: this.generateRecommendations(results),
+      // system.ts 검증 경험 기반 추가
+      systemPromptLessons: this.applySystemPromptLessons(results),
+      readinessAssessment: this.assessConversionReadiness(results)
     }
   }
 
   private calculateQualityScore(original: string, converted: string): number {
-    // 의미론적 유사성, 구조적 일치성, 길이 적절성 등 종합 평가
+    // system.ts 검증에서 학습한 품질 평가 기준 적용
     const semanticScore = this.calculateSemanticSimilarity(original, converted)
     const structuralScore = this.calculateStructuralSimilarity(original, converted)
     const lengthScore = this.calculateLengthAppropriateness(original, converted)
+    const chatbotAgentScore = this.evaluateChatbotAgentCompatibility(original, converted)
     
-    return (semanticScore * 0.5) + (structuralScore * 0.3) + (lengthScore * 0.2)
+    return (semanticScore * 0.4) + (structuralScore * 0.3) + (lengthScore * 0.2) + (chatbotAgentScore * 0.1)
   }
 }
 ```
 
 ### **Phase 3: 실시간 검증 시스템 (1.5시간)**
 
-#### **3.1 변환 전후 자동 비교 시스템**
+#### **3.1 변환 전후 자동 비교 시스템 (system.ts 경험 적용)**
 ```typescript
 // caret-src/core/verification/tools/AutoValidator.ts
 export class ResponseAutoValidator {
   private qualityComparator: ResponseQualityComparator
   private usageMapper: ResponseUsageMapper
+  private systemPromptValidator: SystemPromptCompatibilityValidator // system.ts 호환성 검증
 
   async validateFullConversion(): Promise<ValidationReport> {
     const usageMap = await this.usageMapper.createUsageMap()
     const validationResults: ValidationResult[] = []
 
-    // 모든 함수에 대해 검증 수행
+    // 모든 함수에 대해 검증 수행 (system.ts 검증 패턴 적용)
     for (const [functionName, usages] of usageMap.byFunction) {
       const testCases = this.generateTestCasesFromUsages(usages)
       const comparisonResult = await this.qualityComparator.compareResponses(
@@ -254,12 +366,19 @@ export class ResponseAutoValidator {
         testCases
       )
       
+      // system.ts와의 호환성 검증 추가
+      const systemCompatibility = await this.systemPromptValidator.validateCompatibility(
+        functionName, comparisonResult
+      )
+      
       validationResults.push({
         functionName,
         usageCount: usages.length,
         comparisonResult,
         criticalityLevel: this.assessCriticality(functionName, usages),
-        riskLevel: this.assessRisk(comparisonResult)
+        riskLevel: this.assessRisk(comparisonResult),
+        systemPromptCompatibility: systemCompatibility, // 새로 추가
+        chatbotAgentReadiness: this.assessChatbotAgentReadiness(comparisonResult) // 새로 추가
       })
     }
 
@@ -268,44 +387,58 @@ export class ResponseAutoValidator {
       passedValidation: validationResults.filter(r => r.riskLevel === 'low').length,
       highRiskFunctions: validationResults.filter(r => r.riskLevel === 'high'),
       overallReadiness: this.calculateOverallReadiness(validationResults),
-      detailedResults: validationResults
+      detailedResults: validationResults,
+      // system.ts 검증 경험 기반 추가
+      systemPromptIntegration: this.assessSystemPromptIntegration(validationResults),
+      phase1Confidence: this.calculatePhase1Confidence(validationResults)
     }
   }
 
   private generateTestCasesFromUsages(usages: ResponseUsage[]): ResponseTestCase[] {
-    // 실제 사용 패턴을 기반으로 테스트 케이스 생성
+    // 실제 사용 패턴을 기반으로 테스트 케이스 생성 (system.ts 경험 활용)
     return usages.map(usage => ({
       name: `${usage.file}:${usage.line}`,
       input: this.extractInputFromUsage(usage),
       expectedPattern: this.inferExpectedPattern(usage),
-      context: usage.context
+      context: usage.context,
+      // system.ts 테스트에서 학습한 추가 케이스들
+      chatbotAgentContext: this.extractChatbotAgentContext(usage),
+      systemPromptContext: this.extractSystemPromptContext(usage)
     }))
   }
 }
 ```
 
-#### **3.2 안전장치 및 롤백 시스템**
+#### **3.2 안전장치 및 롤백 시스템 (system.ts 성공 경험 기반)**
 ```typescript
 // caret-src/core/verification/tools/SafetySystem.ts
 export class ResponsesSafetySystem {
   private backupManager: BackupManager
   private validator: ResponseAutoValidator
+  private systemPromptIntegration: SystemPromptIntegration // system.ts와의 통합 관리
 
   async createSafeConversionPlan(): Promise<SafeConversionPlan> {
-    // 1. 현재 상태 백업
+    // 1. 현재 상태 백업 (system.ts 백업 경험 활용)
     await this.backupManager.createFullBackup('responses.ts')
     
-    // 2. 단계별 변환 계획 수립
+    // 2. system.ts와의 호환성 확인
+    const systemCompatibility = await this.systemPromptIntegration.validateCompatibility()
+    
+    // 3. 단계별 변환 계획 수립 (system.ts 확장 패턴 적용)
     const conversionSteps = this.planGradualConversion()
     
-    // 3. 각 단계별 안전장치 설정
+    // 4. 각 단계별 안전장치 설정
     const safetyChecks = this.setupSafetyChecks()
     
     return {
       steps: conversionSteps,
       safetyChecks: safetyChecks,
       rollbackPoints: this.setupRollbackPoints(),
-      emergencyProcedures: this.setupEmergencyProcedures()
+      emergencyProcedures: this.setupEmergencyProcedures(),
+      // system.ts 경험 기반 추가
+      systemPromptIntegration: systemCompatibility,
+      chatbotAgentPreservation: this.ensureChatbotAgentModePreservation(),
+      phase1Foundation: this.validatePhase1Foundation()
     }
   }
 
@@ -315,19 +448,29 @@ export class ResponsesSafetySystem {
         name: 'error_responses_conversion',
         scope: 'Low-risk error response functions',
         functions: this.identifyLowRiskFunctions(),
-        safetyLevel: 'high'
+        safetyLevel: 'high',
+        // system.ts 패턴 적용
+        wrapperStrategy: 'system_prompt_pattern',
+        backupRequired: true,
+        systemPromptImpact: 'minimal'
       },
       {
         name: 'tool_responses_conversion', 
         scope: 'Tool-related response functions',
         functions: this.identifyToolResponseFunctions(),
-        safetyLevel: 'medium'
+        safetyLevel: 'medium',
+        wrapperStrategy: 'system_prompt_pattern',
+        backupRequired: true,
+        systemPromptImpact: 'low'
       },
       {
         name: 'core_responses_conversion',
         scope: 'Core response functions',
         functions: this.identifyCoreResponseFunctions(),
-        safetyLevel: 'critical'
+        safetyLevel: 'critical',
+        wrapperStrategy: 'system_prompt_pattern',
+        backupRequired: true,
+        systemPromptImpact: 'medium'
       }
     ]
   }
@@ -338,20 +481,23 @@ export class ResponsesSafetySystem {
 
 ### **검증 도구 실행 방법**
 ```bash
-# 1. responses.ts 전체 분석
+# 1. responses.ts 전체 분석 (system.ts 경험 적용)
 node caret-scripts/responses-analyzer.js
 
-# 2. 변환 시뮬레이션 수행
+# 2. system.ts 호환성 체크
+node caret-scripts/responses-system-integration-check.js
+
+# 3. 변환 시뮬레이션 수행
 node caret-scripts/responses-simulator.js
 
-# 3. 품질 비교 테스트
+# 4. 품질 비교 테스트 (chatbot/agent 모드 포함)
 node caret-scripts/responses-quality-check.js
 
-# 4. 안전 변환 계획 생성
+# 5. 안전 변환 계획 생성
 node caret-scripts/responses-safety-plan.js
 ```
 
-### **검증 리포트 구조**
+### **검증 리포트 구조 (system.ts 경험 반영)**
 ```typescript
 // 생성될 검증 리포트
 interface ResponsesVerificationReport {
@@ -360,17 +506,25 @@ interface ResponsesVerificationReport {
     usageFrequency: Map<string, number>
     complexityScore: number
     riskAssessment: RiskLevel
+    systemPromptCompatibility: SystemPromptCompatibility // 새로 추가
   }
   simulation: {
     conversionPlan: ConversionPlan
     expectedStructure: ResponseJsonStructure
     qualityPrediction: number
+    wrapperCodeGeneration: WrapperCode[] // system.ts 패턴 적용
   }
   validation: {
     readinessScore: number
     highRiskAreas: string[]
     recommendations: string[]
     safetyPlan: SafeConversionPlan
+    systemPromptIntegration: SystemPromptIntegrationPlan // 새로 추가
+  }
+  phase1Foundation: {
+    chatbotAgentSupport: ChatbotAgentSupportStatus
+    systemPromptCompatibility: SystemPromptCompatibilityStatus
+    conversionReadiness: ConversionReadinessScore
   }
 }
 ```
@@ -382,24 +536,28 @@ interface ResponsesVerificationReport {
 - [ ] **사용처 추적**: 44개 사용처 정확한 매핑
 - [ ] **의존성 분석**: 함수 간 의존성 관계 파악
 - [ ] **복잡도 평가**: 각 함수별 변환 복잡도 측정
+- [ ] **system.ts 호환성**: system.ts와의 통합 지점 분석 ✨
 
 ### **시뮬레이션 정확도**
 - [ ] **구조 예측**: JSON 변환 후 예상 구조 정확한 설계
 - [ ] **품질 예측**: 변환 후 응답 품질 예측 모델 완성
 - [ ] **호환성 검증**: 기존 사용 패턴과의 호환성 확인
 - [ ] **성능 영향**: 변환 후 성능 영향 예측
+- [ ] **래퍼 코드**: system.ts 패턴 기반 래퍼 코드 자동 생성 ✨
 
 ### **안전장치 구축**
 - [ ] **실시간 비교**: 원본과 변환된 응답 실시간 비교 시스템
 - [ ] **자동 롤백**: 품질 저하 감지 시 자동 롤백
 - [ ] **단계별 검증**: 각 변환 단계별 안전성 확인
 - [ ] **비상 복구**: 문제 발생 시 즉시 복구 가능
+- [ ] **system.ts 통합**: system.ts와의 안전한 통합 보장 ✨
 
 ### **도구 실용성**
 - [ ] **사용 편의성**: 명령어 하나로 전체 검증 수행
 - [ ] **상세 리포트**: 개발자가 이해하기 쉬운 검증 결과
 - [ ] **액션 가이드**: 다음 단계에 대한 명확한 가이드
 - [ ] **위험 경고**: 고위험 영역에 대한 명확한 경고
+- [ ] **Phase 1 기반**: 완료된 Phase 1 시스템과의 완벽한 통합 ✨
 
 ## 🔄 **다음 단계 연결**
 
@@ -409,18 +567,23 @@ interface ResponsesVerificationReport {
 - 변환 품질 예측 및 검증 시스템
 - 실시간 비교 및 안전장치 구축
 - 단계별 안전 변환 계획 수립
+- **system.ts 호환성 보장 시스템** ✨
+- **Phase 1 기반 통합 확인** ✨
 
 📋 **003-08에서 할 일**:
 - 검증 시스템 기반 실제 responses.ts JSON 변환
+- system.ts 패턴 적용한 래퍼 코드 구현
 - 단계별 안전 변환으로 리스크 최소화
 - 실시간 품질 검증으로 안전성 보장
+- ChatBot/Agent 모드와의 완벽한 통합
 
-### **안전성 보장 시스템**
-- **사전 검증**: 변환 전 완전한 안전성 검증
-- **단계별 진행**: 낮은 위험부터 점진적 변환
-- **실시간 모니터링**: 변환 과정 중 지속적 품질 감시
-- **즉시 롤백**: 문제 감지 시 자동 원상복구
+### **Phase 1 성과 기반 확장**
+- **안정적인 기반**: 594개 테스트 통과, 검증된 시스템
+- **성공한 패턴**: system.ts 확장에서 검증된 래퍼 패턴 재사용
+- **완성된 통합**: ChatBot/Agent 모드와의 완벽한 연계
+- **즉시 적용**: 모든 기반 시스템 완료로 바로 시작 가능
 
 ---
 
-**🎯 목적: 완벽한 안전장치로 responses.ts의 안전한 JSON 변환 기반 구축!** ✨ 
+**🎯 목적: system.ts 성공 경험 기반 responses.ts의 안전한 JSON 변환 기반 구축!** ✨ 
+**🏗️ 핵심: 검증된 CaretSystemPrompt 패턴을 responses.ts에 확장 적용!** 🚀 

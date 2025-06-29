@@ -20,17 +20,17 @@ describe('Controller Chatbot/Agent 모드 처리', () => {
     }
   })
 
-  it('should handle toggleChatbotAgentModeWithChatSettings for Ask mode', async () => {
-    // TDD: Ask 모드 설정 요청을 올바르게 처리해야 함
-    const askSettings: ChatSettings = { mode: "ask" }
+  it('should handle toggleChatbotAgentModeWithChatSettings for Chatbot mode', async () => {
+    // TDD: Chatbot 모드 설정 요청을 올바르게 처리해야 함
+    const chatbotSettings: ChatSettings = { mode: "chatbot" }
     
     // Mock 동작 정의
-    mockController.getTChatBotMode = vi.fn().mockReturnValue("ask")
+    mockController.getTChatBotMode = vi.fn().mockReturnValue("chatbot")
     mockController.toggleChatbotAgentModeWithChatSettings = vi.fn().mockResolvedValue(undefined)
     
-    await mockController.toggleChatbotAgentModeWithChatSettings!(askSettings)
+    await mockController.toggleChatbotAgentModeWithChatSettings!(chatbotSettings)
     
-    expect(mockController.toggleChatbotAgentModeWithChatSettings).toHaveBeenCalledWith(askSettings)
+    expect(mockController.toggleChatbotAgentModeWithChatSettings).toHaveBeenCalledWith(chatbotSettings)
   })
 
   it('should handle toggleChatbotAgentModeWithChatSettings for Agent mode', async () => {
@@ -48,11 +48,11 @@ describe('Controller Chatbot/Agent 모드 처리', () => {
 
   it('should capture telemetry with Chatbot/Agent terminology', async () => {
     // TDD: 텔레메트리에 Chatbot/Agent 용어를 사용해야 함
-    const askSettings: ChatSettings = { mode: "ask" }
+    const chatbotSettings: ChatSettings = { mode: "chatbot" }
     const agentSettings: ChatSettings = { mode: "agent" }
     
     // 텔레메트리 캡처 확인 (실제 구현에서 검증될 부분)
-    expect(askSettings.mode).toBe("ask")
+    expect(chatbotSettings.mode).toBe("chatbot")
     expect(agentSettings.mode).toBe("agent")
   })
 
@@ -62,7 +62,7 @@ describe('Controller Chatbot/Agent 모드 처리', () => {
       .mockReturnValueOnce("plan")  // ask -> plan
       .mockReturnValueOnce("act")   // agent -> act
     
-    const askMapped = mockController.mapToClineMode!("ask")
+    const askMapped = mockController.mapToClineMode!("chatbot")
     const agentMapped = mockController.mapToClineMode!("agent")
     
     expect(askMapped).toBe("plan")
@@ -76,11 +76,11 @@ describe('Controller Chatbot/Agent 모드 처리', () => {
     
     // 내부 변환 로직 테스트 (나중에 구현될 부분)
     const expectedInternalMappings = {
-      plan: "ask",
+      plan: "chatbot",
       act: "agent"
     }
     
-    expect(expectedInternalMappings.plan).toBe("ask")
+    expect(expectedInternalMappings.plan).toBe("chatbot")
     expect(expectedInternalMappings.act).toBe("agent")
   })
 
@@ -92,10 +92,10 @@ describe('Controller Chatbot/Agent 모드 처리', () => {
     }
     
     // 모드 설정 확인
-    mockTask.setMode("ask")
+    mockTask.setMode("chatbot")
     mockTask.setMode("agent")
     
-    expect(mockTask.setMode).toHaveBeenCalledWith("ask")
+    expect(mockTask.setMode).toHaveBeenCalledWith("chatbot")
     expect(mockTask.setMode).toHaveBeenCalledWith("agent")
   })
 })
@@ -113,12 +113,12 @@ describe('Controller Chatbot/Agent 메서드명 검증', () => {
 
   it('should support both ChatSettings and ChatContent parameters', () => {
     // TDD: ChatSettings와 ChatContent 모두 지원해야 함
-    const chatSettings: ChatSettings = { mode: "ask" }
+    const chatSettings: ChatSettings = { mode: "chatbot" }
     const chatContent = { messages: [] }
     
     // 매개변수 타입 검증
     expect(typeof chatSettings.mode).toBe("string")
-    expect(["ask", "agent"]).toContain(chatSettings.mode)
+    expect(["chatbot", "agent"]).toContain(chatSettings.mode)
     expect(typeof chatContent).toBe("object")
   })
 })
@@ -129,19 +129,19 @@ describe('Controller Cline 호환성 레이어', () => {
     const clineCompatibilityMap = {
       // Chatbot/Agent -> Plan/Act (외부 API용)
       toExternal: {
-        ask: "plan",
+        chatbot: "plan",
         agent: "act"
       },
       // Plan/Act -> Chatbot/Agent (내부 변환용)
       fromExternal: {
-        plan: "ask",
+        plan: "chatbot",
         act: "agent"
       }
     }
     
     expect(clineCompatibilityMap.toExternal.ask).toBe("plan")
     expect(clineCompatibilityMap.toExternal.agent).toBe("act")
-    expect(clineCompatibilityMap.fromExternal.plan).toBe("ask")
+    expect(clineCompatibilityMap.fromExternal.plan).toBe("chatbot")
     expect(clineCompatibilityMap.fromExternal.act).toBe("agent")
   })
 

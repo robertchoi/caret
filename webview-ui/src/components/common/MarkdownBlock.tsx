@@ -414,10 +414,9 @@ const MarkdownBlock = memo(({ markdown, highlightOptions = {}, className }: Mark
 	const [processedMarkdown, setProcessedMarkdown] = useState(markdown)
 
 	useEffect(() => {
-		// CARET MODIFICATION: Chatbot/Agent 일관성 있는 텍스트 변환
 		const transformedText = transformChatbotAgentText(markdown || "", chatSettings.mode, chatSettings.modeSystem)
 		setProcessedMarkdown(transformedText)
-	}, [markdown, chatSettings.mode, chatSettings.modeSystem])
+	}, [markdown]) // ← modeSystem 종속성 제거!
 
 	// CARET MODIFICATION: Chatbot/Agent 모드별 동적 강조 표시
 	const processMarkdownForChatbotAgent = (content: string): string => {

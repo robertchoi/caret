@@ -343,14 +343,21 @@ const totalTests =
 const totalFailed =
 	results.frontend.failed + results.backend.failed + results.cline.failed + results.mochaEslint.failed + results.mochaSrc.failed
 
-console.log(`🎯 실행 가능 테스트 결과:   ${totalPassed}/${totalTests} 통과 (${totalFailed} 실패)`)
+// 스킵된 테스트와 호환성 문제를 구분하여 계산
+const totalSkipped = (results.frontend.skipped || 0) + (results.backend.skipped || 0) + (results.cline.skipped || 0)
+const totalCompatibilityIssues = results.mochaSrc.status === "esm_cjs_compatibility_issue" ? results.mochaSrc.total : 0
+
 console.log(
-	`📊 알려진 전체 테스트 현황: ${totalPassed} 통과 / ${totalTests + results.mochaSrc.fileCount} (실행 가능 + 호환성 문제)`,
+	`🎯 실행 가능 테스트 결과:   ${totalPassed}개 통과 (${totalFailed}개 실패, ${totalSkipped}개 스킵, ${totalCompatibilityIssues}개 호환성문제)`,
 )
+console.log(`📊 전체 테스트 현황: ${totalPassed}/${totalTests}개 중 ${totalFailed}개 실패`)
 
 if (totalFailed === 0) {
-	console.log("✅ 모든 (실행 가능한) 테스트 성공! 🎉")
-	if (results.mochaSrc.fileCount > 0) {
+	console.log("✅ 모든 테스트 성공! 🎉")
+	if (totalSkipped > 0) {
+		console.log(`   📋 참고: ${totalSkipped}개 테스트는 의도적으로 스킵되었습니다.`)
+	}
+	if (totalCompatibilityIssues > 0) {
 		console.log("   📋 참고: Cline 원본 Mocha 테스트 (src)는 ESM/CJS 호환성 문제로 실행되지 않았습니다.")
 		console.log("   📋 해당 문제는 @google/genai 패키지의 알려진 이슈이며, Caret 기능에는 영향을 주지 않습니다.")
 	}

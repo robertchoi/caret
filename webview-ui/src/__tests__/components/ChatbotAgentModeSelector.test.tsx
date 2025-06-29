@@ -11,18 +11,18 @@ const MockChatbotAgentModeSelector = ({
 	onModeChange,
 	disabled = false,
 }: {
-	currentMode: "ask" | "agent"
-	onModeChange: (mode: "ask" | "agent") => void
+	currentMode: "chatbot" | "agent"
+	onModeChange: (mode: "chatbot" | "agent") => void
 	disabled?: boolean
 }) => {
 	return (
-		<div data-testid="ask-agent-mode-switch" data-mode={currentMode}>
+		<div data-testid="chatbot-agent-mode-switch" data-mode={currentMode}>
 			<button
-				data-testid="ask-button"
-				className={currentMode === "ask" ? "active" : ""}
-				onClick={() => onModeChange("ask")}
+				data-testid="chatbot-button"
+				className={currentMode === "chatbot" ? "active" : ""}
+				onClick={() => onModeChange("chatbot")}
 				disabled={disabled}>
-				💬 Ask
+				💬 Chatbot
 			</button>
 			<button
 				data-testid="agent-button"
@@ -35,9 +35,9 @@ const MockChatbotAgentModeSelector = ({
 	)
 }
 
-const MockModeIndicator = ({ currentMode }: { currentMode: "ask" | "agent" }) => {
+const MockModeIndicator = ({ currentMode }: { currentMode: "chatbot" | "agent" }) => {
 	const modeInfo = {
-		ask: {
+		chatbot: {
 			title: "Chatbot Mode",
 			description: "Expert Consultation - Analysis and advice without code changes",
 			icon: "💬",
@@ -66,25 +66,25 @@ describe("🚨 Critical Chatbot/Agent System Issues (RED Phase)", () => {
 		it("🔴 SHOULD FAIL: ChatSettings mode should use Chatbot/Agent not plan/act", () => {
 			// This test will FAIL because current system uses plan/act
 			const mockChatSettings = {
-				mode: "ask" as const, // This should be the correct type
+				mode: "chatbot" as const, // This should be the correct type
 				preferredLanguage: "English",
 			}
 
 			// This assertion will FAIL if real system still uses plan/act
-			expect(mockChatSettings.mode).toBe("ask")
+			expect(mockChatSettings.mode).toBe("chatbot")
 			expect(mockChatSettings.mode).not.toBe("plan") // Will fail in current system
 		})
 
 		it("🔴 SHOULD FAIL: ChatbotAgentMode enum should be used for gRPC", () => {
 			// This will FAIL because current system uses PlanActMode
-			const askRequest = ToggleChatbotAgentModeRequest.create({
+			const ChatbotRequest = ToggleChatbotAgentModeRequest.create({
 				chatSettings: {
 					mode: ChatbotAgentMode.CHATBOT_MODE,
 				},
 			})
 
-			expect(askRequest.chatSettings?.mode).toBe(ChatbotAgentMode.CHATBOT_MODE)
-			expect(askRequest.chatSettings?.mode).toBe(0) // CHATBOT_MODE = 0
+			expect(ChatbotRequest.chatSettings?.mode).toBe(ChatbotAgentMode.CHATBOT_MODE)
+			expect(ChatbotRequest.chatSettings?.mode).toBe(0) // CHATBOT_MODE = 0
 		})
 	})
 
@@ -111,24 +111,24 @@ describe("🚨 Critical Chatbot/Agent System Issues (RED Phase)", () => {
 			// This represents what the UI component should receive
 			const mockUIState = {
 				chatSettings: {
-					mode: "ask" as const, // Should be Chatbot/Agent, not plan/act
+					mode: "chatbot" as const, // Should be Chatbot/Agent, not plan/act
 				},
 			}
 
 			// This will FAIL if real system passes plan/act to UI
-			expect(mockUIState.chatSettings.mode).toBe("ask")
+			expect(mockUIState.chatSettings.mode).toBe("chatbot")
 			expect(mockUIState.chatSettings.mode).not.toBe("plan") // Will fail
 		})
 
 		it("🔴 SHOULD FAIL: Tooltip mode strings should match ChatSettings values", () => {
 			// Current system might use "plan"/"act" strings in tooltips
 			const tooltipModeMapping = {
-				ask: "Chatbot mode tooltip",
+				Chatbot: "Chatbot mode tooltip",
 				agent: "Agent mode tooltip",
 			}
 
 			// This should work with Chatbot/Agent, not plan/act
-			expect(tooltipModeMapping).toHaveProperty("ask")
+			expect(tooltipModeMapping).toHaveProperty("chatbot")
 			expect(tooltipModeMapping).toHaveProperty("agent")
 			expect(tooltipModeMapping).not.toHaveProperty("plan") // Will fail if plan exists
 			expect(tooltipModeMapping).not.toHaveProperty("act") // Will fail if act exists
@@ -143,53 +143,53 @@ describe("Chatbot/Agent 모드 선택기", () => {
 		mockOnModeChange = vi.fn()
 	})
 
-	it("should render Ask and Agent buttons correctly", () => {
-		// TDD: Ask와 Agent 버튼이 올바르게 렌더링되어야 함
+	it("should render Chatbot and Agent buttons correctly", () => {
+		// TDD: Chatbot와 Agent 버튼이 올바르게 렌더링되어야 함
 		render(<MockChatbotAgentModeSelector currentMode="agent" onModeChange={mockOnModeChange} />)
 
-		expect(screen.getByText("💬 Ask")).toBeInTheDocument()
+		expect(screen.getByText("💬 Chatbot")).toBeInTheDocument()
 		expect(screen.getByText("🤖 Agent")).toBeInTheDocument()
 		expect(screen.getByTestId("agent-button")).toHaveClass("active")
-		expect(screen.getByTestId("ask-button")).not.toHaveClass("active")
+		expect(screen.getByTestId("Chatbot-button")).not.toHaveClass("active")
 	})
 
 	it("should call onModeChange with correct Chatbot/Agent values", () => {
 		// TDD: 버튼 클릭 시 올바른 Chatbot/Agent 값으로 onModeChange가 호출되어야 함
 		render(<MockChatbotAgentModeSelector currentMode="agent" onModeChange={mockOnModeChange} />)
 
-		fireEvent.click(screen.getByText("💬 Ask"))
-		expect(mockOnModeChange).toHaveBeenCalledWith("ask")
+		fireEvent.click(screen.getByText("💬 Chatbot"))
+		expect(mockOnModeChange).toHaveBeenCalledWith("chatbot")
 
 		fireEvent.click(screen.getByText("🤖 Agent"))
 		expect(mockOnModeChange).toHaveBeenCalledWith("agent")
 	})
 
 	it("should show Chatbot mode as active when selected", () => {
-		// TDD: Ask 모드 선택 시 버튼이 활성 상태로 표시되어야 함
-		render(<MockChatbotAgentModeSelector currentMode="ask" onModeChange={mockOnModeChange} />)
+		// TDD: Chatbot 모드 선택 시 버튼이 활성 상태로 표시되어야 함
+		render(<MockChatbotAgentModeSelector currentMode="chatbot" onModeChange={mockOnModeChange} />)
 
-		expect(screen.getByTestId("ask-button")).toHaveClass("active")
+		expect(screen.getByTestId("chatbot-button")).toHaveClass("active")
 		expect(screen.getByTestId("agent-button")).not.toHaveClass("active")
-		expect(screen.getByTestId("ask-agent-mode-switch")).toHaveAttribute("data-mode", "ask")
+		expect(screen.getByTestId("chatbot-agent-mode-switch")).toHaveAttribute("data-mode", "chatbot")
 	})
 
 	it("should disable buttons when disabled prop is true", () => {
 		// TDD: disabled prop이 true일 때 버튼들이 비활성화되어야 함
 		render(<MockChatbotAgentModeSelector currentMode="agent" onModeChange={mockOnModeChange} disabled={true} />)
 
-		expect(screen.getByTestId("ask-button")).toBeDisabled()
+		expect(screen.getByTestId("Chatbot-button")).toBeDisabled()
 		expect(screen.getByTestId("agent-button")).toBeDisabled()
 	})
 
 	it("should use Chatbot/Agent terminology consistently", () => {
 		// TDD: Chatbot/Agent 용어가 일관되게 사용되어야 함
-		render(<MockChatbotAgentModeSelector currentMode="ask" onModeChange={mockOnModeChange} />)
+		render(<MockChatbotAgentModeSelector currentMode="chatbot" onModeChange={mockOnModeChange} />)
 
-		const askButton = screen.getByText("💬 Ask")
+		const chatbotButton = screen.getByText("💬 Chatbot")
 		const agentButton = screen.getByText("🤖 Agent")
 
-		expect(askButton.textContent).toContain("Ask")
-		expect(askButton.textContent).not.toContain("Plan")
+		expect(chatbotButton.textContent).toContain("Chatbot")
+		expect(chatbotButton.textContent).not.toContain("Plan")
 		expect(agentButton.textContent).toContain("Agent")
 		expect(agentButton.textContent).not.toContain("Act")
 	})
@@ -197,8 +197,8 @@ describe("Chatbot/Agent 모드 선택기", () => {
 
 describe("Chatbot/Agent 모드 표시기", () => {
 	it("should show correct mode descriptions for Chatbot mode", () => {
-		// TDD: Ask 모드 설명이 올바르게 표시되어야 함
-		render(<MockModeIndicator currentMode="ask" />)
+		// TDD: Chatbot 모드 설명이 올바르게 표시되어야 함
+		render(<MockModeIndicator currentMode="chatbot" />)
 
 		expect(screen.getByText("Chatbot Mode")).toBeInTheDocument()
 		expect(screen.getByText(/Expert Consultation/)).toBeInTheDocument()
@@ -218,11 +218,11 @@ describe("Chatbot/Agent 모드 표시기", () => {
 
 	it("should not contain deprecated Plan/Act terminology", () => {
 		// TDD: 구버전 Plan/Act 용어가 포함되지 않아야 함
-		const { container: askContainer } = render(<MockModeIndicator currentMode="ask" />)
+		const { container: ChatbotContainer } = render(<MockModeIndicator currentMode="chatbot" />)
 		const { container: agentContainer } = render(<MockModeIndicator currentMode="agent" />)
 
-		expect(askContainer.textContent).not.toContain("Plan")
-		expect(askContainer.textContent).not.toContain("Act")
+		expect(ChatbotContainer.textContent).not.toContain("Plan")
+		expect(ChatbotContainer.textContent).not.toContain("Act")
 		expect(agentContainer.textContent).not.toContain("Plan")
 		expect(agentContainer.textContent).not.toContain("Act")
 	})
@@ -231,8 +231,8 @@ describe("Chatbot/Agent 모드 표시기", () => {
 describe("Chatbot/Agent 상태 관리", () => {
 	// Mock hook for testing state management
 	const mockUseChatbotAgentMode = () => ({
-		mode: "agent" as "ask" | "agent",
-		switchToAsk: vi.fn(),
+		mode: "agent" as "chatbot" | "agent",
+		switchToChatbot: vi.fn(),
 		switchToAgent: vi.fn(),
 		isLoading: false,
 	})
@@ -242,7 +242,7 @@ describe("Chatbot/Agent 상태 관리", () => {
 		const hookResult = mockUseChatbotAgentMode()
 
 		expect(hookResult.mode).toBe("agent") // 기본값은 Agent
-		expect(typeof hookResult.switchToAsk).toBe("function")
+		expect(typeof hookResult.switchToChatbot).toBe("function")
 		expect(typeof hookResult.switchToAgent).toBe("function")
 	})
 
@@ -250,7 +250,7 @@ describe("Chatbot/Agent 상태 관리", () => {
 		// TDD: 상태 전환 함수들이 Chatbot/Agent 네이밍을 사용해야 함
 		const hookResult = mockUseChatbotAgentMode()
 
-		const expectedFunctionNames = ["switchToAsk", "switchToAgent"]
+		const expectedFunctionNames = ["switchToChatbot", "switchToAgent"]
 		const deprecatedFunctionNames = ["switchToPlan", "switchToAct"]
 
 		expectedFunctionNames.forEach((name) => {
@@ -269,14 +269,14 @@ describe("Chatbot/Agent 상태 관리", () => {
 		}
 
 		// 예상되는 gRPC 요청 구조
-		const expectedAskRequest = {
+		const expectedChatbotRequest = {
 			chatSettings: { mode: 0 }, // ChatbotAgentMode.CHATBOT_MODE = 0
 		}
 		const expectedAgentRequest = {
 			chatSettings: { mode: 1 }, // ChatbotAgentMode.AGENT_MODE = 1
 		}
 
-		expect(expectedAskRequest.chatSettings.mode).toBe(0)
+		expect(expectedChatbotRequest.chatSettings.mode).toBe(0)
 		expect(expectedAgentRequest.chatSettings.mode).toBe(1)
 	})
 })
@@ -284,21 +284,21 @@ describe("Chatbot/Agent 상태 관리", () => {
 describe("Chatbot/Agent 접근성 및 UX", () => {
 	it("should have proper accessibility attributes", () => {
 		// TDD: 접근성 속성이 올바르게 설정되어야 함
-		render(<MockChatbotAgentModeSelector currentMode="ask" onModeChange={vi.fn()} />)
+		render(<MockChatbotAgentModeSelector currentMode="chatbot" onModeChange={vi.fn()} />)
 
-		const askButton = screen.getByTestId("ask-button")
+		const ChatbotButton = screen.getByTestId("Chatbot-button")
 		const agentButton = screen.getByTestId("agent-button")
 
 		// 기본 접근성 확인 (실제 구현에서는 더 많은 속성 필요)
-		expect(askButton).toBeInTheDocument()
+		expect(ChatbotButton).toBeInTheDocument()
 		expect(agentButton).toBeInTheDocument()
 	})
 
 	it("should provide clear visual feedback for current mode", () => {
 		// TDD: 현재 모드에 대한 명확한 시각적 피드백이 있어야 함
-		const { rerender } = render(<MockChatbotAgentModeSelector currentMode="ask" onModeChange={vi.fn()} />)
+		const { rerender } = render(<MockChatbotAgentModeSelector currentMode="chatbot" onModeChange={vi.fn()} />)
 
-		expect(screen.getByTestId("ask-button")).toHaveClass("active")
+		expect(screen.getByTestId("Chatbot-button")).toHaveClass("active")
 
 		rerender(<MockChatbotAgentModeSelector currentMode="agent" onModeChange={vi.fn()} />)
 
@@ -309,8 +309,8 @@ describe("Chatbot/Agent 접근성 및 UX", () => {
 		// TDD: 직관적인 아이콘과 라벨을 사용해야 함
 		render(<MockChatbotAgentModeSelector currentMode="agent" onModeChange={vi.fn()} />)
 
-		// Ask: 💬 (말풍선) - 질문/상담의 의미
-		expect(screen.getByText(/💬.*Ask/)).toBeInTheDocument()
+		// Chatbot: 💬 (말풍선) - 질문/상담의 의미
+		expect(screen.getByText(/💬.*Chatbot/)).toBeInTheDocument()
 		// Agent: 🤖 (로봇) - 에이전트/실행의 의미
 		expect(screen.getByText(/🤖.*Agent/)).toBeInTheDocument()
 	})

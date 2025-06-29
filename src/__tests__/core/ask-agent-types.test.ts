@@ -5,7 +5,7 @@ describe("Chatbot/Agent 핵심 타입 시스템", () => {
 		// TDD: Chatbot/Agent 열거형이 올바르게 정의되어야 함
 		const { ChatbotAgentMode } = require("../../shared/proto/state")
 
-		expect(ChatbotAgentMode.ASK).toBe(0)
+		expect(ChatbotAgentMode.CHATBOT).toBe(0)
 		expect(ChatbotAgentMode.AGENT).toBe(1)
 		expect(ChatbotAgentMode.UNRECOGNIZED).toBe(-1)
 	})
@@ -14,10 +14,10 @@ describe("Chatbot/Agent 핵심 타입 시스템", () => {
 		// TDD: ChatSettings가 Chatbot/Agent 타입을 올바르게 처리해야 함
 		const { ChatSettings } = require("../../shared/ChatSettings")
 
-		const askSettings = { mode: "ask" as const }
+		const chatbotSettings = { mode: "chatbot" as const }
 		const agentSettings = { mode: "agent" as const }
 
-		expect(askSettings.mode).toBe("ask")
+		expect(chatbotSettings.mode).toBe("chatbot")
 		expect(agentSettings.mode).toBe("agent")
 	})
 
@@ -25,9 +25,9 @@ describe("Chatbot/Agent 핵심 타입 시스템", () => {
 		// TDD: JSON 변환 함수들이 Chatbot/Agent 용어를 사용해야 함
 		const { ChatbotAgentModeFromJSON, ChatbotAgentModeToJSON, ChatbotAgentMode } = require("../../shared/proto/state")
 
-		expect(ChatbotAgentModeFromJSON("ASK")).toBe(ChatbotAgentMode.ASK)
+		expect(ChatbotAgentModeFromJSON("CHATBOT")).toBe(ChatbotAgentMode.CHATBOT)
 		expect(ChatbotAgentModeFromJSON("AGENT")).toBe(ChatbotAgentMode.AGENT)
-		expect(ChatbotAgentModeToJSON(ChatbotAgentMode.ASK)).toBe("ASK")
+		expect(ChatbotAgentModeToJSON(ChatbotAgentMode.CHATBOT)).toBe("CHATBOT")
 		expect(ChatbotAgentModeToJSON(ChatbotAgentMode.AGENT)).toBe("AGENT")
 	})
 
@@ -46,11 +46,11 @@ describe("Chatbot/Agent 핵심 타입 시스템", () => {
 
 		// 예상 매핑 동작
 		const expectedMappings = {
-			ask: "plan",
+			chatbot: "plan",
 			agent: "act",
 		}
 
-		expect(expectedMappings.ask).toBe("plan")
+		expect(expectedMappings.chatbot).toBe("plan")
 		expect(expectedMappings.agent).toBe("act")
 	})
 
@@ -64,15 +64,15 @@ describe("Chatbot/Agent 핵심 타입 시스템", () => {
 describe("Chatbot/Agent 타입 안전성 테스트", () => {
 	it("should only accept valid Chatbot/Agent mode strings", () => {
 		// TDD: 타입 안전성 검증
-		const validModes = ["ask", "agent"] as const
+		const validModes = ["chatbot", "agent"] as const
 		const invalidModes = ["plan", "act", "invalid", ""]
 
 		validModes.forEach((mode) => {
-			expect(["ask", "agent"]).toContain(mode)
+			expect(["chatbot", "agent"]).toContain(mode)
 		})
 
 		invalidModes.forEach((mode) => {
-			expect(["ask", "agent"]).not.toContain(mode)
+			expect(["chatbot", "agent"]).not.toContain(mode)
 		})
 	})
 

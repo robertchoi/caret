@@ -887,23 +887,45 @@ export const ExtensionStateContextProvider: React.FC<{
 		// CARET MODIFICATION: Mode system setter for Caret/Cline interface switching
 		setModeSystem: async (modeSystem: string) => {
 			try {
-				// Update only modeSystem
+				// CARET MODIFICATION: 기본값 설정 로직 - Caret=Agent, Cline=Plan(chatbot)
+				const currentMode = state.chatSettings.mode
+				let defaultMode = currentMode // 현재 모드 유지
+
+				// 모드 시스템 변경 시 적절한 기본값으로 설정
+				if (modeSystem === "caret" && currentMode === "chatbot") {
+					// Caret 모드로 전환 시 chatbot -> agent로 변경 (Caret의 기본값은 Agent)
+					defaultMode = "agent"
+				} else if (modeSystem === "cline" && currentMode === "agent") {
+					// Cline 모드로 전환 시 agent -> chatbot로 변경 (Cline의 기본값은 Plan=chatbot)
+					defaultMode = "chatbot"
+				}
+
+				// Import the conversion functions for proper chat settings update
+				const { convertChatSettingsToProtoChatSettings } = await import(
+					"@shared/proto-conversions/state/chat-settings-conversion"
+				)
+
+				const updatedChatSettings = {
+					...state.chatSettings,
+					mode: defaultMode,
+					modeSystem,
+				}
+
+				// Update both modeSystem and mode if needed
 				await StateServiceClient.updateSettings(
 					UpdateSettingsRequest.create({
-						modeSystem, // Only update this field
+						modeSystem,
+						chatSettings: convertChatSettingsToProtoChatSettings(updatedChatSettings),
 					}),
 				)
 
-				// Update frontend state
+				// Update frontend state with both modeSystem and default mode
 				setState((prevState) => ({
 					...prevState,
-					chatSettings: {
-						...prevState.chatSettings,
-						modeSystem,
-					},
+					chatSettings: updatedChatSettings,
 				}))
 
-				console.log("[DEBUG] 🔧 setModeSystem completed:", modeSystem)
+				console.log("[DEBUG] 🔧 setModeSystem completed:", modeSystem, "with default mode:", defaultMode)
 			} catch (error) {
 				console.error("Failed to update mode system:", error)
 			}

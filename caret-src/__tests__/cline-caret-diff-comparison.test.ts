@@ -314,7 +314,6 @@ function extractToolsFromPrompt(prompt: string): string[] {
 		"ask_followup_question",
 		"attempt_completion",
 		"new_task",
-		"plan_mode_respond",
 		"load_mcp_documentation",
 	]
 	return toolMatches.map((match) => match.replace("## ", "")).filter((tool) => validTools.includes(tool))

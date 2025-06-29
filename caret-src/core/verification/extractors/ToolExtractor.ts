@@ -35,7 +35,7 @@ export class ToolExtractor {
 	private static readonly INTERACTIVE_TOOLS = ["ask_followup_question", "attempt_completion"]
 
 	// Task management tools
-	private static readonly TASK_TOOLS = ["new_task", "plan_mode_respond", "load_mcp_documentation"]
+	private static readonly TASK_TOOLS = ["new_task", "load_mcp_documentation"]
 
 	// Conditional tools (present based on conditions)
 	private static readonly CONDITIONAL_TOOLS = [

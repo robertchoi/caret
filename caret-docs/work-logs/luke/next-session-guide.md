@@ -12,7 +12,12 @@
 - **system.ts JSON 검증**: Mock 테스트 → 실제 검증으로 변경 작업 필요
 - **모드 초기값 설정**: Caret/Cline 모드 변경시 기본값 문제 (11시간 작업 롤백)
 
-## 🚀 **다음 세션 핵심 미션 2개**
+## 🚀 **다음 세션 핵심 미션**
+
+### **🎯 즉시 시작할 미션: Mission 1B-2 (System.ts JSON 의미론적 동등성 분석)**
+- **Mission 1B-1 완료**: ✅ 100% 도구 커버리지, 완전한 비교 데이터 생성됨
+- **Mission 1B-2 준비완료**: 모든 입력 파일 준비됨, AI 분석만 남음
+- **예상 소요시간**: 1-2시간 (AI 분석 + 보고서 작성)
 
 ---
 
@@ -31,22 +36,35 @@
 
 #### **🔄 Mission 1B: JSON 동등성 (진행 중 - 2단계 접근)**
 
-##### **1B-1단계: 비교 데이터 생성**
-- **목표**: Cline vs Caret 도구 정의, 1B-2단계에서 사용할 구조화된 비교 데이터 생성
-- **출력**: JSON 파일 형태의 나란히 비교 데이터
-- **출력 위치**: `caret-docs/reports/json-caret/tool-comparison-data.json`
-- **포함 내용**: 매개변수 세부사항, 설명, 사용 패턴, 소스 위치
-- **성공 기준**: 핵심 도구 100% (caret에서 사용하지 않는 plan/act모드와 연관된 기능 제외하고 전체 기능 동일해야 함)
+##### **✅ 1B-1단계: 비교 데이터 생성 (완료 2025-06-29)**
+- **상태**: 100% 완료 ✅
+- **성과**: 
+  - ✅ **100% 도구 커버리지 달성** (13/13 도구)
+  - ✅ 포괄적인 비교 데이터 생성 (`tool-comparison-data.json` 58KB, 1110줄)
+  - ✅ 완전한 프롬프트 파일 저장 (cline: 46KB, caret: 19KB)
+  - ✅ Mission 1B-2 준비 완료
+- **생성된 파일들**:
+  - `caret-src/__tests__/mission-1b-1-comparison.test.ts` - 비교 데이터 생성 테스트
+  - `caret-docs/reports/json-caret/tool-comparison-data.json` - 메인 비교 데이터 (재생성 가능)
+  - `caret-docs/reports/json-caret/cline-full-prompt.txt` - 완전한 Cline 프롬프트
+  - `caret-docs/reports/json-caret/caret-full-prompt.txt` - 완전한 Caret 프롬프트
+- **기술적 성과**: 도구 import 패턴 수정 (함수 vs 상수), 브라우저 설정 mock 추가
 
-##### **1B-2단계: AI 의미론적 동등성 분석**
-- **목표**: AI 기반 기능적 동등성 분석
-- **입력 파일**: `caret-docs/reports/json-caret/tool-comparison-data.json`
+##### **🔄 1B-2단계: AI 의미론적 동등성 분석 (다음 우선순위)**
+- **목표**: AI 기반 기능적 동등성 분석 
+- **전제조건**: ✅ Mission 1B-1 완료됨 (100% 도구 커버리지 확인)
+- **입력 데이터**: 
+  - `caret-docs/reports/json-caret/tool-comparison-data.json` (58KB 비교 데이터)
+  - `caret-docs/reports/json-caret/cline-full-prompt.txt` (46KB 완전한 Cline 프롬프트)
+  - `caret-docs/reports/json-caret/caret-full-prompt.txt` (19KB 완전한 Caret 프롬프트)
 - **출력 파일**: `caret-docs/reports/json-caret/semantic-equivalence-report.md`
-- **분석 질문들**:
-  - 두 시스템이 동일한 기능을 달성하는가?
-  - 매개변수 패턴이 동등한가?
-  - 사용자가 동일한 결과를 얻을 수 있는가?
-- **출력**: 상세한 동등성 보고서
+- **분석 차원**: 
+  1. **도구 기능 동등성**: 두 시스템이 동일한 기능을 달성하는가?
+  2. **매개변수 호환성**: 매개변수 패턴이 동등한가?
+  3. **사용자 경험 일치성**: 사용자가 동일한 결과를 얻을 수 있는가?
+  4. **지시사항 명확성**: 지시사항이 기능적으로 일치하는가?
+  5. **행동 패턴**: 동일한 상황에서 동일한 행동을 하는가?
+- **예상 결과**: 상세한 동등성 보고서 + 개선 권장사항
 
 **📁 향후 계획**: `caret-docs/reports/json-caret/` 폴더는 JSON 시스템 관련 모든 분석 자료의 중앙 저장소로 사용
 - 동등성 비교 분석

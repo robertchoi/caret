@@ -14,6 +14,16 @@
 - **위험도별 순차 변환**: commands.ts → experimental → claude4.ts → mcpDoc 순서
 - **실시간 품질 보장**: 각 단계별 품질 모니터링 및 즉시 롤백
 - **성능 최적화 유지**: Claude4 최적화 구간 보존 및 성능 영향 최소화
+- **🚨 Cline/Caret 모드 구분 유지**: 모든 JSON 변환 작업에서 기존 모드별 용어 구분 완전 보존
+
+### **🎯 핵심 요구사항 - Cline/Caret 모드 구분 유지**
+**🚨 CRITICAL**: 모든 나머지 파일들의 JSON 변환 과정에서 **Cline/Caret 모드 구분**을 그대로 유지해야 합니다:
+- **Caret 모드**: "Chatbot/Agent" 용어 사용 (현재 하이브리드 시스템 유지)
+- **Cline 모드**: "Plan/Act" 용어 사용 (원본 Cline 용어 유지)
+- **Commands.ts**: 모드별 다른 명령어 응답 메시지 지원
+- **Claude4.ts**: 모드별 최적화된 프롬프트 템플릿 지원
+- **Experimental**: 모드별 실험적 기능 활성화 차별화
+- **MCP 문서**: 모드별 문서 생성 스타일 구분 지원
 
 ### **변환 전략 개요**
 

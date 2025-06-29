@@ -1,13 +1,13 @@
-import { vi } from 'vitest'
+import { vi } from "vitest"
 
 // VSCode API 모킹
-vi.mock('vscode', () => ({
+vi.mock("vscode", () => ({
 	env: {
-		machineId: 'test-machine-id',
-		sessionId: 'test-session-id',
-		language: 'en',
+		machineId: "test-machine-id",
+		sessionId: "test-session-id",
+		language: "en",
 		remoteName: undefined,
-		shell: '/bin/bash',
+		shell: "/bin/bash",
 	},
 	window: {
 		showErrorMessage: vi.fn(),
@@ -53,18 +53,22 @@ vi.mock('vscode', () => ({
 	},
 }))
 
-// Node.js 모듈 모킹 (필요시)
-vi.mock('os', () => ({
-	platform: vi.fn(() => 'win32'),
-	release: vi.fn(() => '10.0.26100'),
-	homedir: vi.fn(() => '/mock/home'),
-}))
-
-vi.mock('path', async () => {
-	const actual = await vi.importActual('path')
+// Node.js 모듈 모킹 (필요시) - CARET MODIFICATION: Fix default export issue
+vi.mock("os", async (importOriginal) => {
+	const actual = await importOriginal()
 	return {
 		...actual,
-		join: vi.fn((...args: string[]) => args.join('/')),
-		resolve: vi.fn((...args: string[]) => args.join('/')),
+		platform: vi.fn(() => "win32"),
+		release: vi.fn(() => "10.0.26100"),
+		homedir: vi.fn(() => "/mock/home"),
 	}
-}) 
+})
+
+vi.mock("path", async () => {
+	const actual = await vi.importActual("path")
+	return {
+		...actual,
+		join: vi.fn((...args: string[]) => args.join("/")),
+		resolve: vi.fn((...args: string[]) => args.join("/")),
+	}
+})

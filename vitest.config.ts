@@ -37,6 +37,8 @@ export default defineConfig({
 			"@services": path.resolve(__dirname, "./src/services"),
 			"@api": path.resolve(__dirname, "./src/api"),
 			"@integrations": path.resolve(__dirname, "./src/integrations"),
+			"@hosts": path.resolve(__dirname, "./src/hosts"), // CARET MODIFICATION: Add @hosts alias for host-bridge-client
+			"@generated": path.resolve(__dirname, "./src/generated"), // CARET MODIFICATION: Add @generated alias for nice-grpc
 		},
 	},
 })

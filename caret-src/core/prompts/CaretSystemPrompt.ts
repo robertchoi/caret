@@ -422,6 +422,63 @@ export class CaretSystemPrompt {
 			return template
 		}
 
+		// DEBUG: Log template structure
+		console.log(`[DEBUG_TEMPLATE] Template type: ${typeof template}`)
+		console.log(`[DEBUG_TEMPLATE] Template keys: ${Object.keys(template)}`)
+		console.log(`[DEBUG_TEMPLATE] Has metadata: ${!!template.metadata}`)
+		console.log(`[DEBUG_TEMPLATE] Has add: ${!!template.add}`)
+		if (template.add) {
+			console.log(`[DEBUG_TEMPLATE] Add sections: ${!!template.add.sections}`)
+			console.log(`[DEBUG_TEMPLATE] Sections length: ${template.add.sections?.length}`)
+		}
+
+		// CARET MODIFICATION: Handle PromptTemplate format (after adaptLegacyFormat conversion)
+		if (template.metadata && template.add && template.add.sections) {
+			console.log(`[DEBUG_TEMPLATE] PromptTemplate format detected!`)
+			// This is a PromptTemplate format - extract sections content
+			const sections = template.add.sections
+			if (Array.isArray(sections) && sections.length > 0) {
+				let result = sections
+					.map((section) => {
+						let content = ""
+						if (section.title) {
+							content += `====\n\n${section.title}\n\n`
+						}
+						content += section.content
+						return content
+					})
+					.join("\n\n")
+
+				// CARET MODIFICATION: Handle tools section for TOOL_DEFINITIONS
+				if (template.tools && typeof template.tools === "object") {
+					console.log(`[DEBUG_TEMPLATE] Found tools section with ${Object.keys(template.tools).length} tools`)
+					result += "\n\n" // Add spacing before tools
+
+					for (const [toolName, toolDef] of Object.entries(template.tools)) {
+						if (typeof toolDef === "object" && toolDef !== null && "title" in toolDef) {
+							const tool = toolDef as any // Type assertion for flexibility
+							result += `\n## ${tool.title}\n`
+							if (tool.description) {
+								result += `Description: ${tool.description}\n`
+							}
+							if (tool.parameters && Array.isArray(tool.parameters)) {
+								result += `Parameters:\n`
+								for (const param of tool.parameters) {
+									result += `- ${param.name}${param.required ? " (required)" : " (optional)"}: ${param.description}\n`
+								}
+							}
+							if (tool.usage) {
+								result += `Usage:\n${tool.usage}\n`
+							}
+						}
+					}
+				}
+
+				console.log(`[DEBUG_TEMPLATE] PromptTemplate converted to: ${result.substring(0, 200)}...`)
+				return result
+			}
+		}
+
 		// Handle different JSON template formats
 		if (template.content) {
 			return template.content
@@ -534,9 +591,22 @@ export class CaretSystemPrompt {
 	 * Assemble final prompt from all sections
 	 */
 	private assembleFinalPrompt(sections: string[]): string {
+		// DEBUG: Log sections before assembly
+		console.log(`[DEBUG_ASSEMBLY] Assembling ${sections.length} sections`)
+		sections.forEach((section, index) => {
+			console.log(
+				`[DEBUG_ASSEMBLY] Section ${index}: ${typeof section}, length: ${section?.length}, preview: ${section?.substring(0, 100)}...`,
+			)
+		})
+
 		// Filter out empty sections and join with appropriate spacing
 		const validSections = sections.filter((section) => section && section.trim().length > 0)
-		return validSections.join("\n")
+		const result = validSections.join("\n")
+
+		console.log(
+			`[DEBUG_ASSEMBLY] Final result: ${typeof result}, length: ${result.length}, preview: ${result.substring(0, 200)}...`,
+		)
+		return result
 	}
 
 	/**

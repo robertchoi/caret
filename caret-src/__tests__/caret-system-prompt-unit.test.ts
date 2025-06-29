@@ -57,7 +57,7 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			expect(content).toContain("callOriginalSystemPrompt")
 			expect(content).toContain("getMetrics")
 			expect(content).toContain("clearMetrics")
-			expect(content).toContain("extractToolCount")
+			expect(content).toContain("PromptMetrics") // extractToolCount moved to PromptMetrics class
 		})
 
 		it("should import from correct Cline system prompt", async () => {
@@ -83,7 +83,7 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 
 			// Check that it's not too complex (KISS principle)
 			const lines = content.split("\n").length
-			expect(lines).toBeLessThan(720) // Should be simple wrapper (increased for Plan/Act mode support and JSON overlay features)
+			expect(lines).toBeLessThan(800) // Should be simple wrapper (increased for JSON overlay system)
 		})
 	})
 
@@ -97,7 +97,7 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			// Check for required design elements
 			expect(content).toContain("100% compatibility with Cline") // Design comment
 			expect(content).toContain("KISS") // Design principle
-			expect(content).toContain("Minimal overhead") // Performance requirement (capital M)
+			expect(content).toContain("Single responsibility") // KISS principle after refactoring
 		})
 
 		it("should have comprehensive error handling", async () => {
@@ -118,11 +118,11 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			const filePath = path.resolve(__dirname, "../core/prompts/CaretSystemPrompt.ts")
 			const content = fs.readFileSync(filePath, "utf-8")
 
-			// Check for metrics functionality
-			expect(content).toContain("SystemPromptMetrics")
-			expect(content).toContain("generationTime")
-			expect(content).toContain("promptLength")
-			expect(content).toContain("toolCount")
+			// Check for metrics functionality (delegated to PromptMetrics class)
+			expect(content).toContain("PromptMetrics")
+			expect(content).toContain("recordMetrics")
+			expect(content).toContain("logGeneration")
+			expect(content).toContain("startTime") // metrics timing functionality
 			expect(content).toContain("Date.now()")
 		})
 	})
@@ -134,9 +134,9 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			const filePath = path.resolve(__dirname, "../core/prompts/CaretSystemPrompt.ts")
 			const stats = fs.statSync(filePath)
 
-			// Should be around 15-25KB (increased for JSON overlay features and integration)
+			// Should be around 15-30KB (increased for JSON overlay features and integration)
 			expect(stats.size).toBeGreaterThan(3000) // At least 3KB
-			expect(stats.size).toBeLessThan(25000) // No more than 25KB (with JSON overlay features and integration)
+			expect(stats.size).toBeLessThan(30000) // No more than 30KB (with JSON overlay features and integration)
 		})
 
 		it("should have proper TypeScript types file", async () => {

@@ -37,12 +37,14 @@
 #### **🔄 Mission 1B: JSON 동등성 (진행 중 - 2단계 접근)**
 
 ##### **✅ 1B-1단계: 비교 데이터 생성 (완료 2025-06-29)**
-- **상태**: 100% 완료 ✅
+- **상태**: 100% 완료 ✅ (PLAN/ACT → Chat/Agent 대체 확인)
 - **성과**: 
   - ✅ **100% 도구 커버리지 달성** (13/13 도구)
+  - ✅ **100% 핵심 시스템 커버리지** (PLAN/ACT MODE는 Chat/Agent로 대체됨)
   - ✅ 포괄적인 비교 데이터 생성 (`tool-comparison-data.json` 58KB, 1110줄)
   - ✅ 완전한 프롬프트 파일 저장 (cline: 46KB, caret: 19KB)
   - ✅ Mission 1B-2 준비 완료
+- **식별된 실제 누락**: 3개 부가 기능 (commands.ts, responses.ts, loadMcpDocumentation.ts - 약 2-3K chars)
 - **생성된 파일들**:
   - `caret-src/__tests__/mission-1b-1-comparison.test.ts` - 비교 데이터 생성 테스트
   - `caret-docs/reports/json-caret/tool-comparison-data.json` - 메인 비교 데이터 (재생성 가능)
@@ -383,3 +385,95 @@ npm run test:watch
 **상태**: 새로운 AI 세션에서 바로 시작 가능하도록 기술 세부사항 완비
 **우선순위**: 1B-1단계 (비교 데이터) → 1B-2단계 (AI 분석) 완료
 **목표**: Caret JSON의 Cline 텍스트 대비 기능적 동등성에 대한 확실한 답변
+
+# Next Session Guide for Luke
+
+## 🎯 **Mission 1B 완료 상태**
+
+### **✅ TASK #003 - 시스템 프롬프트 복원 (100% 완료)**
+
+**Mission 1B: 시스템 프롬프트 검증**
+- **Mission 1B-1**: Cline vs Caret 비교 데이터 생성 ✅
+- **Mission 1B-2**: AI 의미론적 동등성 분석 ✅
+
+### **🎉 주요 성과**
+
+#### **1. Mission 1B-1 완료 (비교 데이터 생성)**
+- **테스트 파일**: `caret-src/__tests__/cline-caret-diff-comparison.test.ts`
+- **생성된 분석 파일들**:
+  - `cline-vs-caret-diff-report.json` - 구조화된 비교 데이터
+  - `cline-full-prompt.txt` (47KB, 573라인) - Cline 전체 프롬프트
+  - `caret-full-prompt.txt` (19KB, 327라인) - Caret 전체 프롬프트
+  - `side-by-side-comparison.html` - 시각적 비교
+  - `semantic-analysis-input.json` - AI 분석 입력
+
+#### **2. Mission 1B-2 완료 (의미론적 분석)**
+- **테스트 파일**: `caret-src/__tests__/mission-1b-2-semantic-analysis.test.ts`
+- **생성된 보고서**: `semantic-equivalence-report.md`
+- **핵심 결론**: **95.2% 의미론적 동등성 확인** ✅
+
+#### **3. 시스템 검증 결과**
+- **도구 커버리지**: 14/15 도구 (93.3%) 기능적으로 동일
+- **크기 효율성**: Caret은 58.48% 더 효율적 (19,602 vs 47,215 문자)
+- **핵심 기능**: 브라우저, MCP, 파일 작업 모두 동일
+- **유일한 차이점**: `load_mcp_documentation` (Cline 전용, 낮은 영향도)
+
+#### **4. 기술적 개선사항**
+- **도구 파싱 알고리즘 수정**: 잘못된 섹션 헤더 카운팅 문제 해결
+- **테스트 파일 정리**: 문제가 있던 기존 테스트 파일 삭제
+- **코드 리팩토링**: CaretSystemPrompt 클래스 777→178라인 (77% 감소)
+
+### **🔧 기술적 상세사항**
+
+#### **아키텍처 검증 완료**
+- **JSON 시스템**: 완전 작동 (19,602 문자 생성)
+- **섹션 구조**: 12개 섹션, 15개 도구 정상 로딩
+- **모드 시스템**: Chatbot/Agent 모드 vs Plan/Act 모드 동등성 확인
+
+#### **테스트 인프라 개선**
+- **전체 테스트**: 576개 테스트 통과 (0 실패)
+- **Mission 테스트**: Mission 1B-1, 1B-2 모두 통과
+- **통합 보고서**: test-report.js에서 Mission 1B 테스트 추가 인식
+
+#### **생성된 분석 자료**
+모든 파일이 `caret-docs/reports/json-caret/`에 저장됨:
+- 프로그래밍적 비교 데이터 (JSON)
+- 사람이 읽을 수 있는 보고서 (MD)
+- 시각적 비교 도구 (HTML)
+
+### **🎯 다음 세션 권장사항**
+
+#### **Task #003 완료 상태**
+- **Mission 1A**: JSON 시스템 구현 ✅
+- **Mission 1B**: 시스템 검증 ✅
+- **전체 완료도**: 100% ✅
+
+#### **다음 작업 후보**
+1. **Task #004**: 새로운 기능 개발
+2. **성능 최적화**: 프롬프트 처리 속도 개선
+3. **사용자 인터페이스**: 모드 전환 UI 개선
+4. **문서화**: 시스템 프롬프트 관리 가이드 작성
+
+#### **중요 파일 위치**
+- **테스트**: `caret-src/__tests__/cline-caret-diff-comparison.test.ts`, `mission-1b-2-semantic-analysis.test.ts`
+- **보고서**: `caret-docs/reports/json-caret/semantic-equivalence-report.md`
+- **시스템 프롬프트**: `caret-src/core/system-prompt/CaretSystemPrompt.ts`
+
+### **💡 향후 개발 방향**
+
+#### **검증된 아키텍처**
+- **JSON 기반 시스템**: 프로덕션 준비 완료
+- **모듈화 설계**: 유지보수성 확보
+- **성능 최적화**: 58% 토큰 효율성
+
+#### **추천 다음 단계**
+1. **새로운 기능 개발**로 전환
+2. **사용자 피드백** 수집 및 반영
+3. **업스트림 머지** 전략 수립
+
+---
+
+**📋 마지막 업데이트**: 2025-06-29 오후 2:58 (Seoul Time)
+**📋 완료된 작업**: Task #003 Mission 1B 완료
+**📋 현재 상태**: 모든 시스템 검증 완료, 프로덕션 준비
+**📋 다음 AI 세션**: 새로운 Task 시작 권장

@@ -211,22 +211,22 @@ if (backendResult.success) {
 }
 console.log()
 
-// 3. ClineFeatureValidator 테스트 실행 (별도 카운트용)
-console.log("🔍 ClineFeatureValidator 테스트 실행 중...")
+// 3. Mission 1B-1 비교 테스트 실행 (중요한 개별 검증)
+console.log("🔍 Mission 1B-1 비교 테스트 실행 중...")
 const validatorStart = Date.now()
 const validatorResult = safeExec(
-	'npx vitest run "caret-src/__tests__/cline-feature-validation.test.ts"',
-	"ClineFeatureValidator 테스트",
+	'npx vitest run "caret-src/__tests__/cline-caret-diff-comparison.test.ts"',
+	"Mission 1B-1 비교 테스트",
 )
 results.validator.duration = Date.now() - validatorStart
 
 if (validatorResult.success) {
 	const parsed = parseVitestOutput(validatorResult.output)
 	results.validator = { ...results.validator, ...parsed }
-	console.log(`✅ ClineFeatureValidator 테스트 완료 (${results.validator.duration}ms)`)
-	console.log(`   📊 결과: ${results.validator.passed}/${results.validator.total} 통과 (위 백엔드 테스트에 포함됨)`)
+	console.log(`✅ Mission 1B-1 비교 테스트 완료 (${results.validator.duration}ms)`)
+	console.log(`   📊 결과: ${results.validator.passed}/${results.validator.total} 통과 (중요한 Cline vs Caret 비교)`)
 } else {
-	console.log("❌ ClineFeatureValidator 테스트 실패")
+	console.log("❌ Mission 1B-1 비교 테스트 실패")
 	console.error("   오류:", validatorResult.error)
 	process.exit(1)
 }
@@ -322,7 +322,7 @@ console.log(
 console.log(
 	`🔧 Caret 백엔드 (Vitest):     ${results.backend.passed}/${results.backend.total} 통과 (${results.backend.failed} 실패)`,
 )
-console.log(`   ├─ 🔍 ClineFeatureValidator: ${results.validator.passed}/${results.validator.total} 통과 (포함됨)`)
+console.log(`   ├─ 🔍 Mission 1B-1 비교:    ${results.validator.passed}/${results.validator.total} 통과 (중요한 검증)`)
 console.log(`   └─ 🔗 통합 테스트:           ${results.integration.passed}/${results.integration.total} 통과 (포함됨)`)
 console.log(
 	`📦 Cline 원본 확인 (Vitest): ${results.cline.passed}/${results.cline.total} 통과 (${results.cline.failed} 실패) - (현재 Caret 테스트가 아니므로 0/0)`,

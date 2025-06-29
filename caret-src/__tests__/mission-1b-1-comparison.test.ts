@@ -55,7 +55,7 @@ describe("Mission 1B-1: Cline vs Caret Comprehensive Comparison", () => {
 				"agent",
 			)
 
-			expect(caretGeneratedPrompt.length).toBeGreaterThan(15000) // Caret prompt should be substantial
+			expect(caretGeneratedPrompt.length).toBeGreaterThan(18000) // Caret prompt should be substantial (now generates 19,602 chars)
 			console.log(`[CARET_VALIDATION] ✅ Caret prompt loaded: ${caretGeneratedPrompt.length} chars`)
 		})
 	})
@@ -207,7 +207,7 @@ describe("Mission 1B-1: Cline vs Caret Comprehensive Comparison", () => {
 			expect(comparisonData.tool_analysis.cline_tools).toBeDefined()
 			expect(Object.keys(comparisonData.tool_analysis.caret_tools).length).toBeGreaterThan(10)
 			expect(comparisonData.prompt_comparison.cline.length_chars).toBeGreaterThan(40000)
-			expect(comparisonData.prompt_comparison.caret.length_chars).toBeGreaterThan(15000)
+			expect(comparisonData.prompt_comparison.caret.length_chars).toBeGreaterThan(18000)
 
 			// Coverage requirement (95% minimum, allowing for plan/act exclusion)
 			const coveragePercentage = coverageAnalysis.coverage_percentage

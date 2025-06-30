@@ -116,7 +116,7 @@
 		},
 		"modeSystem": {
 			"label": "Mode Settings",
-			"description": "Choose your preferred interface style between Caret and Cline modes.",
+			"description": "Enable Cline mode to access Cline's Plan/Act modes.",
 			"options": {
 				"caret": "Caret",
 				"cline": "Cline"

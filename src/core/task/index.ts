@@ -2169,6 +2169,8 @@ export class Task {
 							return `[${block.name} for '${block.params.question}']`
 						case "plan_mode_respond":
 							return `[${block.name}]`
+						case "chatbot_mode_respond": // CARET MODIFICATION: Add chatbot_mode_respond to toolDescription
+							return `[${block.name}]`
 						case "load_mcp_documentation":
 							return `[${block.name}]`
 						case "attempt_completion":
@@ -5140,6 +5142,30 @@ export class Task {
 				
 				caretLogger.info(
 					`✅ [MODE-CHECK-ENV] Environment Details에 ACT MODE 추가됨`,
+					"MODE_CHECK"
+				)
+			}
+		} else {
+			// CARET MODIFICATION: Caret 모드에서도 현재 모드 정보 제공
+			const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
+			caretLogger.info(
+				`🔍 [MODE-CHECK-ENV-CARET] Environment Details Caret 모드: chatSettings.mode=${this.chatSettings.mode}, modeSystem=${this.chatSettings.modeSystem}`,
+				"MODE_CHECK"
+			)
+
+			details += "\n\n# Current Mode"
+			if (this.chatSettings.mode === "chatbot") {
+				details += "\nCHATBOT MODE\nIn this mode, you should provide expert consultation and analysis without making changes to the codebase. You act as an expert consultant who can read files and examine the codebase for analysis purposes, but should not make any modifications. Use the chatbot_mode_respond tool to provide thoughtful, expert consultation."
+				
+				caretLogger.info(
+					`✅ [MODE-CHECK-ENV-CARET] Environment Details에 CHATBOT MODE 추가됨`,
+					"MODE_CHECK"
+				)
+			} else {
+				details += "\nAGENT MODE\nIn this mode, you have access to all tools and can make changes to accomplish the user's task."
+				
+				caretLogger.info(
+					`✅ [MODE-CHECK-ENV-CARET] Environment Details에 AGENT MODE 추가됨`,
 					"MODE_CHECK"
 				)
 			}

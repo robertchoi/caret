@@ -271,8 +271,7 @@
 					"description": "The consultation response to provide to the user. This should be expert analysis, guidance, or recommendations."
 				}
 			],
-			"usage": "<chatbot_mode_respond>\n<response>Your expert consultation response here</response>\n</chatbot_mode_respond>",
-			"conditional": "chatbot_mode"
+			"usage": "<chatbot_mode_respond>\n<response>Your expert consultation response here</response>\n</chatbot_mode_respond>"
 		}
 	}
 }

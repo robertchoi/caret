@@ -83,12 +83,6 @@ export class JsonSectionAssembler {
 			sections.push(browserToolSection)
 		}
 
-		// CARET MODIFICATION: Add chatbot mode conditional tool
-		if (mode === "chatbot") {
-			const chatbotToolSection = await this.generateConditionalToolSection("chatbot_mode")
-			sections.push(chatbotToolSection)
-		}
-
 		if (isClaude4ModelFamily) {
 			const claude4Section = await this.generateClaude4Section()
 			sections.push(claude4Section)
@@ -157,12 +151,6 @@ export class JsonSectionAssembler {
 							const readOnlyTools = ["read_file", "search_files", "list_files", "list_code_definition_names"]
 							if (!readOnlyTools.includes(toolName)) {
 								this.caretLogger.debug(`Skipping non-read-only tool ${tool.title} in chatbot mode`)
-								continue
-							}
-						} else if (mode === "agent") {
-							// Agent mode: exclude chatbot_mode_respond
-							if (toolName === "chatbot_mode_respond") {
-								this.caretLogger.debug(`Skipping chatbot_mode_respond tool in agent mode`)
 								continue
 							}
 						}

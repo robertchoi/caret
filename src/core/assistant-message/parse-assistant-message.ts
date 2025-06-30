@@ -651,6 +651,16 @@ export function parseAssistantMessageV3(assistantMessage: string): AssistantMess
 					}
 				}
 
+				// CARET MODIFICATION: Add ChatbotModeRespond tool parsing
+				if (currentInvokeName === "ChatbotModeRespond") {
+					currentToolUse = {
+						type: "tool_use",
+						name: "chatbot_mode_respond",
+						params: {},
+						partial: true,
+					}
+				}
+
 				if (currentInvokeName === "LoadMcpDocumentation") {
 					currentToolUse = {
 						type: "tool_use",
@@ -743,6 +753,11 @@ export function parseAssistantMessageV3(assistantMessage: string): AssistantMess
 			}
 
 			if (currentToolUse && currentInvokeName === "PlanModeRespond" && currentParameterName === "response") {
+				currentToolUse.params["response"] = value
+			}
+
+			// CARET MODIFICATION: Add ChatbotModeRespond response parameter parsing
+			if (currentToolUse && currentInvokeName === "ChatbotModeRespond" && currentParameterName === "response") {
 				currentToolUse.params["response"] = value
 			}
 
@@ -867,6 +882,7 @@ export function parseAssistantMessageV3(assistantMessage: string): AssistantMess
 					currentInvokeName === "AccessMCPResource" ||
 					currentInvokeName === "ListCodeDefinitionNames" ||
 					currentInvokeName === "PlanModeRespond" ||
+					currentInvokeName === "ChatbotModeRespond" || // CARET MODIFICATION: Add ChatbotModeRespond to invoke end handling
 					currentInvokeName === "LoadMcpDocumentation" ||
 					currentInvokeName === "AttemptCompletion" ||
 					currentInvokeName === "BrowserAction" ||

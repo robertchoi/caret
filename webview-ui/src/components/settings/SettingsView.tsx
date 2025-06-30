@@ -29,7 +29,56 @@ import { convertChatSettingsToProtoChatSettings } from "@shared/proto-conversion
 import { caretWebviewLogger } from "@/caret/utils/webview-logger"
 import { t } from "@/caret/utils/i18n"
 import { useCurrentLanguage } from "@/caret/hooks/useCurrentLanguage"
+import styled from "styled-components"
 const { IS_DEV } = process.env
+
+// CARET MODIFICATION: Styled components for Caret/Cline mode toggle switch (copied from ChatTextArea)
+const ModeSwitchContainer = styled.div<{ disabled: boolean }>`
+	position: relative;
+	display: flex;
+	align-items: center;
+	background-color: var(--vscode-editor-background);
+	border: 1px solid var(--vscode-input-border);
+	border-radius: 12px;
+	overflow: hidden;
+	cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+	opacity: ${(props) => (props.disabled ? 0.5 : 1)};
+	user-select: none;
+	width: 140px;
+	height: 28px;
+`
+
+const ModeSlider = styled.div.withConfig({
+	shouldForwardProp: (prop) => !["isCaret", "isCline"].includes(prop),
+})<{ isCaret: boolean; isCline?: boolean }>`
+	position: absolute;
+	height: 100%;
+	width: 50%;
+	background-color: var(--vscode-focusBorder);
+	transition: transform 0.2s ease;
+	transform: translateX(${(props) => (props.isCline ? "100%" : "0%")});
+`
+
+const ModeSwitchOption = styled.div.withConfig({
+	shouldForwardProp: (prop) => prop !== "isActive",
+})<{ isActive: boolean }>`
+	padding: 4px 12px;
+	color: ${(props) => (props.isActive ? "white" : "var(--vscode-input-foreground)")};
+	z-index: 1;
+	transition: color 0.2s ease;
+	font-size: 12px;
+	width: 50%;
+	min-width: 50px;
+	text-align: center;
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&:hover {
+		background-color: ${(props) => (!props.isActive ? "var(--vscode-toolbar-hoverBackground)" : "transparent")};
+	}
+`
 
 // Styles for the tab system
 const settingsTabsContainer = "flex flex-1 overflow-hidden [&.narrow_.tab-label]:hidden"
@@ -716,29 +765,31 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 												"🎯 General 탭! chatSettings not available, CaretUILanguageSetting not rendered.",
 											)}
 
-										{/* CARET MODIFICATION: Mode System Selection */}
+										{/* CARET MODIFICATION: Mode System Selection - Slider Toggle Style */}
 										{chatSettings && (
 											<div className="mb-[15px]">
-												<label className="block text-sm font-medium mb-2">
-													{t("settings.modeSystem.label")}
-												</label>
-												<div className="flex gap-2">
-													<VSCodeButton
-														appearance={chatSettings.modeSystem === "caret" ? "primary" : "secondary"}
+												<div className="flex items-center justify-between mb-2">
+													<label className="text-sm font-medium">
+														{t("settings.modeSystem.label")}
+													</label>
+													<ModeSwitchContainer
+														disabled={false}
 														onClick={() => {
-															setModeSystem("caret")
+															setModeSystem(chatSettings.modeSystem === "caret" ? "cline" : "caret")
 														}}>
-														{t("settings.modeSystem.options.caret")}
-													</VSCodeButton>
-													<VSCodeButton
-														appearance={chatSettings.modeSystem === "cline" ? "primary" : "secondary"}
-														onClick={() => {
-															setModeSystem("cline")
-														}}>
-														{t("settings.modeSystem.options.cline")}
-													</VSCodeButton>
+														<ModeSlider
+															isCaret={chatSettings.modeSystem === "caret"}
+															isCline={chatSettings.modeSystem === "cline"}
+														/>
+														<ModeSwitchOption isActive={chatSettings.modeSystem === "caret"}>
+															{t("settings.modeSystem.options.caret")}
+														</ModeSwitchOption>
+														<ModeSwitchOption isActive={chatSettings.modeSystem === "cline"}>
+															{t("settings.modeSystem.options.cline")}
+														</ModeSwitchOption>
+													</ModeSwitchContainer>
 												</div>
-												<p className="text-xs mt-[5px] text-[var(--vscode-descriptionForeground)]">
+												<p className="text-xs text-[var(--vscode-descriptionForeground)]">
 													{t("settings.modeSystem.description")}
 												</p>
 											</div>

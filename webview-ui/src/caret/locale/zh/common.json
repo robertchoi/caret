@@ -93,7 +93,7 @@
 		},
 		"modeSystem": {
 			"label": "模式设置",
-			"description": "在Caret和Cline用户界面样式中选择您偏好的模式。",
+			"description": "设置Cline模式后，您可以使用Cline的Plan/Act模式。",
 			"options": {
 				"caret": "Caret",
 				"cline": "Cline"

@@ -302,7 +302,9 @@ export class Controller {
 					const templatesWithBase64Images = await Promise.all(
 						templates.map(async (template: any) => {
 							const convertImageUri = async (uri: string): Promise<string> => {
-								if (!uri || !uri.startsWith("asset:/assets/")) return uri
+								if (!uri || !uri.startsWith("asset:/assets/")) {
+									return uri
+								}
 
 								try {
 									const imagePath = path.join(

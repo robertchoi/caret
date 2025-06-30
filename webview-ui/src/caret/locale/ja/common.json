@@ -93,7 +93,7 @@
 		},
 		"modeSystem": {
 			"label": "モード設定",
-			"description": "CaretとClineのユーザーインターフェーススタイルからお好みのものを選択してください。",
+			"description": "Clineモードを設定すると、ClineのPlan/Actモードを利用できます。",
 			"options": {
 				"caret": "Caret",
 				"cline": "Cline"

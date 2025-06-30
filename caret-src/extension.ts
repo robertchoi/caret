@@ -3,6 +3,11 @@ import { setTimeout as setTimeoutPromise } from "node:timers/promises"
 import { Logger } from "../src/services/logging/Logger"
 import { CaretProvider, CARET_SIDEBAR_ID, CARET_TAB_PANEL_ID } from "./core/webview/CaretProvider"
 import { sendSettingsButtonClickedEvent } from "../src/core/controller/ui/subscribeToSettingsButtonClicked"
+import { sendChatButtonClickedEvent } from "../src/core/controller/ui/subscribeToChatButtonClicked"
+import { sendMcpButtonClickedEvent } from "../src/core/controller/ui/subscribeToMcpButtonClicked"
+import { sendHistoryButtonClickedEvent } from "../src/core/controller/ui/subscribeToHistoryButtonClicked"
+import { sendAccountButtonClickedEvent } from "../src/core/controller/ui/subscribeToAccountButtonClicked"
+import { WebviewProviderType as WebviewProviderTypeEnum } from "../src/shared/proto/ui"
 import { WebviewProviderType } from "../src/shared/webview/types"
 import { caretLogger } from "./utils/caret-logger"
 import { CaretSystemPrompt } from "./core/prompts/CaretSystemPrompt"
@@ -61,6 +66,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		await vscode.commands.executeCommand("workbench.action.lockEditorGroup")
 	}
 
+	// CARET MODIFICATION: Use Cline's original plusButtonClicked pattern with proper task management
+	// Original backed up as extension-ts.cline - inherit clearTask + postState + sendEvent pattern
 	context.subscriptions.push(
 		vscode.commands.registerCommand("caret.plusButtonClicked", async () => {
 			caretLogger.info("Command 'caret.plusButtonClicked' triggered.")
@@ -69,39 +76,51 @@ export async function activate(context: vscode.ExtensionContext) {
 				caretLogger.info(
 					`Found visible instance with client ID: ${instance.getClientId()}. Controller exists: ${!!instance.controller}`,
 				)
-				await instance.controller.clearTask()
+				try {
+					// Follow Cline original pattern: clearTask + postState + sendChatEvent
+					await instance.controller.clearTask()
+					await instance.controller.postStateToWebview()
+					await sendChatButtonClickedEvent(instance.controller.id)
+					caretLogger.success("Plus button action completed successfully", "UI")
+				} catch (error) {
+					caretLogger.error("Failed to execute plus button action", "UI")
+					caretLogger.error(error.toString(), "UI")
+					throw error
+				}
 			} else {
 				caretLogger.warn("No visible Caret instance found.")
 			}
 		}),
 	)
 
+	// CARET MODIFICATION: Use Cline's original mcpButtonClicked pattern with proper event streaming
+	// Inherit sendMcpButtonClickedEvent instead of deprecated controller method
 	context.subscriptions.push(
-		vscode.commands.registerCommand("caret.mcpButtonClicked", () => {
+		vscode.commands.registerCommand("caret.mcpButtonClicked", async () => {
 			caretLogger.info("Command 'caret.mcpButtonClicked' triggered.")
-			const instance = CaretProvider.getVisibleInstance()
-			if (instance) {
-				caretLogger.info(
-					`Found visible instance with client ID: ${instance.getClientId()}. Controller exists: ${!!instance.controller}`,
-				)
-				instance.controller.handleMcpButtonClick()
-			} else {
-				caretLogger.warn("No visible Caret instance found.")
+			try {
+				// Follow Cline original pattern: direct event streaming
+				await sendMcpButtonClickedEvent(WebviewProviderTypeEnum.SIDEBAR)
+				caretLogger.success("MCP button event sent successfully", "UI")
+			} catch (error) {
+				caretLogger.error("Failed to send MCP button event", "UI")
+				caretLogger.error(error.toString(), "UI")
 			}
 		}),
 	)
 
+	// CARET MODIFICATION: Use Cline's original historyButtonClicked pattern with proper event streaming
+	// Inherit sendHistoryButtonClickedEvent instead of deprecated controller method
 	context.subscriptions.push(
-		vscode.commands.registerCommand("caret.historyButtonClicked", () => {
+		vscode.commands.registerCommand("caret.historyButtonClicked", async () => {
 			caretLogger.info("Command 'caret.historyButtonClicked' triggered.")
-			const instance = CaretProvider.getVisibleInstance()
-			if (instance) {
-				caretLogger.info(
-					`Found visible instance with client ID: ${instance.getClientId()}. Controller exists: ${!!instance.controller}`,
-				)
-				instance.controller.handleHistoryButtonClick()
-			} else {
-				caretLogger.warn("No visible Caret instance found.")
+			try {
+				// Follow Cline original pattern: direct event streaming with webview type
+				await sendHistoryButtonClickedEvent(WebviewProviderTypeEnum.SIDEBAR)
+				caretLogger.success("History button event sent successfully", "UI")
+			} catch (error) {
+				caretLogger.error("Failed to send history button event", "UI")
+				caretLogger.error(error.toString(), "UI")
 			}
 		}),
 	)
@@ -109,25 +128,41 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand("caret.popoutButtonClicked", openCaretInNewTab))
 	context.subscriptions.push(vscode.commands.registerCommand("caret.openInNewTab", openCaretInNewTab))
 
+	// CARET MODIFICATION: Use Cline's original accountButtonClicked pattern with controller ID targeting
+	// Inherit sendAccountButtonClickedEvent instead of deprecated controller method
 	context.subscriptions.push(
-		vscode.commands.registerCommand("caret.accountButtonClicked", () => {
+		vscode.commands.registerCommand("caret.accountButtonClicked", async () => {
 			caretLogger.info("Command 'caret.accountButtonClicked' triggered.")
 			const instance = CaretProvider.getVisibleInstance()
 			if (instance) {
 				caretLogger.info(
 					`Found visible instance with client ID: ${instance.getClientId()}. Controller exists: ${!!instance.controller}`,
 				)
-				instance.controller.handleAccountButtonClick()
+				try {
+					// Follow Cline original pattern: send event to specific controller
+					await sendAccountButtonClickedEvent(instance.controller.id)
+					caretLogger.success("Account button event sent successfully", "UI")
+				} catch (error) {
+					caretLogger.error("Failed to send account button event", "UI")
+					caretLogger.error(error.toString(), "UI")
+				}
 			} else {
 				caretLogger.warn("No visible Caret instance found.")
 			}
 		}),
 	)
 
+	// CARET MODIFICATION: Settings button already properly inherits Cline's sendSettingsButtonClickedEvent
 	context.subscriptions.push(
-		vscode.commands.registerCommand("caret.settingsButtonClicked", () => {
+		vscode.commands.registerCommand("caret.settingsButtonClicked", async () => {
 			caretLogger.info("Command 'caret.settingsButtonClicked' triggered. Sending event.")
-			sendSettingsButtonClickedEvent()
+			try {
+				await sendSettingsButtonClickedEvent(WebviewProviderTypeEnum.SIDEBAR)
+				caretLogger.success("Settings button event sent successfully", "UI")
+			} catch (error) {
+				caretLogger.error("Failed to send settings button event", "UI")
+				caretLogger.error(error.toString(), "UI")
+			}
 		}),
 	)
 	caretLogger.info("Caret extension activated and all commands registered.")

@@ -92,7 +92,7 @@
 			"description": "Caret의 사용자 인터페이스 요소(메뉴, 버튼, 메시지 등)에 사용되는 언어입니다."
 		},
 		"modeSystem": {
-			"label": "인터페이스 모드",
+			"label": "모드 설정",
 			"description": "Caret과 Cline 사용자 인터페이스 중 원하는 스타일을 선택하세요.",
 			"options": {
 				"caret": "Caret",

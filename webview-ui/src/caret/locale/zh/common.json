@@ -92,7 +92,7 @@
 			"description": "Caret用户界面元素（菜单、按钮、消息等）使用的语言。"
 		},
 		"modeSystem": {
-			"label": "界面模式",
+			"label": "模式设置",
 			"description": "在Caret和Cline用户界面样式中选择您偏好的模式。",
 			"options": {
 				"caret": "Caret",

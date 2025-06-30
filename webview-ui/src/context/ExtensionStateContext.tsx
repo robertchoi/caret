@@ -293,16 +293,16 @@ export const ExtensionStateContextProvider: React.FC<{
 					try {
 						const stateData = JSON.parse(response.stateJson) as ExtensionState
 						console.log("[DEBUG] parsed state JSON, updating state")
-						
+
 						// CARET MODIFICATION: Mission 2 - 상태 업데이트 수신 로깅
 						import("../caret/utils/webview-logger").then(({ caretWebviewLogger }) => {
 							caretWebviewLogger.info("📥 [RECEIVE] State update received from backend", {
 								hasChatSettings: !!stateData.chatSettings,
 								newMode: stateData.chatSettings?.mode,
-								timestamp: new Date().toISOString()
+								timestamp: new Date().toISOString(),
 							})
 						})
-						
+
 						setState((prevState) => {
 							// CARET MODIFICATION: Mission 2 - 모드 변경 감지 로깅
 							const modeChanged = prevState.chatSettings?.mode !== stateData.chatSettings?.mode
@@ -310,7 +310,7 @@ export const ExtensionStateContextProvider: React.FC<{
 								import("../caret/utils/webview-logger").then(({ caretWebviewLogger }) => {
 									caretWebviewLogger.info("🔄 [MODE-CHANGE] Chat mode changed", {
 										from: prevState.chatSettings?.mode,
-										to: stateData.chatSettings?.mode
+										to: stateData.chatSettings?.mode,
 									})
 								})
 							}
@@ -813,7 +813,7 @@ export const ExtensionStateContextProvider: React.FC<{
 				caretWebviewLogger.info("📤 [SEND] setChatSettings called", {
 					currentMode: state.chatSettings.mode,
 					newMode: value.mode,
-					modeChanged: state.chatSettings.mode !== value.mode
+					modeChanged: state.chatSettings.mode !== value.mode,
 				})
 
 				// Import the conversion functions
@@ -920,6 +920,10 @@ export const ExtensionStateContextProvider: React.FC<{
 		// CARET MODIFICATION: Mode system setter for Caret/Cline interface switching
 		setModeSystem: async (modeSystem: string) => {
 			try {
+				// CARET MODIFICATION: Mission 2 - 모드 변경 감지 및 자동 New Task
+				const currentModeSystem = state.chatSettings.modeSystem
+				const isModeChanged = currentModeSystem !== modeSystem
+
 				// CARET MODIFICATION: 기본값 설정 로직 - Caret=Agent, Cline=Plan
 				let defaultMode: "chatbot" | "agent" | "plan" | "act"
 
@@ -960,12 +964,29 @@ export const ExtensionStateContextProvider: React.FC<{
 					chatSettings: updatedChatSettings,
 				}))
 
+				// CARET MODIFICATION: Mission 2 - 모드 변경 시 자동 New Task 트리거
+				if (isModeChanged) {
+					try {
+						const { TaskServiceClient } = await import("../services/grpc-client")
+						const { EmptyRequest } = await import("@shared/proto/common")
+
+						// 기존 태스크 정리
+						await TaskServiceClient.clearTask(EmptyRequest.create({}))
+
+						console.log(
+							`[DEBUG] 🔄 Mode changed from ${currentModeSystem} to ${modeSystem} - Auto New Task triggered`,
+						)
+					} catch (taskError) {
+						console.error("Failed to trigger auto new task after mode change:", taskError)
+						// 모드 변경은 성공했으므로 에러를 던지지 않음
+					}
+				}
+
 				console.log("[DEBUG] 🔧 setModeSystem completed:", modeSystem, "with default mode:", defaultMode)
 			} catch (error) {
 				console.error("Failed to update mode system:", error)
 			}
 		},
-
 	}
 
 	return <ExtensionStateContext.Provider value={contextValue}>{children}</ExtensionStateContext.Provider>

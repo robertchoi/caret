@@ -115,7 +115,7 @@
 			}
 		},
 		"modeSystem": {
-			"label": "Interface Mode",
+			"label": "Mode Settings",
 			"description": "Choose your preferred interface style between Caret and Cline modes.",
 			"options": {
 				"caret": "Caret",

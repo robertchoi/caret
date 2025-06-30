@@ -1,75 +1,102 @@
 # 다음 세션 가이드 - Luke 작업 로그
 
-## 🎯 다음 작업: Mission 2 - 모드 설정 동기화 문제 해결
+## 🎯 다음 작업: Mission 2 - 모드 변경 시 자동 New Task + 명칭 개선
 
 ### **문제 정의**
-- **Caret 모드 선택 시**: UI는 변경되지만 AI는 Agent 기본값을 제대로 인지하지 못함
-- **Cline 모드 선택 시**: UI는 변경되지만 AI는 Plan 기본값을 제대로 인지하지 못함
+- **핵심 문제**: 모드 변경(Caret ↔ Cline) 시 시스템 프롬프트가 즉시 반영되지 않음
+- **원인**: 시스템 프롬프트는 새 Task 시작 시에만 적용되는데, 진행 중인 Task에서는 모드 변경해도 기존 프롬프트 유지
+- **사용자 기대**: 모드 변경 즉시 해당 모드의 AI 동작 방식으로 전환
 
-### **해결 전략**
-1. **Caret 개발가이드 분석**: 메시지 전송/저장 방식 이해
-2. **코드 분석**: 프론트엔드-백엔드 메시지 흐름 파악
-3. **구조변경 없는 로깅**: Caret 로그 시스템 활용
-4. **테스트 기반 검증**: 단위테스트 + 통합테스트로 분석 검증
-5. **대응 방안 도출**: 실제 문제 원인 파악 후 해결책 제시
+### **해결 방안**
+1. **모드 변경 시 자동 New Task**: 사용자가 모드를 바꾸면 자동으로 새 태스크 시작
+2. **명칭 개선**: "인터페이스 모드" → 더 적절한 용어로 변경
+3. **파일/함수명 정리**: 명칭 변경에 맞춰 관련 코드도 리네이밍
 
 ---
 
 ## 📋 다음 세션 실행 계획
 
-### **Phase 1: 분석 준비**
-- [ ] Caret 개발가이드 확인 (메시지 전송/저장 패턴)
-- [ ] 관련 코드 구조 분석 (CaretProvider, ExtensionStateContext)
-- [ ] 현재 모드 설정 흐름 파악
+### **Phase 1: 모드 변경 → New Task 자동화**
+- [ ] 모드 변경 감지 로직 분석
+- [ ] 프론트엔드: 모드 변경 시 new task 트리거 추가
+- [ ] 백엔드: 모드 변경 → clearTask + postState 흐름 구현
+- [ ] 기존 UI 메뉴 버튼의 Plus Button 로직 재사용
 
-### **Phase 2: 로깅 및 테스트**
-- [ ] Caret 로깅 시스템 활용한 디버깅 포인트 추가
-- [ ] 단위테스트 작성 (모드 설정 로직)
-- [ ] 통합테스트 작성 (프론트-백엔드 관통)
+### **Phase 2: 명칭 및 파일명 개선**
+- [ ] **"인터페이스 모드" 개선안 결정**:
+  - 후보: "AI 모드", "어시스턴트 모드", "동작 모드", "작업 모드"
+- [ ] **관련 파일/함수명 리네이밍**:
+  - 파일명: `interfaceMode` → `{새명칭}Mode`
+  - 함수명: `setInterfaceMode` → `set{새명칭}Mode`
+  - 설정키: `interfaceMode` → `{새명칭}Mode`
+- [ ] **UI 텍스트 개선**:
+  - 설정 제목 및 설명 사용자 친화적으로 변경
 
-### **Phase 3: 문제 분석 및 해결**
-- [ ] 테스트 결과 기반 문제점 식별
-- [ ] 분석 결과 보고서 작성
-- [ ] 대응 방안 제시 및 구현
+### **Phase 3: 테스트 및 검증**
+- [ ] 모드 변경 → 자동 New Task 동작 테스트
+- [ ] 시스템 프롬프트 즉시 적용 확인
+- [ ] 명칭 변경 후 모든 기능 정상 동작 검증
 
 ---
 
 ## 🔍 기술적 접근
 
-### **분석 대상 영역**
-- **프론트엔드**: `webview-ui/src/context/ExtensionStateContext.tsx`
-- **백엔드**: `caret-src/core/webview/CaretProvider.ts`
-- **메시지 흐름**: postMessage → handleMessage 패턴
-- **설정 저장**: workspaceState vs globalState 패턴
+### **구현 대상 영역**
+- **모드 변경 감지**: `webview-ui/src/context/ExtensionStateContext.tsx`
+- **New Task 트리거**: 기존 Plus Button 로직 활용
+- **설정 저장/로드**: `workspaceState` 패턴 유지
+- **명칭 변경**: 프론트엔드 + 백엔드 관련 모든 파일
 
-### **예상 문제 영역**
-- 모드 변경 메시지 전달 누락
-- 설정 저장/로드 불일치
-- AI 프롬프트 업데이트 타이밍 문제
-- 상태 동기화 지연
+### **구현 전략**
+1. **기존 Plus Button 패턴 재사용**:
+   ```typescript
+   // 모드 변경 시 자동 실행
+   await instance.controller.clearTask()
+   await instance.controller.postStateToWebview()
+   await sendChatButtonClickedEvent(instance.controller.id)
+   ```
 
-### **성공 기준**
-- [ ] 메시지 흐름 완전 이해
-- [ ] 문제 발생 지점 정확 식별
-- [ ] 재현 가능한 테스트 케이스 작성
-- [ ] 근본 원인 파악
-- [ ] 구조 변경 없는 최소 수정으로 해결
+2. **모드 변경 감지 후 자동 트리거**:
+   ```typescript
+   // 모드 변경 감지
+   const handleModeChange = async (newMode) => {
+       await setMode(newMode)  // 설정 저장
+       await triggerNewTask()  // 자동 새 태스크
+   }
+   ```
 
-### **⚠️ 중요: 파일명/함수명 변경 필요**
-**인터페이스 모드 설정 관련 작업 시 주의사항:**
-- 현재 "인터페이스 모드"라는 용어를 더 적절한 명칭으로 변경
-- 관련 파일명과 함수명도 의미에 맞게 리네이밍
-- 사용자 친화적인 설명으로 업데이트
+### **명칭 개선 후보**
+- **"AI 모드"**: 사용자가 가장 이해하기 쉬운 용어
+- **"어시스턴트 모드"**: 기능을 직관적으로 표현
+- **"작업 모드"**: 현재 작업 방식을 나타냄
+
+### **⚠️ 주의사항**
+- **Cline 원본 파일 수정 시**: 백업 + CARET MODIFICATION 주석 필수
+- **설정 키 변경**: 기존 사용자 설정 마이그레이션 고려
+- **파일명 변경**: import 경로 모두 업데이트
+
+---
+
+## 🎯 성공 기준
+
+### **기능 성공 기준**
+- [ ] 모드 변경 즉시 해당 모드의 시스템 프롬프트 적용
+- [ ] 사용자 경험 개선: 모드 전환이 직관적이고 즉시 반영
+- [ ] 기존 기능 완전 보존: 모든 기존 동작 정상 작동
+
+### **코드 품질 기준**
+- [ ] 새 명칭이 코드 전체에 일관되게 적용
+- [ ] 파일명과 함수명이 의미에 부합
+- [ ] 사용자 친화적인 UI 텍스트
 
 ---
 
 ## 📚 참조할 문서들
-- `caret-docs/development/caret-architecture-and-implementation-guide.mdx`
 - `caret-docs/development/frontend-backend-interaction-patterns.mdx`
-- `caret-docs/development/testing-guide.mdx`
-- `caret-docs/development/logging.mdx`
+- 기존 Plus Button 구현: `caret-src/extension.ts`
+- 모드 설정 관련: `webview-ui/src/context/ExtensionStateContext.tsx`
 
 ---
 
-**작업 우선순위**: Mission 2 모드 설정 동기화 완료  
-**목표**: 사용자가 선택한 모드와 AI가 인지하는 모드 완전 일치
+**작업 우선순위**: 모드 변경 시 자동 New Task + 명칭 개선  
+**핵심 목표**: 모드 변경 즉시 시스템 프롬프트 반영 + 사용자 친화적 명칭

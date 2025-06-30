@@ -285,6 +285,60 @@ export class Controller {
 				break
 			}
 
+			// CARET MODIFICATION: Handle UPLOAD_CUSTOM_PERSONA_IMAGE to save user-uploaded custom persona images.
+			case "UPLOAD_CUSTOM_PERSONA_IMAGE": {
+				if (message.payload?.imageType && message.payload?.imageData && message.payload?.personaCharacter) {
+					caretLogger.info(
+						`[Controller] Received UPLOAD_CUSTOM_PERSONA_IMAGE - imageType: ${message.payload.imageType}, personaCharacter: ${message.payload.personaCharacter}, dataLength: ${message.payload.imageData.length}`,
+						"PERSONA_UPLOAD",
+					)
+
+					try {
+						// Create custom assets directory if it doesn't exist
+						const customAssetsDir = path.join(this.context.globalStorageUri.fsPath, "custom_personas")
+						if (!(await fileExistsAtPath(customAssetsDir))) {
+							await fs.mkdir(customAssetsDir, { recursive: true })
+						}
+
+						// Generate filename based on persona and image type
+						const filename = `${message.payload.personaCharacter}_${message.payload.imageType}.png`
+						const imagePath = path.join(customAssetsDir, filename)
+
+						// Convert base64 to buffer and save
+						const base64Data = message.payload.imageData.replace(/^data:image\/[a-z]+;base64,/, "")
+						const imageBuffer = Buffer.from(base64Data, "base64")
+						await fs.writeFile(imagePath, imageBuffer)
+
+						caretLogger.info(`[Controller] Custom persona image saved: ${imagePath}`)
+
+						// Send success response back to webview
+						this.postMessageToWebview({
+							type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
+							payload: {
+								success: true,
+								imagePath: `vscode-file://vscode-app${imagePath}`,
+								imageType: message.payload.imageType,
+								personaCharacter: message.payload.personaCharacter,
+							},
+						})
+					} catch (error) {
+						caretLogger.error(`[Controller] Error saving custom persona image: ${error}`)
+
+						// Send error response back to webview
+						this.postMessageToWebview({
+							type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
+							payload: {
+								success: false,
+								error: error instanceof Error ? error.message : "Unknown error",
+								imageType: message.payload.imageType,
+								personaCharacter: message.payload.personaCharacter,
+							},
+						})
+					}
+				}
+				break
+			}
+
 			// CARET MODIFICATION: Handle REQUEST_TEMPLATE_CHARACTERS to provide persona templates to the webview.
 			case "REQUEST_TEMPLATE_CHARACTERS": {
 				caretLogger.info("[Controller] Received REQUEST_TEMPLATE_CHARACTERS")
@@ -298,9 +352,30 @@ export class Controller {
 					const templatesRaw = await fs.readFile(templatePath, "utf-8")
 					const templates = JSON.parse(templatesRaw)
 
-					// CARET MODIFICATION: Convert image URIs to base64 data URIs
+					// CARET MODIFICATION: Convert image URIs to base64 data URIs and load custom images
+					const customAssetsDir = path.join(this.context.globalStorageUri.fsPath, "custom_personas")
+
+					// CARET MODIFICATION: Load current persona images from agent_profile.png and agent_thinking.png
+					const { loadSimplePersonaImages } = await import("../../../caret-src/utils/simple-persona-image")
+					const currentPersonaImages = await loadSimplePersonaImages(this.context.extensionPath)
+
 					const templatesWithBase64Images = await Promise.all(
-						templates.map(async (template: any) => {
+						templates.map(async (template: any, index: number) => {
+							// For the first template (current persona), use actual agent files
+							if (index === 0) {
+								caretLogger.info(
+									`[Controller] Using current persona images from agent_profile.png and agent_thinking.png`,
+								)
+
+								return {
+									...template,
+									character: "current", // Mark as current persona
+									avatarUri: currentPersonaImages.avatarUri,
+									thinkingAvatarUri: currentPersonaImages.thinkingAvatarUri,
+									// Keep other properties from template
+									introIllustrationUri: template.introIllustrationUri,
+								}
+							}
 							const convertImageUri = async (uri: string): Promise<string> => {
 								if (!uri || !uri.startsWith("asset:/assets/")) {
 									return uri
@@ -345,11 +420,40 @@ export class Controller {
 								}
 							}
 
+							// CARET MODIFICATION: Load custom persona images if they exist
+							const loadCustomImage = async (imageType: "normal" | "thinking"): Promise<string | undefined> => {
+								try {
+									const customImagePath = path.join(customAssetsDir, `${template.character}_${imageType}.png`)
+									if (
+										await fs
+											.access(customImagePath)
+											.then(() => true)
+											.catch(() => false)
+									) {
+										const imageBuffer = await fs.readFile(customImagePath)
+										const base64 = `data:image/png;base64,${imageBuffer.toString("base64")}`
+										caretLogger.info(`[Controller] Custom image loaded: ${customImagePath}`)
+										return base64
+									}
+								} catch (error) {
+									caretLogger.error(
+										`[Controller] Error loading custom image for ${template.character}: ${error}`,
+									)
+								}
+								return undefined
+							}
+
+							const customAvatarUri = await loadCustomImage("normal")
+							const customThinkingAvatarUri = await loadCustomImage("thinking")
+
 							return {
 								...template,
 								avatarUri: await convertImageUri(template.avatarUri),
 								thinkingAvatarUri: await convertImageUri(template.thinkingAvatarUri),
 								introIllustrationUri: await convertImageUri(template.introIllustrationUri),
+								// CARET MODIFICATION: Add custom image URIs if they exist
+								customAvatarUri,
+								customThinkingAvatarUri,
 							}
 						}),
 					)

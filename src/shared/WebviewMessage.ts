@@ -29,6 +29,8 @@ export interface WebviewMessage {
 		| "RESPONSE_TEMPLATE_CHARACTERS"
 		| "REQUEST_RULE_FILE_CONTENT"
 		| "RESPONSE_RULE_FILE_CONTENT"
+		| "UPLOAD_CUSTOM_PERSONA_IMAGE"
+		| "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE"
 		| "reinitiate_task"
 		| "delete_task"
 		| "export_task"

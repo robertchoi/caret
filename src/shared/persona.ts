@@ -9,6 +9,7 @@ export interface Persona {
 	isEditable?: boolean
 }
 
+// CARET MODIFICATION: 단순한 2파일 시스템으로 변경 - customAvatarUri, customThinkingAvatarUri 제거
 export interface TemplateCharacter {
 	character: string
 	en: {

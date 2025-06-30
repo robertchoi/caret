@@ -1,7 +1,39 @@
 import React from "react"
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { I18nextProvider } from "react-i18next"
+import i18n from "i18next"
+import { initReactI18next } from "react-i18next"
 import PersonaManagement from "../PersonaManagement"
+import type { TemplateCharacter } from "../../../../../src/shared/persona"
+
+// Initialize i18n for testing
+i18n.use(initReactI18next).init({
+	lng: "en",
+	fallbackLng: "en",
+	debug: false,
+	interpolation: {
+		escapeValue: false,
+	},
+	resources: {
+		en: {
+			translation: {},
+			common: {
+				"rules.section.personaManagement": "Persona Management",
+				"rules.button.selectPersonaTemplate": "Select Persona Template",
+				"rules.button.changePersonaTemplate": "Change Persona Template",
+			},
+			persona: {
+				normalState: "Normal",
+				thinkingState: "Thinking",
+				"upload.normal": "Upload Normal Image",
+				"upload.thinking": "Upload Thinking Image",
+				"upload.success": "Image uploaded successfully",
+				"upload.error": "Failed to upload image",
+			},
+		},
+	},
+})
 
 // Mock dependencies
 vi.mock("@/caret/utils/webview-logger", () => ({
@@ -12,10 +44,17 @@ vi.mock("@/caret/utils/webview-logger", () => ({
 }))
 
 vi.mock("@/caret/utils/i18n", () => ({
-	t: (key: string) => {
+	t: (key: string, namespace?: string) => {
 		const translations: Record<string, string> = {
 			"rules.section.personaManagement": "Persona Management",
 			"rules.button.selectPersonaTemplate": "Select Template Character",
+			"rules.button.changePersonaTemplate": "Change Template Character",
+			"normalState": "Normal",
+			"thinkingState": "Thinking",
+			"upload.normal": "Upload Normal Image",
+			"upload.thinking": "Upload Thinking Image",
+			"upload.success": "Image uploaded successfully",
+			"upload.error": "Failed to upload image",
 		}
 		return translations[key] || key
 	},
@@ -60,8 +99,59 @@ vi.mock("../PersonaTemplateSelector", () => ({
 	},
 }))
 
+// Mock template character data
+const mockTemplateCharacter: TemplateCharacter = {
+	character: "sarang",
+	en: {
+		name: "Sarang",
+		description: "AI assistant",
+		customInstruction: {
+			persona: {
+				name: "Sarang",
+				nickname: "Sarang",
+				type: "AI Assistant",
+				inspiration: ["Test"],
+			},
+			language: {
+				style: "Friendly",
+				endings: ["!"],
+				expressions: ["😊"],
+			},
+			emotion_style: {
+				tone: "Warm",
+				attitude: "Helpful",
+				phrasing: "Clear",
+				exclamations: ["Great!"],
+			},
+			behavior: {
+				loyalty: "High",
+				communication_focus: "Clarity",
+				thought_process: ["Think first"],
+			},
+			signature_phrase: "Hello!",
+		},
+	},
+	ko: {
+		name: "사랑",
+		description: "AI 비서",
+		customInstruction: {} as any,
+	},
+	avatarUri: "asset:/sarang.png",
+	thinkingAvatarUri: "asset:/sarang_thinking.png",
+	introIllustrationUri: "asset:/sarang_intro.png",
+	isDefault: true,
+}
+
+const renderWithProviders = (ui: React.ReactElement) => {
+	return render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>)
+}
+
 describe("PersonaManagement", () => {
 	beforeEach(() => {
+		vi.clearAllMocks()
+	})
+
+	afterEach(() => {
 		vi.clearAllMocks()
 	})
 
@@ -208,6 +298,181 @@ describe("PersonaManagement", () => {
 			// Modal should be closed after selection
 			await waitFor(() => {
 				expect(screen.queryByTestId("persona-selector")).not.toBeInTheDocument()
+			})
+		})
+	})
+
+	describe("Custom Image Upload Feature", () => {
+		it("should show upload buttons when persona is selected", async () => {
+			renderWithProviders(<PersonaManagement />)
+			
+			// Simulate receiving persona data
+			act(() => {
+				const mockEvent = new MessageEvent("message", {
+					data: {
+						type: "RESPONSE_TEMPLATE_CHARACTERS",
+						payload: [mockTemplateCharacter],
+					},
+				})
+				window.dispatchEvent(mockEvent)
+			})
+
+			await waitFor(() => {
+				expect(screen.getByText("Upload Normal Image")).toBeInTheDocument()
+				expect(screen.getByText("Upload Thinking Image")).toBeInTheDocument()
+			})
+		})
+
+		it("should handle normal image upload button click", async () => {
+			// Mock document.createElement to capture input creation
+			const originalCreateElement = document.createElement
+			const mockClick = vi.fn()
+			const mockSetAttribute = vi.fn()
+			
+			const createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tagName) => {
+				if (tagName === 'input') {
+					const input = originalCreateElement.call(document, tagName) as HTMLInputElement
+					input.click = mockClick
+					input.setAttribute = mockSetAttribute
+					return input
+				}
+				return originalCreateElement.call(document, tagName)
+			})
+
+			renderWithProviders(<PersonaManagement />)
+			
+			// Simulate receiving persona data
+			act(() => {
+				const mockEvent = new MessageEvent("message", {
+					data: {
+						type: "RESPONSE_TEMPLATE_CHARACTERS",
+						payload: [mockTemplateCharacter],
+					},
+				})
+				window.dispatchEvent(mockEvent)
+			})
+
+			await waitFor(() => {
+				const uploadButton = screen.getByText("Upload Normal Image")
+				fireEvent.click(uploadButton)
+			})
+
+			// Should create input and set attributes
+			expect(createElementSpy).toHaveBeenCalledWith('input')
+			expect(mockSetAttribute).toHaveBeenCalledWith('data-testid', 'normal-image-input')
+			expect(mockClick).toHaveBeenCalled()
+			
+			createElementSpy.mockRestore()
+		})
+
+		it("should handle thinking image upload button click", async () => {
+			// Mock document.createElement to capture input creation
+			const originalCreateElement = document.createElement
+			const mockClick = vi.fn()
+			const mockSetAttribute = vi.fn()
+			
+			const createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tagName) => {
+				if (tagName === 'input') {
+					const input = originalCreateElement.call(document, tagName) as HTMLInputElement
+					input.click = mockClick
+					input.setAttribute = mockSetAttribute
+					return input
+				}
+				return originalCreateElement.call(document, tagName)
+			})
+
+			renderWithProviders(<PersonaManagement />)
+			
+			// Simulate receiving persona data
+			act(() => {
+				const mockEvent = new MessageEvent("message", {
+					data: {
+						type: "RESPONSE_TEMPLATE_CHARACTERS",
+						payload: [mockTemplateCharacter],
+					},
+				})
+				window.dispatchEvent(mockEvent)
+			})
+
+			await waitFor(() => {
+				const uploadButton = screen.getByText("Upload Thinking Image")
+				fireEvent.click(uploadButton)
+			})
+
+			// Should create input and set attributes
+			expect(createElementSpy).toHaveBeenCalledWith('input')
+			expect(mockSetAttribute).toHaveBeenCalledWith('data-testid', 'thinking-image-input')
+			expect(mockClick).toHaveBeenCalled()
+			
+			createElementSpy.mockRestore()
+		})
+
+		it("should show success message after successful upload", async () => {
+			renderWithProviders(<PersonaManagement />)
+			
+			// Simulate receiving persona data
+			act(() => {
+				const mockEvent = new MessageEvent("message", {
+					data: {
+						type: "RESPONSE_TEMPLATE_CHARACTERS",
+						payload: [mockTemplateCharacter],
+					},
+				})
+				window.dispatchEvent(mockEvent)
+			})
+
+			// Simulate successful upload response
+			act(() => {
+				const successEvent = new MessageEvent("message", {
+					data: {
+						type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
+						payload: {
+							success: true,
+							imageType: "normal",
+							personaCharacter: "sarang",
+						},
+					},
+				})
+				window.dispatchEvent(successEvent)
+			})
+
+			await waitFor(() => {
+				expect(screen.getByText("Image uploaded successfully")).toBeInTheDocument()
+			})
+		})
+
+		it("should show error message after failed upload", async () => {
+			renderWithProviders(<PersonaManagement />)
+			
+			// Simulate receiving persona data
+			act(() => {
+				const mockEvent = new MessageEvent("message", {
+					data: {
+						type: "RESPONSE_TEMPLATE_CHARACTERS",
+						payload: [mockTemplateCharacter],
+					},
+				})
+				window.dispatchEvent(mockEvent)
+			})
+
+			// Simulate failed upload response
+			act(() => {
+				const errorEvent = new MessageEvent("message", {
+					data: {
+						type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
+						payload: {
+							success: false,
+							error: "File too large",
+							imageType: "normal",
+							personaCharacter: "sarang",
+						},
+					},
+				})
+				window.dispatchEvent(errorEvent)
+			})
+
+			await waitFor(() => {
+				expect(screen.getByText("Failed to upload image")).toBeInTheDocument()
 			})
 		})
 	})

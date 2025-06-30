@@ -39,6 +39,8 @@ import NewTaskPreview from "./NewTaskPreview"
 import ReportBugPreview from "./ReportBugPreview"
 import UserMessage from "./UserMessage"
 import QuoteButton from "./QuoteButton"
+// CARET MODIFICATION: Import PersonaAvatar for displaying persona images in chat
+import PersonaAvatar from "../../caret/components/PersonaAvatar"
 
 const normalColor = "var(--vscode-foreground)"
 const errorColor = "var(--vscode-errorForeground)"
@@ -1033,79 +1035,101 @@ export const ChatRowContent = ({
 					)
 				case "text":
 					return (
-						<WithCopyButton
-							ref={contentRef}
-							onMouseUp={handleMouseUp}
-							textToCopy={message.text}
-							position="bottom-right">
-							<Markdown markdown={message.text} />
-							{quoteButtonState.visible && (
-								<QuoteButton
-									top={quoteButtonState.top}
-									left={quoteButtonState.left}
-									onClick={() => {
-										handleQuoteClick()
-									}}
-								/>
-							)}
-						</WithCopyButton>
+						<div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+							<PersonaAvatar 
+								isThinking={false}
+								size={64}
+								style={{ 
+									marginTop: "2px",
+									flexShrink: 0 
+								}}
+							/>
+							<div style={{ flex: 1, minWidth: 0 }}>
+								<WithCopyButton
+									ref={contentRef}
+									onMouseUp={handleMouseUp}
+									textToCopy={message.text}
+									position="bottom-right">
+									<Markdown markdown={message.text} />
+									{quoteButtonState.visible && (
+										<QuoteButton
+											top={quoteButtonState.top}
+											left={quoteButtonState.left}
+											onClick={() => {
+												handleQuoteClick()
+											}}
+										/>
+									)}
+								</WithCopyButton>
+							</div>
+						</div>
 					)
 				case "reasoning":
 					return (
-						<>
-							{message.text && (
-								<div
-									onClick={onToggleExpand}
-									style={{
-										// marginBottom: 15,
-										cursor: "pointer",
-										color: "var(--vscode-descriptionForeground)",
+						<div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+							<PersonaAvatar 
+								isThinking={true}
+								size={64}
+								style={{ 
+									marginTop: "2px",
+									flexShrink: 0 
+								}}
+							/>
+							<div style={{ flex: 1, minWidth: 0 }}>
+								{message.text && (
+									<div
+										onClick={onToggleExpand}
+										style={{
+											// marginBottom: 15,
+											cursor: "pointer",
+											color: "var(--vscode-descriptionForeground)",
 
-										fontStyle: "italic",
-										overflow: "hidden",
-									}}>
-									{isExpanded ? (
-										<div style={{ marginTop: -3 }}>
-											<span style={{ fontWeight: "bold", display: "block", marginBottom: "4px" }}>
-												Thinking
+											fontStyle: "italic",
+											overflow: "hidden",
+										}}>
+										{isExpanded ? (
+											<div style={{ marginTop: -3 }}>
+												<span style={{ fontWeight: "bold", display: "block", marginBottom: "4px" }}>
+													Thinking
+													<span
+														className="codicon codicon-chevron-down"
+														style={{
+															display: "inline-block",
+															transform: "translateY(3px)",
+															marginLeft: "1.5px",
+														}}
+													/>
+												</span>
+												<span className="ph-no-capture">{message.text}</span>
+											</div>
+										) : (
+											<div style={{ display: "flex", alignItems: "center" }}>
+												<span style={{ fontWeight: "bold", marginRight: "4px" }}>Thinking:</span>
 												<span
-													className="codicon codicon-chevron-down"
+													className="ph-no-capture"
 													style={{
-														display: "inline-block",
-														transform: "translateY(3px)",
-														marginLeft: "1.5px",
+														whiteSpace: "nowrap",
+														overflow: "hidden",
+														textOverflow: "ellipsis",
+														direction: "rtl",
+														textAlign: "left",
+														flex: 1,
+													}}>
+													{message.text + "\u200E"}
+												</span>
+												<span
+													className="codicon codicon-chevron-right"
+													style={{
+														marginLeft: "4px",
+														flexShrink: 0,
 													}}
 												/>
-											</span>
-											<span className="ph-no-capture">{message.text}</span>
-										</div>
-									) : (
-										<div style={{ display: "flex", alignItems: "center" }}>
-											<span style={{ fontWeight: "bold", marginRight: "4px" }}>Thinking:</span>
-											<span
-												className="ph-no-capture"
-												style={{
-													whiteSpace: "nowrap",
-													overflow: "hidden",
-													textOverflow: "ellipsis",
-													direction: "rtl",
-													textAlign: "left",
-													flex: 1,
-												}}>
-												{message.text + "\u200E"}
-											</span>
-											<span
-												className="codicon codicon-chevron-right"
-												style={{
-													marginLeft: "4px",
-													flexShrink: 0,
-												}}
-											/>
-										</div>
-									)}
-								</div>
-							)}
-						</>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+						</div>
 					)
 				case "user_feedback":
 					return (

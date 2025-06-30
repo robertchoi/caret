@@ -27,6 +27,7 @@ export interface ExtensionMessage {
 		| "RESPONSE_TEMPLATE_CHARACTERS"
 		| "RESPONSE_RULE_FILE_CONTENT"
 		| "PERSONA_UPDATED"
+		| "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE"
 	text?: string
 	action?: "didBecomeVisible" | "accountLogoutClicked" | "responseTemplateCharacters"
 	state?: ExtensionState

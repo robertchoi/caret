@@ -16,6 +16,8 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 	const [isSelectorOpen, setIsSelectorOpen] = useState(false)
 	const [selectedPersona, setSelectedPersona] = useState<TemplateCharacter | null>(null)
 	const [currentInstruction, setCurrentInstruction] = useState<string>("")
+	const [uploadMessage, setUploadMessage] = useState<string>("")
+	const [isUploading, setIsUploading] = useState<boolean>(false)
 	const extensionState = useContext(ExtensionStateContext)
 	const currentLocale = extensionState?.chatSettings?.uiLanguage || "en"
 
@@ -29,31 +31,54 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 		caretWebviewLogger.debug("Persona template selector modal closed.")
 	}
 
-	// Load current persona data
+	const handleImageUpload = (imageType: 'normal' | 'thinking') => {
+		const input = document.createElement('input')
+		input.type = 'file'
+		input.accept = 'image/*'
+		input.onchange = (e) => {
+			const file = (e.target as HTMLInputElement).files?.[0]
+			if (file) {
+				const reader = new FileReader()
+				reader.onload = () => {
+					const base64 = reader.result as string
+					setIsUploading(true)
+					setUploadMessage("")
+					
+					vscode.postMessage({
+						type: "UPLOAD_CUSTOM_PERSONA_IMAGE",
+						payload: {
+							imageType,
+							imageData: base64,
+							personaCharacter: selectedPersona?.character
+						}
+					} as WebviewMessage)
+				}
+				reader.readAsDataURL(file)
+			}
+		}
+		input.setAttribute('data-testid', `${imageType}-image-input`)
+		input.click()
+	}
+
 	useEffect(() => {
-		// Request template characters
 		vscode.postMessage({
 			type: "REQUEST_TEMPLATE_CHARACTERS",
 		})
 
-		// Request current custom instructions
 		vscode.postMessage({
 			type: "REQUEST_RULE_FILE_CONTENT",
 			payload: { ruleName: "custom_instructions.md", isGlobal: true },
 		})
 	}, [])
 
-	// Listen for message responses
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
 			const message = event.data
 
-			// Handle template characters response
 			if (message.type === "RESPONSE_TEMPLATE_CHARACTERS") {
 				const characters: TemplateCharacter[] = message.payload
 				caretWebviewLogger.debug("Received template characters:", characters)
 
-				// Find selected persona based on current instruction
 				if (currentInstruction && currentInstruction.trim() && characters.length > 0) {
 					caretWebviewLogger.debug("Current instruction:", currentInstruction)
 
@@ -69,25 +94,33 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 						setSelectedPersona(matchedPersona)
 					} else {
 						caretWebviewLogger.debug("No matched persona found, using default")
-						// Set default persona if no match
 						const defaultPersona = characters.find((c) => c.isDefault) || characters[0]
 						if (defaultPersona) setSelectedPersona(defaultPersona)
 					}
 				} else if (characters.length > 0) {
-					// If no current instruction, set default persona
 					const defaultPersona = characters.find((c) => c.isDefault) || characters[0]
 					if (defaultPersona) setSelectedPersona(defaultPersona)
 				}
 			}
 
-			// Store current custom instruction
 			if (message.type === "RESPONSE_RULE_FILE_CONTENT" && message.payload.ruleName === "custom_instructions.md") {
 				setCurrentInstruction(message.payload.content)
 			}
 
-			// Handle persona update success - refresh data
+			if (message.type === "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE") {
+				setIsUploading(false)
+				if (message.payload?.success) {
+					setUploadMessage(t("upload.success", "persona"))
+					// Refresh persona templates to show updated custom images
+					vscode.postMessage({
+						type: "REQUEST_TEMPLATE_CHARACTERS",
+					})
+				} else {
+					setUploadMessage(t("upload.error", "persona"))
+				}
+			}
+
 			if (message.type === "PERSONA_UPDATED") {
-				// Reload template characters and current instruction
 				vscode.postMessage({
 					type: "REQUEST_TEMPLATE_CHARACTERS",
 				})
@@ -104,10 +137,8 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 		}
 	}, [currentLocale, currentInstruction])
 
-	// Additional effect to ensure proper loading when component remounts
 	useEffect(() => {
 		if (currentInstruction && currentInstruction.trim()) {
-			// Re-request template characters to ensure proper matching
 			vscode.postMessage({
 				type: "REQUEST_TEMPLATE_CHARACTERS",
 			})
@@ -116,20 +147,16 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 
 	const handlePersonaSelected = (personaInstruction: PersonaInstruction) => {
 		caretWebviewLogger.debug("Persona selected:", personaInstruction)
-		// Send selected personaInstruction to backend to update custom_instructions.md
 		vscode.postMessage({
-			type: "UPDATE_PERSONA_CUSTOM_INSTRUCTION", // New message type
-			payload: { personaInstruction: personaInstruction }, // The selected persona instruction data
+			type: "UPDATE_PERSONA_CUSTOM_INSTRUCTION",
+			payload: { personaInstruction: personaInstruction },
 		} as WebviewMessage)
 
-		// Update current instruction to trigger re-matching
 		setCurrentInstruction(JSON.stringify(personaInstruction, null, 2))
 
-		// Close modal after selection
 		setIsSelectorOpen(false)
 	}
 
-	// Get persona name in current locale
 	const getPersonaName = () => {
 		if (!selectedPersona) return ""
 		const localeDetails = (selectedPersona[currentLocale as keyof typeof selectedPersona] as any) || selectedPersona.en
@@ -140,7 +167,6 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 		<div className={className} data-testid="persona-management">
 			<div className="text-sm font-normal mb-2">{t("rules.section.personaManagement", "common")}</div>
 
-			{/* Display selected persona images when available */}
 			{selectedPersona && (
 				<div className="mb-4 mt-2">
 					<div className="flex justify-center space-x-4 mb-2">
@@ -153,6 +179,15 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 								alt={`${getPersonaName()} normal`}
 								className="w-20 h-20 rounded-full object-cover border-2 border-[var(--vscode-settings-headerBorder)]"
 							/>
+							<VSCodeButton 
+								appearance="icon" 
+								className="mt-2" 
+								onClick={() => handleImageUpload('normal')}
+								disabled={isUploading}
+								title={t("upload.normal", "persona")}
+							>
+								<span className="codicon codicon-cloud-upload"></span>
+							</VSCodeButton>
 						</div>
 						<div className="text-center">
 							<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1">
@@ -163,9 +198,51 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 								alt={`${getPersonaName()} thinking`}
 								className="w-20 h-20 rounded-full object-cover border-2 border-[var(--vscode-settings-headerBorder)]"
 							/>
+							<VSCodeButton 
+								appearance="icon" 
+								className="mt-2" 
+								onClick={() => handleImageUpload('thinking')}
+								disabled={isUploading}
+								title={t("upload.thinking", "persona")}
+							>
+								<span className="codicon codicon-cloud-upload"></span>
+							</VSCodeButton>
 						</div>
 					</div>
 					<div className="text-center text-sm font-medium">{getPersonaName()}</div>
+					
+					{(uploadMessage || isUploading) && (
+						<div className="text-center mt-2">
+							{isUploading ? (
+								<span className="text-xs text-[var(--vscode-descriptionForeground)]">
+									업로드 중...
+								</span>
+							) : uploadMessage ? (
+								<span className={`text-xs ${uploadMessage.includes('success') || uploadMessage.includes('성공') ? 'text-[var(--vscode-charts-green)]' : 'text-[var(--vscode-errorForeground)]'}`}>
+									{uploadMessage}
+								</span>
+							) : null}
+						</div>
+					)}
+				</div>
+			)}
+
+			{selectedPersona && (
+				<div className="flex justify-center space-x-2 mb-4">
+					<VSCodeButton 
+						appearance="secondary" 
+						onClick={() => handleImageUpload('normal')}
+						disabled={isUploading}
+					>
+						{t("upload.normal", "persona")}
+					</VSCodeButton>
+					<VSCodeButton 
+						appearance="secondary" 
+						onClick={() => handleImageUpload('thinking')}
+						disabled={isUploading}
+					>
+						{t("upload.thinking", "persona")}
+					</VSCodeButton>
 				</div>
 			)}
 

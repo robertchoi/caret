@@ -297,30 +297,6 @@ npm run package:release
 - ✅ VSIX 패키징 (`vsce package --out output/caret-{버전}-{타임스탬프}.vsix`)
 - ✅ 패키지 크기 분석 및 경고 (300MB/750MB 임계값)
 
-#### 6-2. PowerShell 스크립트 방식 (Windows 환경)
-
-```powershell
-# 프로젝트 루트에서 실행
-./caret-release-build.ps1
-```
-
-**이 스크립트로 생성되는 파일**: `output/caret-0.1.0-202501271545.vsix`
-
-PowerShell 스크립트의 추가 기능:
-- 🎨 색상 출력으로 가시성 높은 로그
-- 🔍 환경 확인 (Node.js, npm, vsce 설치 여부)
-- 📦 버전 정보 확인 및 업데이트 옵션
-- 🧪 테스트 자동 실행 (선택적)
-- 💾 생성된 VSIX를 VS Code에 바로 설치하는 옵션
-
-스크립트 실행 옵션:
-```powershell
-# 테스트 건너뛰기, 상세 로그 예시
-./caret-release-build.ps1 -SkipTests -Verbose
-
-# 출력 디렉토리 변경 예시
-./caret-release-build.ps1 -OutputDir "my-release"
-```
 
 #### 🚀 빌드 결과 확인
 

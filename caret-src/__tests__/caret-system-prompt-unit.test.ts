@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 
-// CaretSystemPrompt 클래스만 직접 테스트 (종속성 최소화)
+// testHelper 클래스만 직접 테스트 (종속성 최소화)
 describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 	describe("Class Definition and Basic Structure", () => {
 		it("should be able to import CaretSystemPrompt class", async () => {
@@ -51,24 +51,29 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			const filePath = path.resolve(__dirname, "../core/prompts/CaretSystemPrompt.ts")
 			const content = fs.readFileSync(filePath, "utf-8")
 
-			// Check for key method signatures
+			// Check for key method signatures (production code should NOT have test-only methods)
 			expect(content).toContain("class CaretSystemPrompt")
-			expect(content).toContain("generateSystemPrompt")
-			expect(content).toContain("callOriginalSystemPrompt")
+			expect(content).toContain("generateFromJsonSections")
 			expect(content).toContain("getMetrics")
 			expect(content).toContain("clearMetrics")
-			expect(content).toContain("PromptMetrics") // extractToolCount moved to PromptMetrics class
+			expect(content).toContain("PromptMetrics")
+
+			// Verify test-only methods are NOT in production code (as actual method definitions)
+			expect(content).not.toMatch(/^\s*async generateSystemPrompt\(/m) // Test-only method should not be here
+			expect(content).not.toMatch(/^\s*private async callOriginalSystemPrompt\(/m) // Test-only method should not be here
 		})
 
-		it("should import from correct Cline system prompt", async () => {
+		it("should import from correct dependencies", async () => {
 			const fs = await import("fs")
 			const path = await import("path")
 			const filePath = path.resolve(__dirname, "../core/prompts/CaretSystemPrompt.ts")
 			const content = fs.readFileSync(filePath, "utf-8")
 
-			// Verify correct import from Cline (using relative path)
-			expect(content).toContain('from "../../../src/core/prompts/system"')
-			expect(content).toContain("SYSTEM_PROMPT")
+			// Verify correct imports (should NOT directly import SYSTEM_PROMPT in production code)
+			expect(content).toContain("CaretLogger")
+			expect(content).toContain("JsonTemplateLoader")
+			expect(content).toContain("PromptMetrics")
+			expect(content).not.toContain('from "../../../src/core/prompts/system"') // Should not be in production code
 		})
 
 		it("should have proper KISS principle implementation", async () => {
@@ -77,13 +82,13 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			const filePath = path.resolve(__dirname, "../core/prompts/CaretSystemPrompt.ts")
 			const content = fs.readFileSync(filePath, "utf-8")
 
-			// Verify simple wrapper approach
-			expect(content).toContain("await SYSTEM_PROMPT(")
+			// Verify clean production code approach
 			expect(content).toContain("CaretLogger")
+			expect(content).toContain("generateFromJsonSections")
 
 			// Check that it's not too complex (KISS principle)
 			const lines = content.split("\n").length
-			expect(lines).toBeLessThan(800) // Should be simple wrapper (increased for JSON overlay system)
+			expect(lines).toBeLessThan(200) // Should be clean production code (no test-only methods)
 		})
 	})
 
@@ -120,10 +125,9 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 
 			// Check for metrics functionality (delegated to PromptMetrics class)
 			expect(content).toContain("PromptMetrics")
-			expect(content).toContain("recordMetrics")
-			expect(content).toContain("logGeneration")
-			expect(content).toContain("startTime") // metrics timing functionality
-			expect(content).toContain("Date.now()")
+			expect(content).toContain("getMetrics")
+			expect(content).toContain("clearMetrics")
+			expect(content).toContain("Date.now()") // timing functionality
 		})
 	})
 
@@ -134,9 +138,9 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 			const filePath = path.resolve(__dirname, "../core/prompts/CaretSystemPrompt.ts")
 			const stats = fs.statSync(filePath)
 
-			// Should be around 15-30KB (increased for JSON overlay features and integration)
-			expect(stats.size).toBeGreaterThan(3000) // At least 3KB
-			expect(stats.size).toBeLessThan(30000) // No more than 30KB (with JSON overlay features and integration)
+			// Should be reasonable size (clean production code without test-only methods)
+			expect(stats.size).toBeGreaterThan(1000) // At least 1KB
+			expect(stats.size).toBeLessThan(10000) // No more than 10KB (clean production code)
 		})
 
 		it("should have proper TypeScript types file", async () => {
@@ -159,8 +163,8 @@ describe("CaretSystemPrompt - Unit Tests (003-02)", () => {
 
 		it("should count as new test for 003-02 implementation", () => {
 			// Verify that we're following TDD principles
-			const testDescription = "CaretSystemPrompt implementation following TDD"
-			expect(testDescription).toContain("CaretSystemPrompt")
+			const testDescription = "testHelper implementation following TDD"
+			expect(testDescription).toContain("testHelper")
 			expect(testDescription).toContain("TDD")
 		})
 	})
@@ -172,7 +176,11 @@ describe("003-02 Task Completion Verification", () => {
 		const fs = await import("fs")
 		const path = await import("path")
 
-		const requiredFiles = ["../core/prompts/CaretSystemPrompt.ts", "../core/prompts/types.ts"]
+		const requiredFiles = [
+			"../core/prompts/CaretSystemPrompt.ts",
+			"../core/prompts/types.ts",
+			"./helpers/CaretSystemPromptTestHelper.ts",
+		]
 
 		for (const file of requiredFiles) {
 			const filePath = path.resolve(__dirname, file)
@@ -182,7 +190,7 @@ describe("003-02 Task Completion Verification", () => {
 
 	it("should represent progress from 003-01 to 003-02", () => {
 		// 003-01: ClineFeatureValidator (validation system)
-		// 003-02: CaretSystemPrompt (wrapper system)
+		// 003-02: testHelper (wrapper system)
 		expect("003-01 → 003-02 progression").toContain("003-02")
 	})
 })

@@ -260,6 +260,19 @@
 			"description": "Load documentation about creating MCP servers. This tool should be used when the user requests to create or install an MCP server (the user may ask you something along the lines of \"add a tool\" that does some function, in other words to create an MCP server that provides tools and resources that may connect to external APIs for example. You have the ability to create an MCP server and add it to a configuration file that will then expose the tools and resources for you to use with use_mcp_tool and access_mcp_resource). The documentation provides detailed information about the MCP server creation process, including setup instructions, best practices, and examples.",
 			"parameters": [],
 			"usage": "<load_mcp_documentation>\n</load_mcp_documentation>"
+		},
+		"chatbot_mode_respond": {
+			"title": "chatbot_mode_respond",
+			"description": "Respond to the user's inquiry in CHATBOT MODE. This tool should be used when you need to provide expert consultation and analysis without making changes to the codebase. This tool is only available in CHATBOT MODE.",
+			"parameters": [
+				{
+					"name": "response",
+					"required": true,
+					"description": "The consultation response to provide to the user. This should be expert analysis, guidance, or recommendations."
+				}
+			],
+			"usage": "<chatbot_mode_respond>\n<response>Your expert consultation response here</response>\n</chatbot_mode_respond>",
+			"conditional": "chatbot_mode"
 		}
 	}
 }

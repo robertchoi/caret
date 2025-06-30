@@ -3,7 +3,7 @@
 // Following TDD principles with real file operations
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { CaretSystemPrompt } from "../core/prompts/CaretSystemPrompt"
+import { CaretSystemPromptTestHelper } from "./helpers/CaretSystemPromptTestHelper"
 import { SystemPromptContext } from "../core/prompts/types"
 import { caretLogger } from "../utils/caret-logger"
 import * as path from "path"
@@ -50,7 +50,7 @@ Available servers: test-server`),
 
 describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 	let mockContext: SystemPromptContext
-	let caretSystemPrompt: CaretSystemPrompt
+	let testHelper: CaretSystemPromptTestHelper
 
 	beforeEach(async () => {
 		// Use actual project root path
@@ -63,13 +63,17 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 			mcpHub: {
 				getServers: vi.fn().mockReturnValue([{ name: "test-server" }]),
 			} as any,
-			browserSettings: {} as any,
+			browserSettings: {
+				width: 1280,
+				height: 720,
+				viewport: { width: 1280, height: 720 },
+			} as any,
 			isClaude4ModelFamily: false,
 		}
 
 		// Initialize with real extension path and test mode enabled
 		// This will use caret-assets/test-templates directory for test templates
-		caretSystemPrompt = new CaretSystemPrompt(projectRoot, true)
+		testHelper = new CaretSystemPromptTestHelper(projectRoot, true)
 
 		// Clear all mocks
 		vi.clearAllMocks()
@@ -82,7 +86,7 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 	describe("Real Template File Tests", () => {
 		it("should load and apply Alpha personality template from actual file", async () => {
 			try {
-				const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["alpha-personality"])
+				const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["alpha-personality"])
 
 				// Verify Alpha personality was applied
 				expect(result.prompt).toContain("Alpha Yang (알파)")
@@ -102,7 +106,7 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 
 		it("should load and apply TDD focused template from actual file", async () => {
 			try {
-				const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["tdd-focused"])
+				const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["tdd-focused"])
 
 				// Verify TDD content was applied
 				expect(result.prompt).toContain("Test-Driven Development (TDD)")
@@ -120,7 +124,7 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 
 		it("should load and apply enhanced debugging template from actual file", async () => {
 			try {
-				const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["enhanced-debugging"])
+				const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["enhanced-debugging"])
 
 				// Verify debugging content was applied
 				expect(result.prompt).toContain("Debugging Methodology")
@@ -137,7 +141,7 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 
 		it("should apply multiple real templates in sequence", async () => {
 			try {
-				const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, [
+				const result = await testHelper.generateSystemPromptWithTemplates(mockContext, [
 					"alpha-personality",
 					"tdd-focused",
 					"enhanced-debugging",
@@ -165,7 +169,7 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 
 	describe("Real File Error Handling", () => {
 		it("should handle non-existent template file gracefully", async () => {
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["non-existent-template"])
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["non-existent-template"])
 
 			// Should return base prompt without templates
 			expect(result.prompt).toBeDefined()
@@ -176,7 +180,7 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 		})
 
 		it("should handle mix of valid and invalid templates", async () => {
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, [
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, [
 				"alpha-personality",
 				"non-existent-template",
 				"tdd-focused",
@@ -196,7 +200,7 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 		it("should load templates efficiently", async () => {
 			const startTime = Date.now()
 
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, [
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, [
 				"alpha-personality",
 				"tdd-focused",
 				"enhanced-debugging",
@@ -215,11 +219,11 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 
 		it("should benefit from template caching on second load", async () => {
 			// First load
-			const firstResult = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["alpha-personality"])
+			const firstResult = await testHelper.generateSystemPromptWithTemplates(mockContext, ["alpha-personality"])
 
 			// Second load (should use cache)
 			const secondStart = Date.now()
-			const secondResult = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["alpha-personality"])
+			const secondResult = await testHelper.generateSystemPromptWithTemplates(mockContext, ["alpha-personality"])
 			const secondTime = Date.now() - secondStart
 
 			// Both should have same content
@@ -233,7 +237,7 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 
 	describe("Complete System Verification", () => {
 		it("should preserve all Cline functionality while adding enhancements", async () => {
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, [
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, [
 				"alpha-personality",
 				"tdd-focused",
 				"enhanced-debugging",

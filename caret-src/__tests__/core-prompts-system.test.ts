@@ -1,12 +1,14 @@
 import { describe, it, expect, vi } from "vitest"
 
-// Mock CaretSystemPrompt to avoid extensionPath issues
-vi.mock("../core/prompts/CaretSystemPrompt", () => ({
-	CaretSystemPrompt: {
+// Mock testHelper to avoid extensionPath issues
+vi.mock("../core/prompts/testHelper", () => ({
+	testHelper: {
 		getInstance: vi.fn(() => ({
-			generateFromJsonSections: vi.fn(async () => "You are Cline, an AI assistant powered by Claude. (Generated from JSON sections)")
-		}))
-	}
+			generateFromJsonSections: vi.fn(
+				async () => "You are Cline, an AI assistant powered by Claude. (Generated from JSON sections)",
+			),
+		})),
+	},
 }))
 
 // Mock the original Cline system module for fallback
@@ -14,9 +16,20 @@ vi.mock("../../src/core/prompts/system", () => ({
 	SYSTEM_PROMPT: vi.fn(async (cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily) => {
 		return "You are Cline, an AI assistant powered by Claude. (Original Cline fallback)"
 	}),
-	addUserInstructions: vi.fn((globalClineRulesFileInstructions, localClineRulesFileInstructions, localCaretRulesFileInstructions, localCursorRulesFileInstructions, localCursorRulesDirInstructions, localWindsurfRulesFileInstructions, clineIgnoreInstructions, preferredLanguageInstructions) => {
-		return "User instructions added"
-	}),
+	addUserInstructions: vi.fn(
+		(
+			globalClineRulesFileInstructions,
+			localClineRulesFileInstructions,
+			localCaretRulesFileInstructions,
+			localCursorRulesFileInstructions,
+			localCursorRulesDirInstructions,
+			localWindsurfRulesFileInstructions,
+			clineIgnoreInstructions,
+			preferredLanguageInstructions,
+		) => {
+			return "User instructions added"
+		},
+	),
 }))
 
 import { SYSTEM_PROMPT, addUserInstructions } from "../core/prompts/system"

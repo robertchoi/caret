@@ -14,7 +14,7 @@ export default defineConfig({
 			"!caret-src/__tests__/extension.test.ts", // 동일한 이유로 모듈 에러 발생
 			"!caret-src/__tests__/extension-file-watcher.test.ts", // 동일한 이유로 모듈 에러 발생
 			"!caret-src/__tests__/caret-system-prompt.test.ts", // 복잡한 종속성으로 인한 임시 제외
-			"!caret-src/__tests__/caret-system-prompt-simple.test.ts", // 복잡한 종속성으로 인한 임시 제외
+			// ✅ ENABLED: caret-system-prompt-simple.test.ts - TestHelper로 분리 완료
 		],
 		coverage: {
 			provider: "v8",

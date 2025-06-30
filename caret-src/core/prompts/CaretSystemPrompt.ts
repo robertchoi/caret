@@ -1,6 +1,4 @@
-import { SYSTEM_PROMPT } from "../../../src/core/prompts/system"
 import { CaretLogger } from "../../utils/caret-logger"
-import { SystemPromptContext, SystemPromptResult } from "./types"
 import { JsonTemplateLoader } from "./JsonTemplateLoader"
 import { PromptOverlayEngine } from "./PromptOverlayEngine"
 import { PromptMetrics } from "./PromptMetrics"
@@ -51,85 +49,26 @@ export class CaretSystemPrompt {
 	}
 
 	/**
-	 * Generate system prompt with Cline compatibility
+	 * CARET MODIFICATION: Initialize singleton instance
 	 */
-	async generateSystemPrompt(context: SystemPromptContext): Promise<SystemPromptResult> {
-		const startTime = Date.now()
-
-		try {
-			this.caretLogger.info(
-				`Generating system prompt - cwd: ${context.cwd}, browser: ${context.supportsBrowserUse}, claude4: ${context.isClaude4ModelFamily}, mcpServers: ${context.mcpHub.getServers().length}`,
-				"CaretSystemPrompt",
-			)
-
-			// Call Cline original SYSTEM_PROMPT exactly as-is
-			const prompt = await this.callOriginalSystemPrompt(context)
-
-			// Record metrics
-			const metrics = this.metrics.recordMetrics(startTime, prompt, context)
-			await this.metrics.logGeneration(context, prompt, metrics)
-
-			return { prompt, metrics }
-		} catch (error) {
-			this.caretLogger.error("[CaretSystemPrompt] Failed to generate system prompt", error)
-			throw error
+	static initialize(extensionPath: string): void {
+		if (!CaretSystemPrompt.instance) {
+			CaretSystemPrompt.instance = new CaretSystemPrompt(extensionPath)
 		}
 	}
 
 	/**
-	 * Generate system prompt with JSON template overlay
+	 * CARET MODIFICATION: Check if singleton is initialized
 	 */
-	async generateSystemPromptWithTemplates(context: SystemPromptContext, templateNames: string[]): Promise<SystemPromptResult> {
-		const startTime = Date.now()
-
-		try {
-			this.caretLogger.info(
-				`Generating system prompt with templates - cwd: ${context.cwd}, templates: [${templateNames.join(", ")}], count: ${templateNames.length}`,
-				"CaretSystemPrompt",
-			)
-
-			// Generate base prompt from Cline
-			const basePrompt = await this.callOriginalSystemPrompt(context)
-			this.caretLogger.info(`Base prompt generated - length: ${basePrompt.length}`, "CaretSystemPrompt")
-
-			// Apply JSON templates
-			let enhancedPrompt = basePrompt
-			const appliedTemplates: string[] = []
-
-			for (const templateName of templateNames) {
-				try {
-					const template = await this.templateLoader.loadTemplate(templateName)
-					const overlayResult = await this.overlayEngine.applyOverlay(enhancedPrompt, template)
-
-					if (overlayResult.success) {
-						enhancedPrompt = overlayResult.prompt
-						appliedTemplates.push(templateName)
-						this.caretLogger.info(
-							`Template applied successfully - ${templateName} v${template.metadata.version}`,
-							"CaretSystemPrompt",
-						)
-					} else {
-						this.caretLogger.warn(
-							`Template application failed - ${templateName}: ${overlayResult.warnings.join(", ")}`,
-							"CaretSystemPrompt",
-						)
-					}
-				} catch (error) {
-					this.caretLogger.error(`Template loading failed - ${templateName}: ${error}`, "CaretSystemPrompt")
-				}
-			}
-
-			// Record enhanced metrics
-			const metrics = this.metrics.recordMetrics(startTime, enhancedPrompt, context, appliedTemplates)
-			metrics.enhancementRatio = enhancedPrompt.length / basePrompt.length
-			await this.metrics.logEnhancedGeneration(basePrompt, enhancedPrompt, metrics, appliedTemplates)
-
-			return { prompt: enhancedPrompt, metrics }
-		} catch (error) {
-			this.caretLogger.error("[CaretSystemPrompt] Failed to generate enhanced system prompt", error)
-			throw error
-		}
+	static isInitialized(): boolean {
+		return CaretSystemPrompt.instance !== undefined
 	}
+
+	// ❌ REMOVED: generateSystemPrompt() moved to CaretSystemPromptTestHelper
+	// This method was only used in tests and caused confusion in production code
+
+	// ❌ REMOVED: generateSystemPromptWithTemplates() moved to CaretSystemPromptTestHelper
+	// This method was only used in JSON overlay tests and caused confusion in production code
 
 	/**
 	 * Generate system prompt from JSON sections
@@ -164,6 +103,7 @@ export class CaretSystemPrompt {
 				supportsBrowserUse,
 				browserSettings,
 				isClaude4ModelFamily,
+				mode, // CARET MODIFICATION: Pass mode parameter
 			)
 
 			// Step 4: Add final sections
@@ -185,23 +125,8 @@ export class CaretSystemPrompt {
 		}
 	}
 
-	/**
-	 * Call Cline's original SYSTEM_PROMPT function
-	 */
-	private async callOriginalSystemPrompt(context: SystemPromptContext): Promise<string> {
-		try {
-			return await SYSTEM_PROMPT(
-				context.cwd,
-				context.supportsBrowserUse,
-				context.mcpHub,
-				context.browserSettings,
-				context.isClaude4ModelFamily,
-			)
-		} catch (error) {
-			this.caretLogger.error("[CaretSystemPrompt] Cline SYSTEM_PROMPT call failed", error)
-			throw error
-		}
-	}
+	// ❌ REMOVED: callOriginalSystemPrompt() moved to CaretSystemPromptTestHelper
+	// This method was only used by test-only methods and caused confusion in production code
 
 	/**
 	 * Get metrics (delegate to PromptMetrics)

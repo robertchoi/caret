@@ -79,15 +79,6 @@ OBJECTIVE
 You accomplish a given task iteratively...` // 👈 700줄 하드코딩!
 ```
 
-2. **JSON 시스템이 fallback으로만 동작**
-```typescript
-// generateFromJsonSections 구현되어 있지만
-// 에러 발생시에만 사용되는 구조
-} catch (error) {
-  // Fallback to original Cline prompt for safety  
-  return await this.callOriginalSystemPrompt(...)
-}
-```
 
 3. **JSON 도구 정의 포맷과 실제 Cline 포맷 차이**
 ```json

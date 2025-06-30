@@ -1010,17 +1010,17 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				submitApiConfig()
 				changeModeDelay = 250 // necessary to let the api config update (we send message and wait for it to be saved) FIXME: this is a hack and we ideally should check for api config changes, then wait for it to be saved, before switching modes
 			}
-					setTimeout(() => {
-			// CARET MODIFICATION: modeSystem 기반 토글 로직 - plan/act vs chatbot/agent
-			let newMode: ChatbotAgentMode
-			if (chatSettings.modeSystem === "cline") {
-				// Cline 모드: plan ↔ act 토글
-				newMode = chatSettings.mode === "plan" ? ChatbotAgentMode.AGENT_MODE : ChatbotAgentMode.CHATBOT_MODE
-			} else {
-				// Caret 모드: chatbot ↔ agent 토글  
-				newMode = chatSettings.mode === "chatbot" ? ChatbotAgentMode.AGENT_MODE : ChatbotAgentMode.CHATBOT_MODE
-			}
-				
+			setTimeout(() => {
+				// CARET MODIFICATION: modeSystem 기반 토글 로직 - plan/act vs chatbot/agent
+				let newMode: ChatbotAgentMode
+				if (chatSettings.modeSystem === "cline") {
+					// Cline 모드: plan ↔ act 토글
+					newMode = chatSettings.mode === "plan" ? ChatbotAgentMode.AGENT_MODE : ChatbotAgentMode.CHATBOT_MODE
+				} else {
+					// Caret 모드: chatbot ↔ agent 토글
+					newMode = chatSettings.mode === "chatbot" ? ChatbotAgentMode.AGENT_MODE : ChatbotAgentMode.CHATBOT_MODE
+				}
+
 				StateServiceClient.toggleChatbotAgentMode(
 					ToggleChatbotAgentModeRequest.create({
 						chatSettings: {
@@ -1041,7 +1041,15 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					textAreaRef.current?.focus()
 				}, 100)
 			}, changeModeDelay)
-		}, [chatSettings.mode, chatSettings.modeSystem, showModelSelector, submitApiConfig, inputValue, selectedImages, selectedFiles])
+		}, [
+			chatSettings.mode,
+			chatSettings.modeSystem,
+			showModelSelector,
+			submitApiConfig,
+			inputValue,
+			selectedImages,
+			selectedFiles,
+		])
 
 		useShortcut("Meta+Shift+a", onChatbotAgentModeToggle, { disableTextInputs: false }) // important that we don't disable the text input here
 
@@ -1765,22 +1773,22 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							data-testid="chatbot-agent-mode-switch"
 							disabled={false}
 							onClick={onChatbotAgentModeToggle}>
-							<Slider 
+							<Slider
 								isAgent={
-									chatSettings.modeSystem === "cline" 
-										? chatSettings.mode === "act" 
+									chatSettings.modeSystem === "cline"
+										? chatSettings.mode === "act"
 										: chatSettings.mode === "agent"
-								} 
+								}
 								isChatbot={
-									chatSettings.modeSystem === "cline" 
-										? chatSettings.mode === "plan" 
+									chatSettings.modeSystem === "cline"
+										? chatSettings.mode === "plan"
 										: chatSettings.mode === "chatbot"
-								} 
+								}
 							/>
 							<SwitchOption
 								isActive={
-									chatSettings.modeSystem === "cline" 
-										? chatSettings.mode === "plan" 
+									chatSettings.modeSystem === "cline"
+										? chatSettings.mode === "plan"
 										: chatSettings.mode === "chatbot"
 								}
 								onMouseOver={() => setShownTooltipMode("chatbot")}
@@ -1789,8 +1797,8 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							</SwitchOption>
 							<SwitchOption
 								isActive={
-									chatSettings.modeSystem === "cline" 
-										? chatSettings.mode === "act" 
+									chatSettings.modeSystem === "cline"
+										? chatSettings.mode === "act"
 										: chatSettings.mode === "agent"
 								}
 								onMouseOver={() => setShownTooltipMode("agent")}

@@ -120,6 +120,114 @@ const setUILanguage = async (language: string) => {
 // REFACTOR: 에러 처리, 상태 업데이트 등 개선
 ```
 
+### 2.4 테스트 코드 아키텍처 원칙 🏗️ **필수**
+
+#### 2.4.1 테스트 전용 코드 분리 원칙
+
+**🚨 절대 금지: 서비스 코드에 테스트 전용 메서드 포함**
+
+```typescript
+// ❌ 절대 금지: 서비스 클래스에 테스트 전용 메서드
+export class CaretSystemPrompt {
+  // ✅ 운영 메서드
+  generateFromJsonSections() { ... }
+
+  // ❌ 금지: 테스트 전용 메서드가 서비스 클래스에 있음
+  generateSystemPrompt() { ... }          // 테스트에서만 사용
+  generateSystemPromptWithTemplates() { ... } // 테스트에서만 사용
+  callOriginalSystemPrompt() { ... }      // 테스트에서만 사용
+}
+```
+
+**✅ 올바른 방법: TestHelper 클래스 분리**
+
+```typescript
+// ✅ 서비스 클래스: 운영 코드만
+export class CaretSystemPrompt {
+  generateFromJsonSections() { ... }
+  getMetrics() { ... }
+  clearMetrics() { ... }
+}
+
+// ✅ 테스트 헬퍼: 테스트 전용 메서드
+export class CaretSystemPromptTestHelper {
+  generateSystemPrompt() { ... }          // 테스트 전용
+  generateSystemPromptWithTemplates() { ... } // 테스트 전용
+  callOriginalSystemPrompt() { ... }      // 테스트 전용
+}
+```
+
+#### 2.4.2 TestHelper 패턴 사용법
+
+**디렉토리 구조:**
+
+```
+caret-src/
+├── core/prompts/
+│   └── CaretSystemPrompt.ts           // 운영 서비스 클래스
+└── __tests__/
+    ├── helpers/
+    │   └── CaretSystemPromptTestHelper.ts  // 테스트 전용 헬퍼
+    └── caret-system-prompt-simple.test.ts
+```
+
+**테스트에서 TestHelper 사용:**
+
+```typescript
+import { CaretSystemPromptTestHelper } from "./helpers/CaretSystemPromptTestHelper"
+
+describe("CaretSystemPrompt - Basic Wrapper Implementation", () => {
+	let testHelper: CaretSystemPromptTestHelper
+
+	beforeEach(() => {
+		testHelper = new CaretSystemPromptTestHelper("/test/extension/path")
+	})
+
+	it("should generate system prompt successfully", async () => {
+		const result = await testHelper.generateSystemPrompt(mockContext)
+		expect(result.prompt).toBeDefined()
+	})
+})
+```
+
+#### 2.4.3 예외: 정말 필요한 경우 명시적 표시
+
+**만약 서비스 코드에 테스트 전용 메서드가 정말 필요한 경우:**
+
+```typescript
+export class SomeService {
+  // ✅ 운영 메서드
+  doBusinessLogic() { ... }
+
+  // ⚠️ 예외적으로 허용: 명시적 forTest 표시
+  forTestOnly_getInternalState() { ... }
+  forTestOnly_resetState() { ... }
+}
+```
+
+**forTest 사용 조건:**
+
+-   내부 상태 접근이 불가피한 경우
+-   Mock이 불가능한 private 메서드 테스트
+-   **메서드명에 반드시 `forTestOnly_` 또는 `forTest_` 접두사**
+
+#### 2.4.4 아키텍처 분리의 장점
+
+**✅ 명확한 책임 분리:**
+
+-   서비스 클래스: 비즈니스 로직에만 집중
+-   TestHelper: 테스트 시나리오에만 집중
+
+**✅ 코드 가독성 향상:**
+
+-   운영진이 서비스 코드를 볼 때 혼동 없음
+-   테스트 전용 코드가 API 문서에 노출되지 않음
+
+**✅ 유지보수성 개선:**
+
+-   테스트 전용 코드 변경이 운영 코드에 영향 없음
+-   리팩토링 시 범위가 명확히 분리됨
+
 ## 3. 테스트 프레임워크 및 도구
 
 ### 3.1 백엔드 테스트 (caret-src/)

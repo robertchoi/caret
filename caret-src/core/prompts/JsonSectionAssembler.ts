@@ -64,18 +64,29 @@ export class JsonSectionAssembler {
 	}
 
 	/**
-	 * Add conditional sections (browser, Claude4)
+	 * Add conditional sections (browser, Claude4, chatbot mode)
 	 */
 	async addConditionalSections(
 		supportsBrowserUse: boolean,
 		browserSettings: any,
 		isClaude4ModelFamily: boolean,
+		mode?: string,
 	): Promise<string[]> {
 		const sections: string[] = []
 
 		if (supportsBrowserUse) {
 			const browserSection = await this.generateBrowserSection(browserSettings)
 			sections.push(browserSection)
+
+			// CARET MODIFICATION: Add conditional browser_action tool
+			const browserToolSection = await this.generateConditionalToolSection("supportsBrowserUse", browserSettings)
+			sections.push(browserToolSection)
+		}
+
+		// CARET MODIFICATION: Add chatbot mode conditional tool
+		if (mode === "chatbot") {
+			const chatbotToolSection = await this.generateConditionalToolSection("chatbot_mode")
+			sections.push(chatbotToolSection)
 		}
 
 		if (isClaude4ModelFamily) {
@@ -131,6 +142,32 @@ export class JsonSectionAssembler {
 			for (const [toolName, toolDef] of Object.entries(template.tools)) {
 				if (typeof toolDef === "object" && toolDef !== null && "title" in toolDef) {
 					const tool = toolDef as any
+
+					// CARET MODIFICATION: Handle conditional tool exclusion
+					if (tool.conditional) {
+						// Skip conditional tools - they will be handled by addConditionalSections
+						this.caretLogger.debug(`Skipping conditional tool ${tool.title} (condition: ${tool.conditional})`)
+						continue
+					}
+
+					// CARET MODIFICATION: Handle mode-based tool filtering
+					if (mode) {
+						if (mode === "chatbot") {
+							// Chatbot mode: only read-only tools allowed
+							const readOnlyTools = ["read_file", "search_files", "list_files", "list_code_definition_names"]
+							if (!readOnlyTools.includes(toolName)) {
+								this.caretLogger.debug(`Skipping non-read-only tool ${tool.title} in chatbot mode`)
+								continue
+							}
+						} else if (mode === "agent") {
+							// Agent mode: exclude chatbot_mode_respond
+							if (toolName === "chatbot_mode_respond") {
+								this.caretLogger.debug(`Skipping chatbot_mode_respond tool in agent mode`)
+								continue
+							}
+						}
+					}
+
 					result += `\n## ${tool.title}\n`
 					if (tool.description) {
 						result += `Description: ${tool.description}\n`
@@ -194,6 +231,61 @@ export class JsonSectionAssembler {
 	 */
 	private async generateClaude4Section(): Promise<string> {
 		return `\n====\n\nCLAUDE 4 FEATURES\n\nAdvanced Claude 4 model features are enabled.\n`
+	}
+
+	/**
+	 * CARET MODIFICATION: Generate conditional tool section
+	 * Adds tools that have conditional attributes when conditions are met
+	 */
+	private async generateConditionalToolSection(condition: string, settings?: any): Promise<string> {
+		try {
+			const template = await this.templateLoader.loadTemplate("TOOL_DEFINITIONS")
+			const templateAny = template as any // CARET MODIFICATION: Type casting for tools access
+			if (!templateAny?.tools) {
+				return ""
+			}
+
+			let result = ""
+			for (const [toolName, toolDef] of Object.entries(templateAny.tools)) {
+				if (typeof toolDef === "object" && toolDef !== null && "title" in toolDef) {
+					const tool = toolDef as any
+
+					// Only include tools that match the current condition
+					if (tool.conditional === condition) {
+						result += `\n## ${tool.title}\n`
+						if (tool.description) {
+							// Handle dynamic content replacement (e.g., viewport size)
+							let description = tool.description
+							if (condition === "supportsBrowserUse" && settings?.viewport) {
+								description = description.replace(
+									"{{browserSettings.viewport.width}}x{{browserSettings.viewport.height}}",
+									`${settings.viewport.width}x${settings.viewport.height}`,
+								)
+							}
+							result += `Description: ${description}\n`
+						}
+						if (tool.parameters && Array.isArray(tool.parameters)) {
+							result += `Parameters:\n`
+							for (const param of tool.parameters) {
+								result += `- ${param.name}${param.required ? " (required)" : " (optional)"}: ${param.description}\n`
+							}
+						}
+						if (tool.usage) {
+							result += `Usage:\n${tool.usage}\n`
+						}
+					}
+				}
+			}
+
+			if (result.trim()) {
+				this.caretLogger.debug(`Generated conditional tool section for ${condition}: ${result.length} chars`)
+			}
+
+			return result
+		} catch (error) {
+			this.caretLogger.warn(`Failed to generate conditional tool section for ${condition}: ${error}`)
+			return ""
+		}
 	}
 
 	/**

@@ -1,18 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
-import { CaretSystemPrompt } from "../core/prompts/CaretSystemPrompt"
+import { CaretSystemPromptTestHelper } from "./helpers/CaretSystemPromptTestHelper"
 import { SystemPromptContext } from "../core/prompts/types"
 import { ClineFeatureValidator } from "../core/verification/ClineFeatureValidator"
 import { SYSTEM_PROMPT } from "@src/core/prompts/system"
 import { McpHub } from "@src/services/mcp/McpHub"
 import { BrowserSettings } from "@src/shared/BrowserSettings"
 
-describe("CaretSystemPrompt - Wrapper Implementation", () => {
-	let caretSystemPrompt: CaretSystemPrompt
+describe("testHelper - Wrapper Implementation", () => {
+	let testHelper: CaretSystemPromptTestHelper
 	let validator: ClineFeatureValidator
 	let mockContext: SystemPromptContext
 
 	beforeEach(() => {
-		caretSystemPrompt = new CaretSystemPrompt()
+		testHelper = new CaretSystemPromptTestHelper("/test/extension/path")
 		validator = new ClineFeatureValidator()
 
 		// Mock context setup
@@ -37,17 +37,17 @@ describe("CaretSystemPrompt - Wrapper Implementation", () => {
 
 	describe("Constructor and Initialization", () => {
 		it("should create instance without errors", () => {
-			expect(caretSystemPrompt).toBeDefined()
-			expect(caretSystemPrompt).toBeInstanceOf(CaretSystemPrompt)
+			expect(testHelper).toBeDefined()
+			expect(testHelper).toBeInstanceOf(CaretSystemPromptTestHelper)
 		})
 
 		it("should initialize with empty metrics", () => {
-			const metrics = caretSystemPrompt.getMetrics()
+			const metrics = testHelper.getMetrics()
 			expect(metrics).toEqual([])
 		})
 
 		it("should have zero average generation time initially", () => {
-			const averageTime = caretSystemPrompt.getAverageGenerationTime()
+			const averageTime = testHelper.getAverageGenerationTime()
 			expect(averageTime).toBe(0)
 		})
 	})
@@ -64,7 +64,7 @@ describe("CaretSystemPrompt - Wrapper Implementation", () => {
 			)
 
 			// Generate Caret wrapper prompt
-			const caretResult = await caretSystemPrompt.generateSystemPrompt(mockContext)
+			const caretResult = await testHelper.generateSystemPrompt(mockContext)
 
 			// Must be completely identical
 			expect(caretResult.prompt).toBe(originalPrompt)
@@ -79,7 +79,7 @@ describe("CaretSystemPrompt - Wrapper Implementation", () => {
 				mockContext.isClaude4ModelFamily,
 			)
 
-			const caretResult = await caretSystemPrompt.generateSystemPrompt(mockContext)
+			const caretResult = await testHelper.generateSystemPrompt(mockContext)
 
 			// Use 003-01 validation system
 			const validationResult = await validator.validateAllFeatures(originalPrompt, caretResult.prompt, {
@@ -94,7 +94,7 @@ describe("CaretSystemPrompt - Wrapper Implementation", () => {
 		})
 
 		it("should collect accurate metrics", async () => {
-			const result = await caretSystemPrompt.generateSystemPrompt(mockContext)
+			const result = await testHelper.generateSystemPrompt(mockContext)
 
 			expect(result.metrics).toBeDefined()
 			expect(result.metrics.generationTime).toBeGreaterThanOrEqual(0)
@@ -117,7 +117,7 @@ describe("CaretSystemPrompt - Wrapper Implementation", () => {
 				true,
 			)
 
-			const caretResult = await caretSystemPrompt.generateSystemPrompt(claude4Context)
+			const caretResult = await testHelper.generateSystemPrompt(claude4Context)
 
 			expect(caretResult.prompt).toBe(originalPrompt)
 			// Should not contain default Cline introduction
@@ -147,7 +147,7 @@ describe("CaretSystemPrompt - Wrapper Implementation", () => {
 			// Measure wrapper performance
 			for (let i = 0; i < iterations; i++) {
 				const start = Date.now()
-				await caretSystemPrompt.generateSystemPrompt(mockContext)
+				await testHelper.generateSystemPrompt(mockContext)
 				caretTimes.push(Date.now() - start)
 			}
 
@@ -160,13 +160,13 @@ describe("CaretSystemPrompt - Wrapper Implementation", () => {
 		})
 
 		it("should update metrics correctly", async () => {
-			await caretSystemPrompt.generateSystemPrompt(mockContext)
-			await caretSystemPrompt.generateSystemPrompt(mockContext)
+			await testHelper.generateSystemPrompt(mockContext)
+			await testHelper.generateSystemPrompt(mockContext)
 
-			const metrics = caretSystemPrompt.getMetrics()
+			const metrics = testHelper.getMetrics()
 			expect(metrics).toHaveLength(2)
 
-			const averageTime = caretSystemPrompt.getAverageGenerationTime()
+			const averageTime = testHelper.getAverageGenerationTime()
 			expect(averageTime).toBeGreaterThan(0)
 		})
 	})
@@ -178,7 +178,7 @@ describe("CaretSystemPrompt - Wrapper Implementation", () => {
 				cwd: "", // Invalid empty path
 			}
 
-			await expect(caretSystemPrompt.generateSystemPrompt(invalidContext)).rejects.toThrow()
+			await expect(testHelper.generateSystemPrompt(invalidContext)).rejects.toThrow()
 		})
 	})
 })

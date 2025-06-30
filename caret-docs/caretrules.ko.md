@@ -570,6 +570,30 @@ describe('Caret 기능', () => {
 - **CaretLogger (백엔드)**: `caret-src/utils/caret-logger.ts`
 - **WebviewLogger (프론트엔드)**: `webview-ui/src/caret/utils/webview-logger.ts`
 
+**테스트 코드 아키텍처 원칙 (MANDATORY)**:
+- **🚨 절대 금지: 서비스 코드에 테스트 전용 메서드 포함**
+  - 프로덕션 클래스에 테스트에서만 사용되는 메서드 추가 금지
+  - 테스트 전용 설정/해제 로직 포함 금지
+  - 모킹 관련 기능 포함 금지
+  - 테스트 검증 메서드 포함 금지
+
+- **✅ TestHelper 패턴 필수 사용**:
+  - `caret-src/__tests__/helpers/{ServiceName}TestHelper.ts` 형식
+  - 테스트 전용 기능은 모두 TestHelper 클래스로 분리
+  - 서비스 클래스는 오직 비즈니스 로직에만 집중
+
+- **⚠️ 예외: forTest 접두사 사용**:
+  - 정말 불가피한 경우에만 서비스 코드에 테스트 메서드 허용
+  - 반드시 `forTestOnly_` 또는 `forTest_` 접두사 사용
+  - 내부 상태 접근이 불가피하거나 Mock 불가능한 경우만 해당
+  - TestHelper 패턴 사용 불가능한 이유 문서화 필수
+
+- **아키텍처 분리 장점**:
+  - 명확한 책임 분리: 서비스 클래스 vs 테스트 헬퍼
+  - 코드 가독성 향상: 운영진 혼동 방지
+  - 유지보수성 개선: 테스트 변경이 운영 코드에 영향 없음
+  - API 문서 깔끔함: 테스트 전용 메서드가 API에 노출되지 않음
+
 ## 프로젝트 관리
 
 **스크립트 관리**: Caret 스크립트는 `caret-scripts/`에 위치 (Cline `scripts/`와 분리)

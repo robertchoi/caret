@@ -140,9 +140,9 @@ async function generateBothPrompts(): Promise<{ clinePrompt: string; caretPrompt
 	)
 
 	// Generate Caret prompt
-	const { CaretSystemPrompt } = await import("../core/prompts/CaretSystemPrompt")
-	const caretSystemPrompt = new CaretSystemPrompt(extensionPath, false) // 실제 sections 경로 사용
-	const caretPrompt = await caretSystemPrompt.generateFromJsonSections(
+	const { CaretSystemPromptTestHelper } = await import("./helpers/CaretSystemPromptTestHelper")
+	const testHelper = new CaretSystemPromptTestHelper(extensionPath, false) // 실제 sections 경로 사용
+	const caretPrompt = await testHelper.generateFromJsonSections(
 		testCwd,
 		true, // supportsBrowserUse
 		mockMcpHub,

@@ -215,12 +215,12 @@ export class CaretExtension {
   private caretSystemPrompt: CaretSystemPrompt
 
   constructor() {
-    this.caretSystemPrompt = new CaretSystemPrompt()
+    this.testHelper = new CaretSystemPromptTestHelper("/test/extension/path")
   }
 
   async getSystemPrompt(context: SystemPromptContext): Promise<string> {
     // 기존 SYSTEM_PROMPT 대신 CaretSystemPrompt 사용
-    return await this.caretSystemPrompt.generateSystemPrompt(context)
+    return await this.testHelper.generateSystemPrompt(context)
   }
 }
 ```
@@ -234,12 +234,12 @@ import { ClineFeatureValidator } from '../core/verification/ClineFeatureValidato
 import { SYSTEM_PROMPT } from '../../src/core/prompts/system'
 
 describe('CaretSystemPrompt - Wrapper Implementation', () => {
-  let caretSystemPrompt: CaretSystemPrompt
+  let testHelper: CaretSystemPromptTestHelper
   let validator: ClineFeatureValidator
   let mockContext: SystemPromptContext
 
   beforeEach(() => {
-    caretSystemPrompt = new CaretSystemPrompt()
+    testHelper = new CaretSystemPromptTestHelper("/test/extension/path")
     validator = new ClineFeatureValidator()
     mockContext = {
       cwd: '/test/project',
@@ -261,7 +261,7 @@ describe('CaretSystemPrompt - Wrapper Implementation', () => {
     )
 
     // Caret 래퍼 프롬프트 생성
-    const caretPrompt = await caretSystemPrompt.generateSystemPrompt(mockContext)
+    const caretPrompt = await testHelper.generateSystemPrompt(mockContext)
 
     // 완전히 동일해야 함
     expect(caretPrompt).toBe(originalPrompt)
@@ -269,7 +269,7 @@ describe('CaretSystemPrompt - Wrapper Implementation', () => {
 
   it('should preserve all Cline features', async () => {
     const originalPrompt = await SYSTEM_PROMPT(/* ... */)
-    const caretPrompt = await caretSystemPrompt.generateSystemPrompt(mockContext)
+    const caretPrompt = await testHelper.generateSystemPrompt(mockContext)
 
     // 003-01의 검증 시스템 사용
     const validationResult = await validator.validateAllFeatures(originalPrompt, caretPrompt)
@@ -295,7 +295,7 @@ describe('CaretSystemPrompt - Wrapper Implementation', () => {
     // 래퍼 성능 측정
     for (let i = 0; i < iterations; i++) {
       const start = Date.now()
-      await caretSystemPrompt.generateSystemPrompt(mockContext)
+      await testHelper.generateSystemPrompt(mockContext)
       caretTimes.push(Date.now() - start)
     }
 
@@ -318,7 +318,7 @@ describe('CaretSystemPrompt - Wrapper Implementation', () => {
       true
     )
 
-    const caretPrompt = await caretSystemPrompt.generateSystemPrompt(claude4Context)
+    const caretPrompt = await testHelper.generateSystemPrompt(claude4Context)
 
     expect(caretPrompt).toBe(originalPrompt)
     // Claude4 전용 기능이 포함되어야 함

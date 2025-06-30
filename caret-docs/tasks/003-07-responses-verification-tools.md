@@ -35,7 +35,7 @@ export const SYSTEM_PROMPT = (
 ): Promise<string> => {
   // CARET MODIFICATION: JSON 템플릿 기반 확장 시스템
   if (systemPromptOptions.useCaretSystemPrompt) {
-    return CaretSystemPrompt.generateSystemPrompt(systemPromptOptions)
+    return testHelper.generateSystemPrompt(systemPromptOptions)
   }
   
   // Cline 원본 호출 (100% 호환성 보장)

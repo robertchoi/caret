@@ -298,6 +298,29 @@
     "logging_system": {
       "backend": "CaretLogger (backend): caret-src/utils/caret-logger.ts",
       "frontend": "WebviewLogger (frontend): webview-ui/src/caret/utils/webview-logger.ts"
+    },
+    "test_architecture_principles": {
+      "service_code_purity": "NEVER include test-only methods in service/production classes",
+      "test_helper_pattern": "Use separate TestHelper classes for test-only functionality",
+      "directory_structure": "caret-src/__tests__/helpers/ for test helper classes",
+      "forbidden_in_service_code": [
+        "Methods only used by tests",
+        "Test-specific setup/teardown logic",
+        "Mock-related functionality",
+        "Test validation methods"
+      ],
+      "testhelper_naming": "{ServiceName}TestHelper.ts in __tests__/helpers/",
+      "exception_fortest_prefix": {
+        "condition": "Only when absolutely necessary for internal state access",
+        "naming": "forTestOnly_ or forTest_ prefix mandatory",
+        "justification": "Must document why TestHelper pattern cannot be used"
+      },
+      "architecture_benefits": [
+        "Clear responsibility separation",
+        "Production code clarity",
+        "Test code maintainability",
+        "No test pollution in APIs"
+      ]
     }
   },
   "project_management": {

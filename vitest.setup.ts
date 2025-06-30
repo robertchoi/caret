@@ -28,7 +28,6 @@ vi.mock("vscode", () => ({
 		onDidChangeTextEditorViewColumn: vi.fn(),
 		onDidChangeTextEditorVisibleRanges: vi.fn(),
 		showTextDocument: vi.fn(),
-		showInformationMessage: vi.fn(),
 		showQuickPick: vi.fn(),
 		showInputBox: vi.fn(),
 	},

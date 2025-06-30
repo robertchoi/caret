@@ -28,14 +28,14 @@ export const SYSTEM_PROMPT = async (
 		try {
 			const { CaretSystemPrompt } = await import('../../../caret-src/core/prompts/CaretSystemPrompt')
 
-			// Caret JSON 시스템 사용
-			const caretPrompt = CaretSystemPrompt.getInstance(extensionPath)
-			const result = await caretPrompt.generateFromJsonSections(
-				cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily, mode
-			)
-			
+				// Caret JSON 시스템 사용
+				const caretPrompt = CaretSystemPrompt.getInstance(extensionPath)
+				const result = await caretPrompt.generateFromJsonSections(
+					cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily, mode
+				)
+				
 			caretLogger.success(`✅ [MODE-CHECK-SYSTEM] Caret JSON 시스템으로 프롬프트 생성 완료: mode=${mode}`, "MODE_CHECK")
-			return result
+				return result
 
 		} catch (error) {
 			caretLogger.error(`❌ [MODE-CHECK-SYSTEM] Caret 시스템 실패, Cline 원본으로 fallback: ${error}`, "MODE_CHECK")

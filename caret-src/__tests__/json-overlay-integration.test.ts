@@ -1,11 +1,11 @@
 // CARET MODIFICATION: Integration test for JSON Overlay System (003-03)
-// Purpose: Test complete integration of JsonTemplateLoader, PromptOverlayEngine, and CaretSystemPrompt
+// Purpose: Test complete integration of JsonTemplateLoader, PromptOverlayEngine, and testHelper
 // Following TDD principles and testing real file system operations
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { promises as fs } from "fs"
 import * as path from "path"
-import { CaretSystemPrompt } from "../core/prompts/CaretSystemPrompt"
+import { CaretSystemPromptTestHelper } from "./helpers/CaretSystemPromptTestHelper"
 import { JsonTemplateLoader } from "../core/prompts/JsonTemplateLoader"
 import { PromptOverlayEngine } from "../core/prompts/PromptOverlayEngine"
 import { SystemPromptContext } from "../core/prompts/types"
@@ -62,7 +62,7 @@ Available servers: test-server`),
 describe("JSON Overlay System - Integration Tests (003-03)", () => {
 	let mockExtensionPath: string
 	let mockContext: SystemPromptContext
-	let caretSystemPrompt: CaretSystemPrompt
+	let testHelper: CaretSystemPromptTestHelper
 	let templateLoader: JsonTemplateLoader
 	let overlayEngine: PromptOverlayEngine
 
@@ -77,12 +77,16 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 			mcpHub: {
 				getServers: vi.fn().mockReturnValue([{ name: "test-server" }]),
 			} as any,
-			browserSettings: {} as any,
+			browserSettings: {
+				width: 1280,
+				height: 720,
+				viewport: { width: 1280, height: 720 },
+			} as any,
 			isClaude4ModelFamily: false,
 		}
 
 		// Initialize components
-		caretSystemPrompt = new CaretSystemPrompt(mockExtensionPath)
+		testHelper = new CaretSystemPromptTestHelper(mockExtensionPath)
 		templateLoader = new JsonTemplateLoader(mockExtensionPath)
 		overlayEngine = new PromptOverlayEngine()
 
@@ -140,7 +144,7 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 			vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(alphaTemplate))
 
 			// Apply template
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["alpha-personality"])
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["alpha-personality"])
 
 			// Verify results
 			expect(result).toBeDefined()
@@ -195,7 +199,7 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 			vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(tddTemplate))
 
 			// Apply template
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["tdd-focused"])
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["tdd-focused"])
 
 			// Verify TDD content
 			expect(result.prompt).toContain("Test-Driven Development (TDD)")
@@ -233,7 +237,7 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 				.mockResolvedValueOnce(JSON.stringify(debugTemplate))
 
 			// Apply multiple templates
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, [
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, [
 				"alpha-personality",
 				"enhanced-debugging",
 			])
@@ -252,7 +256,7 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 			vi.mocked(fs.readFile).mockRejectedValueOnce(new Error("ENOENT: no such file"))
 
 			// Should not throw, but should log error
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["non-existent-template"])
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["non-existent-template"])
 
 			// Should return base prompt without templates
 			expect(result.prompt).toBeDefined()
@@ -270,7 +274,7 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 			// Mock invalid JSON
 			vi.mocked(fs.readFile).mockResolvedValueOnce("{ invalid json }")
 
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["invalid-template"])
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["invalid-template"])
 
 			// Should return base prompt
 			expect(result.prompt).toBeDefined()
@@ -288,7 +292,7 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 
 			vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(invalidTemplate))
 
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["invalid-template"])
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["invalid-template"])
 
 			expect(result.metrics.appliedTemplates).toEqual([])
 			expect(caretLogger.error).toHaveBeenCalled()
@@ -310,7 +314,7 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 
 			vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(template))
 
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["test-template"])
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["test-template"])
 
 			// Verify metrics structure
 			expect(result.metrics).toMatchObject({
@@ -344,7 +348,7 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 				() => new Promise((resolve) => setTimeout(() => resolve(JSON.stringify(template)), 15)),
 			)
 
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["slow-template"])
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["slow-template"])
 
 			// Should warn about slow generation (but may not trigger in mocked environment)
 			// In mocked environment, the setTimeout might not actually delay, so we just check if it completed
@@ -367,7 +371,7 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 
 			vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(template))
 
-			const result = await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["safe-template"])
+			const result = await testHelper.generateSystemPromptWithTemplates(mockContext, ["safe-template"])
 
 			// Should preserve all original tools
 			expect(result.prompt).toContain("file_editor")
@@ -381,7 +385,7 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 		})
 
 		it("should maintain original prompt structure", async () => {
-			const result = await caretSystemPrompt.generateSystemPrompt(mockContext)
+			const result = await testHelper.generateSystemPrompt(mockContext)
 
 			// Base prompt should maintain structure
 			expect(result.prompt).toContain("# System Prompt")
@@ -408,10 +412,10 @@ describe("JSON Overlay System - Integration Tests (003-03)", () => {
 			vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(template))
 
 			// First call
-			await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["cached-template"])
+			await testHelper.generateSystemPromptWithTemplates(mockContext, ["cached-template"])
 
 			// Second call - should use cache
-			await caretSystemPrompt.generateSystemPromptWithTemplates(mockContext, ["cached-template"])
+			await testHelper.generateSystemPromptWithTemplates(mockContext, ["cached-template"])
 
 			// fs.readFile should only be called once due to caching
 			expect(fs.readFile).toHaveBeenCalledTimes(1)

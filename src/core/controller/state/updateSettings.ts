@@ -6,6 +6,8 @@ import { buildApiHandler } from "../../../api"
 import { convertProtoApiConfigurationToApiConfiguration } from "../../../shared/proto-conversions/state/settings-conversion"
 import { convertProtoChatSettingsToChatSettings } from "../../../shared/proto-conversions/state/chat-settings-conversion"
 import { TelemetrySetting } from "@/shared/TelemetrySetting"
+// CARET MODIFICATION: Mission 2 - 백엔드 로깅 시스템 사용
+import { caretLogger } from "../../../../caret-src/utils/caret-logger"
 
 /**
  * Updates multiple extension settings in a single request
@@ -15,24 +17,8 @@ import { TelemetrySetting } from "@/shared/TelemetrySetting"
  */
 export async function updateSettings(controller: Controller, request: UpdateSettingsRequest): Promise<Empty> {
 	try {
-		// CARET MODIFICATION: Debug logging to track what's being updated
-		console.log("[DEBUG] 🔧 updateSettings called with:", {
-			hasApiConfiguration: !!request.apiConfiguration,
-			hasTelemetrySetting: !!request.telemetrySetting,
-			hasChatSettings: !!request.chatSettings,
-			hasUILanguage: request.uiLanguage !== undefined,
-			uiLanguageValue: request.uiLanguage,
-			otherSettings: {
-				chatbotAgentSeparateModelsSetting: request.chatbotAgentSeparateModelsSetting !== undefined,
-				enableCheckpointsSetting: request.enableCheckpointsSetting !== undefined,
-				mcpMarketplaceEnabled: request.mcpMarketplaceEnabled !== undefined,
-				mcpResponsesCollapsed: request.mcpResponsesCollapsed !== undefined,
-				mcpRichDisplayEnabled: request.mcpRichDisplayEnabled !== undefined,
-				shellIntegrationTimeout: request.shellIntegrationTimeout !== undefined,
-				terminalReuseEnabled: request.terminalReuseEnabled !== undefined,
-				terminalOutputLineLimit: request.terminalOutputLineLimit !== undefined,
-			},
-		})
+		// CARET MODIFICATION: Mission 2 - 백엔드 설정 업데이트 로깅
+		caretLogger.info("📥 [BACKEND-RECEIVE] updateSettings called", "STATE")
 		// Update API configuration
 		if (request.apiConfiguration) {
 			const apiConfiguration = convertProtoApiConfigurationToApiConfiguration(request.apiConfiguration)
@@ -84,9 +70,14 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 			const chatSettings = convertProtoChatSettingsToChatSettings(request.chatSettings)
 			// CARET MODIFICATION: Remove uiLanguage from chatSettings before saving (stored separately in globalState)
 			const { uiLanguage, ...chatSettingsWithoutUILanguage } = chatSettings
+
+			// CARET MODIFICATION: Mission 2 - 저장 로깅
+			caretLogger.info(`💾 [BACKEND-SAVE] Saving chatSettings: mode=${chatSettingsWithoutUILanguage.mode}`, "STATE")
+
 			await controller.context.workspaceState.update("chatSettings", chatSettingsWithoutUILanguage)
 			if (controller.task) {
 				controller.task.chatSettings = chatSettingsWithoutUILanguage
+				caretLogger.info("🔄 [BACKEND-SYNC] Updated controller.task.chatSettings", "STATE")
 			}
 		}
 
@@ -105,8 +96,8 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 			await controller.context.globalState.update("terminalOutputLineLimit", Number(request.terminalOutputLineLimit))
 		}
 
-		// CARET MODIFICATION: Conditional broadcast to prevent circular messages
-		// Skip broadcast for uiLanguage-only updates to prevent webview subscription override
+		// CARET MODIFICATION: Mission 2 GREEN - 확장된 조건부 브로드캐스트 로직
+		// Skip broadcast for single-field updates to prevent circular messages
 		const isUILanguageOnlyUpdate =
 			request.uiLanguage !== undefined &&
 			!request.apiConfiguration &&
@@ -121,17 +112,34 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 			request.terminalReuseEnabled === undefined &&
 			request.terminalOutputLineLimit === undefined
 
-		console.log("[DEBUG] 🔧 Broadcast decision:", {
-			isUILanguageOnlyUpdate,
-			willBroadcast: !isUILanguageOnlyUpdate,
-		})
+		// CARET MODIFICATION: Mission 2 - chatSettings 단일 업데이트도 브로드캐스트 스킵
+		const isChatSettingsOnlyUpdate =
+			request.chatSettings &&
+			request.uiLanguage === undefined &&
+			!request.apiConfiguration &&
+			!request.telemetrySetting &&
+			request.chatbotAgentSeparateModelsSetting === undefined &&
+			request.enableCheckpointsSetting === undefined &&
+			request.mcpMarketplaceEnabled === undefined &&
+			request.mcpResponsesCollapsed === undefined &&
+			request.mcpRichDisplayEnabled === undefined &&
+			request.shellIntegrationTimeout === undefined &&
+			request.terminalReuseEnabled === undefined &&
+			request.terminalOutputLineLimit === undefined
 
-		if (!isUILanguageOnlyUpdate) {
-			console.log("[DEBUG] 🔧 Calling postStateToWebview()")
-			// Post updated state to webview (only for non-uiLanguage updates)
+		const shouldSkipBroadcast = isUILanguageOnlyUpdate || isChatSettingsOnlyUpdate
+
+		// CARET MODIFICATION: Mission 2 - 브로드캐스트 결정 로깅
+		caretLogger.info(`📡 [BACKEND-BROADCAST] shouldSkipBroadcast=${shouldSkipBroadcast}`, "STATE")
+
+		if (!shouldSkipBroadcast) {
+			caretLogger.info("📤 [BACKEND-BROADCAST] Sending state to webview", "STATE")
+			// Post updated state to webview (only for multi-field updates)
 			await controller.postStateToWebview()
+			caretLogger.info("✅ [BACKEND-BROADCAST] State sent to webview successfully", "STATE")
 		} else {
-			console.log("[DEBUG] 🔧 SKIPPING postStateToWebview() for uiLanguage-only update")
+			const reason = isUILanguageOnlyUpdate ? "uiLanguage-only" : "chatSettings-only"
+			caretLogger.info(`⏸️ [BACKEND-BROADCAST] SKIPPED postStateToWebview() for ${reason} update`, "STATE")
 		}
 
 		return Empty.create()

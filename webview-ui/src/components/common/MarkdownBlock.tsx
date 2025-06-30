@@ -61,7 +61,7 @@ const AgentModeHighlight: React.FC = () => (
 )
 
 // CARET MODIFICATION: Chatbot/Agent 일관성 있는 텍스트 처리
-const transformChatbotAgentText = (text: string, mode: "chatbot" | "agent", modeSystem?: string): string => {
+const transformChatbotAgentText = (text: string, mode: "chatbot" | "agent" | "plan" | "act", modeSystem?: string): string => {
 	// Cline 모드일 때는 원래 Plan/Act 유지
 	if (modeSystem === "cline") {
 		return text // Plan/Act 그대로 유지

@@ -419,6 +419,13 @@ export class Controller {
 	async toggleChatbotAgentModeWithChatSettings(chatSettings: ChatSettings, chatContent?: ChatContent) {
 		const didSwitchToAgentMode = chatSettings.mode === "agent"
 
+		// CARET MODIFICATION: Mission 2 - Controller 모드 토글 로깅 (상세)
+		const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
+		caretLogger.info(
+			`🎛️ [CONTROLLER] toggleChatbotAgentModeWithChatSettings: receivedMode=${chatSettings.mode}, didSwitchToAgent=${didSwitchToAgentMode}, currentTaskMode=${this.task?.chatSettings?.mode}`,
+			"STATE",
+		)
+
 		// Capture mode switch telemetry | Capture regardless of if we know the taskId
 		// CARET MODIFICATION: Chatbot/Agent 모드로 telemetry 수정 (기존 plan/act 호환)
 		// CARET MODIFICATION: Chatbot/Agent 모드 텔레메트리 호환성 매핑
@@ -592,10 +599,17 @@ export class Controller {
 		}
 
 		await updateWorkspaceState(this.context, "chatSettings", chatSettings)
+		caretLogger.info(`💾 [CONTROLLER-SAVE] chatSettings saved to workspaceState: mode=${chatSettings.mode}`, "STATE")
+
 		await this.postStateToWebview()
+		caretLogger.info(
+			`📤 [CONTROLLER-BROADCAST] postStateToWebview() called - broadcastingMode=${this.task?.chatSettings?.mode}`,
+			"STATE",
+		)
 
 		if (this.task) {
 			this.task.chatSettings = chatSettings
+			caretLogger.info(`🔄 [CONTROLLER-SYNC] task.chatSettings updated: mode=${chatSettings.mode}`, "STATE")
 			if (this.task.isAwaitingPlanResponse && didSwitchToAgentMode) {
 				this.task.didRespondToPlanAskBySwitchingMode = true
 				// Use chatContent if provided, otherwise use default message
@@ -1114,6 +1128,11 @@ export class Controller {
 
 	async postStateToWebview() {
 		const state = await this.getStateToPostToWebview()
+
+		// CARET MODIFICATION: Mission 2 - 실제 브로드캐스트 값 로깅
+		const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
+		caretLogger.info(`📡 [WEBVIEW-SEND] Sending state to webview - chatSettings.mode=${state.chatSettings.mode}`, "STATE")
+
 		await sendStateUpdate(state)
 	}
 

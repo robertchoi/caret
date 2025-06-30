@@ -74,6 +74,7 @@ interface ExtensionStateContextType extends ExtensionState {
 	setUILanguage: (language: string) => void
 	// CARET MODIFICATION: Mode system (Caret/Cline interface) setter
 	setModeSystem: (modeSystem: string) => void
+
 	setMcpServers: (value: McpServer[]) => void
 	setGlobalClineRulesToggles: (toggles: Record<string, boolean>) => void
 	setLocalClineRulesToggles: (toggles: Record<string, boolean>) => void
@@ -292,7 +293,27 @@ export const ExtensionStateContextProvider: React.FC<{
 					try {
 						const stateData = JSON.parse(response.stateJson) as ExtensionState
 						console.log("[DEBUG] parsed state JSON, updating state")
+						
+						// CARET MODIFICATION: Mission 2 - 상태 업데이트 수신 로깅
+						import("../caret/utils/webview-logger").then(({ caretWebviewLogger }) => {
+							caretWebviewLogger.info("📥 [RECEIVE] State update received from backend", {
+								hasChatSettings: !!stateData.chatSettings,
+								newMode: stateData.chatSettings?.mode,
+								timestamp: new Date().toISOString()
+							})
+						})
+						
 						setState((prevState) => {
+							// CARET MODIFICATION: Mission 2 - 모드 변경 감지 로깅
+							const modeChanged = prevState.chatSettings?.mode !== stateData.chatSettings?.mode
+							if (modeChanged) {
+								import("../caret/utils/webview-logger").then(({ caretWebviewLogger }) => {
+									caretWebviewLogger.info("🔄 [MODE-CHANGE] Chat mode changed", {
+										from: prevState.chatSettings?.mode,
+										to: stateData.chatSettings?.mode
+									})
+								})
+							}
 							// Versioning logic for autoApprovalSettings
 							const incomingVersion = stateData.autoApprovalSettings?.version ?? 1
 							const currentVersion = prevState.autoApprovalSettings?.version ?? 1
@@ -787,7 +808,14 @@ export const ExtensionStateContextProvider: React.FC<{
 		closeMcpView,
 		setChatSettings: async (value) => {
 			try {
-				// CARET MODIFICATION: Backend 저장을 먼저 수행하여 상태 덮어쓰기 방지
+				// CARET MODIFICATION: Mission 2 - 간단한 로깅으로 모드 동기화 문제 추적
+				const { caretWebviewLogger } = await import("../caret/utils/webview-logger")
+				caretWebviewLogger.info("📤 [SEND] setChatSettings called", {
+					currentMode: state.chatSettings.mode,
+					newMode: value.mode,
+					modeChanged: state.chatSettings.mode !== value.mode
+				})
+
 				// Import the conversion functions
 				const { convertApiConfigurationToProtoApiConfiguration } = await import(
 					"@shared/proto-conversions/state/settings-conversion"
@@ -796,6 +824,7 @@ export const ExtensionStateContextProvider: React.FC<{
 					"@shared/proto-conversions/state/chat-settings-conversion"
 				)
 
+				caretWebviewLogger.info("🚀 [BACKEND] Sending updateSettings to backend")
 				await StateServiceClient.updateSettings(
 					UpdateSettingsRequest.create({
 						chatSettings: convertChatSettingsToProtoChatSettings(value),
@@ -810,12 +839,16 @@ export const ExtensionStateContextProvider: React.FC<{
 						mcpResponsesCollapsed: state.mcpResponsesCollapsed,
 					}),
 				)
+				caretWebviewLogger.info("✅ [BACKEND] updateSettings completed")
 
-				// Backend 저장 성공 후 Frontend 상태 업데이트
+				// Frontend 상태 업데이트
+				caretWebviewLogger.info("💾 [SAVE] Updating frontend state")
 				setState((prevState) => ({
 					...prevState,
 					chatSettings: value,
 				}))
+
+				caretWebviewLogger.info("🔄 [SYNC] setChatSettings completed")
 			} catch (error) {
 				console.error("Failed to update chat settings:", error)
 			}
@@ -887,17 +920,19 @@ export const ExtensionStateContextProvider: React.FC<{
 		// CARET MODIFICATION: Mode system setter for Caret/Cline interface switching
 		setModeSystem: async (modeSystem: string) => {
 			try {
-				// CARET MODIFICATION: 기본값 설정 로직 - Caret=Agent, Cline=Plan(chatbot)
-				const currentMode = state.chatSettings.mode
-				let defaultMode = currentMode // 현재 모드 유지
+				// CARET MODIFICATION: 기본값 설정 로직 - Caret=Agent, Cline=Plan
+				let defaultMode: "chatbot" | "agent" | "plan" | "act"
 
-				// 모드 시스템 변경 시 적절한 기본값으로 설정
-				if (modeSystem === "caret" && currentMode === "chatbot") {
-					// Caret 모드로 전환 시 chatbot -> agent로 변경 (Caret의 기본값은 Agent)
+				// 모드 시스템 변경 시 해당 시스템의 기본값으로 설정
+				if (modeSystem === "caret") {
+					// Caret 모드: 기본값은 항상 agent
 					defaultMode = "agent"
-				} else if (modeSystem === "cline" && currentMode === "agent") {
-					// Cline 모드로 전환 시 agent -> chatbot로 변경 (Cline의 기본값은 Plan=chatbot)
-					defaultMode = "chatbot"
+				} else if (modeSystem === "cline") {
+					// Cline 모드: 기본값은 항상 plan
+					defaultMode = "plan"
+				} else {
+					// 알 수 없는 모드 시스템인 경우 현재 모드 유지
+					defaultMode = state.chatSettings.mode
 				}
 
 				// Import the conversion functions for proper chat settings update
@@ -930,6 +965,7 @@ export const ExtensionStateContextProvider: React.FC<{
 				console.error("Failed to update mode system:", error)
 			}
 		},
+
 	}
 
 	return <ExtensionStateContext.Provider value={contextValue}>{children}</ExtensionStateContext.Provider>

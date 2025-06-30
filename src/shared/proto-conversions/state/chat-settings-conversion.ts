@@ -7,8 +7,20 @@ import { ChatContent as ProtoChatContent, ChatSettings as ProtoChatSettings, Cha
  * Converts domain ChatSettings objects to proto ChatSettings objects
  */
 export function convertChatSettingsToProtoChatSettings(chatSettings: ChatSettings): ProtoChatSettings {
+	// CARET MODIFICATION: Mission 2 - Cline/Caret 모드 용어를 enum으로 변환
+	let protoMode: ChatbotAgentMode
+	
+	if (chatSettings.mode === "chatbot" || chatSettings.mode === "plan") {
+		protoMode = ChatbotAgentMode.CHATBOT_MODE
+	} else if (chatSettings.mode === "agent" || chatSettings.mode === "act") {
+		protoMode = ChatbotAgentMode.AGENT_MODE
+	} else {
+		// 기본값
+		protoMode = ChatbotAgentMode.AGENT_MODE
+	}
+	
 	return ProtoChatSettings.create({
-		mode: chatSettings.mode === "chatbot" ? ChatbotAgentMode.CHATBOT_MODE : ChatbotAgentMode.AGENT_MODE, // CARET MODIFICATION: CHATBOT_MODE/AGENT_MODE 매핑
+		mode: protoMode, // CARET MODIFICATION: Mission 2 - 통합 모드 매핑
 		preferredLanguage: chatSettings.preferredLanguage,
 		openAiReasoningEffort: chatSettings.openAIReasoningEffort,
 		uiLanguage: chatSettings.uiLanguage, // CARET MODIFICATION: UI 언어 필드 추가
@@ -20,9 +32,21 @@ export function convertChatSettingsToProtoChatSettings(chatSettings: ChatSetting
  * Converts proto ChatSettings objects to domain ChatSettings objects
  */
 export function convertProtoChatSettingsToChatSettings(protoChatSettings: ProtoChatSettings): ChatSettings {
+	// CARET MODIFICATION: Mission 2 - modeSystem에 따른 모드 용어 변환
+	const modeSystem = protoChatSettings.modeSystem || "caret" // 기본값은 caret
+	let modeString: "chatbot" | "agent" | "plan" | "act"
+	
+	if (modeSystem === "cline") {
+		// Cline 모드: CHATBOT_MODE=plan, AGENT_MODE=act
+		modeString = protoChatSettings.mode === ChatbotAgentMode.CHATBOT_MODE ? "plan" : "act"
+	} else {
+		// Caret 모드: CHATBOT_MODE=chatbot, AGENT_MODE=agent
+		modeString = protoChatSettings.mode === ChatbotAgentMode.CHATBOT_MODE ? "chatbot" : "agent"
+	}
+
 	// eslint-disable-next-line eslint-rules/no-protobuf-object-literals
 	return {
-		mode: protoChatSettings.mode === ChatbotAgentMode.CHATBOT_MODE ? "chatbot" : "agent", // CARET MODIFICATION: CHATBOT_MODE/AGENT_MODE 매핑
+		mode: modeString, // CARET MODIFICATION: Mission 2 - Cline/Caret 모드 용어 지원
 		preferredLanguage: protoChatSettings.preferredLanguage,
 		openAIReasoningEffort: protoChatSettings.openAiReasoningEffort as "low" | "medium" | "high" | undefined,
 		uiLanguage: protoChatSettings.uiLanguage, // CARET MODIFICATION: UI 언어 필드 추가

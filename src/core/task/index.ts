@@ -1148,9 +1148,10 @@ export class Task {
 		const pendingContextWarning = await this.fileContextTracker.retrieveAndClearPendingFileContextWarning()
 		const hasPendingFileContextWarnings = pendingContextWarning && pendingContextWarning.length > 0
 
-		// CARET MODIFICATION: Chatbot/Agent 용어 통일 - Cline 호환 모드로 변환하여 전달
-		// CARET MODIFICATION: Chatbot/Agent 모드를 Cline 호환 plan/act로 매핑
-		const clineCompatibleMode = this.chatSettings?.mode === "chatbot" ? "plan" : "act"
+		// CARET MODIFICATION: Mission 2 - Cline/Caret 모드 용어 통합 처리
+		// CARET MODIFICATION: 모든 모드를 Cline 호환 plan/act로 매핑
+		const clineCompatibleMode = 
+			(this.chatSettings?.mode === "chatbot" || this.chatSettings?.mode === "plan") ? "plan" : "act"
 		const [taskResumptionMessage, userResponseMessage] = formatResponse.taskResumption(
 			clineCompatibleMode,
 			agoText,
@@ -1703,19 +1704,39 @@ export class Task {
 		if (this.chatSettings.modeSystem === "cline") {
 			// Cline Plan/Act 모드: Cline 원본 SYSTEM_PROMPT 사용
 			// Plan/Act 로직은 Cline 원본 프롬프트에 최적화되어 있음
+			// 모드 정보는 환경 세부사항에서 제공됨 (원래 Cline 방식)
+			// CARET MODIFICATION: Cline 모드에서는 extensionPath를 전달하지 않아서 ORIGINAL_CLINE_SYSTEM_PROMPT 강제 사용
 
-			// Cline 원본에서는 extensionPath와 mode 파라미터가 없으므로 기본 호출
-			systemPrompt = await SYSTEM_PROMPT(cwd, supportsBrowserUse, this.mcpHub, this.browserSettings, isClaude4Model)
+			// CARET MODIFICATION: 현재 모드 확인 로그 추가
+			const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
+			caretLogger.warn(
+				`🔍 [MODE-CHECK-CLINE] Cline 모드 - SYSTEM_PROMPT 호출: chatSettings.mode=${this.chatSettings.mode}, modeSystem=${this.chatSettings.modeSystem}, mode 파라미터 미전달 (기본값 'agent' 사용됨!)`,
+				"MODE_CHECK"
+			)
+
+			systemPrompt = await SYSTEM_PROMPT(cwd, supportsBrowserUse, this.mcpHub, this.browserSettings, isClaude4Model, undefined)
 		} else {
 			// Caret 모드: JSON 기반 개선된 프롬프트 사용 (mode 파라미터 포함)
+			// CARET MODIFICATION: Mission 2 - Caret 시스템용 모드 변환
+			const caretCompatibleMode: "chatbot" | "agent" = 
+				(this.chatSettings.mode === "chatbot" || this.chatSettings.mode === "plan") ? "chatbot" : "agent"
+			
+			// CARET MODIFICATION: 현재 모드 확인 로그 추가
+			const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
+			caretLogger.info(
+				`🔍 [MODE-CHECK-CARET] Caret 모드 - SYSTEM_PROMPT 호출: chatSettings.mode=${this.chatSettings.mode} → caretCompatibleMode=${caretCompatibleMode}, modeSystem=${this.chatSettings.modeSystem}`,
+				"MODE_CHECK"
+			)
+			
+			// CARET MODIFICATION: extensionPath 전달로 Caret JSON 시스템 활성화
 			systemPrompt = await SYSTEM_PROMPT(
 				cwd,
 				supportsBrowserUse,
 				this.mcpHub,
 				this.browserSettings,
 				isClaude4Model,
-				undefined,
-				this.chatSettings.mode,
+				this.context.extensionPath, // ← 이제 Caret JSON 시스템이 활성화됨!
+				caretCompatibleMode,
 			)
 		}
 
@@ -5095,9 +5116,34 @@ export class Task {
 		details += "\n\n# Context Window Usage"
 		details += `\n${lastApiReqTotalTokens.toLocaleString()} / ${(contextWindow / 1000).toLocaleString()}K tokens used (${usagePercentage}%)`
 
-		// CARET MODIFICATION: 모드 표시 완전 제거 - 과거 대화 일관성 보장
-		// 모드 정보는 시스템 프롬프트에서만 처리하여 과거 대화가 바뀌는 문제 해결
-		// 환경 세부사항은 파일, 터미널, 시간 등 실행 컨텍스트만 표시
+		// CARET MODIFICATION: Cline 모드에서는 환경 세부사항에 모드 정보 포함 (원래 Cline 방식)
+		// Caret 모드에서는 시스템 프롬프트에서만 처리하여 과거 대화 일관성 보장
+		if (this.chatSettings.modeSystem === "cline") {
+			// CARET MODIFICATION: 환경 세부사항 모드 확인 로그 추가
+			const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
+			caretLogger.info(
+				`🔍 [MODE-CHECK-ENV] Environment Details 모드 확인: chatSettings.mode=${this.chatSettings.mode}, modeSystem=${this.chatSettings.modeSystem}`,
+				"MODE_CHECK"
+			)
+
+			// Cline 원본 방식 복원: planModeInstructions() 포함
+			details += "\n\n# Current Mode"
+			if (this.chatSettings.mode === "plan") {
+				details += "\nPLAN MODE\n" + formatResponse.planModeInstructions()
+				
+				caretLogger.info(
+					`✅ [MODE-CHECK-ENV] Environment Details에 PLAN MODE 추가됨`,
+					"MODE_CHECK"
+				)
+			} else {
+				details += "\nACT MODE"
+				
+				caretLogger.info(
+					`✅ [MODE-CHECK-ENV] Environment Details에 ACT MODE 추가됨`,
+					"MODE_CHECK"
+				)
+			}
+		}
 
 		return `<environment_details>\n${details.trim()}\n</environment_details>`
 	}

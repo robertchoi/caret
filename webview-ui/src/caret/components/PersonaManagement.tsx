@@ -15,6 +15,9 @@ interface PersonaManagementProps {
 export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className }) => {
 	const [isSelectorOpen, setIsSelectorOpen] = useState(false)
 	const [selectedPersona, setSelectedPersona] = useState<TemplateCharacter | null>(null)
+	const [currentPersonaImages, setCurrentPersonaImages] = useState<{ avatarUri: string; thinkingAvatarUri: string } | null>(
+		null,
+	)
 	const [currentInstruction, setCurrentInstruction] = useState<string>("")
 	const [uploadMessage, setUploadMessage] = useState<string>("")
 	const [isUploading, setIsUploading] = useState<boolean>(false)
@@ -61,6 +64,11 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 	}
 
 	useEffect(() => {
+		// Request current persona images for display
+		vscode.postMessage({
+			type: "REQUEST_PERSONA_IMAGES",
+		})
+
 		vscode.postMessage({
 			type: "REQUEST_TEMPLATE_CHARACTERS",
 		})
@@ -74,6 +82,19 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
 			const message = event.data
+
+			// Handle current persona images response
+			if (message.type === "RESPONSE_PERSONA_IMAGES") {
+				const personaData = message.payload
+				caretWebviewLogger.debug("PersonaManagement: Received current persona images:", personaData)
+
+				if (personaData && personaData.avatarUri && personaData.thinkingAvatarUri) {
+					setCurrentPersonaImages({
+						avatarUri: personaData.avatarUri,
+						thinkingAvatarUri: personaData.thinkingAvatarUri,
+					})
+				}
+			}
 
 			if (message.type === "RESPONSE_TEMPLATE_CHARACTERS") {
 				const characters: TemplateCharacter[] = message.payload
@@ -117,7 +138,12 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 						caretWebviewLogger.info(`Custom persona image saved to: ${message.payload.savedPath}`)
 					}
 
-					// Refresh persona templates to show updated custom images
+					// Refresh current persona images to show updated custom images
+					vscode.postMessage({
+						type: "REQUEST_PERSONA_IMAGES",
+					})
+
+					// Also refresh persona templates
 					vscode.postMessage({
 						type: "REQUEST_TEMPLATE_CHARACTERS",
 					})
@@ -129,6 +155,11 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 			}
 
 			if (message.type === "PERSONA_UPDATED") {
+				// Refresh current persona images
+				vscode.postMessage({
+					type: "REQUEST_PERSONA_IMAGES",
+				})
+
 				vscode.postMessage({
 					type: "REQUEST_TEMPLATE_CHARACTERS",
 				})
@@ -183,7 +214,7 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 		<div className={className} data-testid="persona-management">
 			<div className="text-sm font-normal mb-2">{t("rules.section.personaManagement", "common")}</div>
 
-			{selectedPersona && (
+			{currentPersonaImages && (
 				<div className="mb-4 mt-2">
 					<div className="flex justify-center space-x-4 mb-2">
 						<div className="text-center">
@@ -191,8 +222,8 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 								{t("normalState", "persona")}
 							</div>
 							<img
-								src={selectedPersona.avatarUri}
-								alt={`${getPersonaName()} normal`}
+								src={currentPersonaImages.avatarUri}
+								alt="Current persona normal"
 								className="w-20 h-20 rounded-full object-cover border-2 border-[var(--vscode-settings-headerBorder)]"
 							/>
 							<VSCodeButton
@@ -209,8 +240,8 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 								{t("thinkingState", "persona")}
 							</div>
 							<img
-								src={selectedPersona.thinkingAvatarUri}
-								alt={`${getPersonaName()} thinking`}
+								src={currentPersonaImages.thinkingAvatarUri}
+								alt="Current persona thinking"
 								className="w-20 h-20 rounded-full object-cover border-2 border-[var(--vscode-settings-headerBorder)]"
 							/>
 							<VSCodeButton
@@ -223,7 +254,9 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 							</VSCodeButton>
 						</div>
 					</div>
-					<div className="text-center text-sm font-medium">{getPersonaName()}</div>
+					<div className="text-center text-sm font-medium">
+						{selectedPersona ? getPersonaName() : t("currentPersona", "persona")}
+					</div>
 
 					{(uploadMessage || isUploading) && (
 						<div className="text-center mt-2">
@@ -240,7 +273,7 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 				</div>
 			)}
 
-			{selectedPersona && (
+			{currentPersonaImages && (
 				<div className="flex justify-center space-x-2 mb-4">
 					<VSCodeButton appearance="secondary" onClick={() => handleImageUpload("normal")} disabled={isUploading}>
 						{t("upload.normal", "persona")}

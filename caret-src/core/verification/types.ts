@@ -293,3 +293,390 @@ export interface ValidationMetrics {
 	warnings: number
 	suggestions: number
 }
+
+/**
+ * Extended validation types for AI prompt files analysis
+ */
+
+export interface ExtendedValidationResult {
+	systemValidationPattern: any
+	promptFilesAnalysis: PromptFilesValidationResult
+	conversionPlan: ConversionPlan
+	riskAssessment: RiskAssessment
+	clineMode: boolean
+	targetFiles: string[]
+	timestamp: number
+	isValid: boolean
+	recommendedNext: string[]
+}
+
+export interface PromptFilesValidationResult {
+	fileAnalyses: Record<string, any>
+	analysisMetadata: AnalysisMetadata
+}
+
+export interface AnalysisMetadata {
+	analyzedFiles: string[]
+	successfulAnalyses: number
+	failedAnalyses: number
+	clineMode: boolean
+	timestamp: number
+}
+
+export interface ConversionPlan {
+	conversionOrder: ConversionPhase[]
+	estimatedTokenSavings: Record<string, string>
+}
+
+export interface ConversionPhase {
+	file: string
+	priority: number
+	reason: string
+	expectedEffort: "low" | "medium" | "high"
+	expectedBenefit: "low" | "medium" | "high" | "very_high"
+}
+
+export interface RiskAssessment {
+	overallRiskLevel: "low" | "medium" | "high"
+	riskFactors: RiskFactor[]
+	recommendedApproach: string
+}
+
+export interface RiskFactor {
+	factor: string
+	level: "low" | "medium" | "high" | "critical"
+	mitigation: string
+}
+
+/**
+ * Claude4 Analysis Types
+ */
+
+export interface Claude4Analysis {
+	mainPrompt?: MainPromptAnalysis
+	experimental?: ExperimentalPromptAnalysis
+	compatibility: CompatibilityAnalysis
+	conversionReadiness: ConversionReadiness
+	tokenOptimization: TokenOptimizationAnalysis
+	modeSpecificAnalysis: ModeSpecificAnalysis
+}
+
+export interface MainPromptAnalysis {
+	modelOptimizations: ModelOptimization[]
+	performanceCriticalSections: PerformanceSection[]
+	toolDefinitions: ToolDefinition[]
+	conditionalLogic: ConditionalBlock[]
+	templateStructures: TemplateStructure[]
+	jsonConversionCandidates: JsonCandidate[]
+}
+
+export interface ExperimentalPromptAnalysis {
+	experimentalFeatures: ExperimentalFeature[]
+	stabilityIndicators: StabilityIndicator[]
+	changeFrequency: ChangeFrequencyAnalysis
+	riskFactors: ExperimentalRiskFactor[]
+	conversionStrategy: ConversionStrategy
+}
+
+export interface ModelOptimization {
+	type: "claude4_specific" | "performance" | "token_optimization"
+	content: string
+	startIndex: number
+	length: number
+	conversionComplexity: "low" | "medium" | "high"
+}
+
+export interface PerformanceSection {
+	name: string
+	content: string
+	startIndex: number
+	endIndex: number
+	criticalityLevel: "low" | "medium" | "high" | "critical"
+	conversionRisk: "low" | "medium" | "high"
+}
+
+export interface ExperimentalFeature {
+	type: "marked_experimental" | "feature_flag" | "experimental_comment"
+	content: string
+	stabilityRisk: "low" | "medium" | "high"
+	conversionPriority: "low" | "medium" | "high"
+}
+
+export interface ConditionalBlock {
+	condition: string
+	content: string
+	complexity: "low" | "medium" | "high"
+	jsonCompatibility: boolean
+}
+
+export interface TemplateStructure {
+	name: string
+	pattern: string
+	variableCount: number
+	jsonReadiness: "ready" | "needs_work" | "complex"
+}
+
+export interface JsonCandidate {
+	section: string
+	conversionType: "direct" | "template" | "dynamic"
+	estimatedEffort: "low" | "medium" | "high"
+	tokenSavingPotential: number
+}
+
+export interface StabilityIndicator {
+	indicator: string
+	value: string | number
+	interpretation: "stable" | "moderate" | "unstable"
+}
+
+export interface ChangeFrequencyAnalysis {
+	recentChanges: number
+	changePattern: "stable" | "evolving" | "rapid"
+	riskLevel: "low" | "medium" | "high"
+}
+
+export interface ExperimentalRiskFactor {
+	factor: string
+	impact: "low" | "medium" | "high"
+	mitigation: string
+}
+
+export interface ConversionStrategy {
+	approach: "full_json" | "hybrid" | "gradual"
+	description: string
+	phases: string[]
+	riskLevel: "low" | "medium" | "high"
+	estimatedEffort: "low" | "medium" | "high"
+}
+
+export interface CompatibilityAnalysis {
+	clineMode: CompatibilityScore
+	caretMode: CompatibilityScore
+	conversionChallenges: string[]
+	recommendedStrategy: string
+}
+
+export interface CompatibilityScore {
+	score: number
+	issues: string[]
+	strengths: string[]
+}
+
+export interface ConversionReadiness {
+	overallScore: number
+	readinessFactors: ReadinessFactor[]
+	blockers: string[]
+	recommendations: string[]
+}
+
+export interface ReadinessFactor {
+	factor: string
+	score: number
+	weight: number
+	description: string
+}
+
+export interface TokenOptimizationAnalysis {
+	currentTokenCount: number
+	estimatedOptimizedCount: number
+	optimizationPotential: number
+	optimizationAreas: OptimizationArea[]
+}
+
+export interface OptimizationArea {
+	area: string
+	currentTokens: number
+	optimizedTokens: number
+	technique: string
+}
+
+export interface ModeSpecificAnalysis {
+	clineMode: {
+		planActReferences: PlanActReference[]
+		clineSpecificTerms: string[]
+		originalBehaviorPatterns: BehaviorPattern[]
+	}
+	caretMode: {
+		chatbotAgentReferences: ChatbotAgentReference[]
+		caretSpecificTerms: string[]
+		jsonConversionTargets: JsonConversionTarget[]
+	}
+	modeCompatibility: {
+		conflictingTerms: ConflictingTerm[]
+		conversionChallenges: ConversionChallenge[]
+		dualModeStrategy: DualModeStrategy
+	}
+}
+
+export interface PlanActReference {
+	reference: string
+	context: string
+	conversionNote: string
+}
+
+export interface BehaviorPattern {
+	pattern: string
+	frequency: number
+	importance: "low" | "medium" | "high" | "critical"
+}
+
+export interface ChatbotAgentReference {
+	reference: string
+	context: string
+	jsonStructure: string
+}
+
+export interface JsonConversionTarget {
+	target: string
+	conversionType: "direct" | "template" | "conditional"
+	complexity: "low" | "medium" | "high"
+}
+
+export interface ConflictingTerm {
+	term: string
+	clineUsage: string
+	caretUsage: string
+	resolutionStrategy: string
+}
+
+export interface ConversionChallenge {
+	challenge: string
+	impact: "low" | "medium" | "high"
+	solution: string
+}
+
+export interface DualModeStrategy {
+	strategy: string
+	implementation: string[]
+	validationSteps: string[]
+}
+
+/**
+ * Commands Analysis Types
+ */
+
+export interface CommandsAnalysis {
+	commandDefinitions: CommandDefinition[]
+	responsePatterns: ResponsePattern[]
+	parameterSchemas: ParameterSchema[]
+	usagePatterns: UsagePattern[]
+	jsonConversionReadiness: JsonReadinessScore
+	conversionRecommendations: ConversionRecommendation[]
+}
+
+export interface CommandDefinition {
+	name: string
+	type: "function" | "constant" | "template"
+	content: string
+	parameters: Parameter[]
+	conversionComplexity: "low" | "medium" | "high"
+	jsonTemplate: string
+}
+
+export interface ResponsePattern {
+	pattern: string
+	frequency: number
+	conversionType: "direct" | "template" | "dynamic"
+}
+
+export interface ParameterSchema {
+	parameter: string
+	type: string
+	required: boolean
+	jsonCompatible: boolean
+}
+
+export interface UsagePattern {
+	context: string
+	frequency: number
+	conversionImpact: "low" | "medium" | "high"
+}
+
+export interface Parameter {
+	name: string
+	type: string
+	required: boolean
+	description?: string
+}
+
+export interface JsonReadinessScore {
+	structureScore: number
+	complexityScore: number
+	riskScore: number
+	conversionEffort: "low" | "medium" | "high"
+	recommendedPriority: "low" | "medium" | "high"
+	confidenceLevel: number
+}
+
+export interface ConversionRecommendation {
+	recommendation: string
+	priority: "low" | "medium" | "high"
+	effort: "low" | "medium" | "high"
+	benefit: string
+}
+
+/**
+ * MCP Documentation Analysis Types
+ */
+
+export interface McpDocAnalysis {
+	dynamicContentSections: DynamicSection[]
+	externalDependencies: ExternalDependency[]
+	templateGeneration: TemplateGenerationAnalysis
+	complexConversionAreas: ComplexArea[]
+	conversionStrategy: ConversionStrategy
+	riskAssessment: McpRiskAssessment
+}
+
+export interface DynamicSection {
+	type: "mcp_hub_call" | "server_iteration" | "tool_iteration" | "resource_filtering"
+	content: string
+	startIndex: number
+	endIndex: number
+	conversionComplexity: "low" | "medium" | "high"
+}
+
+export interface ExternalDependency {
+	dependency: string
+	type: "api" | "service" | "data"
+	impact: "low" | "medium" | "high"
+	conversionStrategy: string
+}
+
+export interface TemplateGenerationAnalysis {
+	staticSections: StaticSection[]
+	dynamicSections: DynamicGenerationSection[]
+	templateCompatibility: "high" | "medium" | "low"
+}
+
+export interface StaticSection {
+	section: string
+	jsonReadiness: "ready" | "needs_work" | "complex"
+	conversionEffort: "low" | "medium" | "high"
+}
+
+export interface DynamicGenerationSection {
+	section: string
+	generationType: "iteration" | "conditional" | "api_dependent"
+	conversionApproach: "template" | "hybrid" | "preserve_dynamic"
+}
+
+export interface ComplexArea {
+	area: string
+	complexity: "medium" | "high" | "very_high"
+	challenges: string[]
+	recommendedApproach: string
+}
+
+export interface McpRiskAssessment {
+	overallRisk: "low" | "medium" | "high"
+	specificRisks: SpecificRisk[]
+	mitigationStrategies: string[]
+}
+
+export interface SpecificRisk {
+	risk: string
+	probability: "low" | "medium" | "high"
+	impact: "low" | "medium" | "high"
+	mitigation: string
+}

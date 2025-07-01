@@ -38,7 +38,10 @@ src/hosts/vscode/*/index.ts
 src/hosts/vscode/client/host-grpc-client.ts
 src/hosts/vscode/host-grpc-service-config.ts
 
+*.json
+!caret-src/core/prompts/**/**/*.json
 !caret-src/core/prompts/**/*.json
+!caret-src/core/prompts/**/**/**/*.json
 !webview-ui/src/caret/locale/**/*.json
 
 
@@ -52,7 +55,6 @@ src/generated
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-*.json
 *.xml
 .env
 .env*.local

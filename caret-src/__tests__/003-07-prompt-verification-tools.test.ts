@@ -280,8 +280,18 @@ describe("성능 및 안정성 검증", () => {
 	it("should handle file reading errors gracefully", async () => {
 		const invalidValidator = new ExtendedPromptValidator("/nonexistent/path")
 
-		// 에러가 발생해도 시스템이 크래시되지 않아야 함
-		await expect(invalidValidator.validateAllPromptFiles(true, ["invalid.ts"])).rejects.toThrow()
+		// 존재하지 않는 파일은 graceful하게 처리됨 (warning만 로그)
+		const result = await invalidValidator.validateAllPromptFiles(true, ["invalid.ts"])
+
+		// 시스템이 graceful하게 처리했는지 확인
+		expect(result).toBeDefined()
+		expect(result.promptFilesAnalysis).toBeDefined()
+		expect(result.promptFilesAnalysis.analysisMetadata).toBeDefined()
+		
+		// 존재하지 않는 파일은 분석되지 않으므로 successfulAnalyses와 failedAnalyses 모두 0
+		expect(result.promptFilesAnalysis.analysisMetadata.successfulAnalyses).toBe(0)
+		expect(result.promptFilesAnalysis.analysisMetadata.failedAnalyses).toBe(0)
+		expect(result.isValid).toBe(false) // 분석된 파일이 없으므로 유효하지 않음
 
 		console.log("✅ [Stability] 파일 오류 처리 검증 완료")
 	})

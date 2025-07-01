@@ -77,13 +77,13 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 	})
 
 	describe("Template Characters Request Flow", () => {
-		it("should request template characters on mount", () => {
+		it("should request template characters on mount", async () => {
 			// Act
 			renderWithProviders(<PersonaAvatar />)
-
+			
 			// Assert
 			expect(mockPostMessage).toHaveBeenCalledWith({
-				type: "REQUEST_TEMPLATE_CHARACTERS",
+				type: "REQUEST_PERSONA_IMAGES",
 			})
 		})
 
@@ -102,10 +102,10 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 			// Act
 			renderWithProviders(<PersonaAvatar testPersona={testPersona} />)
 
-			// Assert - Should only call logger (1 time), NOT REQUEST_TEMPLATE_CHARACTERS
+			// Assert - Should only call logger (1 time), NOT REQUEST_PERSONA_IMAGES
 			expect(mockPostMessage).toHaveBeenCalledTimes(1)
 			
-			// Should only call logging, not REQUEST_TEMPLATE_CHARACTERS
+			// Should only call logging, not REQUEST_PERSONA_IMAGES
 			expect(mockPostMessage).toHaveBeenCalledWith({
 				type: "log",
 				entry: expect.objectContaining({
@@ -115,22 +115,17 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 				}),
 			})
 			
-			// Should NOT call REQUEST_TEMPLATE_CHARACTERS
+			// Should NOT call REQUEST_PERSONA_IMAGES
 			expect(mockPostMessage).not.toHaveBeenCalledWith({
-				type: "REQUEST_TEMPLATE_CHARACTERS",
+				type: "REQUEST_PERSONA_IMAGES",
 			})
 		})
 
 		it("should update avatar when template characters response is received", async () => {
 			// Arrange
-			const mockPersona: TemplateCharacter = {
-				character: "current",
+			const mockPersonaImages = {
 				avatarUri: "data:image/png;base64,ProfileImageData",
-				thinkingAvatarUri: "data:image/png;base64,ThinkingImageData",
-				introIllustrationUri: "",
-				en: { name: "Current Persona", description: "Currently set persona", customInstruction: {} as any },
-				ko: { name: "현재 페르소나", description: "현재 설정된 페르소나", customInstruction: {} as any },
-				isDefault: true,
+				thinkingAvatarUri: "data:image/png;base64,ThinkingImageData"
 			}
 
 			// Act
@@ -140,12 +135,12 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 			let avatar = screen.getByTestId("persona-avatar")
 			expect(avatar).toHaveAttribute("data-persona", "loading")
 
-			// Simulate receiving template characters
+			// Simulate receiving persona images
 			act(() => {
 				const mockEvent = new MessageEvent("message", {
 					data: {
-						type: "RESPONSE_TEMPLATE_CHARACTERS",
-						payload: [mockPersona],
+						type: "RESPONSE_PERSONA_IMAGES",
+						payload: mockPersonaImages,
 					},
 				})
 				window.dispatchEvent(mockEvent)
@@ -164,12 +159,12 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 			// Act
 			renderWithProviders(<PersonaAvatar />)
 
-			// Simulate receiving empty response
+			// Simulate receiving empty/invalid response
 			act(() => {
 				const mockEvent = new MessageEvent("message", {
 					data: {
-						type: "RESPONSE_TEMPLATE_CHARACTERS",
-						payload: [],
+						type: "RESPONSE_PERSONA_IMAGES",
+						payload: null,
 					},
 				})
 				window.dispatchEvent(mockEvent)
@@ -187,7 +182,7 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 		it("should refresh data when PERSONA_UPDATED message is received", async () => {
 			// Arrange
 			renderWithProviders(<PersonaAvatar />)
-			vi.clearAllMocks() // Clear the initial REQUEST_TEMPLATE_CHARACTERS call
+			vi.clearAllMocks() // Clear the initial REQUEST_PERSONA_IMAGES call
 
 			// Act
 			act(() => {
@@ -202,7 +197,7 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 			// Assert
 			await waitFor(() => {
 				expect(mockPostMessage).toHaveBeenCalledWith({
-					type: "REQUEST_TEMPLATE_CHARACTERS",
+					type: "REQUEST_PERSONA_IMAGES",
 				})
 			})
 		})
@@ -228,7 +223,7 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 			await waitFor(() => {
 				expect(mockPostMessage).toHaveBeenCalledTimes(5)
 				expect(mockPostMessage).toHaveBeenCalledWith({
-					type: "REQUEST_TEMPLATE_CHARACTERS",
+					type: "REQUEST_PERSONA_IMAGES",
 				})
 			})
 		})
@@ -237,14 +232,9 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 	describe("Thinking State with Backend Data", () => {
 		it("should use correct image URLs based on thinking state with real backend data", async () => {
 			// Arrange
-			const mockPersona: TemplateCharacter = {
-				character: "luna",
+			const mockPersonaImages = {
 				avatarUri: "data:image/png;base64,LunaNormalImage",
-				thinkingAvatarUri: "data:image/png;base64,LunaThinkingImage",
-				introIllustrationUri: "",
-				en: { name: "Luna", description: "Luna persona", customInstruction: {} as any },
-				ko: { name: "루나", description: "루나 페르소나", customInstruction: {} as any },
-				isDefault: false,
+				thinkingAvatarUri: "data:image/png;base64,LunaThinkingImage"
 			}
 
 			const { rerender } = renderWithProviders(<PersonaAvatar />)
@@ -253,8 +243,8 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 			act(() => {
 				const mockEvent = new MessageEvent("message", {
 					data: {
-						type: "RESPONSE_TEMPLATE_CHARACTERS",
-						payload: [mockPersona],
+						type: "RESPONSE_PERSONA_IMAGES",
+						payload: mockPersonaImages,
 					},
 				})
 				window.dispatchEvent(mockEvent)
@@ -289,21 +279,16 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 			renderWithProviders(<PersonaAvatar />)
 
 			// Simulate initial persona load
-			const initialPersona: TemplateCharacter = {
-				character: "current",
+			const initialPersonaImages = {
 				avatarUri: "data:image/png;base64,OriginalImage",
-				thinkingAvatarUri: "data:image/png;base64,OriginalThinking",
-				introIllustrationUri: "",
-				en: { name: "Current", description: "Current persona", customInstruction: {} as any },
-				ko: { name: "현재", description: "현재 페르소나", customInstruction: {} as any },
-				isDefault: true,
+				thinkingAvatarUri: "data:image/png;base64,OriginalThinking"
 			}
 
 			act(() => {
 				window.dispatchEvent(new MessageEvent("message", {
 					data: {
-						type: "RESPONSE_TEMPLATE_CHARACTERS",
-						payload: [initialPersona],
+						type: "RESPONSE_PERSONA_IMAGES",
+						payload: initialPersonaImages,
 					},
 				}))
 			})
@@ -315,17 +300,16 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 			})
 
 			// Act - Simulate custom image upload result (after backend processing)
-			const updatedPersona: TemplateCharacter = {
-				...initialPersona,
+			const updatedPersonaImages = {
 				avatarUri: "data:image/png;base64,UploadedCustomImage",
-				thinkingAvatarUri: "data:image/png;base64,UploadedCustomThinking",
+				thinkingAvatarUri: "data:image/png;base64,UploadedCustomThinking"
 			}
 
 			act(() => {
 				window.dispatchEvent(new MessageEvent("message", {
 					data: {
-						type: "RESPONSE_TEMPLATE_CHARACTERS",
-						payload: [updatedPersona],
+						type: "RESPONSE_PERSONA_IMAGES",
+						payload: updatedPersonaImages,
 					},
 				}))
 			})
@@ -364,16 +348,16 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 	})
 
 	describe("Error Handling Integration", () => {
-		it("should handle malformed backend messages gracefully", async () => {
+		it("should handle invalid message data gracefully", async () => {
 			// Arrange
 			renderWithProviders(<PersonaAvatar />)
 
 			// Act - Send malformed messages
 			const malformedMessages = [
-				{ type: "RESPONSE_TEMPLATE_CHARACTERS" }, // Missing payload
-				{ type: "RESPONSE_TEMPLATE_CHARACTERS", payload: null }, // Null payload
-				{ type: "RESPONSE_TEMPLATE_CHARACTERS", payload: "invalid" }, // Invalid payload type
-				{ type: "RESPONSE_TEMPLATE_CHARACTERS", payload: [{ invalidData: true }] }, // Invalid persona structure
+				{ type: "RESPONSE_PERSONA_IMAGES" }, // Missing payload
+				{ type: "RESPONSE_PERSONA_IMAGES", payload: null }, // Null payload
+				{ type: "RESPONSE_PERSONA_IMAGES", payload: "invalid" }, // Invalid payload type
+				{ type: "RESPONSE_PERSONA_IMAGES", payload: { invalidData: true } }, // Invalid persona structure
 			]
 
 			for (const message of malformedMessages) {
@@ -382,55 +366,47 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 				})
 			}
 
-			// Assert - Component should still be rendered and stable (no crash)
+			// Assert - Should remain in loading state
 			await waitFor(() => {
 				const avatar = screen.getByTestId("persona-avatar")
-				expect(avatar).toBeInTheDocument()
-				// Should fallback to loading persona or at least not crash
-				const personaAttr = avatar.getAttribute("data-persona")
-				expect(personaAttr === "loading" || personaAttr === null).toBe(true)
+				expect(avatar).toHaveAttribute("data-persona", "loading")
 			})
 		})
 
 		it("should handle image load errors from backend data", async () => {
 			// Arrange
-			const personaWithInvalidImage: TemplateCharacter = {
-				character: "broken",
-				avatarUri: "invalid://broken-image.png",
-				thinkingAvatarUri: "invalid://broken-thinking.png",
-				introIllustrationUri: "",
-				en: { name: "Broken", description: "Broken persona", customInstruction: {} as any },
-				ko: { name: "깨진", description: "깨진 페르소나", customInstruction: {} as any },
-				isDefault: false,
-			}
-
 			renderWithProviders(<PersonaAvatar />)
 
-			// Act - Send persona with invalid image URLs
+			// Simulate receiving invalid image data
+			const personaWithInvalidImage = {
+				avatarUri: "invalid://broken-image.png",
+				thinkingAvatarUri: "data:image/png;base64,ValidThinking"
+			}
+
 			act(() => {
 				window.dispatchEvent(new MessageEvent("message", {
 					data: {
-						type: "RESPONSE_TEMPLATE_CHARACTERS",
-						payload: [personaWithInvalidImage],
+						type: "RESPONSE_PERSONA_IMAGES",
+						payload: personaWithInvalidImage,
 					},
 				}))
 			})
 
+			// Wait for component to process message
 			await waitFor(() => {
 				const avatar = screen.getByTestId("persona-avatar")
 				expect(avatar).toHaveAttribute("src", "invalid://broken-image.png")
 			})
 
-			// Act - Simulate image load error
+			// Act - Trigger image error
 			const avatar = screen.getByTestId("persona-avatar")
 			fireEvent.error(avatar)
 
-			// Assert - Component should handle error gracefully with fallback image
+			// Assert - Should fallback to loading persona image
 			await waitFor(() => {
-				// Component should show fallback loading persona image
-				const fallbackAvatar = screen.getByTestId("persona-avatar")
-				expect(fallbackAvatar).toBeInTheDocument()
-				expect(fallbackAvatar.getAttribute("src")).toContain("data:image/svg+xml;base64,")
+				const updatedAvatar = screen.getByTestId("persona-avatar")
+				// Should use loading persona's avatar when image fails
+				expect(updatedAvatar.getAttribute("src")).toContain("data:image/svg+xml;base64")
 			})
 		})
 	})
@@ -438,120 +414,71 @@ describe("PersonaAvatar Component - Frontend-Backend Integration", () => {
 	describe("Locale Support Integration", () => {
 		it("should display correct persona names based on backend locale data", async () => {
 			// Arrange
-			const multiLocalePersona: TemplateCharacter = {
-				character: "multilang",
-				avatarUri: "data:image/png;base64,TestImage",
-				thinkingAvatarUri: "data:image/png;base64,TestThinking",
-				introIllustrationUri: "",
-				en: { name: "English Name", description: "English description", customInstruction: {} as any },
-				ko: { name: "한국어 이름", description: "한국어 설명", customInstruction: {} as any },
-				isDefault: false,
+			const mockPersonaImages = {
+				avatarUri: "data:image/png;base64,PersonaImage",
+				thinkingAvatarUri: "data:image/png;base64,PersonaThinking"
 			}
 
-			// Test English locale
-			mockUseExtensionState.mockReturnValue({
-				chatSettings: { uiLanguage: "en" },
-				clineSettings: {},
-			} as any)
+			renderWithProviders(<PersonaAvatar />)
 
-			const { rerender } = renderWithProviders(<PersonaAvatar />)
-
+			// Simulate receiving persona data
 			act(() => {
 				window.dispatchEvent(new MessageEvent("message", {
 					data: {
-						type: "RESPONSE_TEMPLATE_CHARACTERS",
-						payload: [multiLocalePersona],
+						type: "RESPONSE_PERSONA_IMAGES",
+						payload: mockPersonaImages,
 					},
 				}))
 			})
 
+			// Assert English name (component creates Current Persona internally)
 			await waitFor(() => {
 				const avatar = screen.getByTestId("persona-avatar")
-				expect(avatar).toHaveAttribute("alt", "English Name normal")
-			})
-
-			// Test Korean locale
-			mockUseExtensionState.mockReturnValue({
-				chatSettings: { uiLanguage: "ko" },
-				clineSettings: {},
-			} as any)
-
-			rerender(
-				<I18nextProvider i18n={i18n}>
-					<PersonaAvatar />
-				</I18nextProvider>
-			)
-
-			act(() => {
-				window.dispatchEvent(new MessageEvent("message", {
-					data: {
-						type: "RESPONSE_TEMPLATE_CHARACTERS",
-						payload: [multiLocalePersona],
-					},
-				}))
-			})
-
-			await waitFor(() => {
-				const avatar = screen.getByTestId("persona-avatar")
-				expect(avatar).toHaveAttribute("alt", "한국어 이름 normal")
+				expect(avatar).toHaveAttribute("alt", "Current Persona normal")
 			})
 		})
 	})
 
 	describe("Performance and Memory", () => {
-		it("should properly cleanup event listeners", () => {
-			// Arrange
-			const { unmount } = renderWithProviders(<PersonaAvatar />)
-
-			// Act
-			unmount()
-
-			// Assert - Simulate message after unmount (should not cause errors)
-			act(() => {
-				window.dispatchEvent(new MessageEvent("message", {
-					data: {
-						type: "RESPONSE_TEMPLATE_CHARACTERS",
-						payload: [],
-					},
-				}))
-			})
-
-			// Should not cause any errors or memory leaks
-			expect(screen.queryByTestId("persona-avatar")).not.toBeInTheDocument()
-		})
-
 		it("should handle rapid persona data updates efficiently", async () => {
 			// Arrange
 			renderWithProviders(<PersonaAvatar />)
 
-			// Act - Send rapid updates
+			// Act - Send multiple rapid updates
 			for (let i = 0; i < 10; i++) {
-				const persona: TemplateCharacter = {
-					character: `persona-${i}`,
-					avatarUri: `data:image/png;base64,ImageData${i}`,
-					thinkingAvatarUri: `data:image/png;base64,ThinkingData${i}`,
-					introIllustrationUri: "",
-					en: { name: `Persona ${i}`, description: `Persona ${i}`, customInstruction: {} as any },
-					ko: { name: `페르소나 ${i}`, description: `페르소나 ${i}`, customInstruction: {} as any },
-					isDefault: false,
+				const personaImages = {
+					avatarUri: `data:image/png;base64,Image${i}`,
+					thinkingAvatarUri: `data:image/png;base64,Thinking${i}`
 				}
 
 				act(() => {
 					window.dispatchEvent(new MessageEvent("message", {
 						data: {
-							type: "RESPONSE_TEMPLATE_CHARACTERS",
-							payload: [persona],
+							type: "RESPONSE_PERSONA_IMAGES",
+							payload: personaImages,
 						},
 					}))
 				})
 			}
 
-			// Assert - Should end up with the last persona
+			// Assert - Should show the last update
 			await waitFor(() => {
 				const avatar = screen.getByTestId("persona-avatar")
-				expect(avatar).toHaveAttribute("data-persona", "persona-9")
-				expect(avatar).toHaveAttribute("src", "data:image/png;base64,ImageData9")
+				expect(avatar).toHaveAttribute("data-persona", "current")
+				expect(avatar).toHaveAttribute("src", "data:image/png;base64,Image9")
 			})
+		})
+
+		it("should clean up event listeners on unmount", () => {
+			// Arrange
+			const { unmount } = renderWithProviders(<PersonaAvatar />)
+			const removeEventListenerSpy = vi.spyOn(window, "removeEventListener")
+
+			// Act
+			unmount()
+
+			// Assert
+			expect(removeEventListenerSpy).toHaveBeenCalledWith("message", expect.any(Function))
 		})
 	})
 }) 

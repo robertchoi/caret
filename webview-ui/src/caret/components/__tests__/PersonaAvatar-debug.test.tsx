@@ -86,12 +86,12 @@ describe("PersonaAvatar Debug Tests", () => {
 		// Act - explicitly pass null for testPersona
 		renderWithProviders(<PersonaAvatar testPersona={null} />)
 
-		// Assert - PersonaAvatar calls REQUEST_TEMPLATE_CHARACTERS + logger calls for logs
+		// Assert - PersonaAvatar calls REQUEST_PERSONA_IMAGES + logger calls for logs
 		expect(mockPostMessage).toHaveBeenCalledTimes(2)
 		
-		// Check that REQUEST_TEMPLATE_CHARACTERS was called
+		// Check that REQUEST_PERSONA_IMAGES was called
 		expect(mockPostMessage).toHaveBeenCalledWith({
-			type: "REQUEST_TEMPLATE_CHARACTERS",
+			type: "REQUEST_PERSONA_IMAGES",
 		})
 		
 		// Check that logging was called  
@@ -105,7 +105,7 @@ describe("PersonaAvatar Debug Tests", () => {
 		})
 	})
 
-	it("should NOT call REQUEST_TEMPLATE_CHARACTERS when testPersona is provided", () => {
+	it("should NOT call REQUEST_PERSONA_IMAGES when testPersona is provided", () => {
 		// Arrange
 		const testPersona = {
 			character: "test",
@@ -120,10 +120,10 @@ describe("PersonaAvatar Debug Tests", () => {
 		// Act
 		renderWithProviders(<PersonaAvatar testPersona={testPersona} />)
 
-		// Assert - Should only call logger (1 time), NOT REQUEST_TEMPLATE_CHARACTERS
+		// Assert - Should only call logger (1 time), NOT REQUEST_PERSONA_IMAGES
 		expect(mockPostMessage).toHaveBeenCalledTimes(1)
 		
-		// Should only call logging, not REQUEST_TEMPLATE_CHARACTERS
+		// Should only call logging, not REQUEST_PERSONA_IMAGES
 		expect(mockPostMessage).toHaveBeenCalledWith({
 			type: "log",
 			entry: expect.objectContaining({
@@ -133,9 +133,9 @@ describe("PersonaAvatar Debug Tests", () => {
 			}),
 		})
 		
-		// Should NOT call REQUEST_TEMPLATE_CHARACTERS
+		// Should NOT call REQUEST_PERSONA_IMAGES
 		expect(mockPostMessage).not.toHaveBeenCalledWith({
-			type: "REQUEST_TEMPLATE_CHARACTERS",
+			type: "REQUEST_PERSONA_IMAGES",
 		})
 		
 		const avatar = screen.getByTestId("persona-avatar")
@@ -152,12 +152,12 @@ describe("PersonaAvatar Debug Tests", () => {
 		expect(avatar).toBeInTheDocument()
 		expect(avatar).toHaveAttribute("data-persona", "loading")
 		
-		// Should call vscode.postMessage twice (REQUEST_TEMPLATE_CHARACTERS + logging)
+		// Should call vscode.postMessage twice (REQUEST_PERSONA_IMAGES + logging)
 		expect(mockPostMessage).toHaveBeenCalledTimes(2)
 		
-		// Check that REQUEST_TEMPLATE_CHARACTERS was called
+		// Check that REQUEST_PERSONA_IMAGES was called
 		expect(mockPostMessage).toHaveBeenCalledWith({
-			type: "REQUEST_TEMPLATE_CHARACTERS",
+			type: "REQUEST_PERSONA_IMAGES",
 		})
 		
 		// Check that logging was called  

@@ -112,17 +112,44 @@ describe("Persona Storage System", () => {
 	})
 
 	describe("loadPersonaImagesFromStorage", () => {
-		it("should load persona images from globalStorage as file URIs", async () => {
+		it("should load persona images from globalStorage as base64 data URIs", async () => {
 			const personaDir = path.join("/mock/globalStorage", "personas")
+			const profilePath = path.join(personaDir, "agent_profile.png")
+			const thinkingPath = path.join(personaDir, "agent_thinking.png")
 
 			// Mock directory creation
 			mockFs.mkdir.mockResolvedValue(undefined)
 
+			// Mock successful file reading
+			const mockImageBuffer = Buffer.from("fake-image-data")
+			mockFs.readFile.mockResolvedValueOnce(mockImageBuffer) // for profile
+			mockFs.readFile.mockResolvedValueOnce(mockImageBuffer) // for thinking
+
+			const result = await loadPersonaImagesFromStorage(mockContext)
+
+			const expectedBase64 = `data:image/png;base64,${mockImageBuffer.toString("base64")}`
+			const expected: PersonaStorageImages = {
+				avatarUri: expectedBase64,
+				thinkingAvatarUri: expectedBase64,
+			}
+
+			expect(result).toEqual(expected)
+			expect(mockFs.readFile).toHaveBeenCalledWith(profilePath)
+			expect(mockFs.readFile).toHaveBeenCalledWith(thinkingPath)
+		})
+
+		it("should return empty URIs when file reading fails", async () => {
+			// Mock directory creation
+			mockFs.mkdir.mockResolvedValue(undefined)
+
+			// Mock file reading failure
+			mockFs.readFile.mockRejectedValue(new Error("File not found"))
+
 			const result = await loadPersonaImagesFromStorage(mockContext)
 
 			const expected: PersonaStorageImages = {
-				avatarUri: `vscode-file://${path.join(personaDir, "agent_profile.png")}`,
-				thinkingAvatarUri: `vscode-file://${path.join(personaDir, "agent_thinking.png")}`,
+				avatarUri: "",
+				thinkingAvatarUri: "",
 			}
 
 			expect(result).toEqual(expected)
@@ -130,7 +157,7 @@ describe("Persona Storage System", () => {
 	})
 
 	describe("saveCustomPersonaImage", () => {
-		it("should save custom persona image and return file URI", async () => {
+		it("should save custom persona image and return base64 data URI", async () => {
 			const personaDir = path.join("/mock/globalStorage", "personas")
 			const base64Data =
 				"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
@@ -144,7 +171,6 @@ describe("Persona Storage System", () => {
 			const result = await saveCustomPersonaImage(mockContext, "normal", base64Data)
 
 			const expectedPath = path.join(personaDir, "agent_profile.png")
-			const expectedUri = `vscode-file://${expectedPath}`
 
 			// Should create directory
 			expect(mockFs.mkdir).toHaveBeenCalledWith(personaDir, { recursive: true })
@@ -152,11 +178,11 @@ describe("Persona Storage System", () => {
 			// Should write file
 			expect(mockFs.writeFile).toHaveBeenCalledWith(expectedPath, expect.any(Buffer))
 
-			// Should return file URI
-			expect(result).toBe(expectedUri)
+			// Should return base64 data URI (same as input after processing)
+			expect(result).toBe(base64Data)
 		})
 
-		it("should save thinking image to correct filename", async () => {
+		it("should save thinking image to correct filename and return base64 data URI", async () => {
 			const personaDir = path.join("/mock/globalStorage", "personas")
 			const base64Data =
 				"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
@@ -170,10 +196,9 @@ describe("Persona Storage System", () => {
 			const result = await saveCustomPersonaImage(mockContext, "thinking", base64Data)
 
 			const expectedPath = path.join(personaDir, "agent_thinking.png")
-			const expectedUri = `vscode-file://${expectedPath}`
 
 			expect(mockFs.writeFile).toHaveBeenCalledWith(expectedPath, expect.any(Buffer))
-			expect(result).toBe(expectedUri)
+			expect(result).toBe(base64Data)
 		})
 
 		it("should handle invalid base64 data", async () => {

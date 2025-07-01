@@ -278,14 +278,13 @@ export class Controller {
 					// CARET MODIFICATION: Update agent_profile.png and agent_thinking.png with selected template images
 					// Check if avatarUri and thinkingAvatarUri exist in the payload
 					if (message.payload?.avatarUri && message.payload?.thinkingAvatarUri) {
-						// Dynamically import replacePersonaImage to avoid circular dependencies or early loading issues
-						const { replacePersonaImage } = await import("../../../caret-src/utils/simple-persona-image")
+						// Use the same persona-storage system as file uploads
+						const { saveCustomPersonaImage } = await import("../../../caret-src/utils/persona-storage")
 						try {
-							// Call replacePersonaImage for normal avatar
-							await replacePersonaImage("normal", message.payload.avatarUri, this.context.extensionPath)
-							// Call replacePersonaImage for thinking avatar
-							await replacePersonaImage("thinking", message.payload.thinkingAvatarUri, this.context.extensionPath)
-							caretLogger.info("[Controller] Persona images updated successfully from template.")
+							// Save template images to globalStorage (same as file upload)
+							await saveCustomPersonaImage(this.context, "normal", message.payload.avatarUri)
+							await saveCustomPersonaImage(this.context, "thinking", message.payload.thinkingAvatarUri)
+							caretLogger.info("[Controller] Persona images updated successfully from template selection.")
 						} catch (error) {
 							caretLogger.error(`[Controller] Failed to replace persona images from template: ${error}`)
 						}

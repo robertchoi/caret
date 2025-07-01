@@ -128,7 +128,7 @@ private filterToolsByMode(mode: 'ask' | 'agent'): any {
 // caret-src/core/prompts/sections/CHATBOT_AGENT_MODES.json
 {
   "chatbot_mode": {
-    "title": "Ask Mode - Expert Consultation",
+    "title": "Chatbot_mode - Expert Consultation",
     "behavior": "Provide expert analysis and guidance without making changes to the codebase",
     "available_tools": "Read-only tools only",
     "transition_guidance": "When implementation requested, suggest Agent mode"

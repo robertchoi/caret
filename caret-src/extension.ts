@@ -11,6 +11,7 @@ import { WebviewProviderType as WebviewProviderTypeEnum } from "../src/shared/pr
 import { WebviewProviderType } from "../src/shared/webview/types"
 import { caretLogger } from "./utils/caret-logger"
 import { CaretSystemPrompt } from "./core/prompts/CaretSystemPrompt"
+import { DIFF_VIEW_URI_SCHEME } from "../src/integrations/editor/DiffViewProvider"
 
 let outputChannel: vscode.OutputChannel
 
@@ -22,6 +23,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	caretLogger.setOutputChannel(outputChannel)
 	caretLogger.info("Caret extension activating...")
 	caretLogger.extensionActivated()
+
+	// CARET MODIFICATION: Register TextDocumentContentProvider for diff editor support
+	// This fixes "Failed to open diff editor" error by providing content for cline-diff:// URIs
+	const diffContentProvider = new (class implements vscode.TextDocumentContentProvider {
+		provideTextDocumentContent(uri: vscode.Uri): string {
+			return Buffer.from(uri.query, "base64").toString("utf-8")
+		}
+	})()
+	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(DIFF_VIEW_URI_SCHEME, diffContentProvider))
+	caretLogger.success("Diff editor TextDocumentContentProvider registered", "SYSTEM")
 
 	// CARET MODIFICATION: Initialize CaretSystemPrompt singleton with extensionPath
 	// This resolves the extensionPath dependency for JSON-based system prompt generation

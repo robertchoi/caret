@@ -38,7 +38,13 @@ src/hosts/vscode/*/index.ts
 src/hosts/vscode/client/host-grpc-client.ts
 src/hosts/vscode/host-grpc-service-config.ts
 
+!caret-src/core/prompts/**/*.json
+!webview-ui/src/caret/locale/**/*.json
+
+
+
 /node_modules
+
 out/
 dist/
 src/generated
@@ -46,6 +52,8 @@ src/generated
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.json
+*.xml
 .env
 .env*.local
 .npm
@@ -71,29 +79,15 @@ temp-*
 *.iml
 # VS Code specific files
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 .history/
 # OS specific files
 desktop.ini
 # Proto specific files
 src/generated/*
-# Test results
-*.xml
-*.json
+
+
 # Node Gyp
 build/Release
-
-# Cline Test output files
-cline-test-output.json
-cline-test-results.json
-temp-cline-test.json
-test-results.json
-
-# Backup files
-*.cline
 
 # Temporary submodule reference (서브모듈로 임시 참조)
 caret-zero/

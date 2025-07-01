@@ -58,7 +58,7 @@ cp src/extension.ts src/extension-ts.cline
 ### 4. 수정 예시 (올바른 방법)
 ```typescript
 // ❌ 잘못된 방법 - 주석처리로 남김
-// const oldValue = "claude-dev.SidebarProvider"  // 원본
+// const oldValue = "caret.SidebarProvider"  // 원본
 const newValue = "caret.SidebarProvider"  // 새로운 값
 
 // ✅ 올바른 방법 - 완전 대체

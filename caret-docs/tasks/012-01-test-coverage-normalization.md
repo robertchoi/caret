@@ -20,13 +20,13 @@
 1. **프론트엔드 테스트**: 통과
 2. **백엔드 단위 테스트**: 실패
    - `@core/storage/state` 모듈 로딩 실패
-   - 식별자 불일치 문제 (`caret.SidebarProvider` vs `claude-dev.SidebarProvider`)
+   - 식별자 불일치 문제 (`caret.SidebarProvider` vs `caret.SidebarProvider`)
    - 다수의 Cline 코드 테스트 실패
 
 ### 2.2 원인 분석
 
 1. **식별자 변경으로 인한 테스트 실패**:
-   - 11번 업무에서 `cline.*` ID를 `caret.*`으로 변경했으나, 테스트는 여전히 `claude-dev.SidebarProvider` 등의 이전 ID를 기대하고 있음
+   - 11번 업무에서 `cline.*` ID를 `caret.*`으로 변경했으나, 테스트는 여전히 `caret.SidebarProvider` 등의 이전 ID를 기대하고 있음
    - `extension-activation.test.ts`의 `sideBarId` 검증에서 명확히 나타남
 
 2. **모듈 경로 및 별칭 문제**:
@@ -53,7 +53,7 @@
 
 2. **식별자 동기화**:
    - `package.json`과 테스트 코드 간의 ID 일관성 확보
-   - `claude-dev.SidebarProvider`와 같은 레거시 ID를 현재의 `caret.SidebarProvider`로 업데이트
+   - `caret.SidebarProvider`와 같은 레거시 ID를 현재의 `caret.SidebarProvider`로 업데이트
 
 3. **모듈 경로 및 별칭 수정**:
    - Vitest 구성에서 `@core/storage/state`와 같은 별칭 경로 올바르게 설정
@@ -94,7 +94,7 @@
 ### Phase 2: 테스트 코드 수정 및 테스트 실행
 
 1. **식별자 동기화**:
-   - `extension-activation.test.ts` 등에서 `claude-dev.SidebarProvider`를 `caret.SidebarProvider`로 업데이트
+   - `extension-activation.test.ts` 등에서 `caret.SidebarProvider`를 `caret.SidebarProvider`로 업데이트
    - 관련 ID 참조 모두 검토 및 수정
 
 2. **모듈 경로 문제 해결**:
@@ -150,7 +150,7 @@
 ### 6.3 세부 조치 방안
 
 1. **식별자 동기화 문제**:
-   - ✅ `extension-activation.test.ts`에서 `claude-dev.SidebarProvider`를 `caret.SidebarProvider`로 변경
+   - ✅ `extension-activation.test.ts`에서 `caret.SidebarProvider`를 `caret.SidebarProvider`로 변경
    - 다른 테스트 파일에서 유사한 패턴 검색 및 수정
 
 2. **테스트 파일별 주요 이슈 및 해결 방안**:

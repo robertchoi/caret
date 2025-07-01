@@ -3,8 +3,6 @@ title: "Keyboard Shortcuts"
 sidebarTitle: "Keyboard Shortcuts"
 ---
 
-<!-- CARET MODIFICATION: Updated command IDs from cline.* to caret.* for Caret branding -->
-
 Cline's keyboard shortcuts let you access AI assistance without taking your hands off the keyboard. Speed up your workflow by using hotkeys for common Cline actions.
 
 ## Default Keyboard Shortcuts
@@ -23,15 +21,15 @@ While Cline has only a few default keyboard shortcuts, you can assign your own s
 
 | Command ID                                                                               | Description                                   |
 | ---------------------------------------------------------------------------------------- | --------------------------------------------- |
-| [`caret.openInNewTab`](/features/commands-and-shortcuts/overview)                        | Opens Cline in a new editor tab               |
-| [`caret.addToChat`](/features/commands-and-shortcuts/code-commands)                      | Adds selected code to Cline chat              |
-| [`caret.addTerminalOutputToChat`](/features/commands-and-shortcuts/terminal-integration) | Adds terminal output to Cline                 |
-| `caret.focusChatInput`                                                                   | Focuses the Cline chat input field            |
-| [`caret.generateGitCommitMessage`](/features/commands-and-shortcuts/git-integration)     | Generates a commit message for staged changes |
-| [`caret.explainCode`](/features/commands-and-shortcuts/code-commands)                    | Explains selected code                        |
-| [`caret.improveCode`](/features/commands-and-shortcuts/code-commands)                    | Suggests improvements for selected code       |
-| [`caret.fixWithCline`](/features/commands-and-shortcuts/code-commands)                   | Fixes code with errors                        |
-| `caret.SidebarProvider.focus`                                                       | Opens and focuses the Cline sidebar           |
+| [`cline.openInNewTab`](/features/commands-and-shortcuts/overview)                        | Opens Cline in a new editor tab               |
+| [`cline.addToChat`](/features/commands-and-shortcuts/code-commands)                      | Adds selected code to Cline chat              |
+| [`cline.addTerminalOutputToChat`](/features/commands-and-shortcuts/terminal-integration) | Adds terminal output to Cline                 |
+| `cline.focusChatInput`                                                                   | Focuses the Cline chat input field            |
+| [`cline.generateGitCommitMessage`](/features/commands-and-shortcuts/git-integration)     | Generates a commit message for staged changes |
+| [`cline.explainCode`](/features/commands-and-shortcuts/code-commands)                    | Explains selected code                        |
+| [`cline.improveCode`](/features/commands-and-shortcuts/code-commands)                    | Suggests improvements for selected code       |
+| [`cline.fixWithCline`](/features/commands-and-shortcuts/code-commands)                   | Fixes code with errors                        |
+| `claude-dev.SidebarProvider.focus`                                                       | Opens and focuses the Cline sidebar           |
 
 ## Customizing Keyboard Shortcuts
 
@@ -56,9 +54,9 @@ Here are some suggested shortcuts you might find useful:
 
 | Action                | Suggested Shortcut             | Command ID                                | Description                   |
 | --------------------- | ------------------------------ | ----------------------------------------- | ----------------------------- |
-| Open Cline Sidebar    | `Ctrl+Shift+C` / `Cmd+Shift+C` | `caret.SidebarProvider.focus`        | Opens the Cline sidebar panel |
+| Open Cline Sidebar    | `Ctrl+Shift+C` / `Cmd+Shift+C` | `claude-dev.SidebarProvider.focus`        | Opens the Cline sidebar panel |
 | New Task              | `Alt+N`                        | `cline.plusButtonClicked`                 | Starts a new Cline task       |
-| Add Terminal to Cline | `Alt+T`                        | `caret.addTerminalOutputToChat`           | Adds terminal output to Cline |
+| Add Terminal to Cline | `Alt+T`                        | `cline.addTerminalOutputToChat`           | Adds terminal output to Cline |
 | Clear Current Task    | `Alt+C`                        | (Requires custom keybinding to UI action) | Clears the current task       |
 
 ## Keyboard-Only Workflow

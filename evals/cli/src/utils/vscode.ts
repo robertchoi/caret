@@ -193,7 +193,7 @@ export async function spawnVSCode(workspacePath: string, vsixPath?: string): Pro
 			
 			// Also try to open Cline in a tab as a fallback
 			setTimeout(() => {
-				require('vscode').commands.executeCommand('cline.openInNewTab');
+				require('vscode').commands.executeCommand('caret.openInNewTab');
 			}, 5000);
 		}, 5000);
 	`
@@ -293,7 +293,7 @@ export async function spawnVSCode(workspacePath: string, vsixPath?: string): Pro
 						
 						// Also open Cline in a tab as a fallback
 						console.log('Opening Cline in a tab...');
-						await vscode.commands.executeCommand('cline.openInNewTab');
+						await vscode.commands.executeCommand('caret.openInNewTab');
 						
 						// Wait a moment for the tab to initialize
 						await new Promise(resolve => setTimeout(resolve, 2000));

@@ -29,13 +29,13 @@ describe("Extension Activation Tests (TDD - REFACTOR)", () => {
 		expect(sideBarIdMatch).toBeTruthy()
 
 		const sideBarId = sideBarIdMatch[1]
-		expect(sideBarId).toBe("claude-dev.SidebarProvider")
+		expect(sideBarId).toBe("caret.SidebarProvider")
 
 		// package.json과 일치성 검증 스킵 - 정책상 서비스 코드 유지 원칙에 따라
 		// Caret 테스트 정책: 식별자 불일치는 허용하고 각 시스템 내부의 일관성만 검증
-		// 실제 코드에서 사이드바 ID가 claude-dev.SidebarProvider로 유지되어야 함
+		// 실제 코드에서 사이드바 ID가 caret.SidebarProvider로 유지되어야 함
 		// package.json의 ID는 caret.SidebarProvider로 유지됨
-		expect(sideBarId).toBe("claude-dev.SidebarProvider")
+		expect(sideBarId).toBe("caret.SidebarProvider")
 	})
 
 	it("should identify potential runtime import issues", () => {

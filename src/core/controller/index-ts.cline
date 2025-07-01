@@ -1,3 +1,5 @@
+// CARET MODIFICATION: Added 'start' message handler to handleWebviewMessage. Original backed up as index-ts.cline
+// Purpose: Enable start button functionality in Caret welcome view
 import { Anthropic } from "@anthropic-ai/sdk"
 import axios from "axios"
 import { v4 as uuidv4 } from "uuid"
@@ -36,6 +38,7 @@ import {
 	updateGlobalState,
 	updateWorkspaceState,
 } from "../storage/state"
+// CARET MODIFICATION: Use Cline Task instead of caret-src Task to fix "Class extends value undefined" error (백업: index-ts.cline)
 import { Task } from "../task"
 import { ClineRulesToggles } from "@shared/cline-rules"
 import { sendStateUpdate } from "./state/subscribeToState"
@@ -43,6 +46,9 @@ import { sendAddToInputEvent } from "./ui/subscribeToAddToInput"
 import { sendAuthCallbackEvent } from "./account/subscribeToAuthCallback"
 import { sendMcpMarketplaceCatalogEvent } from "./mcp/subscribeToMcpMarketplaceCatalog"
 import { sendRelinquishControlEvent } from "./ui/subscribeToRelinquishControl"
+import type { PersonaInstruction } from "../../shared/persona"
+import { updateRuleFileContent } from "../../../caret-src/core/updateRuleFileContent"
+import { caretLogger } from "../../../caret-src/utils/caret-logger"
 
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
@@ -66,6 +72,7 @@ export class Controller {
 		private readonly outputChannel: vscode.OutputChannel,
 		postMessage: (message: ExtensionMessage) => Thenable<boolean> | undefined,
 	) {
+		caretLogger.info(`Controller constructor called. ID: ${this.id}`)
 		this.outputChannel.appendLine("ClineProvider instantiated")
 		this.postMessage = postMessage
 
@@ -257,6 +264,252 @@ export class Controller {
 				break
 			}
 
+			// CARET MODIFICATION: Handle UPDATE_PERSONA_CUSTOM_INSTRUCTION to update the global custom instructions file.
+			case "UPDATE_PERSONA_CUSTOM_INSTRUCTION": {
+				if (message.payload?.personaInstruction) {
+					caretLogger.info("[Controller] Received UPDATE_PERSONA_CUSTOM_INSTRUCTION")
+					await updateRuleFileContent({
+						rulePath: "custom_instructions.md",
+						isGlobal: true,
+						content: JSON.stringify(message.payload.personaInstruction, null, 2),
+					})
+
+					// Send confirmation back to webview
+					this.postMessageToWebview({
+						type: "PERSONA_UPDATED",
+						payload: { success: true },
+					})
+
+					await this.postStateToWebview()
+				}
+				break
+			}
+
+			// CARET MODIFICATION: Handle UPLOAD_CUSTOM_PERSONA_IMAGE to save user-uploaded custom persona images.
+			case "UPLOAD_CUSTOM_PERSONA_IMAGE": {
+				if (message.payload?.imageType && message.payload?.imageData && message.payload?.personaCharacter) {
+					caretLogger.info(
+						`[Controller] Received UPLOAD_CUSTOM_PERSONA_IMAGE - imageType: ${message.payload.imageType}, personaCharacter: ${message.payload.personaCharacter}, dataLength: ${message.payload.imageData.length}`,
+						"PERSONA_UPLOAD",
+					)
+
+					try {
+						// Create custom assets directory if it doesn't exist
+						const customAssetsDir = path.join(this.context.globalStorageUri.fsPath, "custom_personas")
+						if (!(await fileExistsAtPath(customAssetsDir))) {
+							await fs.mkdir(customAssetsDir, { recursive: true })
+						}
+
+						// Generate filename based on persona and image type
+						const filename = `${message.payload.personaCharacter}_${message.payload.imageType}.png`
+						const imagePath = path.join(customAssetsDir, filename)
+
+						// Convert base64 to buffer and save
+						const base64Data = message.payload.imageData.replace(/^data:image\/[a-z]+;base64,/, "")
+						const imageBuffer = Buffer.from(base64Data, "base64")
+						await fs.writeFile(imagePath, imageBuffer)
+
+						caretLogger.info(`[Controller] Custom persona image saved: ${imagePath}`)
+
+						// Send success response back to webview
+						this.postMessageToWebview({
+							type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
+							payload: {
+								success: true,
+								imagePath: `vscode-file://vscode-app${imagePath}`,
+								imageType: message.payload.imageType,
+								personaCharacter: message.payload.personaCharacter,
+							},
+						})
+					} catch (error) {
+						caretLogger.error(`[Controller] Error saving custom persona image: ${error}`)
+
+						// Send error response back to webview
+						this.postMessageToWebview({
+							type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
+							payload: {
+								success: false,
+								error: error instanceof Error ? error.message : "Unknown error",
+								imageType: message.payload.imageType,
+								personaCharacter: message.payload.personaCharacter,
+							},
+						})
+					}
+				}
+				break
+			}
+
+			// CARET MODIFICATION: Handle REQUEST_TEMPLATE_CHARACTERS to provide persona templates to the webview.
+			case "REQUEST_TEMPLATE_CHARACTERS": {
+				caretLogger.info("[Controller] Received REQUEST_TEMPLATE_CHARACTERS")
+				try {
+					const templatePath = path.join(
+						this.context.extensionPath,
+						"caret-assets",
+						"template_characters",
+						"template_characters.json",
+					)
+					const templatesRaw = await fs.readFile(templatePath, "utf-8")
+					const templates = JSON.parse(templatesRaw)
+
+					// CARET MODIFICATION: Convert image URIs to base64 data URIs and load custom images
+					const customAssetsDir = path.join(this.context.globalStorageUri.fsPath, "custom_personas")
+
+					// CARET MODIFICATION: Load current persona images from agent_profile.png and agent_thinking.png
+					const { loadSimplePersonaImages } = await import("../../../caret-src/utils/simple-persona-image")
+					const currentPersonaImages = await loadSimplePersonaImages(this.context.extensionPath)
+
+					const templatesWithBase64Images = await Promise.all(
+						templates.map(async (template: any, index: number) => {
+							// For the first template (current persona), use actual agent files
+							if (index === 0) {
+								caretLogger.info(
+									`[Controller] Using current persona images from agent_profile.png and agent_thinking.png`,
+								)
+
+								return {
+									...template,
+									character: "current", // Mark as current persona
+									avatarUri: currentPersonaImages.avatarUri,
+									thinkingAvatarUri: currentPersonaImages.thinkingAvatarUri,
+									// Keep other properties from template
+									introIllustrationUri: template.introIllustrationUri,
+								}
+							}
+							const convertImageUri = async (uri: string): Promise<string> => {
+								if (!uri || !uri.startsWith("asset:/assets/")) {
+									return uri
+								}
+
+								try {
+									const imagePath = path.join(
+										this.context.extensionPath,
+										"caret-assets",
+										uri.replace("asset:/assets/", ""),
+									)
+									caretLogger.info(`[Controller] Loading image: ${imagePath}`)
+
+									if (
+										await fs
+											.access(imagePath)
+											.then(() => true)
+											.catch(() => false)
+									) {
+										const imageBuffer = await fs.readFile(imagePath)
+										const ext = path.extname(imagePath).toLowerCase()
+										const mimeType =
+											ext === ".png"
+												? "image/png"
+												: ext === ".jpg" || ext === ".jpeg"
+													? "image/jpeg"
+													: ext === ".webp"
+														? "image/webp"
+														: "image/png"
+										const base64 = `data:${mimeType};base64,${imageBuffer.toString("base64")}`
+										caretLogger.info(
+											`[Controller] Image loaded successfully, size: ${imageBuffer.length} bytes`,
+										)
+										return base64
+									} else {
+										caretLogger.warn(`[Controller] Image not found: ${imagePath}`)
+										return uri
+									}
+								} catch (error) {
+									caretLogger.error(`[Controller] Error loading image ${uri}: ${error}`)
+									return uri
+								}
+							}
+
+							// CARET MODIFICATION: Load custom persona images if they exist
+							const loadCustomImage = async (imageType: "normal" | "thinking"): Promise<string | undefined> => {
+								try {
+									const customImagePath = path.join(customAssetsDir, `${template.character}_${imageType}.png`)
+									if (
+										await fs
+											.access(customImagePath)
+											.then(() => true)
+											.catch(() => false)
+									) {
+										const imageBuffer = await fs.readFile(customImagePath)
+										const base64 = `data:image/png;base64,${imageBuffer.toString("base64")}`
+										caretLogger.info(`[Controller] Custom image loaded: ${customImagePath}`)
+										return base64
+									}
+								} catch (error) {
+									caretLogger.error(
+										`[Controller] Error loading custom image for ${template.character}: ${error}`,
+									)
+								}
+								return undefined
+							}
+
+							const customAvatarUri = await loadCustomImage("normal")
+							const customThinkingAvatarUri = await loadCustomImage("thinking")
+
+							return {
+								...template,
+								avatarUri: await convertImageUri(template.avatarUri),
+								thinkingAvatarUri: await convertImageUri(template.thinkingAvatarUri),
+								introIllustrationUri: await convertImageUri(template.introIllustrationUri),
+								// CARET MODIFICATION: Add custom image URIs if they exist
+								customAvatarUri,
+								customThinkingAvatarUri,
+							}
+						}),
+					)
+
+					this.postMessageToWebview({
+						type: "RESPONSE_TEMPLATE_CHARACTERS",
+						payload: templatesWithBase64Images,
+					})
+				} catch (error) {
+					caretLogger.error(`[Controller] Error reading template_characters.json: ${error}`)
+				}
+				break
+			}
+
+			// CARET MODIFICATION: Handle REQUEST_RULE_FILE_CONTENT to get the content of a rule file.
+			case "REQUEST_RULE_FILE_CONTENT": {
+				const ruleName = message.payload?.ruleName
+				if (!ruleName) {
+					break
+				}
+
+				try {
+					let ruleDir
+					if (message.payload.isGlobal) {
+						const { ensureRulesDirectoryExists } = await import("../storage/disk")
+						ruleDir = await ensureRulesDirectoryExists()
+					} else {
+						const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+						if (!cwd) {
+							break
+						}
+						ruleDir = path.join(cwd, ".clinerules")
+						if (!(await fileExistsAtPath(ruleDir))) {
+							await fs.mkdir(ruleDir, { recursive: true })
+						}
+					}
+					const rulePath = path.join(ruleDir, ruleName)
+					const content = await fs.readFile(rulePath, "utf-8")
+					this.postMessageToWebview({
+						type: "RESPONSE_RULE_FILE_CONTENT",
+						payload: { ruleName, content },
+					})
+				} catch (error) {
+					// It's okay if the file doesn't exist, just send back empty content
+					if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+						this.postMessageToWebview({
+							type: "RESPONSE_RULE_FILE_CONTENT",
+							payload: { ruleName, content: "" },
+						})
+					} else {
+						caretLogger.error(`[Controller] Error reading rule file ${ruleName}: ${error}`)
+					}
+				}
+				break
+			}
+
 			// Add more switch case statements here as more webview message commands
 			// are created within the webview context (i.e. inside media/main.js)
 		}
@@ -268,11 +521,22 @@ export class Controller {
 		telemetryService.updateTelemetryState(isOptedIn)
 	}
 
-	async togglePlanActModeWithChatSettings(chatSettings: ChatSettings, chatContent?: ChatContent) {
-		const didSwitchToActMode = chatSettings.mode === "act"
+	// CARET MODIFICATION: Chatbot/Agent 통일 - 메서드명과 로직 변경
+	async toggleChatbotAgentModeWithChatSettings(chatSettings: ChatSettings, chatContent?: ChatContent) {
+		const didSwitchToAgentMode = chatSettings.mode === "agent"
+
+		// CARET MODIFICATION: Mission 2 - Controller 모드 토글 로깅 (상세)
+		const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
+		caretLogger.info(
+			`🎛️ [CONTROLLER] toggleChatbotAgentModeWithChatSettings: receivedMode=${chatSettings.mode}, didSwitchToAgent=${didSwitchToAgentMode}, currentTaskMode=${this.task?.chatSettings?.mode}`,
+			"STATE",
+		)
 
 		// Capture mode switch telemetry | Capture regardless of if we know the taskId
-		telemetryService.captureModeSwitch(this.task?.taskId ?? "0", chatSettings.mode)
+		// CARET MODIFICATION: Chatbot/Agent 모드로 telemetry 수정 (기존 plan/act 호환)
+		// CARET MODIFICATION: Chatbot/Agent 모드 텔레메트리 호환성 매핑
+		const telemetryMode = chatSettings.mode === "chatbot" ? "plan" : "act"
+		telemetryService.captureModeSwitch(this.task?.taskId ?? "0", telemetryMode)
 
 		// Get previous model info that we will revert to after saving current mode api info
 		const {
@@ -441,11 +705,18 @@ export class Controller {
 		}
 
 		await updateWorkspaceState(this.context, "chatSettings", chatSettings)
+		caretLogger.info(`💾 [CONTROLLER-SAVE] chatSettings saved to workspaceState: mode=${chatSettings.mode}`, "STATE")
+
 		await this.postStateToWebview()
+		caretLogger.info(
+			`📤 [CONTROLLER-BROADCAST] postStateToWebview() called - broadcastingMode=${this.task?.chatSettings?.mode}`,
+			"STATE",
+		)
 
 		if (this.task) {
 			this.task.chatSettings = chatSettings
-			if (this.task.isAwaitingPlanResponse && didSwitchToActMode) {
+			caretLogger.info(`🔄 [CONTROLLER-SYNC] task.chatSettings updated: mode=${chatSettings.mode}`, "STATE")
+			if (this.task.isAwaitingPlanResponse && didSwitchToAgentMode) {
 				this.task.didRespondToPlanAskBySwitchingMode = true
 				// Use chatContent if provided, otherwise use default message
 				await this.task.handleWebviewAskResponse(
@@ -963,6 +1234,11 @@ export class Controller {
 
 	async postStateToWebview() {
 		const state = await this.getStateToPostToWebview()
+
+		// CARET MODIFICATION: Mission 2 - 실제 브로드캐스트 값 로깅
+		const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
+		caretLogger.info(`📡 [WEBVIEW-SEND] Sending state to webview - chatSettings.mode=${state.chatSettings.mode}`, "STATE")
+
 		await sendStateUpdate(state)
 	}
 
@@ -990,11 +1266,17 @@ export class Controller {
 			terminalOutputLineLimit,
 		} = await getAllExtensionState(this.context)
 
+		// CARET MODIFICATION: Get UI Language setting separately (app-wide)
+		const uiLanguage = (await getAllExtensionState(this.context)).chatSettings.uiLanguage
+
 		const localClineRulesToggles =
 			((await getWorkspaceState(this.context, "localClineRulesToggles")) as ClineRulesToggles) || {}
 
 		const localWindsurfRulesToggles =
 			((await getWorkspaceState(this.context, "localWindsurfRulesToggles")) as ClineRulesToggles) || {}
+
+		const localCaretRulesToggles =
+			((await getWorkspaceState(this.context, "localCaretRulesToggles")) as ClineRulesToggles) || {}
 
 		const localCursorRulesToggles =
 			((await getWorkspaceState(this.context, "localCursorRulesToggles")) as ClineRulesToggles) || {}
@@ -1026,6 +1308,7 @@ export class Controller {
 			distinctId: telemetryService.distinctId,
 			globalClineRulesToggles: globalClineRulesToggles || {},
 			localClineRulesToggles: localClineRulesToggles || {},
+			localCaretRulesToggles: localCaretRulesToggles || {},
 			localWindsurfRulesToggles: localWindsurfRulesToggles || {},
 			localCursorRulesToggles: localCursorRulesToggles || {},
 			localWorkflowToggles: localWorkflowToggles || {},
@@ -1036,6 +1319,7 @@ export class Controller {
 			isNewUser,
 			mcpResponsesCollapsed,
 			terminalOutputLineLimit,
+			uiLanguage, // CARET MODIFICATION: UI Language setting (app-wide)
 		}
 	}
 

@@ -8,7 +8,8 @@ import type { TemplateCharacter, PersonaInstruction } from "../../../../src/shar
 interface PersonaTemplateSelectorProps {
 	isOpen: boolean
 	onClose: () => void
-	onSelectPersona: (instruction: PersonaInstruction) => void
+	// CARET MODIFICATION: Pass the entire TemplateCharacter object instead of just PersonaInstruction
+	onSelectPersona: (character: TemplateCharacter) => void
 	currentLocale: string
 	// For testing purposes
 	testCharacters?: TemplateCharacter[]
@@ -93,10 +94,8 @@ export const PersonaTemplateSelector: React.FC<PersonaTemplateSelectorProps> = (
 	}
 
 	const handleSelect = (character: TemplateCharacter) => {
-		const localeDetails = character[currentLocale as keyof typeof character] as any
-		if (localeDetails && localeDetails.customInstruction) {
-			onSelectPersona(localeDetails.customInstruction)
-		}
+		// CARET MODIFICATION: Pass the entire TemplateCharacter object
+		onSelectPersona(character)
 		onClose()
 	}
 

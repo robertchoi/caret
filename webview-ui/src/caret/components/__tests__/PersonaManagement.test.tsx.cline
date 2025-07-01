@@ -76,7 +76,6 @@ vi.mock("../../context/ExtensionStateContext", () => ({
 vi.mock("../PersonaTemplateSelector", () => ({
 	PersonaTemplateSelector: ({ isOpen, onClose, onSelectPersona }: any) => {
 		if (!isOpen) return null
-		// CARET MODIFICATION: Mock PersonaTemplateSelector to pass full TemplateCharacter object
 		const testSelectedCharacter: TemplateCharacter = {
 			character: "test-persona",
 			en: {
@@ -296,12 +295,25 @@ describe("PersonaManagement", () => {
 			fireEvent.click(selectPersonaButton)
 
 			// Verify the expected calls
-			expect(caretWebviewLogger.debug).toHaveBeenCalledWith("Persona selected:", testSelectedCharacter)
+			expect(caretWebviewLogger.debug).toHaveBeenCalledWith("Persona selected:", {
+				persona: { name: "Test Persona" },
+				language: { style: "Friendly" },
+				emotion_style: { tone: "Warm" },
+				behavior: { loyalty: "High" },
+				signature_phrase: "Hello!",
+			})
+
 			// CARET MODIFICATION: Update expected payload to match new structure
 			expect(vscode.postMessage).toHaveBeenCalledWith({
 				type: "UPDATE_PERSONA_CUSTOM_INSTRUCTION",
 				payload: {
-					personaInstruction: testSelectedCharacter.en.customInstruction,
+					personaInstruction: {
+						persona: { name: "Test Persona" },
+						language: { style: "Friendly" },
+						emotion_style: { tone: "Warm" },
+						behavior: { loyalty: "High" },
+						signature_phrase: "Hello!",
+					},
 					avatarUri: "data:image/png;base64,test-avatar-uri",
 					thinkingAvatarUri: "data:image/png;base64,test-thinking-avatar-uri",
 				},

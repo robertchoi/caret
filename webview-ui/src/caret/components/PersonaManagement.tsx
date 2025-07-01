@@ -145,14 +145,23 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 		}
 	}, [currentInstruction])
 
-	const handlePersonaSelected = (personaInstruction: PersonaInstruction) => {
-		caretWebviewLogger.debug("Persona selected:", personaInstruction)
+
+    // CARET MODIFICATION: Receive TemplateCharacter and send image URIs to backend
+    const handlePersonaSelected = (character: TemplateCharacter) => {
+        caretWebviewLogger.debug("Persona selected:", character)
+        const localeDetails = (character[currentLocale as keyof typeof character] as any) || character.en
+        
 		vscode.postMessage({
 			type: "UPDATE_PERSONA_CUSTOM_INSTRUCTION",
-			payload: { personaInstruction: personaInstruction },
+			payload: {
+				personaInstruction: localeDetails.customInstruction,
+				// CARET MODIFICATION: Add avatarUri and thinkingAvatarUri to the payload
+				avatarUri: character.avatarUri,
+				thinkingAvatarUri: character.thinkingAvatarUri,
+			},
 		} as WebviewMessage)
 
-		setCurrentInstruction(JSON.stringify(personaInstruction, null, 2))
+		setCurrentInstruction(JSON.stringify(localeDetails.customInstruction, null, 2))
 
 		setIsSelectorOpen(false)
 	}
@@ -215,10 +224,10 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 						<div className="text-center mt-2">
 							{isUploading ? (
 								<span className="text-xs text-[var(--vscode-descriptionForeground)]">
-									업로드 중...
+									?�로??�?..
 								</span>
 							) : uploadMessage ? (
-								<span className={`text-xs ${uploadMessage.includes('success') || uploadMessage.includes('성공') ? 'text-[var(--vscode-charts-green)]' : 'text-[var(--vscode-errorForeground)]'}`}>
+								<span className={`text-xs ${uploadMessage.includes('success') || uploadMessage.includes('?�공') ? 'text-[var(--vscode-charts-green)]' : 'text-[var(--vscode-errorForeground)]'}`}>
 									{uploadMessage}
 								</span>
 							) : null}
@@ -267,3 +276,9 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 }
 
 export default PersonaManagement
+
+
+
+
+
+

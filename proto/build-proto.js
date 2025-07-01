@@ -117,11 +117,11 @@ async function main() {
 async function tsProtoc(outDir, protoFiles, protoOptions) {
 	// Build the protoc command with proper path handling for cross-platform
 	const command = [
-		PROTOC,
+		`"${PROTOC}"`,
 		`--proto_path="${SCRIPT_DIR}"`,
 		`--plugin=protoc-gen-ts_proto="${TS_PROTO_PLUGIN}"`,
 		`--ts_proto_out="${outDir}"`,
-		`--ts_proto_opt=${protoOptions.join(",")} `,
+		`--ts_proto_opt="${protoOptions.join(",")}"`,
 		...protoFiles.map((s) => `"${s}"`),
 	].join(" ")
 	try {

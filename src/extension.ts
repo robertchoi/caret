@@ -59,6 +59,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Clean up orphaned file context warnings (startup cleanup)
 	await FileContextTracker.cleanupOrphanedWarnings(context)
 
+	// CARET MODIFICATION: Initialize persona storage system (globalStorage-based)
+	try {
+		const { initializeDefaultPersonaImages } = await import("../caret-src/utils/persona-storage")
+		await initializeDefaultPersonaImages(context)
+		Logger.log("Persona storage system initialized successfully")
+	} catch (error) {
+		Logger.log(`Failed to initialize persona storage system: ${error}`)
+	}
+
 	// Version checking for autoupdate notification
 	const currentVersion = context.extension.packageJSON.version
 	const previousVersion = context.globalState.get<string>("clineVersion")

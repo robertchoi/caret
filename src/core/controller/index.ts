@@ -311,22 +311,24 @@ export class Controller {
 					)
 
 					try {
-						// CARET MODIFICATION: Use simple-persona-image.ts to save directly to caret-assets
-						const { uploadCustomPersonaImage } = await import("../../../caret-src/utils/simple-persona-image")
-						await uploadCustomPersonaImage(
+						// CARET MODIFICATION: Use new globalStorage-based persona-storage.ts system
+						const { saveCustomPersonaImage } = await import("../../../caret-src/utils/persona-storage")
+						const savedImageUri = await saveCustomPersonaImage(
+							this.context,
 							message.payload.imageType,
 							message.payload.imageData,
-							this.context.extensionPath,
 						)
 
-						caretLogger.info(`[Controller] Custom persona image uploaded successfully to caret-assets.`)
+						caretLogger.info(
+							`[Controller] Custom persona image saved successfully to globalStorage: ${savedImageUri}`,
+						)
 
 						// Send success response back to webview
 						this.postMessageToWebview({
 							type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
 							payload: {
 								success: true,
-								// imagePath는 이제 필요 없으므로 제거하거나, 필요하다면 caret-assets 경로를 반환
+								savedPath: savedImageUri, // CARET MODIFICATION: Include actual saved URI
 								imageType: message.payload.imageType,
 								personaCharacter: message.payload.personaCharacter,
 							},
@@ -368,9 +370,9 @@ export class Controller {
 					const templatesRaw = await fs.readFile(templatePath, "utf-8")
 					const templates = JSON.parse(templatesRaw)
 
-					// CARET MODIFICATION: Load current persona images from agent_profile.png and agent_thinking.png
-					const { loadSimplePersonaImages } = await import("../../../caret-src/utils/simple-persona-image")
-					const currentPersonaImages = await loadSimplePersonaImages(this.context.extensionPath)
+					// CARET MODIFICATION: Load current persona images from globalStorage
+					const { loadPersonaImagesFromStorage } = await import("../../../caret-src/utils/persona-storage")
+					const currentPersonaImages = await loadPersonaImagesFromStorage(this.context)
 
 					const templatesWithBase64Images = await Promise.all(
 						templates.map(async (template: any, index: number) => {
@@ -394,6 +396,57 @@ export class Controller {
 									return uri
 								}
 
+								// CARET MODIFICATION: Template characters use globalStorage, not caret-assets
+								if (uri.startsWith("asset:/assets/template_characters/")) {
+									try {
+										// Extract filename from URI (e.g., "sarang.png")
+										const fileName = path.basename(uri)
+										const globalStoragePath = path.join(
+											this.context.globalStorageUri.fsPath,
+											"personas",
+											fileName,
+										)
+
+										// Check if image exists in globalStorage
+										if (
+											await fs
+												.access(globalStoragePath)
+												.then(() => true)
+												.catch(() => false)
+										) {
+											// CARET MODIFICATION: Use webview.asWebviewUri() for CSP compliance
+											const globalStorageFileUri = vscode.Uri.file(globalStoragePath)
+											// Get webview from any visible instance to convert URI
+											const webviewInstances = await import("../webview/index")
+											const WebviewProvider = webviewInstances.WebviewProvider
+											const visibleInstance = WebviewProvider.getVisibleInstance()
+											if (visibleInstance?.view?.webview) {
+												const safeUri = visibleInstance.view.webview
+													.asWebviewUri(globalStorageFileUri)
+													.toString()
+												caretLogger.info(
+													`[Controller] Template image URI converted: ${uri} -> ${safeUri}`,
+												)
+												return safeUri
+											} else {
+												caretLogger.warn(
+													`[Controller] No visible webview instance found for URI conversion: ${globalStoragePath}`,
+												)
+												return uri
+											}
+										} else {
+											caretLogger.warn(
+												`[Controller] Template image not found in globalStorage: ${globalStoragePath}`,
+											)
+											return uri
+										}
+									} catch (error) {
+										caretLogger.error(`[Controller] Error converting template image URI ${uri}: ${error}`)
+										return uri
+									}
+								}
+
+								// For other asset URIs, load from caret-assets as before
 								try {
 									const imagePath = path.join(
 										this.context.extensionPath,

@@ -95,7 +95,8 @@ export class WebviewProvider implements vscode.WebviewViewProvider {
 		webviewView.webview.options = {
 			// Allow scripts in the webview
 			enableScripts: true,
-			localResourceRoots: [this.context.extensionUri],
+			// CARET MODIFICATION: Add globalStorageUri to allow persona images from globalStorage
+			localResourceRoots: [this.context.extensionUri, this.context.globalStorageUri],
 		}
 
 		webviewView.webview.html =

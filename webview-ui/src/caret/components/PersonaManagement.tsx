@@ -31,10 +31,10 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 		caretWebviewLogger.debug("Persona template selector modal closed.")
 	}
 
-	const handleImageUpload = (imageType: 'normal' | 'thinking') => {
-		const input = document.createElement('input')
-		input.type = 'file'
-		input.accept = 'image/*'
+	const handleImageUpload = (imageType: "normal" | "thinking") => {
+		const input = document.createElement("input")
+		input.type = "file"
+		input.accept = "image/*"
 		input.onchange = (e) => {
 			const file = (e.target as HTMLInputElement).files?.[0]
 			if (file) {
@@ -43,20 +43,20 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 					const base64 = reader.result as string
 					setIsUploading(true)
 					setUploadMessage("")
-					
+
 					vscode.postMessage({
 						type: "UPLOAD_CUSTOM_PERSONA_IMAGE",
 						payload: {
 							imageType,
 							imageData: base64,
-							personaCharacter: selectedPersona?.character
-						}
+							personaCharacter: selectedPersona?.character,
+						},
 					} as WebviewMessage)
 				}
 				reader.readAsDataURL(file)
 			}
 		}
-		input.setAttribute('data-testid', `${imageType}-image-input`)
+		input.setAttribute("data-testid", `${imageType}-image-input`)
 		input.click()
 	}
 
@@ -111,11 +111,19 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 				setIsUploading(false)
 				if (message.payload?.success) {
 					setUploadMessage(t("upload.success", "persona"))
+
+					// CARET MODIFICATION: Improved upload response handling with savedPath
+					if (message.payload.savedPath) {
+						caretWebviewLogger.info(`Custom persona image saved to: ${message.payload.savedPath}`)
+					}
+
 					// Refresh persona templates to show updated custom images
 					vscode.postMessage({
 						type: "REQUEST_TEMPLATE_CHARACTERS",
 					})
 				} else {
+					const errorMsg = message.payload?.error || "Unknown error"
+					caretWebviewLogger.error(`Persona image upload failed: ${errorMsg}`)
 					setUploadMessage(t("upload.error", "persona"))
 				}
 			}
@@ -145,12 +153,11 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 		}
 	}, [currentInstruction])
 
+	// CARET MODIFICATION: Receive TemplateCharacter and send image URIs to backend
+	const handlePersonaSelected = (character: TemplateCharacter) => {
+		caretWebviewLogger.debug("Persona selected:", character)
+		const localeDetails = (character[currentLocale as keyof typeof character] as any) || character.en
 
-    // CARET MODIFICATION: Receive TemplateCharacter and send image URIs to backend
-    const handlePersonaSelected = (character: TemplateCharacter) => {
-        caretWebviewLogger.debug("Persona selected:", character)
-        const localeDetails = (character[currentLocale as keyof typeof character] as any) || character.en
-        
 		vscode.postMessage({
 			type: "UPDATE_PERSONA_CUSTOM_INSTRUCTION",
 			payload: {
@@ -188,13 +195,12 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 								alt={`${getPersonaName()} normal`}
 								className="w-20 h-20 rounded-full object-cover border-2 border-[var(--vscode-settings-headerBorder)]"
 							/>
-							<VSCodeButton 
-								appearance="icon" 
-								className="mt-2" 
-								onClick={() => handleImageUpload('normal')}
+							<VSCodeButton
+								appearance="icon"
+								className="mt-2"
+								onClick={() => handleImageUpload("normal")}
 								disabled={isUploading}
-								title={t("upload.normal", "persona")}
-							>
+								title={t("upload.normal", "persona")}>
 								<span className="codicon codicon-cloud-upload"></span>
 							</VSCodeButton>
 						</div>
@@ -207,27 +213,25 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 								alt={`${getPersonaName()} thinking`}
 								className="w-20 h-20 rounded-full object-cover border-2 border-[var(--vscode-settings-headerBorder)]"
 							/>
-							<VSCodeButton 
-								appearance="icon" 
-								className="mt-2" 
-								onClick={() => handleImageUpload('thinking')}
+							<VSCodeButton
+								appearance="icon"
+								className="mt-2"
+								onClick={() => handleImageUpload("thinking")}
 								disabled={isUploading}
-								title={t("upload.thinking", "persona")}
-							>
+								title={t("upload.thinking", "persona")}>
 								<span className="codicon codicon-cloud-upload"></span>
 							</VSCodeButton>
 						</div>
 					</div>
 					<div className="text-center text-sm font-medium">{getPersonaName()}</div>
-					
+
 					{(uploadMessage || isUploading) && (
 						<div className="text-center mt-2">
 							{isUploading ? (
-								<span className="text-xs text-[var(--vscode-descriptionForeground)]">
-									?�로??�?..
-								</span>
+								<span className="text-xs text-[var(--vscode-descriptionForeground)]">?�로??�?..</span>
 							) : uploadMessage ? (
-								<span className={`text-xs ${uploadMessage.includes('success') || uploadMessage.includes('?�공') ? 'text-[var(--vscode-charts-green)]' : 'text-[var(--vscode-errorForeground)]'}`}>
+								<span
+									className={`text-xs ${uploadMessage.includes("success") || uploadMessage.includes("?�공") ? "text-[var(--vscode-charts-green)]" : "text-[var(--vscode-errorForeground)]"}`}>
 									{uploadMessage}
 								</span>
 							) : null}
@@ -238,18 +242,10 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 
 			{selectedPersona && (
 				<div className="flex justify-center space-x-2 mb-4">
-					<VSCodeButton 
-						appearance="secondary" 
-						onClick={() => handleImageUpload('normal')}
-						disabled={isUploading}
-					>
+					<VSCodeButton appearance="secondary" onClick={() => handleImageUpload("normal")} disabled={isUploading}>
 						{t("upload.normal", "persona")}
 					</VSCodeButton>
-					<VSCodeButton 
-						appearance="secondary" 
-						onClick={() => handleImageUpload('thinking')}
-						disabled={isUploading}
-					>
+					<VSCodeButton appearance="secondary" onClick={() => handleImageUpload("thinking")} disabled={isUploading}>
 						{t("upload.thinking", "persona")}
 					</VSCodeButton>
 				</div>
@@ -276,9 +272,3 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 }
 
 export default PersonaManagement
-
-
-
-
-
-

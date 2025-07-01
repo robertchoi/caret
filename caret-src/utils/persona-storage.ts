@@ -71,25 +71,24 @@ export async function loadPersonaImagesFromStorage(context: vscode.ExtensionCont
 		const profilePath = path.join(personaDir, "agent_profile.png")
 		const thinkingPath = path.join(personaDir, "agent_thinking.png")
 
-		// CARET MODIFICATION: Use webview.asWebviewUri() for CSP compliance
-		const { WebviewProvider } = await import("../../src/core/webview/index")
-		const visibleInstance = WebviewProvider.getVisibleInstance()
+		// CARET MODIFICATION: Convert to base64 for CSP compliance
+		try {
+			const profileBuffer = await fs.readFile(profilePath)
+			const thinkingBuffer = await fs.readFile(thinkingPath)
 
-		if (visibleInstance?.view?.webview) {
-			const profileUri = vscode.Uri.file(profilePath)
-			const thinkingUri = vscode.Uri.file(thinkingPath)
+			const avatarUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
+			const thinkingAvatarUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
 
-			const avatarUri = visibleInstance.view.webview.asWebviewUri(profileUri).toString()
-			const thinkingAvatarUri = visibleInstance.view.webview.asWebviewUri(thinkingUri).toString()
-
-			caretLogger.debug(`Loaded persona images: ${avatarUri}, ${thinkingAvatarUri}`)
+			caretLogger.debug(
+				`Loaded persona images as base64: ${avatarUri.slice(0, 50)}..., ${thinkingAvatarUri.slice(0, 50)}...`,
+			)
 
 			return {
 				avatarUri,
 				thinkingAvatarUri,
 			}
-		} else {
-			caretLogger.warn("No visible webview instance found for persona image URI conversion")
+		} catch (error) {
+			caretLogger.warn(`Failed to read persona image files: ${error}`)
 			return {
 				avatarUri: "",
 				thinkingAvatarUri: "",
@@ -143,18 +142,11 @@ export async function saveCustomPersonaImage(
 		// globalStorage에 이미지 저장
 		await fs.writeFile(imagePath, imageBuffer)
 
-		// CARET MODIFICATION: Use webview.asWebviewUri() for CSP compliance
-		const { WebviewProvider } = await import("../../src/core/webview/index")
-		const visibleInstance = WebviewProvider.getVisibleInstance()
+		// CARET MODIFICATION: Return base64 for CSP compliance
+		const savedImageBase64 = `data:image/png;base64,${imageBuffer.toString("base64")}`
+		caretLogger.info(`Custom persona image saved successfully: ${fileName} (${imageBuffer.length} bytes) -> base64 data`)
 
-		if (visibleInstance?.view?.webview) {
-			const fileUri = visibleInstance.view.webview.asWebviewUri(vscode.Uri.file(imagePath)).toString()
-			caretLogger.info(`Custom persona image saved successfully: ${fileName} (${imageBuffer.length} bytes) -> ${fileUri}`)
-			return fileUri
-		} else {
-			caretLogger.warn("No visible webview instance found for saved image URI conversion")
-			return ""
-		}
+		return savedImageBase64
 	} catch (error) {
 		caretLogger.error(`Failed to save custom persona image: ${error}`)
 		throw error

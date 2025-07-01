@@ -25,6 +25,7 @@ export interface ExtensionMessage {
 		| "userCreditsPayments"
 		| "grpc_response"
 		| "RESPONSE_TEMPLATE_CHARACTERS"
+		| "RESPONSE_PERSONA_IMAGES"
 		| "RESPONSE_RULE_FILE_CONTENT"
 		| "PERSONA_UPDATED"
 		| "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE"

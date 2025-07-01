@@ -357,6 +357,24 @@ export class Controller {
 				break
 			}
 
+			// CARET MODIFICATION: Handle REQUEST_PERSONA_IMAGES to provide current persona images to PersonaAvatar
+			case "REQUEST_PERSONA_IMAGES": {
+				caretLogger.info("[Controller] Received REQUEST_PERSONA_IMAGES")
+				try {
+					const { loadPersonaImagesFromStorage } = await import("../../../caret-src/utils/persona-storage")
+					const currentPersonaImages = await loadPersonaImagesFromStorage(this.context)
+
+					caretLogger.info("[Controller] Sending current persona images to PersonaAvatar")
+					this.postMessageToWebview({
+						type: "RESPONSE_PERSONA_IMAGES",
+						payload: currentPersonaImages,
+					})
+				} catch (error) {
+					caretLogger.error(`[Controller] Error loading current persona images: ${error}`)
+				}
+				break
+			}
+
 			// CARET MODIFICATION: Handle REQUEST_TEMPLATE_CHARACTERS to provide persona templates to the webview.
 			case "REQUEST_TEMPLATE_CHARACTERS": {
 				caretLogger.info("[Controller] Received REQUEST_TEMPLATE_CHARACTERS")
@@ -376,67 +394,48 @@ export class Controller {
 
 					const templatesWithBase64Images = await Promise.all(
 						templates.map(async (template: any, index: number) => {
-							// For the first template (current persona), use actual agent files
-							if (index === 0) {
-								caretLogger.info(
-									`[Controller] Using current persona images from agent_profile.png and agent_thinking.png`,
-								)
-
-								return {
-									...template,
-									character: "current", // Mark as current persona
-									avatarUri: currentPersonaImages.avatarUri,
-									thinkingAvatarUri: currentPersonaImages.thinkingAvatarUri,
-									// Keep other properties from template
-									introIllustrationUri: template.introIllustrationUri,
-								}
-							}
+							// CARET MODIFICATION: Removed first template override - let all templates show their own images
 							const convertImageUri = async (uri: string): Promise<string> => {
 								if (!uri || !uri.startsWith("asset:/assets/")) {
 									return uri
 								}
 
-								// CARET MODIFICATION: Template characters use globalStorage, not caret-assets
+								// CARET MODIFICATION: Template characters use caret-assets, convert to base64
 								if (uri.startsWith("asset:/assets/template_characters/")) {
 									try {
-										// Extract filename from URI (e.g., "sarang.png")
-										const fileName = path.basename(uri)
-										const globalStoragePath = path.join(
-											this.context.globalStorageUri.fsPath,
-											"personas",
-											fileName,
+										// Load from caret-assets directory (same as other assets)
+										const imagePath = path.join(
+											this.context.extensionPath,
+											"caret-assets",
+											uri.replace("asset:/assets/", ""),
 										)
+										caretLogger.info(`[Controller] Loading template image: ${imagePath}`)
 
-										// Check if image exists in globalStorage
 										if (
 											await fs
-												.access(globalStoragePath)
+												.access(imagePath)
 												.then(() => true)
 												.catch(() => false)
 										) {
-											// CARET MODIFICATION: Use webview.asWebviewUri() for CSP compliance
-											const globalStorageFileUri = vscode.Uri.file(globalStoragePath)
-											// Get webview from any visible instance to convert URI
-											const webviewInstances = await import("../webview/index")
-											const WebviewProvider = webviewInstances.WebviewProvider
-											const visibleInstance = WebviewProvider.getVisibleInstance()
-											if (visibleInstance?.view?.webview) {
-												const safeUri = visibleInstance.view.webview
-													.asWebviewUri(globalStorageFileUri)
-													.toString()
-												caretLogger.info(
-													`[Controller] Template image URI converted: ${uri} -> ${safeUri}`,
-												)
-												return safeUri
-											} else {
-												caretLogger.warn(
-													`[Controller] No visible webview instance found for URI conversion: ${globalStoragePath}`,
-												)
-												return uri
-											}
+											// CARET MODIFICATION: Convert to base64 like other assets for CSP compliance
+											const imageBuffer = await fs.readFile(imagePath)
+											const ext = path.extname(imagePath).toLowerCase()
+											const mimeType =
+												ext === ".png"
+													? "image/png"
+													: ext === ".jpg" || ext === ".jpeg"
+														? "image/jpeg"
+														: ext === ".webp"
+															? "image/webp"
+															: "image/png"
+											const base64 = `data:${mimeType};base64,${imageBuffer.toString("base64")}`
+											caretLogger.info(
+												`[Controller] Template image converted to base64: ${uri} -> data:${mimeType} (${imageBuffer.length} bytes)`,
+											)
+											return base64
 										} else {
 											caretLogger.warn(
-												`[Controller] Template image not found in globalStorage: ${globalStoragePath}`,
+												`[Controller] Template image not found in caret-assets: ${imagePath}`,
 											)
 											return uri
 										}

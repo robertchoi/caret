@@ -24,6 +24,7 @@ export type SecretKey =
 	| "cerebrasApiKey"
 	| "sapAiCoreClientId"
 	| "sapAiCoreClientSecret"
+	| "caretApiKey"
 
 export type GlobalStateKey =
 	| "awsRegion"

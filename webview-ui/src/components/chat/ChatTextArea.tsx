@@ -47,6 +47,7 @@ import ClineRulesToggleModal from "../cline-rules/ClineRulesToggleModal"
 import ServersToggleModal from "./ServersToggleModal"
 // CARET MODIFICATION: 다국어 지원을 위한 i18n import
 import { t } from "@/caret/utils/i18n"
+import { useCurrentLanguage } from "@/caret/hooks/useCurrentLanguage"
 
 const getImageDimensions = (dataUrl: string): Promise<{ width: number; height: number }> => {
 	return new Promise((resolve, reject) => {
@@ -976,10 +977,14 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			[updateCursorPosition],
 		)
 
+		// CARET MODIFICATION: 현재 언어 추가
+		const currentLanguage = useCurrentLanguage()
+
 		// Separate the API config submission logic
 		const submitApiConfig = useCallback(async () => {
-			const apiValidationResult = validateApiConfiguration(apiConfiguration)
-			const modelIdValidationResult = validateModelId(apiConfiguration, openRouterModels)
+			// CARET MODIFICATION: 다국어 에러 메시지 적용
+			const apiValidationResult = validateApiConfiguration(apiConfiguration, currentLanguage)
+			const modelIdValidationResult = validateModelId(apiConfiguration, openRouterModels, currentLanguage)
 
 			if (!apiValidationResult && !modelIdValidationResult && apiConfiguration) {
 				try {
@@ -1000,7 +1005,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 						console.error("Error refreshing state:", error)
 					})
 			}
-		}, [apiConfiguration, openRouterModels])
+		}, [apiConfiguration, openRouterModels, currentLanguage])
 
 		const onChatbotAgentModeToggle = useCallback(() => {
 			// CARET MODIFICATION: Chatbot/Agent 통일 - 올바른 API와 타입 사용

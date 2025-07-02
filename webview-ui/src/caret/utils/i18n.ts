@@ -77,36 +77,50 @@ const getNestedValue = (obj: any, path: string): any => {
 }
 
 // 템플릿 변수를 치환하는 함수
-const replaceTemplateVariables = (text: any, language: SupportedLanguage): string => {
+const replaceTemplateVariables = (text: any, language: SupportedLanguage, options?: Record<string, string | number>): string => {
 	// 타입 체크: 문자열이 아니면 문자열로 변환하거나 그대로 반환
 	if (typeof text !== "string") {
 		return String(text)
 	}
 
-	return (
-		text
-			// 교육 프로그램 링크
-			.replace(/\{\{educationLink\}\}/g, getLocalizedUrl("EDUCATION_PROGRAM", language))
-			// Gemini 크레딧 가이드 링크
-			.replace(/\{\{geminiCreditLink\}\}/g, getLocalizedUrl("GEMINI_CREDIT_GUIDE", language))
-			// Caret GitHub 링크
-			.replace(/\{\{caretGitLink\}\}/g, getLocalizedUrl("CARET_GITHUB_DETAILED", language))
-			// 일반 URL들
-			.replace(/\{\{caretService\}\}/g, getUrl("CARET_SERVICE"))
-			.replace(/\{\{caretGithub\}\}/g, getUrl("CARET_GITHUB"))
-			.replace(/\{\{caretiveCompany\}\}/g, getUrl("CARETIVE_COMPANY"))
-	)
+	let result = text
+
+	// 기존 템플릿 변수 치환
+	result = result
+		.replace(/\{\{educationLink\}\}/g, getLocalizedUrl("EDUCATION_PROGRAM", language))
+		.replace(/\{\{geminiCreditLink\}\}/g, getLocalizedUrl("GEMINI_CREDIT_GUIDE", language))
+		.replace(/\{\{caretGitLink\}\}/g, getLocalizedUrl("CARET_GITHUB_DETAILED", language))
+		.replace(/\{\{caretService\}\}/g, getUrl("CARET_SERVICE"))
+		.replace(/\{\{caretGithub\}\}/g, getUrl("CARET_GITHUB"))
+		.replace(/\{\{caretiveCompany\}\}/g, getUrl("CARETIVE_COMPANY"))
+
+	// 추가된 동적 옵션 변수 치환
+	if (options) {
+		for (const key in options) {
+			if (Object.prototype.hasOwnProperty.call(options, key)) {
+				const regex = new RegExp(`\\{\\{${key}\\}\\}`, "g")
+				result = result.replace(regex, String(options[key]))
+			}
+		}
+	}
+
+	return result
 }
 
 // Simple translation function with dot notation support and template variable replacement
-export const t = (key: string, namespace: string = "common", language?: SupportedLanguage): string => {
+export const t = (
+	key: string,
+	namespace: string = "common",
+	options?: Record<string, string | number>,
+	language?: SupportedLanguage,
+): string => {
 	const currentLang = language || getInternalCurrentLanguage() // 수정: 내부 함수 사용
 	const namespaceData = translations[currentLang]?.[namespace as keyof (typeof translations)[typeof currentLang]]
 
 	if (namespaceData) {
 		const value = getNestedValue(namespaceData, key)
 		if (value !== undefined && value !== null) {
-			return replaceTemplateVariables(value, currentLang)
+			return replaceTemplateVariables(value, currentLang, options)
 		}
 	}
 
@@ -115,7 +129,7 @@ export const t = (key: string, namespace: string = "common", language?: Supporte
 	if (enNamespaceData) {
 		const value = getNestedValue(enNamespaceData, key)
 		if (value !== undefined && value !== null) {
-			return replaceTemplateVariables(value, "en")
+			return replaceTemplateVariables(value, "en", options)
 		}
 	}
 

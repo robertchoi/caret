@@ -280,6 +280,22 @@ export const ExtensionStateContextProvider: React.FC<{
 	}, [])
 	const mcpServersSubscriptionRef = useRef<(() => void) | null>(null)
 
+	// CARET MODIFICATION: 웰컴 상태 변경을 백엔드에 알려서 VSCode 컨텍스트 업데이트
+	useEffect(() => {
+		// showWelcome 상태가 변경될 때마다 백엔드에 알려서 VSCode 컨텍스트를 업데이트
+		if (didHydrateState) {
+			// 간단한 메시지로 백엔드에 웰컴 상태 전달
+			window.postMessage(
+				{
+					type: "setWelcomeContext",
+					showWelcome: showWelcome,
+				},
+				"*",
+			)
+			console.log(`[DEBUG] Sent welcome context to backend: showWelcome=${showWelcome}`)
+		}
+	}, [showWelcome, didHydrateState])
+
 	// Subscribe to state updates and UI events using the gRPC streaming API
 	useEffect(() => {
 		// Determine the webview provider type
@@ -347,7 +363,7 @@ export const ExtensionStateContextProvider: React.FC<{
 										config.doubaoApiKey,
 										config.mistralApiKey,
 										config.vsCodeLmModelSelector,
-										config.clineApiKey,
+										config.caretApiKey,
 										config.asksageApiKey,
 										config.xaiApiKey,
 										config.sambanovaApiKey,
@@ -385,7 +401,10 @@ export const ExtensionStateContextProvider: React.FC<{
 			{
 				onResponse: () => {
 					console.log("[DEBUG] Received mcpButtonClicked event from gRPC stream")
-					navigateToMcp()
+					// CARET MODIFICATION: 웰컴 페이지에서는 상단 메뉴 비활성화
+					if (!showWelcome) {
+						navigateToMcp()
+					}
 				},
 				onError: (error) => {
 					console.error("Error in mcpButtonClicked subscription:", error)
@@ -405,7 +424,10 @@ export const ExtensionStateContextProvider: React.FC<{
 				onResponse: () => {
 					// When history button is clicked, navigate to history view
 					console.log("[DEBUG] Received history button clicked event from gRPC stream")
-					navigateToHistory()
+					// CARET MODIFICATION: 웰컴 페이지에서는 상단 메뉴 비활성화
+					if (!showWelcome) {
+						navigateToHistory()
+					}
 				},
 				onError: (error) => {
 					console.error("Error in history button clicked subscription:", error)
@@ -465,7 +487,10 @@ export const ExtensionStateContextProvider: React.FC<{
 			{
 				onResponse: () => {
 					// When settings button is clicked, navigate to settings
-					navigateToSettings()
+					// CARET MODIFICATION: 웰컴 페이지에서는 상단 메뉴 비활성화
+					if (!showWelcome) {
+						navigateToSettings()
+					}
 				},
 				onError: (error) => {
 					console.error("Error in settings button clicked subscription:", error)
@@ -576,7 +601,10 @@ export const ExtensionStateContextProvider: React.FC<{
 			onResponse: () => {
 				// When account button is clicked, navigate to account view
 				console.log("[DEBUG] Received account button clicked event from gRPC stream")
-				navigateToAccount()
+				// CARET MODIFICATION: 웰컴 페이지에서는 상단 메뉴 비활성화
+				if (!showWelcome) {
+					navigateToAccount()
+				}
 			},
 			onError: (error) => {
 				console.error("Error in account button clicked subscription:", error)

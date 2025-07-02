@@ -109,7 +109,7 @@
 		}
 	},
 	"account": {
-		"signUpWithCaret": "使用Caret注册",
+		"signUpWithCaret": "登录并注册",
 		"viewBillingUsage": "查看账单和使用情况",
 		"dashboard": "仪表板",
 		"addCredits": "添加积分",
@@ -123,6 +123,37 @@
 	},
 	"common": {
 		"and": "和"
+	},
+	"modelInfo": {
+		"supportsImages": "支持图片",
+		"doesNotSupportImages": "不支持图片",
+		"supportsBrowserUse": "支持浏览器使用",
+		"doesNotSupportBrowserUse": "不支持浏览器使用",
+		"supportsPromptCaching": "支持提示词缓存",
+		"doesNotSupportPromptCaching": "不支持提示词缓存",
+		"maxOutput": "最大输出",
+		"inputPrice": "输入价格",
+		"outputPrice": "输出价格",
+		"outputPriceStandard": "输出价格 (标准)",
+		"outputPriceThinkingBudget": "输出价格 (思考预算 > 0)",
+		"basedOnInputTokens": "(基于输入令牌)",
+		"cacheWritesPrice": "缓存写入价格",
+		"cacheReadsPrice": "缓存读取价格",
+		"freeRequestsPerMinute": "* 每分钟免费请求上限为 {{count}} 次。之后，费用取决于提示大小。",
+		"forMoreInfo": "了解更多信息，请参阅定价详情。"
+	},
+	"caretProvider": {
+		"futureSupport": "未来支持",
+		"futureProviders": "ChatGPT 和 Claude 将在未来支持",
+		"modelLabel": "模型",
+		"geminiProModel": "Gemini 2.5 Pro",
+		"geminiFlashModel": "Gemini 2.5 Flash",
+		"bestLabel": "最佳",
+		"valueLabel": "性价比",
+		"geminiProDescription": "针对复杂任务和高级推理优化的高端性能模型",
+		"geminiFlashDescription": "适用于一般任务的快速高效模型，具有出色的性价比",
+		"tagBest": "最佳",
+		"tagCostEffective": "性价比"
 	},
 	"apiOptions": {
 		"apiProvider": "API提供商",
@@ -180,6 +211,12 @@
 		"getApiKeySignUp": "您可以在此注册获取API密钥。",
 		"getAnthropicApiKey": "您可以在此注册获取Anthropic API密钥。",
 		"getOpenAiApiKey": "您可以在此注册获取OpenAI API密钥。",
-		"getGeminiApiKey": "您可以在此注册获取Gemini API密钥。"
+		"getGeminiApiKey": "您可以在此注册获取Gemini API密钥。",
+		"comingSoon": "即将推出",
+		"providerComingSoon": "{{provider}}支持将在未来更新中添加。",
+		"geminiApiKey": "Gemini API密钥",
+		"geminiModelStrong": "Gemini 2.5 Pro Preview 06-05 (强大)",
+		"geminiModelCostEffective": "Gemini 2.5 Flash Preview 05-20 (性价比)",
+		"reasoningEnabled": "默认启用推理功能"
 	}
 }

@@ -24,7 +24,7 @@ export class CaretHandler implements ApiHandler {
 		// CARET MODIFICATION: Caret 서비스 URL 사용
 		this.client = new OpenAI({
 			baseURL: "https://api.caret.team/v1",
-			apiKey: this.options.clineApiKey || "",
+			apiKey: this.options.caretApiKey || "",
 			defaultHeaders: {
 				"HTTP-Referer": "https://caret.team", // Caret 랭킹 및 통계
 				"X-Title": "Caret", // Caret 서비스명
@@ -40,7 +40,7 @@ export class CaretHandler implements ApiHandler {
 		// CARET MODIFICATION: 일시적으로 Logger 사용 (rootDir 문제 해결용)
 		Logger.info("[CARET-PROVIDER] CaretHandler initialized")
 		Logger.debug(`[CARET-PROVIDER] Task ID: ${this.options.taskId}`)
-		Logger.debug(`[CARET-PROVIDER] API Key: ${this.options.clineApiKey ? "SET" : "NOT SET"}`)
+		Logger.debug(`[CARET-PROVIDER] API Key: ${this.options.caretApiKey ? "SET" : "NOT SET"}`)
 	}
 
 	// Testing helper methods (for testability)
@@ -159,7 +159,7 @@ export class CaretHandler implements ApiHandler {
 
 				const response = await axios.get(`https://api.caret.team/v1/generation?id=${this.lastGenerationId}`, {
 					headers: {
-						Authorization: `Bearer ${this.options.clineApiKey}`,
+						Authorization: `Bearer ${this.options.caretApiKey}`,
 					},
 					timeout: 15_000, // this request hangs sometimes
 				})

@@ -118,7 +118,7 @@ message ApiConfiguration {
   optional string api_base_url = 4;
   
   // Provider-specific API keys
-  optional string cline_api_key = 5;
+  optional string caret_api_key = 5; // CARET MODIFICATION: Changed 'cline_api_key' to 'caret_api_key'
   optional string openrouter_api_key = 6;
   optional string anthropic_base_url = 7;
   optional string openai_api_key = 8;

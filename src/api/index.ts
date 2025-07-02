@@ -55,7 +55,7 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 	Logger.debug(`[API]   - openRouter apiKey: ${options.openRouterApiKey ? "SET" : "NOT SET"}`)
 	Logger.debug(`[API]   - openAI apiKey: ${options.openAiApiKey ? "SET" : "NOT SET"}`)
 	Logger.debug(`[API]   - gemini apiKey: ${options.geminiApiKey ? "SET" : "NOT SET"}`)
-	Logger.debug(`[API]   - cline apiKey: ${options.clineApiKey ? "SET" : "NOT SET"}`)
+	Logger.debug(`[API]   - caret apiKey: ${options.caretApiKey ? "SET" : "NOT SET"}`)
 	Logger.debug("[API] ===========================================================")
 
 	switch (apiProvider) {
@@ -110,8 +110,8 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 		case "vscode-lm":
 			Logger.debug("[API] Creating VsCodeLmHandler")
 			return new VsCodeLmHandler(options)
-		case "cline":
-			Logger.debug("[API] Creating ClineHandler")
+		case "caret":
+			Logger.debug("[API] Creating CaretHandler")
 			return new ClineHandler(options)
 		case "litellm":
 			Logger.debug("[API] Creating LiteLlmHandler")

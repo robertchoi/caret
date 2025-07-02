@@ -87,7 +87,7 @@ export class Controller {
 			(msg) => this.postMessageToWebview(msg),
 			async () => {
 				const { apiConfiguration } = await this.getStateToPostToWebview()
-				return apiConfiguration?.clineApiKey
+				return apiConfiguration?.caretApiKey // CARET MODIFICATION: Return caretApiKey instead of apiKey
 			},
 		)
 
@@ -119,7 +119,7 @@ export class Controller {
 	// Auth methods
 	async handleSignOut() {
 		try {
-			await storeSecret(this.context, "clineApiKey", undefined)
+			await storeSecret(this.context, "caretApiKey", undefined)
 			await updateGlobalState(this.context, "userInfo", undefined)
 			await updateWorkspaceState(this.context, "apiProvider", "openrouter")
 			await this.postStateToWebview()
@@ -209,6 +209,14 @@ export class Controller {
 	 */
 	async handleWebviewMessage(message: WebviewMessage) {
 		switch (message.type) {
+			// CARET MODIFICATION: 웰컴 페이지 상태를 VSCode 컨텍스트에 설정
+			case "setWelcomeContext":
+				if (message.showWelcome !== undefined) {
+					await vscode.commands.executeCommand("setContext", "caret.showWelcome", message.showWelcome)
+					console.log(`[DEBUG] Set VSCode context: caret.showWelcome=${message.showWelcome}`)
+				}
+				break
+
 			case "authStateChanged":
 				await this.setUserInfo(message.user || undefined)
 				await this.postStateToWebview()
@@ -654,7 +662,7 @@ export class Controller {
 					)
 					break
 				case "openrouter":
-				case "cline":
+				case "caret":
 					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.openRouterModelId)
 					await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.openRouterModelInfo)
 					break
@@ -731,7 +739,7 @@ export class Controller {
 						await updateWorkspaceState(this.context, "awsBedrockCustomModelBaseId", newAwsBedrockCustomModelBaseId)
 						break
 					case "openrouter":
-					case "cline":
+					case "caret":
 						await updateWorkspaceState(this.context, "openRouterModelId", newModelId)
 						await updateWorkspaceState(this.context, "openRouterModelInfo", newModelInfo)
 						break
@@ -852,20 +860,20 @@ export class Controller {
 	async handleAuthCallback(customToken: string, apiKey: string) {
 		try {
 			// Store API key for API calls
-			await storeSecret(this.context, "clineApiKey", apiKey)
+			await storeSecret(this.context, "caretApiKey", apiKey)
 
 			// Send custom token to webview for Firebase auth
 			await sendAuthCallbackEvent(customToken)
 
-			const clineProvider: ApiProvider = "cline"
-			await updateWorkspaceState(this.context, "apiProvider", clineProvider)
+			const caretProvider: ApiProvider = "caret"
+			await updateWorkspaceState(this.context, "apiProvider", caretProvider)
 
 			// Update API configuration with the new provider and API key
 			const { apiConfiguration } = await getAllExtensionState(this.context)
 			const updatedConfig = {
 				...apiConfiguration,
-				apiProvider: clineProvider,
-				clineApiKey: apiKey,
+				apiProvider: caretProvider,
+				caretApiKey: apiKey,
 			}
 
 			if (this.task) {

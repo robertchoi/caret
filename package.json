@@ -262,32 +262,32 @@
 				{
 					"command": "caret.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "activeWebviewPanelId == caret.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider && !caret.showWelcome"
 				},
 				{
 					"command": "caret.mcpButtonClicked",
 					"group": "navigation@2",
-					"when": "activeWebviewPanelId == caret.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider && !caret.showWelcome"
 				},
 				{
 					"command": "caret.historyButtonClicked",
 					"group": "navigation@3",
-					"when": "activeWebviewPanelId == caret.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider && !caret.showWelcome"
 				},
 				{
 					"command": "caret.popoutButtonClicked",
 					"group": "navigation@4",
-					"when": "activeWebviewPanelId == caret.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider && !caret.showWelcome"
 				},
 				{
 					"command": "caret.accountButtonClicked",
 					"group": "navigation@5",
-					"when": "activeWebviewPanelId == caret.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider && !caret.showWelcome"
 				},
 				{
 					"command": "caret.settingsButtonClicked",
 					"group": "navigation@6",
-					"when": "activeWebviewPanelId == caret.TabPanelProvider"
+					"when": "activeWebviewPanelId == caret.TabPanelProvider && !caret.showWelcome"
 				}
 			],
 			"editor/context": [

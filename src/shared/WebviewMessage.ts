@@ -51,6 +51,7 @@ export interface WebviewMessage {
 		| "add_to_input"
 		| "relinquish_control"
 		| "start"
+		| "setWelcomeContext"
 
 	text?: string
 	disabled?: boolean
@@ -111,6 +112,9 @@ export interface WebviewMessage {
 
 	// For Caret welcome page actions
 	link?: string
+
+	// CARET MODIFICATION: For welcome page context setting
+	showWelcome?: boolean
 
 	personaInstruction?: PersonaInstruction
 	payload?: any // Used for RESPONSE_TEMPLATE_CHARACTERS and potentially others

@@ -17,7 +17,7 @@ export class ClineHandler implements ApiHandler {
 		this.options = options
 		this.client = new OpenAI({
 			baseURL: "https://api.cline.bot/v1",
-			apiKey: this.options.clineApiKey || "",
+			apiKey: this.options.caretApiKey || "",
 			defaultHeaders: {
 				"HTTP-Referer": "https://cline.bot", // Optional, for including your app on cline.bot rankings.
 				"X-Title": "Cline", // Optional. Shows in rankings on cline.bot.
@@ -111,7 +111,7 @@ export class ClineHandler implements ApiHandler {
 			try {
 				const response = await axios.get(`https://api.cline.bot/v1/generation?id=${this.lastGenerationId}`, {
 					headers: {
-						Authorization: `Bearer ${this.options.clineApiKey}`,
+						Authorization: `Bearer ${this.options.caretApiKey}`,
 					},
 					timeout: 15_000, // this request hangs sometimes
 				})

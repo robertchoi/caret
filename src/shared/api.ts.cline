@@ -17,7 +17,8 @@ export type ApiProvider =
 	| "doubao"
 	| "mistral"
 	| "vscode-lm"
-	| "caret" // CARET MODIFICATION: Ensure 'caret' is present in ApiProvider type
+	| "cline"
+	| "caret" // CARET MODIFICATION: Add 'caret' to ApiProvider type
 	| "litellm"
 	| "nebius"
 	| "fireworks"
@@ -30,7 +31,7 @@ export type ApiProvider =
 export interface ApiHandlerOptions {
 	apiModelId?: string
 	apiKey?: string // anthropic
-	caretApiKey?: string // CARET MODIFICATION: Add caret-specific API key field
+	clineApiKey?: string
 	taskId?: string // Used to identify the task in API requests
 	liteLlmBaseUrl?: string
 	liteLlmModelId?: string
@@ -2536,20 +2537,3 @@ export const sapAiCoreModels = {
 		cacheReadsPrice: 0.275,
 	},
 } as const satisfies Record<string, ModelInfo>
-
-export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): {
-	// CARET MODIFICATION: Export normalizeApiConfiguration function
-	selectedProvider: ApiProvider
-	selectedModelId: string
-	selectedModelInfo: ModelInfo
-} {
-	if (!apiConfiguration) {
-		throw new Error("Invalid API configuration")
-	}
-
-	const selectedProvider = apiConfiguration.apiProvider || "anthropic"
-	const selectedModelId = apiConfiguration.apiModelId || "claude-sonnet-4-20250514"
-	const selectedModelInfo = vertexGlobalModels[selectedModelId] || openAiModelInfoSaneDefaults
-
-	return { selectedProvider, selectedModelId, selectedModelInfo }
-}

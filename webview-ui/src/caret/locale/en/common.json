@@ -132,7 +132,7 @@
 		}
 	},
 	"account": {
-		"signUpWithCaret": "Sign Up with Caret",
+		"signUpWithCaret": "Login & Sign Up",
 		"viewBillingUsage": "View Billing & Usage",
 		"dashboard": "Dashboard",
 		"addCredits": "Add Credits",
@@ -146,6 +146,40 @@
 	},
 	"common": {
 		"and": "and"
+	},
+	"modelInfo": {
+		"supportsImages": "Supports images",
+		"doesNotSupportImages": "Does not support images",
+		"supportsBrowserUse": "Supports browser use",
+		"doesNotSupportBrowserUse": "Does not support browser use",
+		"supportsPromptCaching": "Supports prompt caching",
+		"doesNotSupportPromptCaching": "Does not support prompt caching",
+		"maxOutput": "Max output",
+		"inputPrice": "Input price",
+		"outputPrice": "Output price",
+		"outputPriceStandard": "Output price (Standard)",
+		"outputPriceThinkingBudget": "Output price (Thinking Budget > 0)",
+		"basedOnInputTokens": "(based on input tokens)",
+		"cacheWritesPrice": "Cache writes price",
+		"cacheReadsPrice": "Cache reads price",
+		"freeRequestsPerMinute": "* Free up to {{count}} requests per minute. After that, billing depends on prompt size.",
+		"forMoreInfo": "For more info, see pricing details."
+	},
+	"caretProvider": {
+		"futureSupport": "Future Support",
+		"futureProviders": "ChatGPT and Claude will be supported in the future",
+		"modelLabel": "Model",
+		"geminiProModel": "Gemini 2.5 Pro",
+		"geminiFlashModel": "Gemini 2.5 Flash",
+		"bestLabel": "Best",
+		"valueLabel": "Value",
+		"geminiProDescription": "Premium performance model optimized for complex tasks and advanced reasoning",
+		"geminiFlashDescription": "Fast and efficient model suitable for general tasks with excellent cost-effectiveness",
+		"tagBest": "Best",
+		"tagCostEffective": "Cost-Effective"
+	},
+	"validation": {
+		"invalidApiKey": "You must provide a valid API key or choose a different provider."
 	},
 	"apiOptions": {
 		"apiProvider": "API Provider",
@@ -203,6 +237,12 @@
 		"getApiKeySignUp": "You can get an API key by signing up here.",
 		"getAnthropicApiKey": "You can get an Anthropic API key by signing up here.",
 		"getOpenAiApiKey": "You can get an OpenAI API key by signing up here.",
-		"getGeminiApiKey": "You can get a Gemini API key by signing up here."
+		"getGeminiApiKey": "You can get a Gemini API key by signing up here.",
+		"comingSoon": "Coming Soon",
+		"providerComingSoon": "{{provider}} support will be added in future updates.",
+		"geminiApiKey": "Gemini API Key",
+		"geminiModelStrong": "Gemini 2.5 Pro Preview 06-05 (Strong)",
+		"geminiModelCostEffective": "Gemini 2.5 Flash Preview 05-20 (Cost-Effective)",
+		"reasoningEnabled": "Reasoning enabled by default"
 	}
 }

@@ -1,6 +1,77 @@
-# 다음 세션 가이드 (2025-07-01 업데이트)
+# 다음 세션 가이드 (2025-07-02 업데이트)
 
-## 🎉 현재 완료 상태: Task 003-07 성공적 완료
+## 🎉 현재 작업 필요 상태
+
+### 설정 페이지 캐럿의 다국어 설정 적용
+
+**작업 목표**: 설정 페이지의 모든 하드코딩된 텍스트를 Caret 다국어 시스템으로 변경
+
+**대상 설정 페이지**:
+- API Configuration
+- General Settings  
+- Feature Settings
+- Browser Settings
+- Terminal Settings
+- Debug
+- About
+
+**작업 원칙**:
+1. **Caret 로케일 시스템 활용**: `webview-ui/src/caret/locale/` 구조 사용
+2. **Caret 로깅 적용**: 변경사항 로그 기록
+3. **Caret 오버로딩(백업) 원칙**: Cline 원본 파일 수정 시 `.cline` 백업 생성 필수
+
+**주요 소스 파일**:
+- `webview-ui/src/components/settings/` (설정 컴포넌트들)
+- `webview-ui/src/caret/locale/[언어]/settings.json` (다국어 파일)
+- `webview-ui/src/caret/utils/i18n.ts` (다국어 유틸리티)
+
+**적용 방법**:
+- 하드코딩된 문자열을 `t("키", "settings", currentLanguage)` 형태로 변경
+- 각 언어별 `settings.json`에 번역 추가 (한/영/일/중)
+- Cline 원본 파일 수정 시 CARET MODIFICATION 주석 추가
+
+**예상 작업량**: 중간 (2-3시간)
+**우선순위**: 중간 (UI 완성도 향상)
+
+### WelcomeView 우측 상단 GNB 버튼 숨김 동작 하지 않음
+
+**문제 상황**: 웰컴 페이지에서 상단 네비게이션 메뉴 (새작업, 설정, 히스토리, MCP, 계정) 버튼들이 여전히 표시되고 있음
+
+**시도한 해결 방법**:
+1. **VSCode Context Variable 시스템 구축**:
+   - `caret.showWelcome` 컨텍스트 변수 도입
+   - `package.json`의 `editor/title` 섹션에 `&& !caret.showWelcome` 조건 추가
+   - 웰컴 페이지일 때 버튼들 숨김 처리 시도
+
+2. **프론트엔드-백엔드 상태 동기화**:
+   - `ExtensionStateContext.tsx`에 `useEffect` 추가하여 `showWelcome` 상태 변경 시 백엔드로 메시지 전송
+   - `window.postMessage`로 `setWelcomeContext` 타입 메시지 전송
+
+3. **백엔드 메시지 처리**:
+   - `src/shared/WebviewMessage.ts` 백업 후 `setWelcomeContext` 타입 추가
+   - `src/core/controller/index.ts` 백업 후 메시지 핸들러 추가
+   - `vscode.commands.executeCommand("setContext", "caret.showWelcome", message.showWelcome)` 호출
+
+4. **package.json 조건 수정**:
+   - 모든 `editor/title` 버튼의 `when` 조건에 `&& !caret.showWelcome` 추가
+   - 대상 버튼들: 새작업, 설정, 히스토리, MCP, 계정
+
+**현재 상태**: ❌ **여전히 동작하지 않음**
+- 웰컴 페이지에서 상단 메뉴 버튼들이 계속 노출
+- VSCode 컨텍스트 설정이 제대로 반영되지 않는 것으로 추정
+- 추가 디버깅 및 다른 접근 방법 필요
+
+**수정된 파일들**:
+- `webview-ui/src/context/ExtensionStateContext.tsx` (CARET MODIFICATION)
+- `src/shared/WebviewMessage.ts` (백업: WebviewMessage-ts.cline)
+- `src/core/controller/index.ts` (백업: index-ts.cline)
+- `package.json` (백업: package-json.cline)
+
+
+
+## 🎯 권장 다다음 작업: Task 003-08
+
+## 🎉 현재 완료 상태
 
 ### ✅ 003-07 완료 사항
 - **AI 핵심 프롬프트 파일 검증 도구 개발 완료**
@@ -11,7 +82,6 @@
   - MCP 분석: medium 위험도, 하이브리드 전략 권장
   - 변환 순서 확정: commands.ts(1) → claude4.ts(2) → claude4-experimental.ts(3) → loadMcpDocumentation.ts(4)
 
-## 🎯 권장 다음 작업: Task 003-08
 
 ### 📋 Task 003-08: AI 프롬프트 JSON 변환 실행
 **우선순위**: 🔥 Critical  

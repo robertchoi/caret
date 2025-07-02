@@ -209,7 +209,7 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 		isNewUser,
 		apiKey,
 		openRouterApiKey,
-		clineApiKey,
+		caretApiKey, // CARET MODIFICATION: Add caretApiKey field
 		awsAccessKey,
 		awsSecretKey,
 		awsSessionToken,
@@ -281,7 +281,7 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 		getGlobalState(context, "isNewUser") as Promise<boolean | undefined>,
 		getSecret(context, "apiKey") as Promise<string | undefined>,
 		getSecret(context, "openRouterApiKey") as Promise<string | undefined>,
-		getSecret(context, "clineApiKey") as Promise<string | undefined>,
+		getSecret(context, "caretApiKey") as Promise<string | undefined>,
 		getSecret(context, "awsAccessKey") as Promise<string | undefined>,
 		getSecret(context, "awsSecretKey") as Promise<string | undefined>,
 		getSecret(context, "awsSessionToken") as Promise<string | undefined>,
@@ -469,7 +469,7 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 			apiModelId,
 			apiKey,
 			openRouterApiKey,
-			clineApiKey,
+			caretApiKey,
 			awsAccessKey,
 			awsSecretKey,
 			awsSessionToken,
@@ -638,7 +638,7 @@ export async function updateApiConfiguration(context: vscode.ExtensionContext, a
 		xaiApiKey,
 		thinkingBudgetTokens,
 		reasoningEffort,
-		clineApiKey,
+		caretApiKey,
 		sambanovaApiKey,
 		cerebrasApiKey,
 		nebiusApiKey,
@@ -711,7 +711,7 @@ export async function updateApiConfiguration(context: vscode.ExtensionContext, a
 	// Secret updates
 	await storeSecret(context, "apiKey", apiKey)
 	await storeSecret(context, "openRouterApiKey", openRouterApiKey)
-	await storeSecret(context, "clineApiKey", clineApiKey)
+	await storeSecret(context, "caretApiKey", caretApiKey)
 	await storeSecret(context, "awsAccessKey", awsAccessKey)
 	await storeSecret(context, "awsSecretKey", awsSecretKey)
 	await storeSecret(context, "awsSessionToken", awsSessionToken)
@@ -746,6 +746,8 @@ export async function resetGlobalState(context: vscode.ExtensionContext) {
 	for (const key of context.globalState.keys()) {
 		await context.globalState.update(key, undefined)
 	}
+	// CARET MODIFICATION: 언어 설정도 명시적으로 초기화
+	await updateGlobalState(context, "uiLanguage", undefined)
 	const secretKeys: SecretKey[] = [
 		"apiKey",
 		"openRouterApiKey",
@@ -761,7 +763,7 @@ export async function resetGlobalState(context: vscode.ExtensionContext) {
 		"qwenApiKey",
 		"doubaoApiKey",
 		"mistralApiKey",
-		"clineApiKey",
+		"caretApiKey",
 		"liteLlmApiKey",
 		"fireworksApiKey",
 		"asksageApiKey",

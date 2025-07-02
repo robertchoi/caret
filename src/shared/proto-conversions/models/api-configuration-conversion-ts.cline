@@ -304,7 +304,7 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 	return {
 		apiModelId: config.apiModelId,
 		apiKey: config.apiKey,
-		caretApiKey: config.caretApiKey, // CARET MODIFICATION: Use caretApiKey instead of clineApiKey
+		clineApiKey: config.clineApiKey,
 		taskId: config.taskId,
 		liteLlmBaseUrl: config.liteLlmBaseUrl,
 		liteLlmModelId: config.liteLlmModelId,
@@ -382,7 +382,7 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 	return {
 		apiModelId: protoConfig.apiModelId,
 		apiKey: protoConfig.apiKey,
-		caretApiKey: protoConfig.caretApiKey, // CARET MODIFICATION: Use caretApiKey instead of clineApiKey
+		clineApiKey: protoConfig.clineApiKey,
 		taskId: protoConfig.taskId,
 		liteLlmBaseUrl: protoConfig.liteLlmBaseUrl,
 		liteLlmModelId: protoConfig.liteLlmModelId,

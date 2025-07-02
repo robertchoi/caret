@@ -43,28 +43,18 @@ const WelcomeView = () => {
 				}),
 			)
 			// API 설정 완료 후 자동으로 채팅 화면으로 이동
+			// API 설정 페이지 닫기
+			setShowApiOptions(false)
+			console.log("[WelcomeView] API configuration saved successfully, closing setup page")
 		} catch (error) {
 			console.error("Failed to save API configuration:", error)
 		}
 	}
 
 	const handleShowApiOptions = async () => {
-		// If API is already configured, save and activate chat
-		if (!apiErrorMessage && apiConfiguration) {
-			try {
-				const protoConfig = convertApiConfigurationToProto(apiConfiguration)
-				await ModelsServiceClient.updateApiConfigurationProto(
-					UpdateApiConfigurationRequest.create({
-						apiConfiguration: protoConfig,
-					}),
-				)
-			} catch (error) {
-				console.error("Failed to save API configuration:", error)
-			}
-		} else {
-			// Otherwise, show API setup
-			setShowApiOptions(true)
-		}
+		// Always show API setup when "시작하기" button is clicked
+		console.log("[WelcomeView] 시작하기 button clicked, showing API setup")
+		setShowApiOptions(true)
 	}
 
 	const handleHideApiOptions = () => {
@@ -76,8 +66,9 @@ const WelcomeView = () => {
 	}
 
 	useEffect(() => {
-		setApiErrorMessage(validateApiConfiguration(apiConfiguration))
-	}, [apiConfiguration])
+		// CARET MODIFICATION: 다국어 에러 메시지 적용
+		setApiErrorMessage(validateApiConfiguration(apiConfiguration, currentLanguage))
+	}, [apiConfiguration, currentLanguage])
 
 	// CARET DEBUG: Add console.log to check the value of caretBanner
 	useEffect(() => {

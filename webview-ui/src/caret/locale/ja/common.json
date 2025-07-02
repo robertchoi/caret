@@ -109,7 +109,7 @@
 		}
 	},
 	"account": {
-		"signUpWithCaret": "Caretでサインアップ",
+		"signUpWithCaret": "ログインおよびサインアップ",
 		"viewBillingUsage": "請求と使用量を表示",
 		"dashboard": "ダッシュボード",
 		"addCredits": "クレジットを追加",
@@ -123,6 +123,40 @@
 	},
 	"common": {
 		"and": "と"
+	},
+	"modelInfo": {
+		"supportsImages": "画像をサポート",
+		"doesNotSupportImages": "画像をサポートしていません",
+		"supportsBrowserUse": "ブラウザ使用をサポート",
+		"doesNotSupportBrowserUse": "ブラウザ使用をサポートしていません",
+		"supportsPromptCaching": "プロンプトキャッシングをサポート",
+		"doesNotSupportPromptCaching": "プロンプトキャッシングをサポートしていません",
+		"maxOutput": "最大出力",
+		"inputPrice": "入力価格",
+		"outputPrice": "出力価格",
+		"outputPriceStandard": "出力価格 (標準)",
+		"outputPriceThinkingBudget": "出力価格 (思考予算 > 0)",
+		"basedOnInputTokens": "(入力トークンに基づく)",
+		"cacheWritesPrice": "キャッシュ書き込み価格",
+		"cacheReadsPrice": "キャッシュ読み取り価格",
+		"freeRequestsPerMinute": "* 1分あたり最大{{count}}リクエストまで無料。それ以降はプロンプトサイズに応じて課金されます。",
+		"forMoreInfo": "詳細については、料金詳細を参照してください。"
+	},
+	"caretProvider": {
+		"futureSupport": "今後対応予定",
+		"futureProviders": "ChatGPTとClaudeは今後対応予定です",
+		"modelLabel": "モデル",
+		"geminiProModel": "Gemini 2.5 Pro",
+		"geminiFlashModel": "Gemini 2.5 Flash",
+		"bestLabel": "最高",
+		"valueLabel": "コスパ",
+		"geminiProDescription": "複雑なタスクと高度な推論に最適化されたプレミアム性能モデル",
+		"geminiFlashDescription": "一般的なタスクに適した高速で効率的なモデル、優れたコストパフォーマンス",
+		"tagBest": "最高",
+		"tagCostEffective": "費用対効果"
+	},
+	"validation": {
+		"invalidApiKey": "有効なAPIキーを提供するか、別のプロバイダーを選択してください。"
 	},
 	"apiOptions": {
 		"apiProvider": "APIプロバイダー",
@@ -180,6 +214,12 @@
 		"getApiKeySignUp": "こちらでサインアップしてAPIキーを取得できます。",
 		"getAnthropicApiKey": "こちらでサインアップしてAnthropic APIキーを取得できます。",
 		"getOpenAiApiKey": "こちらでサインアップしてOpenAI APIキーを取得できます。",
-		"getGeminiApiKey": "こちらでサインアップしてGemini APIキーを取得できます。"
+		"getGeminiApiKey": "こちらでサインアップしてGemini APIキーを取得できます。",
+		"comingSoon": "近日追加予定",
+		"providerComingSoon": "{{provider}}サポートは今後のアップデートで追加される予定です。",
+		"geminiApiKey": "Gemini APIキー",
+		"geminiModelStrong": "Gemini 2.5 Pro Preview 06-05 (強力)",
+		"geminiModelCostEffective": "Gemini 2.5 Flash Preview 05-20 (コスト効率)",
+		"reasoningEnabled": "推論機能がデフォルトで有効"
 	}
 }

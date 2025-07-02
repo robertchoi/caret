@@ -3,6 +3,8 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import { t } from "../utils/i18n"
 import ApiOptions from "../../components/settings/ApiOptions"
 import { vscode } from "../../utils/vscode"
+import { useExtensionState } from "@/context/ExtensionStateContext"
+import { normalizeApiConfiguration, ApiProvider } from "@shared/api"
 
 interface CaretApiSetupProps {
 	onSubmit: () => void
@@ -12,6 +14,9 @@ interface CaretApiSetupProps {
 }
 
 const CaretApiSetup: React.FC<CaretApiSetupProps> = ({ onSubmit, onBack, disabled = false, errorMessage }) => {
+	const { apiConfiguration } = useExtensionState()
+	const { selectedProvider } = normalizeApiConfiguration(apiConfiguration)
+
 	const containerStyle = {
 		maxWidth: "600px",
 		margin: "0 auto",
@@ -137,9 +142,11 @@ const CaretApiSetup: React.FC<CaretApiSetupProps> = ({ onSubmit, onBack, disable
 				<ApiOptions showModelOptions={true} />
 
 				{/* Submit Button */}
-				<VSCodeButton onClick={onSubmit} disabled={disabled} appearance="primary" style={submitButtonStyle}>
-					{t("apiSetup.saveButton", "welcome")}
-				</VSCodeButton>
+				{selectedProvider !== "caret" && (
+					<VSCodeButton onClick={onSubmit} disabled={disabled} appearance="primary" style={submitButtonStyle}>
+						{t("apiSetup.saveButton", "welcome")}
+					</VSCodeButton>
+				)}
 
 				{/* Error Message */}
 				{errorMessage && <div style={errorStyle}>{errorMessage}</div>}

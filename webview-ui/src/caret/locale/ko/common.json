@@ -109,7 +109,7 @@
 		}
 	},
 	"account": {
-		"signUpWithCaret": "Caret으로 가입하기",
+		"signUpWithCaret": "로그인 및 회원가입",
 		"viewBillingUsage": "요금 및 사용량 보기",
 		"dashboard": "대시보드",
 		"addCredits": "크레딧 추가",
@@ -123,6 +123,40 @@
 	},
 	"common": {
 		"and": "및"
+	},
+	"modelInfo": {
+		"supportsImages": "이미지 지원",
+		"doesNotSupportImages": "이미지 미지원",
+		"supportsBrowserUse": "브라우저 사용 지원",
+		"doesNotSupportBrowserUse": "브라우저 사용 미지원",
+		"supportsPromptCaching": "프롬프트 캐싱 지원",
+		"doesNotSupportPromptCaching": "프롬프트 캐싱 미지원",
+		"maxOutput": "최대 출력",
+		"inputPrice": "입력 가격",
+		"outputPrice": "출력 가격",
+		"outputPriceStandard": "출력 가격 (표준)",
+		"outputPriceThinkingBudget": "출력 가격 (추론 예산 > 0)",
+		"basedOnInputTokens": "(입력 토큰 기반)",
+		"cacheWritesPrice": "캐시 쓰기 가격",
+		"cacheReadsPrice": "캐시 읽기 가격",
+		"freeRequestsPerMinute": "* 분당 최대 {{count}}회 요청 무료. 이후에는 프롬프트 크기에 따라 요금이 부과됩니다.",
+		"forMoreInfo": "자세한 정보는 가격 세부 정보를 참조하세요."
+	},
+	"caretProvider": {
+		"futureSupport": "향후 지원",
+		"futureProviders": "ChatGPT, Claude는 향후 지원예정입니다",
+		"modelLabel": "모델",
+		"geminiProModel": "Gemini 2.5 Pro",
+		"geminiFlashModel": "Gemini 2.5 Flash",
+		"bestLabel": "최고",
+		"valueLabel": "가성비",
+		"geminiProDescription": "최고 성능의 모델로 복잡한 작업과 추론에 최적화되어 있습니다",
+		"geminiFlashDescription": "빠르고 효율적인 모델로 일반적인 작업에 적합하며 가성비가 우수합니다",
+		"tagBest": "최고",
+		"tagCostEffective": "가성비"
+	},
+	"validation": {
+		"invalidApiKey": "유효한 API 키를 제공하거나 다른 프로바이더를 선택해주세요."
 	},
 	"apiOptions": {
 		"apiProvider": "API 제공자",
@@ -180,6 +214,12 @@
 		"getApiKeySignUp": "여기에서 가입하여 API 키를 얻을 수 있습니다.",
 		"getAnthropicApiKey": "여기에서 가입하여 Anthropic API 키를 얻을 수 있습니다.",
 		"getOpenAiApiKey": "여기에서 가입하여 OpenAI API 키를 얻을 수 있습니다.",
-		"getGeminiApiKey": "여기에서 가입하여 Gemini API 키를 얻을 수 있습니다."
+		"getGeminiApiKey": "여기에서 가입하여 Gemini API 키를 얻을 수 있습니다.",
+		"comingSoon": "향후 추가 예정",
+		"providerComingSoon": "{{provider}} 지원이 향후 업데이트에서 추가될 예정입니다.",
+		"geminiApiKey": "Gemini API 키",
+		"geminiModelStrong": "Gemini 2.5 Pro Preview 06-05 (강력함)",
+		"geminiModelCostEffective": "Gemini 2.5 Flash Preview 05-20 (가성비)",
+		"reasoningEnabled": "추론 기능 기본 활성화"
 	}
 }

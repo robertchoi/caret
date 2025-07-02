@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
 import WelcomeView from "../WelcomeView"
 import { ExtensionStateContext } from "@/context/ExtensionStateContext"
-import type { ExtensionStateContextType } from "@/context/ExtensionStateContext"
+// Remove unused import
 
 // Mock dependencies
 vi.mock("@utils/vscode", () => ({
@@ -18,7 +18,7 @@ vi.mock("@/services/grpc-client", () => ({
 }))
 
 describe("WelcomeView Language Improvements", () => {
-	const mockContextValue: ExtensionStateContextType = {
+	const mockContextValue: any = {
 		// API Configuration
 		apiConfiguration: undefined,
 		setApiConfiguration: vi.fn(),

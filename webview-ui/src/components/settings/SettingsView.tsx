@@ -170,6 +170,8 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 	const [isUnsavedChangesDialogOpen, setIsUnsavedChangesDialogOpen] = useState(false)
 	// Store the action to perform after confirmation
 	const pendingAction = useRef<() => void>()
+	// CARET MODIFICATION: 현재 언어 추가
+	const currentLanguage = useCurrentLanguage()
 	const {
 		apiConfiguration,
 		version,
@@ -218,8 +220,9 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [modelIdErrorMessage, setModelIdErrorMessage] = useState<string | undefined>(undefined)
 	const handleSubmit = async (withoutDone: boolean = false) => {
-		const apiValidationResult = validateApiConfiguration(apiConfiguration)
-		const modelIdValidationResult = validateModelId(apiConfiguration, openRouterModels)
+		// CARET MODIFICATION: 다국어 에러 메시지 적용
+		const apiValidationResult = validateApiConfiguration(apiConfiguration, currentLanguage)
+		const modelIdValidationResult = validateModelId(apiConfiguration, openRouterModels, currentLanguage)
 
 		// setApiErrorMessage(apiValidationResult)
 		// setModelIdErrorMessage(modelIdValidationResult)

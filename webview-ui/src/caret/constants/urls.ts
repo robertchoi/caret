@@ -6,6 +6,12 @@ export const CARET_URLS = {
 	CARET_SERVICE: "https://caret.team",
 	CARET_GITHUB: "https://github.com/aicoding-caret/caret",
 
+	// 계정 관련 (언어 무관)
+	CARET_APP_CREDITS: "https://app.caret.team/credits",
+	CARET_APP_CREDITS_BUY: "https://app.caret.team/credits/#buy",
+	CARET_TERMS_OF_SERVICE: "https://caret.team/tos",
+	CARET_PRIVACY_POLICY: "https://caret.team/privacy",
+
 	// 회사 관련 (언어 무관)
 	CARETIVE_COMPANY: "https://caretive.ai",
 	CARETIVE_ABOUT: "https://caretive.ai/about",

@@ -16,9 +16,11 @@ import CaretFooter from "@/caret/components/CaretFooter"
 import { t } from "@/caret/utils/i18n"
 import { useCurrentLanguage } from "@/caret/hooks/useCurrentLanguage"
 import { CARET_URLS, getLocalizedUrl } from "@/caret/constants/urls"
+import PreferredLanguageSetting from "@/components/settings/PreferredLanguageSetting"
+import CaretUILanguageSetting from "@/caret/components/CaretUILanguageSetting"
 
 const WelcomeView = () => {
-	const { apiConfiguration, caretBanner } = useExtensionState()
+	const { apiConfiguration, caretBanner, chatSettings, setChatSettings } = useExtensionState()
 	const currentLanguage = useCurrentLanguage()
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [showApiOptions, setShowApiOptions] = useState(false)
@@ -181,12 +183,72 @@ const WelcomeView = () => {
 							margin: "5px 0 15px",
 						}}
 					/>
-					<h2 style={{ fontSize: "1.1rem", marginBottom: "10px" }}>{t("greeting", "welcome", currentLanguage)}</h2>
 				</center>
 
-				{renderSection("coreFeatures.header", "coreFeatures.description")}
+				{/* 첫 줄 타이틀 가운데 정렬 */}
+				<div style={{ textAlign: "center", marginBottom: "15px" }}>
+					<h2
+						style={{
+							fontSize: "16px",
+							fontWeight: "500",
+							margin: "0",
+							color: "var(--vscode-foreground)",
+						}}>
+						{t("coreFeatures.header", "welcome", currentLanguage)}
+					</h2>
+				</div>
 
-				{renderSection("getStarted.header", "getStarted.body", "getStarted.button", handleShowApiOptions, "primary")}
+				{renderSection("", "coreFeatures.description")}
+
+				{/* 언어 선택과 시작 섹션 - 검은색 박스로 섹션화 */}
+				<CaretWelcomeSection headerKey="" bodyKey="" allowHtml={true} data-testid="language-selection-section">
+					{/* 언어 선택을 가로 2단 배치 */}
+					<div
+						style={{
+							display: "flex",
+							gap: "20px",
+							marginBottom: "20px",
+							flexWrap: "wrap",
+						}}>
+						{/* UI 언어 (왼쪽) */}
+						<div style={{ flex: "1", minWidth: "200px" }}>
+							<label style={{ display: "block", marginBottom: "5px", fontWeight: "500" }}>
+								{t("getStarted.uiLanguage", "welcome", currentLanguage)}
+							</label>
+							<CaretUILanguageSetting
+								chatSettings={chatSettings}
+								setChatSettings={setChatSettings}
+								hideLabel={true}
+							/>
+						</div>
+						{/* AI 응답 언어 (오른쪽) */}
+						<div style={{ flex: "1", minWidth: "200px" }}>
+							<label style={{ display: "block", marginBottom: "5px", fontWeight: "500" }}>
+								{t("getStarted.preferredLanguage", "welcome", currentLanguage)}
+							</label>
+							<PreferredLanguageSetting
+								chatSettings={chatSettings}
+								setChatSettings={setChatSettings}
+								hideLabel={true}
+							/>
+						</div>
+					</div>
+					{/* 시작하기 버튼 - 컨테이너 안에서 적당히 넓게, 높이만 GitHub 저장소 버튼과 같게 */}
+					<div style={{ textAlign: "center" }}>
+						<VSCodeButton
+							appearance="primary"
+							onClick={handleShowApiOptions}
+							style={{
+								width: "90%",
+								padding: "8px 6px",
+								fontSize: "14px",
+								fontWeight: "bold",
+								color: "black",
+							}}>
+							{t("getStarted.button", "welcome", currentLanguage)}
+						</VSCodeButton>
+					</div>
+				</CaretWelcomeSection>
 
 				{renderSection("community.header", "community.body", "community.githubLink", handleGitHubLink, "secondary")}
 

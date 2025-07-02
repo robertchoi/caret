@@ -64,7 +64,7 @@
 			"description": "専門的な相談と分析モード"
 		},
 		"agent": {
-			"label": "🤖 エージェント", 
+			"label": "🤖 エージェント",
 			"title": "エージェントモード",
 			"description": "協力的な開発と実装モード"
 		},
@@ -74,7 +74,7 @@
 			"description": "戦略策定と設計モード"
 		},
 		"act": {
-			"label": "⚡ Act", 
+			"label": "⚡ Act",
 			"title": "アクトモード",
 			"description": "実装と実行モード"
 		},
@@ -91,6 +91,10 @@
 			"label": "UI言語",
 			"description": "Caretのユーザーインターフェース要素（メニュー、ボタン、メッセージなど）に使用される言語です。"
 		},
+		"preferredLanguage": {
+			"label": "AI応答言語",
+			"description": "Caretが会話に使用する言語です。"
+		},
 		"modeSystem": {
 			"label": "モード設定",
 			"description": "Clineモードを設定すると、ClineのPlan/Actモードを利用できます。",
@@ -103,5 +107,79 @@
 			"label": "チャットボットとエージェントモードで異なるモデルを使用",
 			"description": "チャットボットとエージェントモードを切り替える際、各モードで使用したAPIとモデル設定が維持されます。例えば、専門相談（チャットボット）には強力な推論モデルを、協力開発（エージェント）にはコスト効率的なコーディングモデルを使用する場合に便利です。"
 		}
+	},
+	"account": {
+		"signUpWithCaret": "Caretでサインアップ",
+		"viewBillingUsage": "請求と使用量を表示",
+		"dashboard": "ダッシュボード",
+		"addCredits": "クレジットを追加",
+		"currentBalance": "現在の残高",
+		"logOut": "ログアウト",
+		"loading": "読み込み中...",
+		"signUpDescription": "アカウントを作成して、最新のモデルにアクセスし、使用量とクレジットを確認できる請求ダッシュボード、その他の今後の機能をご利用ください。",
+		"termsOfService": "利用規約",
+		"privacyPolicy": "プライバシーポリシー",
+		"byContining": "続行することで、以下に同意したことになります："
+	},
+	"common": {
+		"and": "と"
+	},
+	"apiOptions": {
+		"apiProvider": "APIプロバイダー",
+		"selectModel": "モデルを選択してください...",
+		"selectRegion": "リージョンを選択してください...",
+		"enterApiKey": "APIキーを入力してください...",
+		"loading": "読み込み中...",
+		"caretComplexPrompts": "Caretは複雑なプロンプトを使用し、Claudeモデルで最も良く動作します。能力の低いモデルは期待通りに動作しない場合があります。",
+		"note": "注意：",
+		"model": "モデル",
+		"custom": "カスタム",
+		"modelId": "モデルID",
+		"enterModelId": "カスタムモデルIDを入力してください...",
+		"baseInferenceModel": "ベース推論モデル",
+		"askSageApiKey": "AskSage APIキー",
+		"askSageApiUrl": "AskSage API URL",
+		"enterAskSageUrl": "AskSage API URLを入力してください...",
+		"anthropicApiKey": "Anthropic APIキー",
+		"anthropicBaseUrl": "Anthropicベース URL",
+		"anthropicBaseUrlPlaceholder": "デフォルト: https://api.anthropic.com",
+		"openAiApiKey": "OpenAI APIキー",
+		"deepSeekApiKey": "DeepSeek APIキー",
+		"alibabaApiLine": "Alibaba APIライン",
+		"chinaApi": "中国API",
+		"internationalApi": "国際API",
+		"qwenApiKey": "Qwen APIキー",
+		"doubaoApiKey": "Doubao APIキー",
+		"mistralApiKey": "Mistral APIキー",
+		"openRouterApiKey": "OpenRouter APIキー",
+		"openRouterRecommended": "OpenRouterは高い制限レートと多様なモデルでお勧めです。",
+		"awsCredentials": "AWS認証情報",
+		"awsProfile": "AWSプロファイル",
+		"awsProfileName": "AWSプロファイル名",
+		"awsProfilePlaceholder": "プロファイル名を入力（空の場合はデフォルト）",
+		"awsAccessKey": "AWSアクセスキー",
+		"awsSecretKey": "AWSシークレットキー",
+		"awsSessionToken": "AWSセッショントークン",
+		"awsRegion": "AWSリージョン",
+		"gcpProjectId": "Google Cloudプロジェクト ID",
+		"gcpRegion": "Google Cloudリージョン",
+		"languageModel": "言語モデル",
+		"apiKey": "APIキー",
+		"fireworksApiKey": "Fireworks APIキー",
+		"maxCompletionTokens": "最大完了トークン",
+		"maxContextTokens": "最大コンテキストトークン",
+		"enterSecretKey": "シークレットキーを入力してください...",
+		"enterAccessKey": "アクセスキーを入力してください...",
+		"enterSessionToken": "セッショントークンを入力してください...",
+		"enterVpcEndpoint": "VPCエンドポイントURLを入力してください（オプション）",
+		"enterCustomModelId": "カスタムモデルIDを入力してください...",
+		"enterProjectId": "プロジェクトIDを入力してください...",
+		"useCustomBaseUrl": "カスタムベースURLを使用",
+		"defaultAnthropicUrl": "デフォルト: https://api.anthropic.com",
+		"thisKeyStoredLocally": "このキーはローカルに保存され、この拡張機能からのAPI要求のためにのみ使用されます。",
+		"getApiKeySignUp": "こちらでサインアップしてAPIキーを取得できます。",
+		"getAnthropicApiKey": "こちらでサインアップしてAnthropic APIキーを取得できます。",
+		"getOpenAiApiKey": "こちらでサインアップしてOpenAI APIキーを取得できます。",
+		"getGeminiApiKey": "こちらでサインアップしてGemini APIキーを取得できます。"
 	}
 }

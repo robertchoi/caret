@@ -9,8 +9,8 @@
 	},
 
 	"coreFeatures": {
-		"header": "与Caret开始您的特别'氛围编程'之旅！",
-		"description": "开发者主导的AI编排、工作流定制、透明的AI控制，以及强大的本地LLM集成。超越简单对话，Caret提出<strong>'氛围编程'</strong>开发文化，与AI系统性地创建文档，并基于这些记录共同成长。<VSCodeLink href=\"{{caretGitLink}}\">在Caret GitHub了解更多</VSCodeLink>"
+		"header": "与共同成长的AI编程助手Caret一起开始'Vibe Coding'。",
+		"description": "多语言支持、开发者主导的AI编排、工作流定制、透明的AI控制，以及强大的本地LLM集成。超越简单对话，Caret提出'氛围编程'开发文化，与AI系统性地创建文档，并基于这些记录共同成长。"
 	},
 
 	"modelFlexibility": {
@@ -29,9 +29,11 @@
 	},
 
 	"getStarted": {
-		"header": "开始使用Caret",
-		"body": "欢迎使用Caret！这个AI编程助手将帮助您处理开发任务。要了解更多关于AI辅助开发的信息，请查看我们的<a href=\"https://github.com/aicoding-caret/multi-post-agent/blob/main/docs/education-scenario.md#2-development-environment-setup-approximately-30-minutes\" target=\"_blank\">教育项目</a>。",
-		"button": "开始使用"
+		"header": "",
+		"body": "",
+		"button": "开始使用",
+		"preferredLanguage": "AI响应语言",
+		"uiLanguage": "界面语言"
 	},
 
 	"community": {

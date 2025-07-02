@@ -72,6 +72,8 @@ import styled from "styled-components"
 import * as vscodemodels from "vscode"
 import { useOpenRouterKeyInfo } from "../ui/hooks/useOpenRouterKeyInfo"
 import { ClineAccountInfoCard } from "./ClineAccountInfoCard"
+// CARET MODIFICATION: Add i18n import for text internationalization
+import { t } from "@/caret/utils/i18n"
 import OllamaModelPicker from "./OllamaModelPicker"
 import OpenRouterModelPicker, { ModelDescriptionMarkdown, OPENROUTER_MODEL_PICKER_Z_INDEX } from "./OpenRouterModelPicker"
 import RequestyModelPicker from "./RequestyModelPicker"
@@ -90,7 +92,11 @@ const OpenRouterBalanceDisplay = ({ apiKey }: { apiKey: string }) => {
 	const { data: keyInfo, isLoading, error } = useOpenRouterKeyInfo(apiKey)
 
 	if (isLoading) {
-		return <span style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)" }}>Loading...</span>
+		return (
+			<span style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)" }}>
+				{t("apiOptions.loading", "common")}
+			</span>
+		)
 	}
 
 	if (error || !keyInfo || keyInfo.limit === null) {
@@ -296,7 +302,7 @@ const ApiOptions = ({
 				value={selectedModelId}
 				onChange={handleInputChange("apiModelId")}
 				style={{ width: "100%" }}>
-				<VSCodeOption value="">Select a model...</VSCodeOption>
+				<VSCodeOption value="">{t("apiOptions.selectModel", "common")}</VSCodeOption>
 				{Object.keys(models).map((modelId) => (
 					<VSCodeOption
 						key={modelId}
@@ -347,7 +353,7 @@ const ApiOptions = ({
 		<div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: isPopup ? -10 : 0 }}>
 			<DropdownContainer className="dropdown-container">
 				<label htmlFor="api-provider">
-					<span style={{ fontWeight: 500 }}>API Provider</span>
+					<span style={{ fontWeight: 500 }}>{t("apiOptions.apiProvider", "common")}</span>
 				</label>
 				<VSCodeDropdown
 					id="api-provider"
@@ -398,8 +404,8 @@ const ApiOptions = ({
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("asksageApiKey")}
-						placeholder="Enter API Key...">
-						<span style={{ fontWeight: 500 }}>AskSage API Key</span>
+						placeholder={t("apiOptions.enterApiKey", "common")}>
+						<span style={{ fontWeight: 500 }}>{t("apiOptions.askSageApiKey", "common")}</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -414,8 +420,8 @@ const ApiOptions = ({
 						style={{ width: "100%" }}
 						type="url"
 						onInput={handleInputChange("asksageApiUrl")}
-						placeholder="Enter AskSage API URL...">
-						<span style={{ fontWeight: 500 }}>AskSage API URL</span>
+						placeholder={t("apiOptions.enterAskSageUrl", "common")}>
+						<span style={{ fontWeight: 500 }}>{t("apiOptions.askSageApiUrl", "common")}</span>
 					</VSCodeTextField>
 				</div>
 			)}
@@ -427,8 +433,8 @@ const ApiOptions = ({
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("apiKey")}
-						placeholder="Enter API Key...">
-						<span style={{ fontWeight: 500 }}>Anthropic API Key</span>
+						placeholder={t("apiOptions.enterApiKey", "common")}>
+						<span style={{ fontWeight: 500 }}>{t("apiOptions.anthropicApiKey", "common")}</span>
 					</VSCodeTextField>
 
 					<VSCodeCheckbox
@@ -443,7 +449,7 @@ const ApiOptions = ({
 								})
 							}
 						}}>
-						Use custom base URL
+						{t("apiOptions.useCustomBaseUrl", "common")}
 					</VSCodeCheckbox>
 
 					{anthropicBaseUrlSelected && (
@@ -452,7 +458,7 @@ const ApiOptions = ({
 							style={{ width: "100%", marginTop: 3 }}
 							type="url"
 							onInput={handleInputChange("anthropicBaseUrl")}
-							placeholder="Default: https://api.anthropic.com"
+							placeholder={t("apiOptions.defaultAnthropicUrl", "common")}
 						/>
 					)}
 
@@ -462,7 +468,7 @@ const ApiOptions = ({
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						This key is stored locally and only used to make API requests from this extension.
+						{t("apiOptions.thisKeyStoredLocally", "common")}
 						{!apiConfiguration?.apiKey && (
 							<VSCodeLink
 								href="https://console.anthropic.com/settings/keys"
@@ -470,7 +476,7 @@ const ApiOptions = ({
 									display: "inline",
 									fontSize: "inherit",
 								}}>
-								You can get an Anthropic API key by signing up here.
+								{t("apiOptions.getAnthropicApiKey", "common")}
 							</VSCodeLink>
 						)}
 					</p>
@@ -484,8 +490,8 @@ const ApiOptions = ({
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("openAiNativeApiKey")}
-						placeholder="Enter API Key...">
-						<span style={{ fontWeight: 500 }}>OpenAI API Key</span>
+						placeholder={t("apiOptions.enterApiKey", "common")}>
+						<span style={{ fontWeight: 500 }}>{t("apiOptions.openAiApiKey", "common")}</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -493,7 +499,7 @@ const ApiOptions = ({
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						This key is stored locally and only used to make API requests from this extension.
+						{t("apiOptions.thisKeyStoredLocally", "common")}
 						{!apiConfiguration?.openAiNativeApiKey && (
 							<VSCodeLink
 								href="https://platform.openai.com/api-keys"
@@ -501,7 +507,7 @@ const ApiOptions = ({
 									display: "inline",
 									fontSize: "inherit",
 								}}>
-								You can get an OpenAI API key by signing up here.
+								{t("apiOptions.getOpenAiApiKey", "common")}
 							</VSCodeLink>
 						)}
 					</p>
@@ -515,8 +521,8 @@ const ApiOptions = ({
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("deepSeekApiKey")}
-						placeholder="Enter API Key...">
-						<span style={{ fontWeight: 500 }}>DeepSeek API Key</span>
+						placeholder={t("apiOptions.enterApiKey", "common")}>
+						<span style={{ fontWeight: 500 }}>{t("apiOptions.deepSeekApiKey", "common")}</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -571,8 +577,8 @@ const ApiOptions = ({
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("qwenApiKey")}
-						placeholder="Enter API Key...">
-						<span style={{ fontWeight: 500 }}>Qwen API Key</span>
+						placeholder={t("apiOptions.enterApiKey", "common")}>
+						<span style={{ fontWeight: 500 }}>{t("apiOptions.qwenApiKey", "common")}</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -602,8 +608,8 @@ const ApiOptions = ({
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("doubaoApiKey")}
-						placeholder="Enter API Key...">
-						<span style={{ fontWeight: 500 }}>Doubao API Key</span>
+						placeholder={t("apiOptions.enterApiKey", "common")}>
+						<span style={{ fontWeight: 500 }}>{t("apiOptions.doubaoApiKey", "common")}</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -633,8 +639,8 @@ const ApiOptions = ({
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("mistralApiKey")}
-						placeholder="Enter API Key...">
-						<span style={{ fontWeight: 500 }}>Mistral API Key</span>
+						placeholder={t("apiOptions.enterApiKey", "common")}>
+						<span style={{ fontWeight: 500 }}>{t("apiOptions.mistralApiKey", "common")}</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -666,7 +672,7 @@ const ApiOptions = ({
 						onInput={handleInputChange("openRouterApiKey")}
 						placeholder="Enter API Key...">
 						<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-							<span style={{ fontWeight: 500 }}>OpenRouter API Key</span>
+							<span style={{ fontWeight: 500 }}>{t("apiOptions.openRouterApiKey", "common")}</span>
 							{apiConfiguration?.openRouterApiKey && (
 								<OpenRouterBalanceDisplay apiKey={apiConfiguration.openRouterApiKey} />
 							)}
@@ -714,8 +720,8 @@ const ApiOptions = ({
 								awsUseProfile: useProfile,
 							})
 						}}>
-						<VSCodeRadio value="credentials">AWS Credentials</VSCodeRadio>
-						<VSCodeRadio value="profile">AWS Profile</VSCodeRadio>
+						<VSCodeRadio value="credentials">{t("apiOptions.awsCredentials", "common")}</VSCodeRadio>
+						<VSCodeRadio value="profile">{t("apiOptions.awsProfile", "common")}</VSCodeRadio>
 					</VSCodeRadioGroup>
 
 					{apiConfiguration?.awsUseProfile ? (
@@ -723,8 +729,8 @@ const ApiOptions = ({
 							value={apiConfiguration?.awsProfile || ""}
 							style={{ width: "100%" }}
 							onInput={handleInputChange("awsProfile")}
-							placeholder="Enter profile name (default if empty)">
-							<span style={{ fontWeight: 500 }}>AWS Profile Name</span>
+							placeholder={t("apiOptions.awsProfilePlaceholder", "common")}>
+							<span style={{ fontWeight: 500 }}>{t("apiOptions.awsProfileName", "common")}</span>
 						</VSCodeTextField>
 					) : (
 						<>
@@ -733,30 +739,30 @@ const ApiOptions = ({
 								style={{ width: "100%" }}
 								type="password"
 								onInput={handleInputChange("awsAccessKey")}
-								placeholder="Enter Access Key...">
-								<span style={{ fontWeight: 500 }}>AWS Access Key</span>
+								placeholder={t("apiOptions.enterAccessKey", "common")}>
+								<span style={{ fontWeight: 500 }}>{t("apiOptions.awsAccessKey", "common")}</span>
 							</VSCodeTextField>
 							<VSCodeTextField
 								value={apiConfiguration?.awsSecretKey || ""}
 								style={{ width: "100%" }}
 								type="password"
 								onInput={handleInputChange("awsSecretKey")}
-								placeholder="Enter Secret Key...">
-								<span style={{ fontWeight: 500 }}>AWS Secret Key</span>
+								placeholder={t("apiOptions.enterSecretKey", "common")}>
+								<span style={{ fontWeight: 500 }}>{t("apiOptions.awsSecretKey", "common")}</span>
 							</VSCodeTextField>
 							<VSCodeTextField
 								value={apiConfiguration?.awsSessionToken || ""}
 								style={{ width: "100%" }}
 								type="password"
 								onInput={handleInputChange("awsSessionToken")}
-								placeholder="Enter Session Token...">
-								<span style={{ fontWeight: 500 }}>AWS Session Token</span>
+								placeholder={t("apiOptions.enterSessionToken", "common")}>
+								<span style={{ fontWeight: 500 }}>{t("apiOptions.awsSessionToken", "common")}</span>
 							</VSCodeTextField>
 						</>
 					)}
 					<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 1} className="dropdown-container">
 						<label htmlFor="aws-region-dropdown">
-							<span style={{ fontWeight: 500 }}>AWS Region</span>
+							<span style={{ fontWeight: 500 }}>{t("apiOptions.awsRegion", "common")}</span>
 						</label>
 						<VSCodeDropdown
 							id="aws-region-dropdown"
@@ -882,7 +888,7 @@ const ApiOptions = ({
 								})
 							}}
 							style={{ width: "100%" }}>
-							<VSCodeOption value="">Select a model...</VSCodeOption>
+							<VSCodeOption value="">{t("apiOptions.selectModel", "common")}</VSCodeOption>
 							{Object.keys(bedrockModels).map((modelId) => (
 								<VSCodeOption
 									key={modelId}
@@ -895,7 +901,7 @@ const ApiOptions = ({
 									{modelId}
 								</VSCodeOption>
 							))}
-							<VSCodeOption value="custom">Custom</VSCodeOption>
+							<VSCodeOption value="custom">{t("apiOptions.custom", "common")}</VSCodeOption>
 						</VSCodeDropdown>
 					</DropdownContainer>
 					{apiConfiguration?.awsBedrockCustomSelected && (
@@ -910,17 +916,17 @@ const ApiOptions = ({
 								Inference Profile ARN in the Model ID field.
 							</p>
 							<label htmlFor="bedrock-model-input">
-								<span style={{ fontWeight: 500 }}>Model ID</span>
+								<span style={{ fontWeight: 500 }}>{t("apiOptions.modelId", "common")}</span>
 							</label>
 							<VSCodeTextField
 								id="bedrock-model-input"
 								value={apiConfiguration?.apiModelId || ""}
 								style={{ width: "100%", marginTop: 3 }}
 								onInput={handleInputChange("apiModelId")}
-								placeholder="Enter custom model ID..."
+								placeholder={t("apiOptions.enterCustomModelId", "common")}
 							/>
 							<label htmlFor="bedrock-base-model-dropdown">
-								<span style={{ fontWeight: 500 }}>Base Inference Model</span>
+								<span style={{ fontWeight: 500 }}>{t("apiOptions.baseInferenceModel", "common")}</span>
 							</label>
 							<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 3} className="dropdown-container">
 								<VSCodeDropdown
@@ -928,7 +934,7 @@ const ApiOptions = ({
 									value={apiConfiguration?.awsBedrockCustomModelBaseId || bedrockDefaultModelId}
 									onChange={handleInputChange("awsBedrockCustomModelBaseId")}
 									style={{ width: "100%" }}>
-									<VSCodeOption value="">Select a model...</VSCodeOption>
+									<VSCodeOption value="">{t("apiOptions.selectModel", "common")}</VSCodeOption>
 									{Object.keys(bedrockModels).map((modelId) => (
 										<VSCodeOption
 											key={modelId}
@@ -977,19 +983,19 @@ const ApiOptions = ({
 						value={apiConfiguration?.vertexProjectId || ""}
 						style={{ width: "100%" }}
 						onInput={handleInputChange("vertexProjectId")}
-						placeholder="Enter Project ID...">
-						<span style={{ fontWeight: 500 }}>Google Cloud Project ID</span>
+						placeholder={t("apiOptions.enterProjectId", "common")}>
+						<span style={{ fontWeight: 500 }}>{t("apiOptions.gcpProjectId", "common")}</span>
 					</VSCodeTextField>
 					<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 1} className="dropdown-container">
 						<label htmlFor="vertex-region-dropdown">
-							<span style={{ fontWeight: 500 }}>Google Cloud Region</span>
+							<span style={{ fontWeight: 500 }}>{t("apiOptions.gcpRegion", "common")}</span>
 						</label>
 						<VSCodeDropdown
 							id="vertex-region-dropdown"
 							value={apiConfiguration?.vertexRegion || ""}
 							style={{ width: "100%" }}
 							onChange={handleInputChange("vertexRegion")}>
-							<VSCodeOption value="">Select a region...</VSCodeOption>
+							<VSCodeOption value="">{t("apiOptions.selectRegion", "common")}</VSCodeOption>
 							<VSCodeOption value="us-east5">us-east5</VSCodeOption>
 							<VSCodeOption value="us-central1">us-central1</VSCodeOption>
 							<VSCodeOption value="europe-west1">europe-west1</VSCodeOption>
@@ -1404,8 +1410,8 @@ const ApiOptions = ({
 							color: "var(--vscode-descriptionForeground)",
 						}}>
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>{t("apiOptions.note", "common")}</span>{" "}
+							{t("apiOptions.caretComplexPrompts", "common")})
 						</span>
 					</p>
 				</div>
@@ -1467,8 +1473,8 @@ const ApiOptions = ({
 							color: "var(--vscode-descriptionForeground)",
 						}}>
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>{t("apiOptions.note", "common")}</span>{" "}
+							{t("apiOptions.caretComplexPrompts", "common")})
 						</span>
 					</p>
 					<VSCodeTextField
@@ -1540,8 +1546,8 @@ const ApiOptions = ({
 							color: "var(--vscode-descriptionForeground)",
 						}}>
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>{t("apiOptions.note", "common")}</span>{" "}
+							{t("apiOptions.caretComplexPrompts", "common")})
 						</span>
 					</p>
 				</div>
@@ -1551,7 +1557,7 @@ const ApiOptions = ({
 				<div>
 					<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 2} className="dropdown-container">
 						<label htmlFor="vscode-lm-model">
-							<span style={{ fontWeight: 500 }}>Language Model</span>
+							<span style={{ fontWeight: 500 }}>{t("apiOptions.languageModel", "common")}</span>
 						</label>
 						{vsCodeLmModels.length > 0 ? (
 							<VSCodeDropdown
@@ -1574,7 +1580,7 @@ const ApiOptions = ({
 									})
 								}}
 								style={{ width: "100%" }}>
-								<VSCodeOption value="">Select a model...</VSCodeOption>
+								<VSCodeOption value="">{t("apiOptions.selectModel", "common")}</VSCodeOption>
 								{vsCodeLmModels.map((model) => (
 									<VSCodeOption
 										key={`${model.vendor}/${model.family}`}
@@ -1668,8 +1674,8 @@ const ApiOptions = ({
 						</VSCodeLink>{" "}
 						feature to use it with this extension.{" "}
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>{t("apiOptions.note", "common")}</span>{" "}
+							{t("apiOptions.caretComplexPrompts", "common")})
 						</span>
 					</p>
 				</div>
@@ -1930,8 +1936,8 @@ const ApiOptions = ({
 							quickstart guide.
 						</VSCodeLink>{" "}
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>{t("apiOptions.note", "common")}</span>{" "}
+							{t("apiOptions.caretComplexPrompts", "common")})
 						</span>
 					</p>
 				</div>
@@ -1965,8 +1971,8 @@ const ApiOptions = ({
 							</VSCodeLink>
 						)}
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>{t("apiOptions.note", "common")}</span>{" "}
+							{t("apiOptions.caretComplexPrompts", "common")})
 						</span>
 					</p>
 				</div>
@@ -2000,8 +2006,8 @@ const ApiOptions = ({
 							color: "var(--vscode-descriptionForeground)",
 						}}>
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
-							models. Less capable models may not work as expected.)
+							(<span style={{ fontWeight: 500 }}>{t("apiOptions.note", "common")}</span>{" "}
+							{t("apiOptions.caretComplexPrompts", "common")})
 						</span>
 						This key is stored locally and only used to make API requests from this extension.
 						{!apiConfiguration?.xaiApiKey && (

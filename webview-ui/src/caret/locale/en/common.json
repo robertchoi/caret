@@ -77,7 +77,7 @@
 		},
 		"agent": {
 			"label": "🤖 Agent",
-			"title": "Agent Mode", 
+			"title": "Agent Mode",
 			"description": "Collaborative development and implementation"
 		},
 		"plan": {
@@ -86,7 +86,7 @@
 			"description": "Strategy formulation and design"
 		},
 		"act": {
-			"label": "⚡ Act", 
+			"label": "⚡ Act",
 			"title": "Act Mode",
 			"description": "Implementation and execution"
 		},
@@ -114,6 +114,10 @@
 				"zh": "Chinese (中文)"
 			}
 		},
+		"preferredLanguage": {
+			"label": "AI Response Language",
+			"description": "The language that Caret should use for communication."
+		},
 		"modeSystem": {
 			"label": "Mode Settings",
 			"description": "Enable Cline mode to access Cline's Plan/Act modes.",
@@ -126,5 +130,79 @@
 			"label": "Use different models for Chatbot and Agent modes",
 			"description": "Switching between Chatbot and Agent mode will persist the API and model used in the previous mode. This may be helpful e.g. when using a strong reasoning model for expert consultation (Chatbot) and a cheaper coding model for collaborative development (Agent)."
 		}
+	},
+	"account": {
+		"signUpWithCaret": "Sign Up with Caret",
+		"viewBillingUsage": "View Billing & Usage",
+		"dashboard": "Dashboard",
+		"addCredits": "Add Credits",
+		"currentBalance": "Current Balance",
+		"logOut": "Log out",
+		"loading": "Loading...",
+		"signUpDescription": "Sign up for an account to get access to the latest models, billing dashboard to view usage and credits, and more upcoming features.",
+		"termsOfService": "Terms of Service",
+		"privacyPolicy": "Privacy Policy",
+		"byContining": "By continuing, you agree to the"
+	},
+	"common": {
+		"and": "and"
+	},
+	"apiOptions": {
+		"apiProvider": "API Provider",
+		"selectModel": "Select a model...",
+		"selectRegion": "Select a region...",
+		"enterApiKey": "Enter API Key...",
+		"loading": "Loading...",
+		"caretComplexPrompts": "Caret uses complex prompts and works best with Claude models. Less capable models may not work as expected.",
+		"note": "Note:",
+		"model": "Model",
+		"custom": "Custom",
+		"modelId": "Model ID",
+		"enterModelId": "Enter custom model ID...",
+		"baseInferenceModel": "Base Inference Model",
+		"askSageApiKey": "AskSage API Key",
+		"askSageApiUrl": "AskSage API URL",
+		"enterAskSageUrl": "Enter AskSage API URL...",
+		"anthropicApiKey": "Anthropic API Key",
+		"anthropicBaseUrl": "Anthropic Base URL",
+		"anthropicBaseUrlPlaceholder": "Default: https://api.anthropic.com",
+		"openAiApiKey": "OpenAI API Key",
+		"deepSeekApiKey": "DeepSeek API Key",
+		"alibabaApiLine": "Alibaba API Line",
+		"chinaApi": "China API",
+		"internationalApi": "International API",
+		"qwenApiKey": "Qwen API Key",
+		"doubaoApiKey": "Doubao API Key",
+		"mistralApiKey": "Mistral API Key",
+		"openRouterApiKey": "OpenRouter API Key",
+		"openRouterRecommended": "OpenRouter is recommended for high rate limits and variety of models.",
+		"awsCredentials": "AWS Credentials",
+		"awsProfile": "AWS Profile",
+		"awsProfileName": "AWS Profile Name",
+		"awsProfilePlaceholder": "Enter profile name (default if empty)",
+		"awsAccessKey": "AWS Access Key",
+		"awsSecretKey": "AWS Secret Key",
+		"awsSessionToken": "AWS Session Token",
+		"awsRegion": "AWS Region",
+		"gcpProjectId": "Google Cloud Project ID",
+		"gcpRegion": "Google Cloud Region",
+		"languageModel": "Language Model",
+		"apiKey": "API Key",
+		"fireworksApiKey": "Fireworks API Key",
+		"maxCompletionTokens": "Max Completion Tokens",
+		"maxContextTokens": "Max Context Tokens",
+		"enterSecretKey": "Enter Secret Key...",
+		"enterAccessKey": "Enter Access Key...",
+		"enterSessionToken": "Enter Session Token...",
+		"enterVpcEndpoint": "Enter VPC Endpoint URL (optional)",
+		"enterCustomModelId": "Enter custom model ID...",
+		"enterProjectId": "Enter Project ID...",
+		"useCustomBaseUrl": "Use custom base URL",
+		"defaultAnthropicUrl": "Default: https://api.anthropic.com",
+		"thisKeyStoredLocally": "This key is stored locally and only used to make API requests from this extension.",
+		"getApiKeySignUp": "You can get an API key by signing up here.",
+		"getAnthropicApiKey": "You can get an Anthropic API key by signing up here.",
+		"getOpenAiApiKey": "You can get an OpenAI API key by signing up here.",
+		"getGeminiApiKey": "You can get a Gemini API key by signing up here."
 	}
 }

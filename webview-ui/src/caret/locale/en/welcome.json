@@ -9,8 +9,8 @@
 	},
 
 	"coreFeatures": {
-		"header": "Start your special 'Vibe Coding' journey with Caret!",
-		"description": "Transform AI from a simple code generator into a true development partner that understands your project context and solves problems together!<br/><br/>Developer-led AI orchestration, customizable workflows, transparent AI control, and powerful local LLM integration. Beyond simple conversations, Caret proposes a <strong>'Vibe Coding'</strong> development culture where you systematically create documents with AI and grow together based on those records. <VSCodeLink href=\"{{caretGitLink}}\">Learn more on Caret GitHub</VSCodeLink>"
+		"header": "Start 'Vibe Coding' with Caret, the AI coding agent that grows with you.",
+		"description": "Multi-language support, developer-led AI orchestration, customizable workflows, transparent AI control, and powerful local LLM integration. Beyond simple conversations, Caret proposes a 'Vibe Coding' development culture where you systematically create documents with AI and grow together based on those records."
 	},
 
 	"modelFlexibility": {
@@ -29,9 +29,11 @@
 	},
 
 	"getStarted": {
-		"header": "Get Started with Caret",
-		"body": "Welcome to Caret!",
-		"button": "Get Started"
+		"header": "",
+		"body": "",
+		"button": "Get Started",
+		"preferredLanguage": "AI Response Language",
+		"uiLanguage": "Interface Language"
 	},
 
 	"personaSelector": {

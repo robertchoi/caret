@@ -4,14 +4,16 @@
 	"bannerAlt": "Caret 대표 이미지",
 
 	"coreFeatures": {
-		"header": "🚀 Caret과 함께 '바이브 코딩' 여정을 시작하세요",
-		"description": "AI를 단순한 코드 생성기를 넘어서, 프로젝트의 맥락을 이해하고 함께 문제를 해결하는 진정한 개발 파트너로 만들어보세요!<br/><br/>개발자가 주도하는 AI 오케스트레이션, 워크플로우 맞춤 설정, 투명한 AI 제어, 그리고 강력한 로컬 LLM 연동까지!<br/><br/>Caret은 단순한 챗봇을 넘어, 나만의 AI 에이전트와 함께 성장하는 '바이브 코딩' 개발 문화를 제안합니다."
+		"header": "함께 성장하는 AI 코딩 에이전트 '캐럿'과 '바이브 코딩'을 시작하세요.",
+		"description": "다국어 지원, AI 오케스트레이션, 맞춤형 워크플로우, 투명한 AI 제어, 강력한 로컬 LLM 통합. 단순한 대화를 넘어서, Caret은 AI와 함께 문서를 체계적으로 작성하고 그 기록을 바탕으로 함께 성장하는 'Vibe Coding' 개발 문화를 제안합니다."
 	},
 
 	"getStarted": {
-		"header": "🔧 Caret 시작하기",
-		"body": "Caret에 오신 것을 환영합니다!",
-		"button": "시작하기"
+		"header": "",
+		"body": "",
+		"button": "시작하기",
+		"preferredLanguage": "AI 응답 언어",
+		"uiLanguage": "인터페이스 언어"
 	},
 
 	"personaSelector": {

@@ -9,8 +9,8 @@
 	},
 
 	"coreFeatures": {
-		"header": "Caretと一緒に特別な「バイブコーディング」の旅を始めましょう！",
-		"description": "開発者主導のAIオーケストレーション、ワークフローのカスタマイズ、透明なAI制御、そして強力なローカルLLM連携まで。Caretは単純な対話を超えて、AIと一緒に体系的にドキュメントを作成し、その記録に基づいて一緒に成長する<strong>「バイブコーディング」</strong>開発文化を提案します。<VSCodeLink href=\"{{caretGitLink}}\">Caret GitHubで詳しく見る</VSCodeLink>"
+		"header": "共に成長するAIコーディングエージェントCaretと「バイブコーディング」を始めましょう。",
+		"description": "多言語サポート、開発者主導のAIオーケストレーション、ワークフローのカスタマイズ、透明なAI制御、そして強力なローカルLLM連携。単純な対話を超えて、Caretは AIと一緒に体系的にドキュメントを作成し、その記録に基づいて一緒に成長する「バイブコーディング」開発文化を提案します。"
 	},
 
 	"modelFlexibility": {
@@ -29,9 +29,11 @@
 	},
 
 	"getStarted": {
-		"header": "Caretを始める",
-		"body": "Caretへようこそ！このAIコーディングアシスタントが開発作業をお手伝いします。AI支援開発について詳しく学ぶには、<a href=\"https://github.com/aicoding-caret/multi-post-agent/blob/main/docs/education-scenario.md#2-development-environment-setup-approximately-30-minutes\" target=\"_blank\">教育プログラム</a>をご確認ください。",
-		"button": "始める"
+		"header": "",
+		"body": "",
+		"button": "始める",
+		"preferredLanguage": "AI応答言語",
+		"uiLanguage": "インターフェース言語"
 	},
 
 	"community": {

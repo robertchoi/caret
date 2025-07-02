@@ -10,6 +10,7 @@ import { SupportedLanguage } from "@/caret/constants/urls"
 interface CaretUILanguageSettingProps {
 	chatSettings: ChatSettings
 	setChatSettings: (settings: ChatSettings) => void
+	hideLabel?: boolean
 }
 
 const languageOptions = [
@@ -19,7 +20,7 @@ const languageOptions = [
 	{ value: "zh" as SupportedLanguage, label: "🇨🇳 中文 (Chinese)" },
 ]
 
-const CaretUILanguageSetting: React.FC<CaretUILanguageSettingProps> = ({ chatSettings, setChatSettings }) => {
+const CaretUILanguageSetting: React.FC<CaretUILanguageSettingProps> = ({ chatSettings, setChatSettings, hideLabel = false }) => {
 	// CARET MODIFICATION: UI 언어만 업데이트하는 함수 사용 - chatSettings 충돌 방지
 	const { setUILanguage } = useExtensionState()
 
@@ -44,9 +45,13 @@ const CaretUILanguageSetting: React.FC<CaretUILanguageSettingProps> = ({ chatSet
 
 	return (
 		<div className="setting-container">
-			<label htmlFor="ui-language-select">{t("settings.uiLanguage.label", "common")}</label>
+			{!hideLabel && <label htmlFor="ui-language-select">{t("settings.uiLanguage.label", "common")}</label>}
 			<p>
-				<VSCodeDropdown id="ui-language-select" value={displayLanguage} onChange={handleLanguageChange}>
+				<VSCodeDropdown
+					id="ui-language-select"
+					value={displayLanguage}
+					onChange={handleLanguageChange}
+					style={{ width: "100%" }}>
 					{languageOptions.map((option) => (
 						<VSCodeOption key={option.value} value={option.value}>
 							{option.label}
@@ -54,7 +59,16 @@ const CaretUILanguageSetting: React.FC<CaretUILanguageSettingProps> = ({ chatSet
 					))}
 				</VSCodeDropdown>
 			</p>
-			<p className="setting-description">{t("settings.uiLanguage.description", "common")}</p>
+			<p
+				className="setting-description"
+				style={{
+					fontSize: "11px",
+					color: "var(--vscode-descriptionForeground)",
+					opacity: 0.8,
+					marginTop: "4px",
+				}}>
+				{t("settings.uiLanguage.description", "common", currentLanguage)}
+			</p>
 		</div>
 	)
 }

@@ -3,10 +3,13 @@
 
 ## 진행 중인 작업 (Working)
 ### luke (담당자)
-- **Task #003:** System Prompt JSON 템플릿 시스템 구현 (담당자: luke)
-
+- **Task #007:** 서비스 및 회사 홈페이지 연동 (담당자: TBD)  
+  [007-01-plan-service-homepage-integration.md](./007-01-plan-service-homepage-integration.md)
 
 ### justin (담당자)
+- **Task #007:** 서비스 및 회사 홈페이지 연동 (담당자: TBD)  
+  [007-01-plan-service-homepage-integration.md](./007-01-plan-service-homepage-integration.md)
+
 
 ## 대기 중인 작업 (Pending)
 
@@ -17,8 +20,6 @@
   [005-responses-i18n-implementation.md](./005-responses-i18n-implementation.md)
 - **Task #006:** 업스트림 머징 전략 검증 및 안정화 (담당자: TBD)  
   [006-plan-upstream-merge-strategy-validation.md](./006-plan-upstream-merge-strategy-validation.md)
-- **Task #007:** 서비스 및 회사 홈페이지 연동 (담당자: TBD)  
-  [007-01-plan-service-homepage-integration.md](./007-01-plan-service-homepage-integration.md)
 - **Task #008:**  Claude 전용 프롬프트 JSON 변환 (담당자: TBD)
   [008-claude-prompts-json-conversion.md](./008-claude-prompts-json-conversion.md)
 - **Task #009:** API 프로바이더 구조 개선 (담당자: TBD)  
@@ -36,4 +37,4 @@
 - **Task #002:luke** 페르소나 기능 복원 
   - 요약: AI 페르소나 시스템 복구 및 개선
   [002-01-plan-persona-feature-restoration.md](./completed/002-01-plan-persona-feature-restoration.md) 
-
+- **Task #003:luke,justin** System Prompt JSON 템플릿 시스템 구현

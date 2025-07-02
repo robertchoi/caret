@@ -1,4 +1,6 @@
 import { useExtensionState } from "@/context/ExtensionStateContext"
+// CARET MODIFICATION: 다국어 지원을 위한 i18n 유틸 추가
+import { t } from "@/caret/utils/i18n"
 import { McpServiceClient } from "@/services/grpc-client"
 import { vscode } from "@/utils/vscode"
 import { McpViewTab } from "@shared/mcp"
@@ -76,7 +78,8 @@ const McpConfigurationView = ({ onDone, initialTab }: McpViewProps) => {
 					alignItems: "center",
 					padding: "10px 17px 5px 20px",
 				}}>
-				<h3 style={{ color: "var(--vscode-foreground)", margin: 0 }}>MCP Servers</h3>
+				{/* CARET MODIFICATION: 다국어 처리된 MCP Servers 제목 */}
+				<h3 style={{ color: "var(--vscode-foreground)", margin: 0 }}>{t("mcp.title", "common")}</h3>
 				<VSCodeButton onClick={onDone}>Done</VSCodeButton>
 			</div>
 

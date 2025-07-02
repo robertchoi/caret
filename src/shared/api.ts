@@ -18,6 +18,7 @@ export type ApiProvider =
 	| "mistral"
 	| "vscode-lm"
 	| "caret" // CARET MODIFICATION: Ensure 'caret' is present in ApiProvider type
+	| "cline" // CARET MODIFICATION: Add 'cline' provider for compatibility
 	| "litellm"
 	| "nebius"
 	| "fireworks"
@@ -31,6 +32,7 @@ export interface ApiHandlerOptions {
 	apiModelId?: string
 	apiKey?: string // anthropic
 	caretApiKey?: string // CARET MODIFICATION: Add caret-specific API key field
+	clineApiKey?: string // CARET MODIFICATION: Add cline-specific API key field for compatibility
 	taskId?: string // Used to identify the task in API requests
 	liteLlmBaseUrl?: string
 	liteLlmModelId?: string

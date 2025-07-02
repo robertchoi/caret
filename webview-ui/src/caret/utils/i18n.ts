@@ -12,8 +12,19 @@ import koPersona from "../locale/ko/persona.json"
 import enPersona from "../locale/en/persona.json"
 import jaPersona from "../locale/ja/persona.json"
 import zhPersona from "../locale/zh/persona.json"
+import koSettings from "../locale/ko/settings.json"
+import enSettings from "../locale/en/settings.json"
+import jaSettings from "../locale/ja/settings.json"
+import zhSettings from "../locale/zh/settings.json"
+import koValidateApiConf from "../locale/ko/validate-api-conf.json"
+import enValidateApiConf from "../locale/en/validate-api-conf.json"
+import jaValidateApiConf from "../locale/ja/validate-api-conf.json"
+import zhValidateApiConf from "../locale/zh/validate-api-conf.json"
 
 import { getLocalizedUrl, getUrl, type CaretLocalizedUrlKey, type CaretUrlKey, type SupportedLanguage } from "../constants/urls"
+
+// Re-export SupportedLanguage for external use
+export type { SupportedLanguage }
 
 // JSON 파일에서 번역 데이터 로드
 const translations = {
@@ -21,21 +32,29 @@ const translations = {
 		common: koCommon,
 		welcome: koWelcome,
 		persona: koPersona,
+		settings: koSettings,
+		"validate-api-conf": koValidateApiConf,
 	},
 	en: {
 		common: enCommon,
 		welcome: enWelcome,
 		persona: enPersona,
+		settings: enSettings,
+		"validate-api-conf": enValidateApiConf,
 	},
 	ja: {
 		common: jaCommon,
 		welcome: jaWelcome,
 		persona: jaPersona,
+		settings: jaSettings,
+		"validate-api-conf": jaValidateApiConf,
 	},
 	zh: {
 		common: zhCommon,
 		welcome: zhWelcome,
 		persona: zhPersona,
+		settings: zhSettings,
+		"validate-api-conf": zhValidateApiConf,
 	},
 }
 
@@ -111,10 +130,23 @@ const replaceTemplateVariables = (text: any, language: SupportedLanguage, option
 export const t = (
 	key: string,
 	namespace: string = "common",
-	options?: Record<string, string | number>,
+	optionsOrLanguage?: Record<string, string | number> | SupportedLanguage,
 	language?: SupportedLanguage,
 ): string => {
-	const currentLang = language || getInternalCurrentLanguage() // 수정: 내부 함수 사용
+	// Handle overloaded parameters
+	let options: Record<string, string | number> | undefined
+	let targetLanguage: SupportedLanguage
+	
+	if (typeof optionsOrLanguage === 'string') {
+		// If third parameter is a string, it's a language
+		options = undefined
+		targetLanguage = optionsOrLanguage
+	} else {
+		// If third parameter is an object or undefined, it's options
+		options = optionsOrLanguage
+		targetLanguage = language || getInternalCurrentLanguage()
+	}
+	const currentLang = targetLanguage
 	const namespaceData = translations[currentLang]?.[namespace as keyof (typeof translations)[typeof currentLang]]
 
 	if (namespaceData) {

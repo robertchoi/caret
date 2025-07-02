@@ -7,15 +7,20 @@ import styled from "styled-components"
 import { BROWSER_VIEWPORT_PRESETS } from "../../../../src/shared/BrowserSettings"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 import { BrowserServiceClient } from "../../services/grpc-client"
+// CARET MODIFICATION: 다국어 지원 추가
+import { t, type SupportedLanguage } from "../../caret/utils/i18n"
+import { useCurrentLanguage } from "../../caret/hooks/useCurrentLanguage"
 
 const ConnectionStatusIndicator = ({
 	isChecking,
 	isConnected,
 	remoteBrowserEnabled,
+	currentLanguage,
 }: {
 	isChecking: boolean
 	isConnected: boolean | null
 	remoteBrowserEnabled?: boolean
+	currentLanguage: SupportedLanguage
 }) => {
 	if (!remoteBrowserEnabled) return null
 
@@ -24,15 +29,15 @@ const ConnectionStatusIndicator = ({
 			{isChecking ? (
 				<>
 					<Spinner />
-					<StatusText>Checking connection...</StatusText>
+					<StatusText>{t("browser.checkingConnection", "settings", currentLanguage)}</StatusText>
 				</>
 			) : isConnected === true ? (
 				<>
 					<CheckIcon className="codicon codicon-check" />
-					<StatusText style={{ color: "var(--vscode-terminal-ansiGreen)" }}>Connected</StatusText>
+					<StatusText style={{ color: "var(--vscode-terminal-ansiGreen)" }}>{t("browser.connected", "settings", currentLanguage)}</StatusText>
 				</>
 			) : isConnected === false ? (
-				<StatusText style={{ color: "var(--vscode-errorForeground)" }}>Not connected</StatusText>
+				<StatusText style={{ color: "var(--vscode-errorForeground)" }}>{t("browser.notConnected", "settings", currentLanguage)}</StatusText>
 			) : null}
 		</StatusContainer>
 	)
@@ -52,6 +57,8 @@ const CollapsibleContent = styled.div<{ isOpen: boolean }>`
 `
 
 export const BrowserSettingsSection: React.FC = () => {
+	// CARET MODIFICATION: 현재 언어 추가
+	const currentLanguage = useCurrentLanguage()
 	const { browserSettings } = useExtensionState()
 	const [localChromePath, setLocalChromePath] = useState(browserSettings.chromeExecutablePath || "")
 	const [isCheckingConnection, setIsCheckingConnection] = useState(false)
@@ -138,7 +145,7 @@ export const BrowserSettingsSection: React.FC = () => {
 		}
 	}, [browserSettings.remoteBrowserEnabled, browserSettings.remoteBrowserHost, debouncedCheckConnection])
 
-	const handleViewportChange = (event: Event) => {
+	const handleViewportChange = (event: any) => {
 		const target = event.target as HTMLSelectElement
 		const selectedSize = BROWSER_VIEWPORT_PRESETS[target.value as keyof typeof BROWSER_VIEWPORT_PRESETS]
 		if (selectedSize) {
@@ -366,162 +373,92 @@ export const BrowserSettingsSection: React.FC = () => {
 	const isSubSettingsOpen = !(browserSettings.disableToolUse || false)
 
 	return (
-		<div id="browser-settings-section" style={{ marginBottom: 20 }}>
-			{/* Master Toggle */}
-			<div style={{ marginBottom: isSubSettingsOpen ? 0 : 10 }}>
+		<div className="flex flex-col gap-5">
+			{/* Remote Browser Connection */}
+			<div className="flex flex-col gap-2">
 				<VSCodeCheckbox
-					checked={browserSettings.disableToolUse || false}
-					onChange={(e) => updateDisableToolUse((e.target as HTMLInputElement).checked)}>
-					Disable browser tool usage
+					checked={browserSettings.remoteBrowserEnabled}
+					onChange={(e: any) => updateRemoteBrowserEnabled(e.target.checked)}>
+					{t("browser.remoteBrowserEnabled", "settings", currentLanguage)}
 				</VSCodeCheckbox>
-				<p
-					style={{
-						fontSize: "12px",
-						color: "var(--vscode-descriptionForeground)",
-						margin: "4px 0 0 0px",
-					}}>
-					Prevent Cline from using browser actions (e.g. launch, click, type).
-				</p>
-			</div>
-
-			<CollapsibleContent isOpen={isSubSettingsOpen}>
-				<div style={{ marginBottom: 15 }}>
-					<div style={{ marginBottom: 8 }}>
-						<label style={{ fontWeight: "500", display: "block", marginBottom: 5 }}>Viewport size</label>
-						<VSCodeDropdown
-							style={{ width: "100%" }}
-							value={
-								Object.entries(BROWSER_VIEWPORT_PRESETS).find(([_, size]) => {
-									const typedSize = size as { width: number; height: number }
-									return (
-										typedSize.width === browserSettings.viewport.width &&
-										typedSize.height === browserSettings.viewport.height
-									)
-								})?.[0]
-							}
-							onChange={(event) => handleViewportChange(event as Event)}>
-							{Object.entries(BROWSER_VIEWPORT_PRESETS).map(([name]) => (
-								<VSCodeOption key={name} value={name}>
-									{name}
-								</VSCodeOption>
-							))}
-						</VSCodeDropdown>
-					</div>
-					<p
-						style={{
-							fontSize: "12px",
-							color: "var(--vscode-descriptionForeground)",
-							margin: 0,
-						}}>
-						Set the size of the browser viewport for screenshots and interactions.
-					</p>
-				</div>
-
-				<div style={{ marginBottom: 0 }}>
-					{" "}
-					{/* This div now contains Remote Connection & Chrome Path */}
-					<div style={{ marginBottom: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-						<VSCodeCheckbox
-							checked={browserSettings.remoteBrowserEnabled}
-							onChange={(e) => updateRemoteBrowserEnabled((e.target as HTMLInputElement).checked)}>
-							Use remote browser connection
-						</VSCodeCheckbox>
-						<ConnectionStatusIndicator
-							isChecking={isCheckingConnection}
-							isConnected={connectionStatus}
-							remoteBrowserEnabled={browserSettings.remoteBrowserEnabled}
-						/>
-					</div>
-					<p
-						style={{
-							fontSize: "12px",
-							color: "var(--vscode-descriptionForeground)",
-							margin: "0 0 6px 0px",
-						}}>
-						Enable Cline to use your Chrome
-						{isBundled ? "(not detected on your machine)" : detectedChromePath ? ` (${detectedChromePath})` : ""}. You
-						can specify a custom path below. Using a remote browser connection requires starting Chrome in debug mode
-						{browserSettings.remoteBrowserEnabled ? (
-							<>
-								{" "}
-								manually (<code>--remote-debugging-port=9222</code>) or using the button below. Enter the host
-								address or leave it blank for automatic discovery.
-							</>
-						) : (
-							"."
-						)}
-					</p>
-					{/* Moved remote-specific settings to appear directly after enabling remote connection */}
-					{browserSettings.remoteBrowserEnabled && (
-						<div style={{ marginLeft: 0, marginTop: 8 }}>
+				<CollapsibleContent isOpen={!!browserSettings.remoteBrowserEnabled}>
+					<div className="ml-[24px] flex flex-col gap-4">
+						{/* Connection Host */}
+						<div className="flex flex-col gap-2">
+							<label className="text-sm font-medium">{t("browser.remoteBrowserHost", "settings", currentLanguage)}</label>
 							<VSCodeTextField
+								placeholder="ws://127.0.0.1:9222"
 								value={browserSettings.remoteBrowserHost || ""}
-								placeholder="http://localhost:9222"
-								style={{ width: "100%", marginBottom: 8 }}
-								onChange={(e: any) => updateRemoteBrowserHost(e.target.value || undefined)}
+								onChange={(e: any) => updateRemoteBrowserHost(e.target.value)} />
+							<ConnectionStatusIndicator
+								isChecking={isCheckingConnection}
+								isConnected={connectionStatus}
+								remoteBrowserEnabled={browserSettings.remoteBrowserEnabled}
+								currentLanguage={currentLanguage}
 							/>
-
-							{shouldShowRelaunchButton && (
-								<div style={{ display: "flex", gap: "10px", marginBottom: 8, justifyContent: "center" }}>
-									<VSCodeButton style={{ flex: 1 }} disabled={debugMode} onClick={relaunchChromeDebugMode}>
-										{debugMode ? "Launching Browser..." : "Launch Browser with Debug Mode"}
-									</VSCodeButton>
-								</div>
-							)}
-
+							<p className="text-xs text-[var(--vscode-descriptionForeground)]">
+								{t("browser.remoteBrowserDescription", "settings", currentLanguage)}
+							</p>
+							<VSCodeButton
+								onClick={relaunchChromeDebugMode}
+								className="w-auto flex-shrink-0" // Add flex-shrink-0 to prevent button from expanding
+								disabled={relaunchResult?.success === false}>
+								{t("browser.launchBrowser", "settings", currentLanguage)}
+							</VSCodeButton>
 							{relaunchResult && (
-								<div
+								<p
+									className="text-xs mt-2"
 									style={{
-										padding: "8px",
-										marginBottom: "8px",
-										backgroundColor: relaunchResult.success ? "rgba(0, 128, 0, 0.1)" : "rgba(255, 0, 0, 0.1)",
-										color: relaunchResult.success
-											? "var(--vscode-terminal-ansiGreen)"
-											: "var(--vscode-terminal-ansiRed)",
-										borderRadius: "3px",
-										fontSize: "11px",
-										whiteSpace: "pre-wrap",
-										wordBreak: "break-word",
+										color: relaunchResult.success ? "var(--vscode-terminal-ansiGreen)" : "var(--vscode-errorForeground)",
 									}}>
 									{relaunchResult.message}
-								</div>
+								</p>
 							)}
-
-							<p
-								style={{
-									fontSize: "12px",
-									color: "var(--vscode-descriptionForeground)",
-									margin: 0,
-								}}></p>
 						</div>
-					)}
-					{/* Chrome Executable Path section now follows remote-specific settings */}
-					<div style={{ marginBottom: 8, marginTop: 8 }}>
-						<label htmlFor="chrome-executable-path" style={{ fontWeight: "500", display: "block", marginBottom: 5 }}>
-							Chrome Executable Path (Optional)
-						</label>
-						<VSCodeTextField
-							id="chrome-executable-path"
-							value={localChromePath}
-							placeholder="e.g., /usr/bin/google-chrome or C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-							style={{ width: "100%" }}
-							onChange={(e: any) => {
-								const newValue = e.target.value || ""
-								setLocalChromePath(newValue)
-								debouncedUpdateChromePath(newValue) // Send "" if empty, not undefined
-							}}
-						/>
-						<p
-							style={{
-								fontSize: "12px",
-								color: "var(--vscode-descriptionForeground)",
-								margin: "4px 0 0 0",
-							}}>
-							Leave blank to auto-detect.
-						</p>
+
+						{/* Chrome Executable Path */}
+						<div className="flex flex-col gap-2">
+							<label className="text-sm font-medium">{t("browser.chromeExecutablePath", "settings", currentLanguage)}</label>
+							<VSCodeTextField
+								placeholder="path/to/chrome.exe"
+								value={localChromePath}
+								onChange={(e: any) => setLocalChromePath(e.target.value)}
+								onBlur={(e: any) => updateChromeExecutablePath(e.target.value)} />
+							{detectedChromePath && !isBundled && (
+								<p className="text-xs text-[var(--vscode-descriptionForeground)]">
+									{t("browser.detectedChromePath", "settings", currentLanguage)}: <code>{detectedChromePath}</code>
+								</p>
+							)}
+							{isBundled && (
+								<p className="text-xs text-[var(--vscode-descriptionForeground)]">
+									{t("browser.customChromePath", "settings", currentLanguage)}
+								</p>
+							)}
+						</div>
+
+						{/* Disable Tool Use */}
+						<VSCodeCheckbox
+							checked={browserSettings.disableToolUse}
+							onChange={(e: any) => updateDisableToolUse(e.target.checked)}>
+							{t("browser.disableToolUse", "settings", currentLanguage)}
+						</VSCodeCheckbox>
+
+						{/* Viewport Size */}
+						<div className="flex flex-col gap-2">
+							<label className="text-sm font-medium">{t("browser.viewportWidth", "settings", currentLanguage)} / {t("browser.viewportHeight", "settings", currentLanguage)}</label>
+							<VSCodeDropdown
+								value={`${browserSettings.viewport.width}x${browserSettings.viewport.height}`}
+								onChange={handleViewportChange}>
+								{Object.entries(BROWSER_VIEWPORT_PRESETS).map(([key, value]) => (
+									<VSCodeOption key={key} value={key}>
+										{key}
+									</VSCodeOption>
+								))}
+							</VSCodeDropdown>
+						</div>
 					</div>
-				</div>
-			</CollapsibleContent>
+				</CollapsibleContent>
+			</div>
 		</div>
 	)
 }

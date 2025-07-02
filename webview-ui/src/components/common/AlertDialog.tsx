@@ -3,6 +3,8 @@ import { cn } from "@/utils/cn"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import { AlertTriangle } from "lucide-react"
 import { OPENROUTER_MODEL_PICKER_Z_INDEX } from "../settings/OpenRouterModelPicker"
+import { t } from "@/caret/utils/i18n"
+import { useCurrentLanguage } from "@/caret/hooks/useCurrentLanguage"
 
 interface AlertDialogProps {
 	open: boolean
@@ -89,21 +91,23 @@ export function UnsavedChangesDialog({
 	onConfirm: () => void
 	onCancel: () => void
 }) {
+	const currentLanguage = useCurrentLanguage()
+
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>
 						<AlertTriangle className="w-5 h-5 text-[var(--vscode-errorForeground)]" />
-						Unsaved Changes
+						{t("messages.unsavedChangesTitle", "settings", currentLanguage)}
 					</AlertDialogTitle>
 					<AlertDialogDescription>
-						You have unsaved changes. Are you sure you want to discard them?
+						{t("messages.unsavedChanges", "settings", currentLanguage)}
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-					<AlertDialogAction onClick={onConfirm}>Discard Changes</AlertDialogAction>
+					<AlertDialogCancel onClick={onCancel}>{t("buttons.cancel", "settings", currentLanguage)}</AlertDialogCancel>
+					<AlertDialogAction onClick={onConfirm}>{t("buttons.discardChanges", "settings", currentLanguage)}</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

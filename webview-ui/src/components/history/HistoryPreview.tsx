@@ -4,6 +4,7 @@ import { formatLargeNumber } from "@/utils/format"
 import { StringRequest } from "@shared/proto/common"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import { memo, useState } from "react"
+import { t } from "@/caret/utils/i18n"
 
 type HistoryPreviewProps = {
 	showHistoryView: () => void
@@ -47,7 +48,7 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 					className={`codicon codicon-chevron-${isExpanded ? "down" : "right"} scale-90 transition-transform duration-200`}
 				/>
 				<span className="codicon codicon-comment-discussion scale-90" />
-				<span className="font-medium text-xs uppercase tracking-wide">Recent Tasks</span>
+				<span className="font-medium text-xs uppercase tracking-wide">{t("welcome.recentTasks", "common")}</span>
 			</div>
 
 			{isExpanded && (
@@ -142,7 +143,7 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 										fontSize: "var(--vscode-font-size)",
 									}}>
 									<span className="codicon codicon-history scale-90"></span>
-									<span className="font-medium">View all history</span>
+									<span className="font-medium">{t("welcome.viewAllHistory", "common")}</span>
 								</button>
 							</div>
 						</>
@@ -155,7 +156,7 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 								border: "1px solid color-mix(in srgb, var(--vscode-panel-border) 30%, transparent)",
 								backdropFilter: "blur(8px)",
 							}}>
-							No recent tasks
+							{t("welcome.noRecentTasks", "common")}
 						</div>
 					)}
 				</div>

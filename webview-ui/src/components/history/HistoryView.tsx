@@ -1,5 +1,7 @@
 import DangerButton from "@/components/common/DangerButton"
 import { useExtensionState } from "@/context/ExtensionStateContext"
+// CARET MODIFICATION: 다국어 지원을 위한 i18n 유틸 추가
+import { t } from "@/caret/utils/i18n"
 import { TaskServiceClient } from "@/services/grpc-client"
 import { formatLargeNumber, formatSize } from "@/utils/format"
 import { vscode } from "@/utils/vscode"
@@ -323,7 +325,8 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 							color: "var(--vscode-foreground)",
 							margin: 0,
 						}}>
-						History
+						{/* CARET MODIFICATION: 다국어 처리된 History 제목 */}
+						{t("history.title", "common")}
 					</h3>
 					<VSCodeButton onClick={onDone}>Done</VSCodeButton>
 				</div>
@@ -334,9 +337,10 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 							flexDirection: "column",
 							gap: "6px",
 						}}>
+						{/* CARET MODIFICATION: 다국어 처리된 placeholder */}
 						<VSCodeTextField
 							style={{ width: "100%" }}
-							placeholder="Fuzzy search history..."
+							placeholder={t("history.fuzzySearchPlaceholder", "common")}
 							value={searchQuery}
 							onInput={(e) => {
 								const newValue = (e.target as HTMLInputElement)?.value
@@ -373,39 +377,42 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 							style={{ display: "flex", flexWrap: "wrap" }}
 							value={sortOption}
 							onChange={(e) => setSortOption((e.target as HTMLInputElement).value as SortOption)}>
-							<VSCodeRadio value="newest">Newest</VSCodeRadio>
-							<VSCodeRadio value="oldest">Oldest</VSCodeRadio>
-							<VSCodeRadio value="mostExpensive">Most Expensive</VSCodeRadio>
-							<VSCodeRadio value="mostTokens">Most Tokens</VSCodeRadio>
+							{/* CARET MODIFICATION: 다국어 처리된 정렬 옵션들 */}
+							<VSCodeRadio value="newest">{t("history.sortNewest", "common")}</VSCodeRadio>
+							<VSCodeRadio value="oldest">{t("history.sortOldest", "common")}</VSCodeRadio>
+							<VSCodeRadio value="mostExpensive">{t("history.sortMostExpensive", "common")}</VSCodeRadio>
+							<VSCodeRadio value="mostTokens">{t("history.sortMostTokens", "common")}</VSCodeRadio>
 							<VSCodeRadio value="mostRelevant" disabled={!searchQuery} style={{ opacity: searchQuery ? 1 : 0.5 }}>
-								Most Relevant
+								{t("history.sortMostRelevant", "common")}
 							</VSCodeRadio>
+							{/* CARET MODIFICATION: 다국어 처리된 필터 옵션들 */}
 							<CustomFilterRadio
 								checked={showCurrentWorkspaceOnly}
 								onChange={() => setShowCurrentWorkspaceOnly(!showCurrentWorkspaceOnly)}
 								icon="workspace"
-								label="Workspace"
+								label={t("history.filterWorkspace", "common")}
 							/>
 							<CustomFilterRadio
 								checked={showFavoritesOnly}
 								onChange={() => setShowFavoritesOnly(!showFavoritesOnly)}
 								icon="star-full"
-								label="Favorites"
+								label={t("history.filterFavorites", "common")}
 							/>
 						</VSCodeRadioGroup>
 
 						<div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+							{/* CARET MODIFICATION: 다국어 처리된 선택 버튼들 */}
 							<VSCodeButton
 								onClick={() => {
 									handleBatchHistorySelect(true)
 								}}>
-								Select All
+								{t("history.selectAll", "common")}
 							</VSCodeButton>
 							<VSCodeButton
 								onClick={() => {
 									handleBatchHistorySelect(false)
 								}}>
-								Select None
+								{t("history.selectNone", "common")}
 							</VSCodeButton>
 						</div>
 					</div>
@@ -729,7 +736,8 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 								setDeleteAllDisabled(true)
 								vscode.postMessage({ type: "clearAllTaskHistory" })
 							}}>
-							Delete All History{totalTasksSize !== null ? ` (${formatSize(totalTasksSize)})` : ""}
+							{/* CARET MODIFICATION: 다국어 처리된 Delete All History 버튼 텍스트 */}
+						{t("history.deleteAllHistory", "common")}{totalTasksSize !== null ? ` (${formatSize(totalTasksSize)})` : ""}
 						</DangerButton>
 					)}
 				</div>

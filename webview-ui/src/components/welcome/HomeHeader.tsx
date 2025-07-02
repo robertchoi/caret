@@ -1,5 +1,6 @@
 import ClineLogoVariable from "@/assets/ClineLogoVariable"
 import HeroTooltip from "@/components/common/HeroTooltip"
+import { t } from "@/caret/utils/i18n"
 
 const HomeHeader = () => {
 	return (
@@ -8,7 +9,7 @@ const HomeHeader = () => {
 				<ClineLogoVariable className="size-16" />
 			</div>
 			<div className="text-center flex items-center justify-center">
-				<h2 className="m-0 text-[var(--vscode-font-size)]">{"What can I do for you?"}</h2>
+				<h2 className="m-0 text-[var(--vscode-font-size)]">{t("welcome.whatCanIDo", "common")}</h2>
 				<HeroTooltip
 					placement="bottom"
 					className="max-w-[300px]"

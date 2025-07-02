@@ -29,7 +29,11 @@
 		"subtitle": "Your AI-powered coding assistant",
 		"description": "Caret is an AI coding assistant that helps you write, debug, and improve your code. Let's get started!",
 		"getStarted": "Get Started",
-		"learnMore": "Learn More"
+		"learnMore": "Learn More",
+		"whatCanIDo": "What can I do for you?",
+		"recentTasks": "Recent Tasks",
+		"noRecentTasks": "No recent tasks",
+		"viewAllHistory": "View all history"
 	},
 	"rules": {
 		"tab": {
@@ -244,5 +248,37 @@
 		"geminiModelStrong": "Gemini 2.5 Pro Preview 06-05 (Strong)",
 		"geminiModelCostEffective": "Gemini 2.5 Flash Preview 05-20 (Cost-Effective)",
 		"reasoningEnabled": "Reasoning enabled by default"
+	},
+	"telemetry": {
+		"helpImprove": "Help Improve Cline",
+		"experimentalFeatures": "(and access experimental features)",
+		"description": "Cline collects anonymous error and usage data to help us fix bugs and improve the extension. No code, prompts, or personal information is ever sent.",
+		"settingsLink": "You can turn this setting off in settings.",
+		"closeBannerAria": "Close banner and enable telemetry"
+	},
+	"history": {
+		"title": "History",
+		"deleteAllHistory": "Delete All History",
+		"fuzzySearchPlaceholder": "Fuzzy search history...",
+		"sortNewest": "Newest",
+		"sortOldest": "Oldest",
+		"sortMostExpensive": "Most Expensive",
+		"sortMostTokens": "Most Tokens",
+		"sortMostRelevant": "Most Relevant",
+		"filterWorkspace": "Workspace",
+		"filterFavorites": "Favorites",
+		"selectAll": "Select All",
+		"selectNone": "Select None"
+	},
+	"mcp": {
+		"title": "MCP Servers",
+		"noServersInstalled": "No MCP servers installed",
+		"configureServers": "Configure MCP Servers",
+		"noMatchingServers": "No matching MCP servers found",
+		"noServersFound": "No MCP servers found in the marketplace"
+	},
+	"autoApprove": {
+		"addQuickAccess": "Add to quick-access menu",
+		"removeQuickAccess": "Remove from quick-access menu"
 	}
 }

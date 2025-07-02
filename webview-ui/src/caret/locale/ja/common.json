@@ -221,5 +221,43 @@
 		"geminiModelStrong": "Gemini 2.5 Pro Preview 06-05 (強力)",
 		"geminiModelCostEffective": "Gemini 2.5 Flash Preview 05-20 (コスト効率)",
 		"reasoningEnabled": "推論機能がデフォルトで有効"
+	},
+	"welcome": {
+		"whatCanIDo": "何をお手伝いしましょうか？",
+		"recentTasks": "最近のタスク",
+		"noRecentTasks": "最近のタスクはありません",
+		"viewAllHistory": "すべての履歴を表示"
+	},
+	"telemetry": {
+		"helpImprove": "Clineの改善にご協力ください",
+		"experimentalFeatures": "（実験的機能にアクセス）",
+		"description": "Clineはバグ修正と拡張機能の改善のために匿名のエラーと使用データを収集します。コード、プロンプト、個人情報は送信されません。",
+		"settingsLink": "この設定は設定で無効にできます。",
+		"closeBannerAria": "バナーを閉じてテレメトリを有効にする"
+	},
+	"history": {
+		"title": "履歴",
+		"deleteAllHistory": "すべての履歴を削除",
+		"fuzzySearchPlaceholder": "履歴を検索...",
+		"sortNewest": "最新順",
+		"sortOldest": "古い順",
+		"sortMostExpensive": "コスト高順",
+		"sortMostTokens": "トークン多順",
+		"sortMostRelevant": "関連性順",
+		"filterWorkspace": "ワークスペース",
+		"filterFavorites": "お気に入り",
+		"selectAll": "すべて選択",
+		"selectNone": "選択解除"
+	},
+	"mcp": {
+		"title": "MCPサーバー",
+		"noServersInstalled": "MCPサーバーがインストールされていません",
+		"configureServers": "MCPサーバーを設定",
+		"noMatchingServers": "一致するMCPサーバーが見つかりません",
+		"noServersFound": "マーケットプレイスでMCPサーバーが見つかりません"
+	},
+	"autoApprove": {
+		"addQuickAccess": "クイックアクセスメニューに追加",
+		"removeQuickAccess": "クイックアクセスメニューから削除"
 	}
 }

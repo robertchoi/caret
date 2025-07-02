@@ -4,6 +4,7 @@ import styled from "styled-components"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { vscode } from "@/utils/vscode"
 import { TelemetrySetting } from "@shared/TelemetrySetting"
+import { t } from "@/caret/utils/i18n"
 
 const BannerContainer = styled.div`
 	background-color: var(--vscode-banner-background);
@@ -59,22 +60,21 @@ const TelemetryBanner = () => {
 
 	return (
 		<BannerContainer>
-			<CloseButton onClick={handleClose} aria-label="Close banner and enable telemetry">
+			<CloseButton onClick={handleClose} aria-label={t("telemetry.closeBannerAria", "common")}>
 				✕
 			</CloseButton>
 			<div>
-				<strong>Help Improve Cline</strong>
+				<strong>{t("telemetry.helpImprove", "common")}</strong>
 				<i>
 					<br />
-					(and access experimental features)
+					{t("telemetry.experimentalFeatures", "common")}
 				</i>
 				<div style={{ marginTop: 4 }}>
-					Cline collects anonymous error and usage data to help us fix bugs and improve the extension. No code, prompts,
-					or personal information is ever sent.
+					{t("telemetry.description", "common")}
 					<div style={{ marginTop: 4 }}>
-						You can turn this setting off in{" "}
+						{t("telemetry.settingsLink", "common")}{" "}
 						<VSCodeLink href="#" onClick={handleOpenSettings}>
-							settings
+							{t("settingsView.title", "settings")}
 						</VSCodeLink>
 						.
 					</div>

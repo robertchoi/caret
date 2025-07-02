@@ -10,6 +10,8 @@ import {
 } from "@vscode/webview-ui-toolkit/react"
 import { McpMarketplaceItem } from "@shared/mcp"
 import { useExtensionState } from "@/context/ExtensionStateContext"
+// CARET MODIFICATION: 다국어 지원을 위한 i18n 유틸 추가
+import { t } from "@/caret/utils/i18n"
 import { vscode } from "@/utils/vscode"
 import McpMarketplaceCard from "./McpMarketplaceCard"
 import McpSubmitCard from "./McpSubmitCard"
@@ -271,9 +273,10 @@ const McpMarketplaceView = () => {
 							padding: "20px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
+						{/* CARET MODIFICATION: 다국어 처리된 MCP 서버 메시지 */}
 						{searchQuery || selectedCategory
-							? "No matching MCP servers found"
-							: "No MCP servers found in the marketplace"}
+							? t("mcp.noMatchingServers", "common")
+							: t("mcp.noServersFound", "common")}
 					</div>
 				) : (
 					filteredItems.map((item) => <McpMarketplaceCard key={item.mcpId} item={item} installedServers={mcpServers} />)

@@ -2,8 +2,13 @@ import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { memo } from "react"
 import { OpenAIReasoningEffort } from "@shared/ChatSettings"
+// CARET MODIFICATION: 다국어 지원 추가
+import { t } from "../../caret/utils/i18n"
+import { useCurrentLanguage } from "../../caret/hooks/useCurrentLanguage"
 
 const FeatureSettingsSection = () => {
+	// CARET MODIFICATION: 현재 언어 추가
+	const currentLanguage = useCurrentLanguage()
 	const {
 		enableCheckpointsSetting,
 		setEnableCheckpointsSetting,
@@ -26,11 +31,10 @@ const FeatureSettingsSection = () => {
 						const checked = e.target.checked === true
 						setEnableCheckpointsSetting(checked)
 					}}>
-					Enable Checkpoints
+					{t("features.enableCheckpoints", "settings", currentLanguage)}
 				</VSCodeCheckbox>
 				<p className="text-xs text-[var(--vscode-descriptionForeground)]">
-					Enables extension to save checkpoints of workspace throughout the task. Uses git under the hood which may not
-					work well with large workspaces.
+					{t("features.enableCheckpointsDescription", "settings", currentLanguage)}
 				</p>
 			</div>
 			<div style={{ marginTop: 10 }}>
@@ -40,10 +44,10 @@ const FeatureSettingsSection = () => {
 						const checked = e.target.checked === true
 						setMcpMarketplaceEnabled(checked)
 					}}>
-					Enable MCP Marketplace
+					{t("features.enableMcpMarketplace", "settings", currentLanguage)}
 				</VSCodeCheckbox>
 				<p className="text-xs text-[var(--vscode-descriptionForeground)]">
-					Enables the MCP Marketplace tab for discovering and installing MCP servers.
+					{t("features.enableMcpMarketplaceDescription", "settings", currentLanguage)}
 				</p>
 			</div>
 			<div style={{ marginTop: 10 }}>
@@ -53,10 +57,10 @@ const FeatureSettingsSection = () => {
 						const checked = e.target.checked === true
 						setMcpRichDisplayEnabled(checked)
 					}}>
-					Enable Rich MCP Display
+					{t("features.enableRichMcpDisplay", "settings", currentLanguage)}
 				</VSCodeCheckbox>
 				<p className="text-xs text-[var(--vscode-descriptionForeground)]">
-					Enables rich formatting for MCP responses. When disabled, responses will be shown in plain text.
+					{t("features.enableRichMcpDisplayDescription", "settings", currentLanguage)}
 				</p>
 			</div>
 			<div style={{ marginTop: 10 }}>
@@ -66,17 +70,17 @@ const FeatureSettingsSection = () => {
 						const checked = e.target.checked === true
 						setMcpResponsesCollapsed(checked)
 					}}>
-					Collapse MCP Responses
+					{t("features.collapseMcpResponses", "settings", currentLanguage)}
 				</VSCodeCheckbox>
 				<p className="text-xs text-[var(--vscode-descriptionForeground)]">
-					Sets the default display mode for MCP response panels
+					{t("features.collapseMcpResponsesDescription", "settings", currentLanguage)}
 				</p>
 			</div>
 			<div style={{ marginTop: 10 }}>
 				<label
 					htmlFor="openai-reasoning-effort-dropdown"
 					className="block text-sm font-medium text-[var(--vscode-foreground)] mb-1">
-					OpenAI Reasoning Effort
+					{t("features.openaiReasoningEffort", "settings", currentLanguage)}
 				</label>
 				<VSCodeDropdown
 					id="openai-reasoning-effort-dropdown"
@@ -89,12 +93,12 @@ const FeatureSettingsSection = () => {
 						})
 					}}
 					className="w-full">
-					<VSCodeOption value="low">Low</VSCodeOption>
-					<VSCodeOption value="medium">Medium</VSCodeOption>
-					<VSCodeOption value="high">High</VSCodeOption>
+					<VSCodeOption value="low">{t("features.reasoningEffort.low", "settings", currentLanguage)}</VSCodeOption>
+					<VSCodeOption value="medium">{t("features.reasoningEffort.medium", "settings", currentLanguage)}</VSCodeOption>
+					<VSCodeOption value="high">{t("features.reasoningEffort.high", "settings", currentLanguage)}</VSCodeOption>
 				</VSCodeDropdown>
 				<p className="text-xs mt-[5px] text-[var(--vscode-descriptionForeground)]">
-					Reasoning effort for the OpenAI family of models(applies to all OpenAI model providers)
+					{t("features.openaiReasoningEffortDescription", "settings", currentLanguage)}
 				</p>
 			</div>
 		</div>

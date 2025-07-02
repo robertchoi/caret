@@ -221,5 +221,43 @@
 		"geminiModelStrong": "Gemini 2.5 Pro Preview 06-05 (강력함)",
 		"geminiModelCostEffective": "Gemini 2.5 Flash Preview 05-20 (가성비)",
 		"reasoningEnabled": "추론 기능 기본 활성화"
+	},
+	"welcome": {
+		"whatCanIDo": "무엇을 도와드릴까요?",
+		"recentTasks": "최근 작업",
+		"noRecentTasks": "최근 작업이 없습니다",
+		"viewAllHistory": "모든 기록 보기"
+	},
+	"telemetry": {
+		"helpImprove": "Cline 개선에 도움주기",
+		"experimentalFeatures": "(실험적 기능에 액세스)",
+		"description": "Cline은 버그 수정과 확장 프로그램 개선을 위해 익명의 오류 및 사용 데이터를 수집합니다. 코드, 프롬프트 또는 개인 정보는 전송되지 않습니다.",
+		"settingsLink": "설정에서 이 기능을 끌 수 있습니다.",
+		"closeBannerAria": "배너 닫기 및 텔레메트리 활성화"
+	},
+	"history": {
+		"title": "기록",
+		"deleteAllHistory": "모든 기록 삭제",
+		"fuzzySearchPlaceholder": "기록 검색...",
+		"sortNewest": "최신순",
+		"sortOldest": "오래된순",
+		"sortMostExpensive": "비용 높은순",
+		"sortMostTokens": "토큰 많은순",
+		"sortMostRelevant": "관련성 높은순",
+		"filterWorkspace": "워크스페이스",
+		"filterFavorites": "즐겨찾기",
+		"selectAll": "모두 선택",
+		"selectNone": "선택 해제"
+	},
+	"mcp": {
+		"title": "MCP 서버",
+		"noServersInstalled": "설치된 MCP 서버가 없습니다",
+		"configureServers": "MCP 서버 구성",
+		"noMatchingServers": "일치하는 MCP 서버를 찾을 수 없습니다",
+		"noServersFound": "마켓플레이스에서 MCP 서버를 찾을 수 없습니다"
+	},
+	"autoApprove": {
+		"addQuickAccess": "빠른 액세스 메뉴에 추가",
+		"removeQuickAccess": "빠른 액세스 메뉴에서 제거"
 	}
 }

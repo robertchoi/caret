@@ -6,6 +6,7 @@ import { getAsVar, VSC_TITLEBAR_INACTIVE_FOREGROUND } from "@/utils/vscStyles"
 import AutoApproveMenuItem from "./AutoApproveMenuItem"
 import AutoApproveModal from "./AutoApproveModal"
 import { ACTION_METADATA, NOTIFICATIONS_SETTING } from "./constants"
+import { t } from "@/caret/utils/i18n"
 
 interface AutoApproveBarProps {
 	style?: React.CSSProperties
@@ -28,7 +29,7 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
 
 		return (
 			<AutoApproveMenuItem
-				action={action}
+				action={{...action, label: t(action.label, "settings"), description: t(action.description, "settings")}}
 				isChecked={isChecked}
 				isFavorited={isFavorited}
 				onToggle={updateAction}
@@ -62,7 +63,7 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
 			) : null,
 			...minusFavorites.map((action, index) => (
 				<span className="text-[color:var(--vscode-foreground-muted)] opacity-60" key={action?.id}>
-					{action?.shortName}
+					{t(action?.shortName ?? "", "settings")}
 					{index < minusFavorites.length - 1 && ","}
 				</span>
 			)),
@@ -91,7 +92,7 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
 						scrollbarWidth: "none",
 						WebkitOverflowScrolling: "touch",
 					}}>
-					<span>Auto-approve:</span>
+					<span>{t("autoApprove.label", "settings")}:</span>
 					{getQuickAccessItems()}
 				</div>
 				{isModalVisible ? (

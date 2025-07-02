@@ -27,7 +27,7 @@ import { convertApiConfigurationToProtoApiConfiguration } from "@shared/proto-co
 import { convertChatSettingsToProtoChatSettings } from "@shared/proto-conversions/state/chat-settings-conversion"
 //import { caretWebviewLogger } from "@/caret/utils/webview-logger" // CARET MODIFICATION: 주석 처리
 import { caretWebviewLogger } from "@/caret/utils/webview-logger"
-import { t } from "@/caret/utils/i18n"
+import { t, getLink, getGlobalLink } from "@/caret/utils/i18n"
 import { useCurrentLanguage } from "@/caret/hooks/useCurrentLanguage"
 import styled from "styled-components"
 const { IS_DEV } = process.env
@@ -98,62 +98,65 @@ interface SettingsTab {
 	icon: LucideIcon
 }
 
-export const SETTINGS_TABS: SettingsTab[] = [
-	{
-		id: "api-config",
-		name: "API Configuration",
-		tooltipText: "API Configuration",
-		headerText: "API Configuration",
-		icon: Webhook,
-	},
-	{
-		id: "general",
-		name: "General",
-		tooltipText: "General Settings",
-		headerText: "General Settings",
-		icon: Settings,
-	},
-	{
-		id: "features",
-		name: "Features",
-		tooltipText: "Feature Settings",
-		headerText: "Feature Settings",
-		icon: CheckCheck,
-	},
-	{
-		id: "browser",
-		name: "Browser",
-		tooltipText: "Browser Settings",
-		headerText: "Browser Settings",
-		icon: SquareMousePointer,
-	},
-	{
-		id: "terminal",
-		name: "Terminal",
-		tooltipText: "Terminal Settings",
-		headerText: "Terminal Settings",
-		icon: SquareTerminal,
-	},
-	// Only show in dev mode
-	...(IS_DEV
-		? [
-				{
-					id: "debug",
-					name: "Debug",
-					tooltipText: "Debug Tools",
-					headerText: "Debug",
-					icon: FlaskConical,
-				},
-			]
-		: []),
-	{
-		id: "about",
-		name: "About",
-		tooltipText: "About Cline",
-		headerText: "About",
-		icon: Info,
-	},
-]
+// CARET MODIFICATION: 다국어 지원을 위한 탭 정의 함수
+const getSettingsTabs = (currentLanguage: string): SettingsTab[] => {
+	return [
+		{
+			id: "api-config",
+			name: t("tabs.apiConfiguration.name", "settings"),
+			tooltipText: t("tabs.apiConfiguration.tooltip", "settings"),
+			headerText: t("tabs.apiConfiguration.header", "settings"),
+			icon: Webhook,
+		},
+		{
+			id: "general",
+			name: t("tabs.general.name", "settings"),
+			tooltipText: t("tabs.general.tooltip", "settings"),
+			headerText: t("tabs.general.header", "settings"),
+			icon: Settings,
+		},
+		{
+			id: "features",
+			name: t("tabs.features.name", "settings"),
+			tooltipText: t("tabs.features.tooltip", "settings"),
+			headerText: t("tabs.features.header", "settings"),
+			icon: CheckCheck,
+		},
+		{
+			id: "browser",
+			name: t("tabs.browser.name", "settings"),
+			tooltipText: t("tabs.browser.tooltip", "settings"),
+			headerText: t("tabs.browser.header", "settings"),
+			icon: SquareMousePointer,
+		},
+		{
+			id: "terminal",
+			name: t("tabs.terminal.name", "settings"),
+			tooltipText: t("tabs.terminal.tooltip", "settings"),
+			headerText: t("tabs.terminal.header", "settings"),
+			icon: SquareTerminal,
+		},
+		// Only show in dev mode
+		...(IS_DEV
+			? [
+					{
+						id: "debug",
+						name: t("tabs.debug.name", "settings"),
+						tooltipText: t("tabs.debug.tooltip", "settings"),
+						headerText: t("tabs.debug.header", "settings"),
+						icon: FlaskConical,
+					},
+				]
+			: []),
+		{
+			id: "about",
+			name: t("tabs.about.name", "settings"),
+			tooltipText: t("tabs.about.tooltip", "settings"),
+			headerText: t("tabs.about.header", "settings"),
+			icon: Info,
+		},
+	]
+}
 
 type SettingsViewProps = {
 	onDone: () => void
@@ -447,7 +450,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 						// console.log("Opening settings tab from GRPC response:", tabId)
 						caretWebviewLogger.debug("Opening settings tab from GRPC response:", tabId)
 						// Check if the value corresponds to a valid tab ID
-						const isValidTabId = SETTINGS_TABS.some((tab) => tab.id === tabId)
+						const isValidTabId = getSettingsTabs(currentLanguage).some((tab: SettingsTab) => tab.id === tabId)
 
 						if (isValidTabId) {
 							// Set the active tab directly
@@ -579,14 +582,14 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		<Tab>
 			<TabHeader className="flex justify-between items-center gap-2">
 				<div className="flex items-center gap-1">
-					<h3 className="text-[var(--vscode-foreground)] m-0">Settings</h3>
+					<h3 className="text-[var(--vscode-foreground)] m-0">{t("settingsView.title", "settings")}</h3>
 				</div>
 				<div className="flex gap-2">
 					<VSCodeButton appearance="secondary" onClick={handleCancel}>
-						Cancel
+						{t("buttons.cancel", "settings")}
 					</VSCodeButton>
 					<VSCodeButton onClick={() => handleSubmit(false)} disabled={!hasUnsavedChanges}>
-						Save
+						{t("buttons.save", "settings")}
 					</VSCodeButton>
 				</div>
 			</TabHeader>
@@ -599,7 +602,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 					onValueChange={handleTabChange}
 					className={cn(settingsTabList)}
 					data-compact={isCompactMode}>
-					{SETTINGS_TABS.map((tab) =>
+					{getSettingsTabs(currentLanguage).map((tab) =>
 						isCompactMode ? (
 							<HeroTooltip key={tab.id} content={tab.tooltipText} placement="right">
 								<div
@@ -647,7 +650,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 				{/* Helper function to render section header */}
 				{(() => {
 					const renderSectionHeader = (tabId: string) => {
-						const tab = SETTINGS_TABS.find((t) => t.id === tabId)
+						const tab = getSettingsTabs(currentLanguage).find((t) => t.id === tabId)
 						if (!tab) return null
 
 						return (
@@ -670,48 +673,15 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 								<div>
 									{renderSectionHeader("api-config")}
 									<Section>
-										{/* Tabs container */}
-										{/* CARET MODIFICATION: Chatbot/Agent 버튼을 항상 표시 (조건부 제거) */}
 										<div className="rounded-md mb-5 bg-[var(--vscode-panel-background)]">
-											<div className="flex gap-[1px] mb-[10px] -mt-2 border-0 border-b border-solid border-[var(--vscode-panel-border)]">
-												{/* CARET MODIFICATION: Chatbot/Agent 통일 - 올바른 모드 비교 */}
-												<TabButton
-													isActive={chatSettings.mode === "agent"}
-													onClick={() => handleChatbotAgentModeChange("agent")}>
-													🤖 Agent
-												</TabButton>
-												<TabButton
-													isActive={chatSettings.mode === "chatbot"}
-													onClick={() => handleChatbotAgentModeChange("chatbot")}>
-													💬 Chatbot
-												</TabButton>
-											</div>
-
-											{/* Content container - 체크박스 상태에 따라 다른 키 사용 */}
 											<div className="-mb-3">
 												<ApiOptions
-													key={planActSeparateModelsSetting ? chatSettings.mode : "single"}
+													key="single"
 													showModelOptions={true}
 													apiErrorMessage={apiErrorMessage}
 													modelIdErrorMessage={modelIdErrorMessage}
 												/>
 											</div>
-										</div>
-
-										<div className="mb-[5px]">
-											{/* CARET MODIFICATION: Plan/Act -> Chatbot/Agent 텍스트 업데이트 */}
-											<VSCodeCheckbox
-												className="mb-[5px]"
-												checked={planActSeparateModelsSetting}
-												onChange={(e: any) => {
-													const checked = e.target.checked === true
-													setPlanActSeparateModelsSetting(checked)
-												}}>
-												{t("settings.separateModels.label")}
-											</VSCodeCheckbox>
-											<p className="text-xs mt-[5px] text-[var(--vscode-descriptionForeground)]">
-												{t("settings.separateModels.description")}
-											</p>
 										</div>
 									</Section>
 								</div>
@@ -773,7 +743,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 											<div className="mb-[15px]">
 												<div className="flex items-center justify-between mb-2">
 													<label className="text-sm font-medium">
-														{t("settings.modeSystem.label")}
+														{t("settings.modeSystem.label", "settings")}
 													</label>
 													<ModeSwitchContainer
 														disabled={false}
@@ -785,15 +755,15 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 															isCline={chatSettings.modeSystem === "cline"}
 														/>
 														<ModeSwitchOption isActive={chatSettings.modeSystem === "caret"}>
-															{t("settings.modeSystem.options.caret")}
+															{t("settings.modeSystem.options.caret", "settings")}
 														</ModeSwitchOption>
 														<ModeSwitchOption isActive={chatSettings.modeSystem === "cline"}>
-															{t("settings.modeSystem.options.cline")}
+															{t("settings.modeSystem.options.cline", "settings")}
 														</ModeSwitchOption>
 													</ModeSwitchContainer>
 												</div>
 												<p className="text-xs text-[var(--vscode-descriptionForeground)]">
-													{t("settings.modeSystem.description")}
+													{t("settings.modeSystem.description", "settings")}
 												</p>
 											</div>
 										)}
@@ -806,21 +776,13 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 													const checked = e.target.checked === true
 													setTelemetrySetting(checked ? "enabled" : "disabled")
 												}}>
-												Allow anonymous error and usage reporting
+												{t("telemetry.title", "settings")}
 											</VSCodeCheckbox>
-											<p className="text-xs mt-[5px] text-[var(--vscode-descriptionForeground)]">
-												Help improve Cline by sending anonymous usage data and error reports. No code,
-												prompts, or personal information are ever sent. See our{" "}
-												<VSCodeLink
-													href="https://docs.cline.bot/more-info/telemetry"
-													className="text-inherit">
-													telemetry overview
-												</VSCodeLink>{" "}
-												and{" "}
-												<VSCodeLink href="https://cline.bot/privacy" className="text-inherit">
-													privacy policy
-												</VSCodeLink>{" "}
-												for more details.
+											<p className="text-xs text-[var(--vscode-descriptionForeground)] mb-[15px]">
+												{t("telemetry.description", "settings")} {t("telemetry.forMoreDetails", "settings")}{" "}
+												<VSCodeLink href={getGlobalLink("CARET_PRIVACY_POLICY")}>
+													{t("telemetry.privacyPolicy", "settings")}
+												</VSCodeLink>
 											</p>
 										</div>
 									</Section>
@@ -866,16 +828,16 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 											onClick={() => handleResetState()}
 											className="mt-[5px] w-auto"
 											style={{ backgroundColor: "var(--vscode-errorForeground)", color: "black" }}>
-											Reset Workspace State
+											{t("debug.resetWorkspaceState", "settings")}
 										</VSCodeButton>
 										<VSCodeButton
 											onClick={() => handleResetState(true)}
 											className="mt-[5px] w-auto"
 											style={{ backgroundColor: "var(--vscode-errorForeground)", color: "black" }}>
-											Reset Global State
+											{t("debug.resetGlobalState", "settings")}
 										</VSCodeButton>
 										<p className="text-xs mt-[5px] text-[var(--vscode-descriptionForeground)]">
-											This will reset all global state and secret storage in the extension.
+											{t("debug.resetGlobalStateDescription", "settings")}
 										</p>
 									</Section>
 								</div>
@@ -888,9 +850,9 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 									<Section>
 										<div className="text-center text-[var(--vscode-descriptionForeground)] text-xs leading-[1.2] px-0 py-0 pr-2 pb-[15px] mt-auto">
 											<p className="break-words m-0 p-0">
-												If you have any questions or feedback, feel free to open an issue at{" "}
-												<VSCodeLink href="https://github.com/cline/cline" className="inline">
-													https://github.com/cline/cline
+												{t("about.feedbackPrompt", "settings")}{ " "}
+												<VSCodeLink href={getGlobalLink("CARET_GITHUB")} className="inline">
+													{getGlobalLink("CARET_GITHUB")}
 												</VSCodeLink>
 											</p>
 											<p className="italic mt-[10px] mb-0 p-0">v{version}</p>

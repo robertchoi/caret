@@ -218,5 +218,43 @@
 		"geminiModelStrong": "Gemini 2.5 Pro Preview 06-05 (强大)",
 		"geminiModelCostEffective": "Gemini 2.5 Flash Preview 05-20 (性价比)",
 		"reasoningEnabled": "默认启用推理功能"
+	},
+	"welcome": {
+		"whatCanIDo": "我能为您做什么？",
+		"recentTasks": "最近任务",
+		"noRecentTasks": "没有最近任务",
+		"viewAllHistory": "查看所有历史"
+	},
+	"telemetry": {
+		"helpImprove": "帮助改进Cline",
+		"experimentalFeatures": "（并访问实验性功能）",
+		"description": "Cline收集匿名错误和使用数据以帮助我们修复错误并改进扩展。不会发送任何代码、提示或个人信息。",
+		"settingsLink": "您可以在设置中关闭此功能。",
+		"closeBannerAria": "关闭横幅并启用遥测"
+	},
+	"history": {
+		"title": "历史",
+		"deleteAllHistory": "删除所有历史",
+		"fuzzySearchPlaceholder": "模糊搜索历史...",
+		"sortNewest": "最新",
+		"sortOldest": "最旧",
+		"sortMostExpensive": "最昂贵",
+		"sortMostTokens": "最多令牌",
+		"sortMostRelevant": "最相关",
+		"filterWorkspace": "工作区",
+		"filterFavorites": "收藏夹",
+		"selectAll": "全选",
+		"selectNone": "取消选择"
+	},
+	"mcp": {
+		"title": "MCP服务器",
+		"noServersInstalled": "未安装MCP服务器",
+		"configureServers": "配置MCP服务器",
+		"noMatchingServers": "未找到匹配的MCP服务器",
+		"noServersFound": "在市场中未找到MCP服务器"
+	},
+	"autoApprove": {
+		"addQuickAccess": "添加到快速访问菜单",
+		"removeQuickAccess": "从快速访问菜单中移除"
 	}
 }

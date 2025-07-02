@@ -1,5 +1,7 @@
 import React from "react"
 import { useExtensionState } from "@/context/ExtensionStateContext"
+// CARET MODIFICATION: 다국어 지원 추가
+import { t } from "../../caret/utils/i18n"
 
 const TerminalOutputLineLimitSlider: React.FC = () => {
 	const { terminalOutputLineLimit, setTerminalOutputLineLimit } = useExtensionState()
@@ -12,7 +14,8 @@ const TerminalOutputLineLimitSlider: React.FC = () => {
 	return (
 		<div style={{ marginBottom: 15 }}>
 			<label htmlFor="terminal-output-limit" style={{ fontWeight: "500", display: "block", marginBottom: 5 }}>
-				Terminal output limit
+				{/* CARET MODIFICATION: 다국어 지원 적용 */}
+				{t("terminal.outputLimit", "settings")}
 			</label>
 			<div style={{ display: "flex", alignItems: "center" }}>
 				<input
@@ -28,8 +31,8 @@ const TerminalOutputLineLimitSlider: React.FC = () => {
 				<span>{terminalOutputLineLimit ?? 500}</span>
 			</div>
 			<p style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)", margin: "5px 0 0 0" }}>
-				Maximum number of lines to include in terminal output when executing commands. When exceeded, lines will be
-				removed from the middle, saving tokens.
+				{/* CARET MODIFICATION: 다국어 지원 적용 */}
+				{t("terminal.outputLimitDescription", "settings")}
 			</p>
 		</div>
 	)

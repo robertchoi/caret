@@ -15,7 +15,7 @@ interface AutoApproveMenuItemProps {
 }
 
 const CheckboxContainer = styled.div.withConfig({
-	shouldForwardProp: (prop) => prop !== "isFavorited",
+	shouldForwardProp: (prop) => prop !== 'isFavorited',
 })<{
 	isFavorited?: boolean
 	onClick?: (e: MouseEvent) => void
@@ -59,7 +59,7 @@ const CheckboxContainer = styled.div.withConfig({
 `
 
 const SubOptionAnimateIn = styled.div.withConfig({
-	shouldForwardProp: (prop) => prop !== "show",
+	shouldForwardProp: (prop) => prop !== 'show',
 })<{ show: boolean }>`
 	position: relative;
 	transform: ${(props) => (props.show ? "scaleY(1)" : "scaleY(0)")};

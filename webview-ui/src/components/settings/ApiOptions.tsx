@@ -2541,7 +2541,7 @@ const ApiOptions = ({
 								)}
 							</>
 						)}
-						{selectedProvider !== "caret" && ( // CARET MODIFICATION: Conditionally render ModelInfoView for non-Caret providers
+						{(selectedProvider as ApiProvider) !== "caret" && ( // CARET MODIFICATION: Conditionally render ModelInfoView for non-Caret providers
 							<ModelInfoView
 								selectedModelId={selectedModelId}
 								modelInfo={selectedModelInfo}

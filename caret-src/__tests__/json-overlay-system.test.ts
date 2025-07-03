@@ -116,7 +116,10 @@ describe("JSON Overlay System (003-03) - TDD Implementation", () => {
 			vi.mocked(fs.access).mockResolvedValue()
 			vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidTemplate))
 
-			await expect(loader.loadTemplate("invalid-template")).rejects.toThrow("Invalid template")
+			// CARET MODIFICATION: Update expected error message to match new specific error from adaptLegacyFormat
+			await expect(loader.loadTemplate("invalid-template")).rejects.toThrow(
+				"Failed to load template invalid-template: Error: Unrecognized legacy format for template: invalid-template."
+			)
 		})
 
 		it("should handle file not found error", async () => {

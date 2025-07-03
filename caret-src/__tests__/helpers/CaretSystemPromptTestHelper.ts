@@ -67,6 +67,7 @@ export class CaretSystemPromptTestHelper {
 			// Generate base prompt from Cline
 			const basePrompt = await this.callOriginalSystemPrompt(context)
 			this.caretLogger.info(`[TEST] Base prompt generated - length: ${basePrompt.length}`, "TEST_HELPER")
+			this.caretLogger.info(`[TEST] Base prompt preview: ${basePrompt.substring(0, 200)}...`, "TEST_HELPER")
 
 			// Apply JSON templates
 			let enhancedPrompt = basePrompt
@@ -74,7 +75,14 @@ export class CaretSystemPromptTestHelper {
 
 			for (const templateName of templateNames) {
 				try {
+					this.caretLogger.info(`[TEST] Loading template: ${templateName}`, "TEST_HELPER")
+					console.log(`🔍 [TEST] Loading template: ${templateName}`)
 					const template = await this.templateLoader.loadTemplate(templateName)
+					this.caretLogger.info(`[TEST] Template loaded successfully: ${template.metadata.name}`, "TEST_HELPER")
+					console.log(`✅ [TEST] Template loaded successfully: ${template.metadata.name}`)
+					
+					this.caretLogger.info(`[TEST] Applying overlay for template: ${templateName}`, "TEST_HELPER")
+					console.log(`🔧 [TEST] Applying overlay for template: ${templateName}`)
 					const overlayResult = await this.overlayEngine.applyOverlay(enhancedPrompt, template)
 
 					if (overlayResult.success) {
@@ -84,14 +92,27 @@ export class CaretSystemPromptTestHelper {
 							`[TEST] Template applied successfully - ${templateName} v${template.metadata.version}`,
 							"TEST_HELPER",
 						)
+						console.log(`✅ [TEST] Template applied successfully - ${templateName} v${template.metadata.version}`)
+						this.caretLogger.info(`[TEST] Enhanced prompt length after ${templateName}: ${enhancedPrompt.length}`, "TEST_HELPER")
+						console.log(`📏 [TEST] Enhanced prompt length after ${templateName}: ${enhancedPrompt.length}`)
+						this.caretLogger.info(`[TEST] Enhanced prompt preview after ${templateName}: ${enhancedPrompt.substring(0, 300)}...`, "TEST_HELPER")
+						console.log(`📝 [TEST] Enhanced prompt preview after ${templateName}: ${enhancedPrompt.substring(0, 300)}...`)
 					} else {
 						this.caretLogger.warn(
 							`[TEST] Template application failed - ${templateName}: ${overlayResult.warnings.join(", ")}`,
 							"TEST_HELPER",
 						)
+						console.log(`❌ [TEST] Template application failed - ${templateName}: ${overlayResult.warnings.join(", ")}`)
+						this.caretLogger.warn(`[TEST] Overlay result: ${JSON.stringify(overlayResult, null, 2)}`, "TEST_HELPER")
+						console.log(`❌ [TEST] Overlay result: ${JSON.stringify(overlayResult, null, 2)}`)
 					}
 				} catch (error) {
 					this.caretLogger.error(`[TEST] Template loading failed - ${templateName}: ${error}`, "TEST_HELPER")
+					console.log(`💥 [TEST] Template loading failed - ${templateName}:`, error)
+					this.caretLogger.error(`[TEST] Error details: ${JSON.stringify(error, null, 2)}`, "TEST_HELPER")
+					console.log(`💥 [TEST] Error details:`, error)
+					// Don't silently ignore errors - log them more visibly
+					console.error(`💥 [TEST] CRITICAL ERROR loading template ${templateName}:`, error)
 				}
 			}
 
@@ -99,6 +120,8 @@ export class CaretSystemPromptTestHelper {
 			const metrics = this.metrics.recordMetrics(startTime, enhancedPrompt, context, appliedTemplates)
 			metrics.enhancementRatio = enhancedPrompt.length / basePrompt.length
 			await this.metrics.logEnhancedGeneration(basePrompt, enhancedPrompt, metrics, appliedTemplates)
+
+			this.caretLogger.info(`[TEST] Final result - applied templates: [${appliedTemplates.join(", ")}], enhancement ratio: ${metrics.enhancementRatio}`, "TEST_HELPER")
 
 			return { prompt: enhancedPrompt, metrics }
 		} catch (error) {

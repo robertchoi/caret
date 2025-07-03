@@ -225,7 +225,7 @@ chore: 빌드/설정 변경
 - [ ] **테스트 가이드 확인**: `caret-docs/development/testing-guide.mdx` 내용을 숙지했는가?
 
 #### **2. 로깅 시스템 강제 확인**
-- [ ] **백엔드 로깅**: `CaretLogger` 사용 계획 수립했는가? (`caret-src/utils/caret-logger.ts`)
+- [ ] **백엔드 로깅**: `통합 Logger` 사용 계획 수립했는가? (`src/services/logging/Logger.ts` - CaretLogger 기반)
 - [ ] **프론트엔드 로깅**: `WebviewLogger` 사용 계획 수립했는가? (`webview-ui/src/caret/utils/webview-logger.ts`)
 - [ ] **console.log 금지**: webview에서 `console.log` 대신 `WebviewLogger` 사용할 것인가?
 - [ ] **로깅 가이드 확인**: `caret-docs/development/logging.mdx` 내용을 숙지했는가?
@@ -263,7 +263,7 @@ chore: 빌드/설정 변경
 - [ ] **테스트 커버리지**: 새로 작성한 코드의 테스트 커버리지가 충분한가?
 
 #### **2. 로깅 시스템 적용 검증**
-- [ ] **백엔드 로깅 적용**: 모든 주요 로직에 `CaretLogger` 적용했는가?
+- [ ] **백엔드 로깅 적용**: 모든 주요 로직에 `통합 Logger` 적용했는가?
 - [ ] **프론트엔드 로깅 적용**: 모든 주요 이벤트에 `WebviewLogger` 적용했는가?
 - [ ] **console.log 제거**: webview에서 `console.log` 사용을 모두 `WebviewLogger`로 교체했는가?
 - [ ] **로그 레벨 적절성**: 각 로그의 레벨(DEBUG/INFO/WARN/ERROR)이 적절한가?
@@ -408,7 +408,7 @@ subscription → webview setState() → 설정 덮어씌움 ❌
 
 **로깅 표준 강제 (개발 가이드 준수)**:
 - webview: WebviewLogger 사용 (console.log 금지)
-- 백엔드: CaretLogger 사용
+- 백엔드: 통합 Logger 사용 (CaretLogger 기반)
 - 적절한 로그 레벨 설정 (debug, info, warn, error)
 
 **자가 진단 및 개선 요청**: 원칙 위반이나 불명확한 지침 발견 시 작업 중단하고 가이드 개선 요청
@@ -566,9 +566,10 @@ describe('Caret 기능', () => {
 2. 통합 테스트: 전체 플로우 (필수)
 3. E2E 테스트: 실제 Extension Host 환경
 
-**로깅 시스템 (실제 구현 반영)**:
-- **CaretLogger (백엔드)**: `caret-src/utils/caret-logger.ts`
+**로깅 시스템 (통합 로깅 시스템)**:
+- **통합 Logger (백엔드)**: `src/services/logging/Logger.ts` (CaretLogger 기반 + Cline API 호환성)
 - **WebviewLogger (프론트엔드)**: `webview-ui/src/caret/utils/webview-logger.ts`
+- **자동 모드 감지**: 개발 모드(DEBUG 레벨 + 콘솔 출력), 프로덕션 모드(INFO 레벨 + VSCode 출력 채널만)
 
 **테스트 코드 아키텍처 원칙 (MANDATORY)**:
 - **🚨 절대 금지: 서비스 코드에 테스트 전용 메서드 포함**
@@ -630,7 +631,7 @@ node caret-scripts/test-report.js             # 테스트 리포트 생성
 2. **문서 통합**: UI-to-Storage-Flow 분할 문서 10개 → integrated 1개로 통합
 3. **실제 코드 일치**: 모든 경로/예시가 실제 코드베이스와 정확히 일치
 4. **테스트 프레임워크**: Jest → Vitest 완전 전환
-5. **로깅 시스템**: CaretLogger, WebviewLogger 실제 위치 반영
+5. **로깅 시스템**: 통합 Logger(백엔드 - CaretLogger 기반), WebviewLogger(프론트엔드) 자동 모드 감지
 6. **불필요한 문서 정리**: 작업 문서, 검토 리포트 등 정리
 7. **링크 무결성**: README.md 깨진 링크 수정
 8. **빌드 시스템**: Protocol Buffer 컴파일 단계 추가

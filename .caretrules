@@ -263,9 +263,12 @@
   "testing_quality": {
     "framework": "Vitest (updated)",
     "commands": {
-      "test": "npm test",
-      "coverage": "npm run test:coverage",
-      "watch": "npm run test:watch"
+      "individual_backend_test": "npm run test:backend [file-path] [-t 'test-name']",
+      "individual_frontend_test": "npm run test:webview",
+      "backend_watch": "npm run test:backend:watch",
+      "fast_dev_test": "npm run dev:build-test:fast",
+      "full_test_with_coverage": "npm run test:all && npm run caret:coverage",
+      "WARNING": "Do NOT use 'npm test' - it runs full build+compile+lint+all tests (very slow)"
     },
     "test_standards": "import { describe, it, expect, vi } from 'vitest' - AAA pattern (Arrange, Act, Assert)",
     "quality_standards": [
@@ -296,8 +299,9 @@
       "E2E tests: actual Extension Host environment"
     ],
     "logging_system": {
-      "backend": "CaretLogger (backend): caret-src/utils/caret-logger.ts",
-      "frontend": "WebviewLogger (frontend): webview-ui/src/caret/utils/webview-logger.ts"
+      "backend": "Integrated Logger (backend): src/services/logging/Logger.ts (CaretLogger-based with Cline API compatibility)",
+      "frontend": "WebviewLogger (frontend): webview-ui/src/caret/utils/webview-logger.ts",
+      "automatic_mode_detection": "Development mode: DEBUG level + console output, Production mode: INFO level + VSCode output channel only"
     },
     "test_architecture_principles": {
       "service_code_purity": "NEVER include test-only methods in service/production classes",
@@ -351,7 +355,7 @@
   "current_system_status": {
     "documentation_system": "MDX format standardized, 100% code alignment verified",
     "test_framework": "Vitest-based TDD methodology enforced",
-    "logging_system": "CaretLogger (backend), WebviewLogger (frontend) active",
+    "logging_system": "Integrated Logger (backend with Cline API compatibility), WebviewLogger (frontend) active with automatic dev/prod mode detection",
     "build_system": "Protocol Buffer compilation integrated",
     "architecture_protection": "Cline original file modification rules with mandatory checklist",
     "quality_standards": "TDD mandatory, immediate verification principle applied"

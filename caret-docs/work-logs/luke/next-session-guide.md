@@ -3,7 +3,19 @@
 ## 🎉 현재 작업 필요 상태
 
 ### 다음 세션 주요 작업
-- **Task #005:** Caret 전반의 다국어 지원 (i18n) 구현 진행
+- **Task #005:** Caret 전반의 다국어 지원 (i18n) 구현 진행 중
+  - **진행 상황**: Phase 1 완료 (기존 i18n 시스템 분석 및 백엔드 통합 방안 수립)
+  - **주요 논의 사항 및 발견된 문제**:
+    - `caret-src` 폴더는 Caret 확장 기능 영역으로, `.cline` 백업이나 `CARET MODIFICATION` 주석 없이 자유롭게 수정 가능함을 재확인.
+    - Task #005의 범위에서 `Cline/Caret 모드 지원` (메시지 톤 차이)은 제외하고, 오직 **단순 번역과 i18n 시스템 확장**에만 집중하기로 결정. `responses.ts`는 시스템 응답이므로 톤 변경은 하지 않음.
+    - 백엔드 i18n도 웹뷰처럼 **JSON 파일 기반**으로 데이터를 로드할 것이며, 현재 `caret-src/utils/i18n.ts`의 빈 `translations` 객체는 Phase 2에서 실제 JSON 파일을 import 하기 전까지의 임시 상태임을 명확히 함.
+    - `caret-src/utils/i18n.ts` 파일은 JSON 기반 i18n을 지원하도록 업데이트 완료됨.
+  - **🚨 긴급: 시스템 프롬프트 누락 버그 발견**:
+    - **원인**: `caret-src/core/prompts/JsonTemplateLoader.ts`의 `adaptLegacyFormat` 함수가 `BASE_PROMPT_INTRO.json`과 같이 최상위 필드가 객체 형태인 특정 구조의 JSON 템플릿을 올바르게 파싱하지 못하는 버그 발견.
+    - **영향**: 이 버그로 인해 해당 JSON 템플릿의 내용이 시스템 프롬프트에 포함되지 않고 **누락**되어, 현재 Caret 서비스의 AI가 **불완전한 시스템 프롬프트를 받고 있는 상태**임. 이는 Caret의 핵심 기능인 동적 프롬프트 시스템이 의도대로 동작하지 않고 있음을 의미.
+  - **다음 단계**:
+    - **1순위**: `JsonTemplateLoader.ts`의 `adaptLegacyFormat` 함수를 수정하여 시스템 프롬프트 누락 버그를 해결.
+    - **2순위**: Task #005의 나머지 작업(UI 번역 등)을 계속 진행.
 
 ### 기타 식별된 태스크 (별도 문서로 분리됨)
 - **Task #014:** AI 파일 읽기 불일치 버그

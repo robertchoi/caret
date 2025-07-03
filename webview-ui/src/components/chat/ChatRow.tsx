@@ -1243,7 +1243,7 @@ export const ChatRowContent = ({
 								</div>
 								<div>
 									Cline tried to access <code>{message.text}</code> which is blocked by the{" "}
-									<code>.clineignore</code>
+									<code>.caretignore</code>
 									file.
 								</div>
 							</div>

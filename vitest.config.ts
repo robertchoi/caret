@@ -9,12 +9,21 @@ export default defineConfig({
 		setupFiles: ["./vitest.setup.ts"],
 		include: [
 			"caret-src/**/*.test.ts",
-			"!src/**/*", // Cline 원본 테스트 제외
-			"!caret-src/core/webview/__tests__/CaretProvider.test.ts", // @core/storage/state 모듈 에러
-			"!caret-src/__tests__/extension.test.ts", // 동일한 이유로 모듈 에러 발생
-			"!caret-src/__tests__/extension-file-watcher.test.ts", // 동일한 이유로 모듈 에러 발생
-			"!caret-src/__tests__/caret-system-prompt.test.ts", // 복잡한 종속성으로 인한 임시 제외
-			// ✅ ENABLED: caret-system-prompt-simple.test.ts - TestHelper로 분리 완료
+		],
+		exclude: [
+			// 기본 제외 패턴
+			"**/node_modules/**",
+			"**/dist/**",
+			"**/cypress/**",
+			"**/.{idea,git,cache,output,temp}/**",
+			"**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*",
+			// Cline 원본 테스트 제외
+			"src/**/*",
+			// 문제가 되는 특정 테스트 파일만 제외
+			"caret-src/core/webview/__tests__/CaretProvider.test.ts", // @core/storage/state 모듈 에러
+			"caret-src/__tests__/extension.test.ts", // 동일한 이유로 모듈 에러 발생
+			"caret-src/__tests__/extension-file-watcher.test.ts", // 동일한 이유로 모듈 에러 발생
+			"caret-src/__tests__/caret-system-prompt.test.ts", // 복잡한 종속성으로 인한 임시 제외
 		],
 		coverage: {
 			provider: "v8",

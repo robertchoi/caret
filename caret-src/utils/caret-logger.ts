@@ -14,10 +14,15 @@ export enum CaretLogLevel {
 export class CaretLogger {
 	private static instance: CaretLogger
 	private outputChannel: OutputChannel | null = null
-	private logLevel: CaretLogLevel = CaretLogLevel.DEBUG
+	private logLevel: CaretLogLevel
+	private isDev: boolean
 
 	constructor(outputChannel?: OutputChannel) {
 		this.outputChannel = outputChannel || null
+		
+		// CARET MODIFICATION: 빌드 시점에서 결정된 IS_DEV 환경변수 기반으로 로그 레벨 자동 설정
+		this.isDev = process.env.IS_DEV === "true"
+		this.logLevel = this.isDev ? CaretLogLevel.DEBUG : CaretLogLevel.INFO
 	}
 
 	// CARET MODIFICATION: Singleton pattern support
@@ -59,7 +64,8 @@ export class CaretLogger {
 			this.outputChannel.appendLine(formattedMessage)
 		}
 
-		// 콘솔에도 로깅 (개발 중)
+		// CARET MODIFICATION: 콘솔 출력도 개발 모드에서만 (프로덕션에서는 VSCode 출력 채널만 사용)
+		if (this.isDev) {
 		switch (level) {
 			case CaretLogLevel.DEBUG:
 				console.debug(formattedMessage)
@@ -74,6 +80,7 @@ export class CaretLogger {
 			case CaretLogLevel.ERROR:
 				console.error(formattedMessage)
 				break
+			}
 		}
 	}
 

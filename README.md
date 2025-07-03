@@ -191,7 +191,46 @@ VS Code에서 `F5` 키를 눌러 디버깅 세션을 시작하면, 새로운 `[E
 **개발 모드 특징:**
 - **Hot Reload**: `npm run watch` 명령어로 코드 변경 시 자동 컴파일
 - **디버깅**: VS Code 디버거를 통한 백엔드 코드 디버깅 지원
-- **로깅**: 개발 콘솔에서 상세한 디버그 로그 확인 가능
+- **통합 로깅**: 개발/프로덕션 모드 자동 감지로 최적화된 로그 출력 (개발: DEBUG+콘솔, 프로덕션: INFO+VSCode만)
+
+### 6. 테스트 실행
+
+**⚠️ 중요: 올바른 테스트 명령어 사용법**
+
+**❌ 주의: `npm test` 사용 금지**
+- `npm test`는 전체 빌드 + 컴파일 + 린트 + 모든 테스트를 실행하므로 매우 느림
+- 개발 중에는 아래의 **개별 테스트 명령어** 사용 권장
+
+**✅ 개발 중 권장 테스트 명령어:**
+
+```bash
+# 백엔드 개별 테스트 (특정 파일)
+npm run test:backend caret-src/__tests__/your-test-file.test.ts
+
+# 백엔드 개별 테스트 (특정 테스트 이름)
+npm run test:backend caret-src/__tests__/your-test-file.test.ts -t "your test name"
+
+# 프론트엔드 테스트
+npm run test:webview
+
+# 백엔드 감시 모드 (개발 중 자동 실행)
+npm run test:backend:watch
+
+# 빠른 개발 테스트 (웹뷰 제외, 실패 시 즉시 중단)
+npm run dev:build-test:fast
+```
+
+**📊 전체 테스트 + 커버리지 (CI/CD 또는 최종 검증용):**
+
+```bash
+# 전체 테스트 + 커버리지 분석
+npm run test:all && npm run caret:coverage
+
+# 통합 테스트 (VSCode Extension 환경)
+npm run test:integration
+```
+
+자세한 테스트 가이드는 **[테스트 가이드](./caret-docs/development/testing-guide.mdx)**를 참조하세요.
 
 ## 🔬 특허 기술
 

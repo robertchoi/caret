@@ -116,6 +116,34 @@ const copyWasmFiles = {
 				const filename = `tree-sitter-${lang}.wasm`
 				fs.copyFileSync(path.join(languageWasmDir, filename), path.join(targetDir, filename))
 			})
+
+			// Copy Caret locale files
+			const localeSourceDir = path.join(__dirname, "caret-src", "locale")
+			const localeTargetDir = path.join(__dirname, destDir)
+			const supportedLanguages = ["ko", "en", "ja", "zh"]
+
+			supportedLanguages.forEach((lang) => {
+				const langSourceDir = path.join(localeSourceDir, lang)
+				const langTargetDir = path.join(localeTargetDir, lang)
+				
+				if (fs.existsSync(langSourceDir)) {
+					// Create target directory if it doesn't exist
+					if (!fs.existsSync(langTargetDir)) {
+						fs.mkdirSync(langTargetDir, { recursive: true })
+					}
+					
+					// Copy all JSON files in the language directory
+					const files = fs.readdirSync(langSourceDir)
+					files.forEach((file) => {
+						if (file.endsWith('.json')) {
+							fs.copyFileSync(
+								path.join(langSourceDir, file),
+								path.join(langTargetDir, file)
+							)
+						}
+					})
+				}
+			})
 		})
 	},
 }

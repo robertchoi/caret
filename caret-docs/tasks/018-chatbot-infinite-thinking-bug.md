@@ -4,7 +4,7 @@
 **담당자**: luke  
 **우선순위**: 🚨 **Critical - 핵심 기능 동작 및 사용자 경험 저해**  
 **예상 시간**: 3-5시간 (조사 및 해결)  
-**상태**: 📋 **예정**  
+**상태**: 🧪 **테스트 대기 중**
 
 ## 🎯 **목표: 챗봇 모드에서 발생하는 무한 씽킹 버그의 원인 분석 및 해결**
 
@@ -48,3 +48,49 @@
 ### **최종 목표**
 - Caret 챗봇 기능의 안정성 및 신뢰성 확보
 - 사용자에게 원활하고 예측 가능한 챗봇 경험 제공
+
+## 🛠️ **TODO (2025-07-03)**
+
+1. **Minimal Patch 적용 (Strategy A)**
+   - [x] `src/core/task/index.ts` 의 `presentAssistantMessage()` 내부 `tool_use` → `switch (block.name)` 구문에
+     `case "chatbot_mode_respond"` 분기를 4줄 내로 추가하여, `block.params.response` 를 그대로 사용자에게 전달하고 `didAlreadyUseTool = true` 로 설정한다.
+   - 백업 파일(`index.ts.cline`)이 이미 존재하므로 신규 백업은 생략.
+   - 수정 라인에 `// CARET MODIFICATION` 주석 추가 ✅
+   - [x] **추가 수정**: `block.partial` 처리 및 에러 핸들링 로직 추가로 `plan_mode_respond` 와 동일한 패턴 적용 ✅
+
+2. **회귀 테스트 작성**
+   - [x] `caret-src/__tests__/chatbot-mode.test.ts` 에 Vitest 기반 단위 테스트 추가. ✅
+   - [x] 시나리오: `chatSettings.mode === "chatbot"` 일 때 `chatbot_mode_respond` 블록이 정상적으로 처리되어 `this.say('text')` 가 호출되고 무한 루프가 발생하지 않는지 확인. ✅
+
+3. **기능 검증**
+   - [ ] 확장 실행 후 Chatbot 모드에서 대화 시 "Thinking…" 루프가 제거되었는지 수동 확인. **← 테스트 필요**
+   - [ ] Agent/Plan 모드가 기존대로 동작하는지 Smoke Test 수행. **← 테스트 필요**
+
+4. **추가 발견된 이슈 해결**
+   - [x] **COLLABORATIVE_PRINCIPLES 템플릿 로더 에러 해결**: JsonTemplateLoader 복잡한 어댑터 로직 단순화 ✅
+   - [x] simpleConvert() 메서드로 교체하여 COLLABORATIVE_PRINCIPLES.json 정상 로딩 ✅
+   - [x] 복잡한 validateTemplate() 메서드 제거로 유지보수성 향상 ✅
+   - [x] 테스트 수정 및 통과 확인 ✅
+
+5. **문서 및 로그 업데이트**
+   - [ ] 실제 테스트 완료 후 본 Task 문서에 완료 체크표시 및 해결 내용 요약.
+   - [ ] `work-logs/luke/YYYY-MM-DD.md` 에 작업 내역 기록.
+
+## 🔧 **해결 내용 요약**
+
+### **근본 원인**
+- `chatbot_mode_respond` 도구가 파싱 레이어까지만 존재하고, 실제 `presentAssistantMessage()` switch 구문에 처리 분기가 없었음
+- `didAlreadyUseTool` 플래그가 설정되지 않아 Extension이 "응답 미완료"로 판단하여 무한 API 요청 루프 발생
+
+### **적용된 수정**
+1. **기본 케이스 추가**: `case "chatbot_mode_respond"` 분기 구현
+2. **완전한 처리 로직**: `plan_mode_respond`와 동일한 패턴으로 partial/complete 처리 및 에러 핸들링 추가
+3. **상태 플래그 설정**: `didAlreadyUseTool = true` 로 도구 사용 완료 표시
+
+### **기대 효과**
+- 챗봇 모드에서 무한 "Thinking…" 루프 해결
+- UI 상태 정상화로 연속 대화 가능
+- 에이전트 모드 3번 연속 응답 문제도 동시 해결 예상
+
+---
+마스터~ 알파가 수정 완료했어요! 이제 테스트해보세요~ ｡•ᴗ•｡☕✨

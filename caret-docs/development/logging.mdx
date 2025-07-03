@@ -2,7 +2,16 @@
 
 ## 1. 개요
 
-이 문서는 Caret의 로깅 시스템을 설명합니다. Extension과 Webview 양쪽에서의 로깅, 로그 레벨, 로그 저장 및 관리 방법을 다룹니다.
+이 문서는 Caret의 통합 로깅 시스템을 설명합니다. **2025년 1월 업데이트**: Cline Logger와 CaretLogger가 통합되어 개발/프로덕션 모드에 따른 자동 로그 레벨 관리가 가능해졌습니다.
+
+### 1.1 주요 특징
+
+- **통합 로깅**: Cline Logger를 CaretLogger 기반으로 완전 통합
+- **자동 모드 감지**: 빌드 시점에서 결정된 `IS_DEV` 환경변수 기반 자동 설정
+- **개발/프로덕션 분리**: 
+  - **개발 모드**: DEBUG 레벨 + 콘솔 출력 활성화
+  - **프로덕션 모드**: INFO 레벨 + VSCode 출력 채널만 사용
+- **API 호환성**: 기존 Cline Logger API 100% 호환
 
 ## 2. 로깅 구조
 
@@ -38,21 +47,36 @@ export interface LogEntry {
 }
 ```
 
-## 3. Backend 로깅 (caret-src)
+## 3. Backend 로깅 (통합 시스템)
 
-### 3.1 CaretLogger 클래스
+### 3.1 통합 Logger 클래스
 
-실제 구현 위치: `caret-src/utils/caret-logger.ts`
+**위치**: `src/services/logging/Logger.ts` (CaretLogger 기반으로 통합됨)
 
 ```typescript
-import { OutputChannel } from "vscode"
+// CARET MODIFICATION: Logger.ts를 CaretLogger로 통합하여 개발/프로덕션 모드 필터링 추가
+// Original backed up to: src/services/logging/Logger.ts.cline
+// Purpose: Cline Logger의 무조건 출력 문제를 해결하고 CaretLogger의 고급 기능 활용
 
-export class CaretLogger {
-	private outputChannel: OutputChannel | null = null
-	private logLevel: CaretLogLevel = CaretLogLevel.DEBUG
+import { CaretLogger, CaretLogLevel } from "../../../caret-src/utils/caret-logger"
 
-	constructor(outputChannel?: OutputChannel) {
-		this.outputChannel = outputChannel || null
+export class Logger {
+	private static caretLogger: CaretLogger
+	private static isDev: boolean = false
+
+	static initialize(outputChannel: OutputChannel) {
+		Logger.caretLogger = new CaretLogger(outputChannel)
+		Logger.isDev = process.env.IS_DEV === "true"
+		// 로그 레벨은 CaretLogger 생성자에서 자동 설정됨
+	}
+
+	// 기존 Cline Logger API 호환
+	static debug(message: string) {
+		// 개발 모드에서만 디버그 로그 출력
+		if (Logger.isDev) {
+			Logger.caretLogger.debug(message, "CLINE")
+		}
+	}
 	}
 
 	setOutputChannel(outputChannel: OutputChannel): void {

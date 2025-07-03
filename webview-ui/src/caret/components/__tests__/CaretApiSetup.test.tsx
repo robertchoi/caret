@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import "@testing-library/jest-dom"
 import CaretApiSetup from "../CaretApiSetup"
 import { vscode } from "../../../utils/vscode"
+import { ExtensionStateContext } from "../../../context/ExtensionStateContext" // ExtensionStateContext 임포트
 
 // Mock dependencies
 vi.mock("../../../utils/vscode")
@@ -29,6 +30,130 @@ vi.mock("../../utils/i18n", () => ({
 
 const mockVscode = vscode as any
 
+// Mock ExtensionStateContext value to provide a valid apiConfiguration
+// Mock the ExtensionStateContext.Provider and useContext hook
+vi.mock("../../../context/ExtensionStateContext", async (importOriginal) => {
+	const original = await importOriginal<typeof import("../../../context/ExtensionStateContext")>()
+
+	// Mock ExtensionStateContext value to provide a valid apiConfiguration
+	const mockApiConfiguration = {
+		apiProvider: "anthropic",
+		apiModelId: "claude-sonnet-4-20250514",
+		// Add other necessary properties if normalizeApiConfiguration checks them
+	}
+
+	const mockContextValue = {
+		apiConfiguration: mockApiConfiguration,
+		chatSettings: {
+			mode: "agent",
+			uiLanguage: "en",
+			// Add other default chat settings if needed by the component
+		},
+		// Mock other properties of ExtensionStateContextType that are accessed
+		didHydrateState: true,
+		showWelcome: false,
+		theme: {},
+		openRouterModels: {},
+		openAiModels: [],
+		requestyModels: {},
+		mcpServers: [],
+		mcpMarketplaceCatalog: { items: [] },
+		filePaths: [],
+		totalTasksSize: null,
+		availableTerminalProfiles: [],
+		caretBanner: "",
+		showMcp: false,
+		mcpTab: undefined,
+		showSettings: false,
+		showHistory: false,
+		showAccount: false,
+		showAnnouncement: false,
+		setApiConfiguration: vi.fn(),
+		setTelemetrySetting: vi.fn(),
+		setShowAnnouncement: vi.fn(),
+		setShouldShowAnnouncement: vi.fn(),
+		setPlanActSeparateModelsSetting: vi.fn(),
+		setEnableCheckpointsSetting: vi.fn(),
+		setMcpMarketplaceEnabled: vi.fn(),
+		setMcpRichDisplayEnabled: vi.fn(),
+		setMcpResponsesCollapsed: vi.fn(),
+		setShellIntegrationTimeout: vi.fn(),
+		setTerminalReuseEnabled: vi.fn(),
+		setTerminalOutputLineLimit: vi.fn(),
+		setDefaultTerminalProfile: vi.fn(),
+		setChatSettings: vi.fn(),
+		setUILanguage: vi.fn(),
+		setModeSystem: vi.fn(),
+		setMcpServers: vi.fn(),
+		setGlobalClineRulesToggles: vi.fn(),
+		setLocalClineRulesToggles: vi.fn(),
+		setLocalCaretRulesToggles: vi.fn(),
+		setLocalCursorRulesToggles: vi.fn(),
+		setLocalWindsurfRulesToggles: vi.fn(),
+		setLocalWorkflowToggles: vi.fn(),
+		setGlobalWorkflowToggles: vi.fn(),
+		setMcpMarketplaceCatalog: vi.fn(),
+		setTotalTasksSize: vi.fn(),
+		setAvailableTerminalProfiles: vi.fn(),
+		refreshOpenRouterModels: vi.fn(),
+		navigateToMcp: vi.fn(),
+		navigateToSettings: vi.fn(),
+		navigateToHistory: vi.fn(),
+		navigateToAccount: vi.fn(),
+		navigateToChat: vi.fn(),
+		hideSettings: vi.fn(),
+		hideHistory: vi.fn(),
+		hideAccount: vi.fn(),
+		hideAnnouncement: vi.fn(),
+		closeMcpView: vi.fn(),
+		onRelinquishControl: vi.fn(),
+		version: "test",
+		clineMessages: [],
+		taskHistory: [],
+		shouldShowAnnouncement: false,
+		autoApprovalSettings: {},
+		browserSettings: {},
+		platform: "test",
+		telemetrySetting: "unset",
+		distinctId: "test",
+		planActSeparateModelsSetting: true,
+		enableCheckpointsSetting: true,
+		mcpRichDisplayEnabled: true,
+		shellIntegrationTimeout: 4000,
+		terminalReuseEnabled: true,
+		terminalOutputLineLimit: 500,
+		defaultTerminalProfile: "default",
+		isNewUser: false,
+		mcpResponsesCollapsed: false,
+		uiLanguage: "en",
+		globalClineRulesToggles: {},
+		localClineRulesToggles: {},
+		localCaretRulesToggles: {},
+		localCursorRulesToggles: {},
+		localWindsurfRulesToggles: {},
+		localWorkflowToggles: {},
+		globalWorkflowToggles: {},
+		selectedModelInfo: {
+			maxTokens: 8192,
+			contextWindow: 200_000,
+			supportsImages: true,
+			supportsPromptCache: true,
+			inputPrice: 3.0,
+			outputPrice: 15.0,
+			cacheWritesPrice: 3.75,
+			cacheReadsPrice: 0.3,
+		},
+		selectedProvider: "anthropic",
+		selectedModelId: "claude-sonnet-4-20250514",
+	}
+
+	return {
+		...original,
+		ExtensionStateContext: React.createContext(mockContextValue),
+		useExtensionState: () => mockContextValue,
+	}
+})
+
 describe("CaretApiSetup", () => {
 	const defaultProps = {
 		onSubmit: vi.fn(),
@@ -39,9 +164,14 @@ describe("CaretApiSetup", () => {
 		vi.clearAllMocks()
 	})
 
+	// Helper function to render the component within the mocked context
+	const renderWithContext = (props: any) => {
+		return render(<CaretApiSetup {...props} />)
+	}
+
 	describe("should render correctly", () => {
 		it("should render with default props", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			expect(screen.getByText("welcome.apiSetup.title")).toBeInTheDocument()
 			expect(screen.getByText("welcome.apiSetup.description")).toBeInTheDocument()
@@ -50,7 +180,7 @@ describe("CaretApiSetup", () => {
 		})
 
 		it("should render API options with showModelOptions true", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			const apiOptions = screen.getByTestId("api-options")
 			expect(apiOptions).toBeInTheDocument()
@@ -58,7 +188,7 @@ describe("CaretApiSetup", () => {
 		})
 
 		it("should render support links section", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			expect(screen.getByText("welcome.apiSetup.instructions")).toBeInTheDocument()
 			expect(screen.getByText("• welcome.apiSetup.supportLinks.llmList")).toBeInTheDocument()
@@ -66,7 +196,7 @@ describe("CaretApiSetup", () => {
 		})
 
 		it("should render help section", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			expect(screen.getByText("welcome.apiSetup.help.title")).toBeInTheDocument()
 			expect(screen.getByText("welcome.apiSetup.help.button")).toBeInTheDocument()
@@ -75,7 +205,7 @@ describe("CaretApiSetup", () => {
 
 	describe("should handle button interactions", () => {
 		it("should call onBack when back button is clicked", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			const backButton = screen.getByText("welcome.apiSetup.backButton")
 			fireEvent.click(backButton)
@@ -84,7 +214,7 @@ describe("CaretApiSetup", () => {
 		})
 
 		it("should call onSubmit when save button is clicked", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			const saveButton = screen.getByText("welcome.apiSetup.saveButton")
 			fireEvent.click(saveButton)
@@ -93,7 +223,7 @@ describe("CaretApiSetup", () => {
 		})
 
 		it("should call help button and open external link", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			const helpButton = screen.getByText("welcome.apiSetup.help.button")
 			fireEvent.click(helpButton)
@@ -105,7 +235,7 @@ describe("CaretApiSetup", () => {
 		})
 
 		it("should open LLM list link when clicked", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			const llmListLink = screen.getByText("• welcome.apiSetup.supportLinks.llmList")
 			fireEvent.click(llmListLink)
@@ -117,7 +247,7 @@ describe("CaretApiSetup", () => {
 		})
 
 		it("should open Gemini credit link when clicked", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			const geminiCreditLink = screen.getByText("• welcome.apiSetup.supportLinks.geminiCredit")
 			fireEvent.click(geminiCreditLink)
@@ -131,12 +261,10 @@ describe("CaretApiSetup", () => {
 
 	describe("should handle disabled state", () => {
 		it("should disable save button when disabled prop is true", () => {
-			render(
-				React.createElement(CaretApiSetup, {
-					...defaultProps,
-					disabled: true,
-				}),
-			)
+			renderWithContext({
+				...defaultProps,
+				disabled: true,
+			})
 
 			const saveButton = screen.getByText("welcome.apiSetup.saveButton")
 			expect(saveButton).toBeInTheDocument()
@@ -144,19 +272,17 @@ describe("CaretApiSetup", () => {
 		})
 
 		it("should enable save button when disabled prop is false", () => {
-			render(
-				React.createElement(CaretApiSetup, {
-					...defaultProps,
-					disabled: false,
-				}),
-			)
+			renderWithContext({
+				...defaultProps,
+				disabled: false,
+			})
 
 			const saveButton = screen.getByText("welcome.apiSetup.saveButton")
 			expect(saveButton).not.toBeDisabled()
 		})
 
 		it("should enable save button by default when disabled prop is not provided", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			const saveButton = screen.getByText("welcome.apiSetup.saveButton")
 			expect(saveButton).not.toBeDisabled()
@@ -165,7 +291,7 @@ describe("CaretApiSetup", () => {
 
 	describe("should handle error messages", () => {
 		it("should not render error message when errorMessage is not provided", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			const errorDiv = screen.queryByText("Test error message")
 			expect(errorDiv).not.toBeInTheDocument()
@@ -173,12 +299,10 @@ describe("CaretApiSetup", () => {
 
 		it("should render error message when errorMessage is provided", () => {
 			const errorMessage = "Test error message"
-			render(
-				React.createElement(CaretApiSetup, {
-					...defaultProps,
-					errorMessage,
-				}),
-			)
+			renderWithContext({
+				...defaultProps,
+				errorMessage,
+			})
 
 			expect(screen.getByText(errorMessage)).toBeInTheDocument()
 		})
@@ -186,13 +310,13 @@ describe("CaretApiSetup", () => {
 
 	describe("should have correct CSS classes and styling", () => {
 		it("should have correct root class name", () => {
-			const { container } = render(React.createElement(CaretApiSetup, defaultProps))
+			const { container } = renderWithContext(defaultProps)
 
 			expect(container.querySelector(".caret-api-setup")).toBeInTheDocument()
 		})
 
 		it("should apply correct button appearance classes", () => {
-			render(React.createElement(CaretApiSetup, defaultProps))
+			renderWithContext(defaultProps)
 
 			const backButton = screen.getByText("welcome.apiSetup.backButton")
 			const saveButton = screen.getByText("welcome.apiSetup.saveButton")

@@ -252,7 +252,7 @@
 -   Add Gemini 2.5 Flash model to Vertex and Gemini Providers (Thanks monotykamary!)
 -   Add Caching to gemini provider (Thanks arafatkatze!)
 -   Add thinking budget support to Gemini Models (Thanks monotykamary!)
--   Add !include .file directive support for .clineignore (Thanks watany-dev!)
+-   Add !include .file directive support for .caretignore (Thanks watany-dev!)
 -   Improve slash command functionality
 -   Improve prompting for new task tool
 -   Fix o1 temperature being passed to the azure api (Thanks treeleaves30760!)
@@ -502,7 +502,7 @@
 
 ## [3.3.0]
 
--   Add .clineignore to block Cline from accessing specified file patterns
+-   Add .caretignore to block Cline from accessing specified file patterns
 -   Add keyboard shortcut + tooltips for Plan/Act toggle
 -   Fix bug where new files won't show up in files dropdown
 -   Add automatic retry for rate limited requests (thanks @ViezeVingertjes!)

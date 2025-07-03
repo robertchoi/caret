@@ -10,6 +10,8 @@ import * as path from "path"
 import { serializeError } from "serialize-error"
 import * as vscode from "vscode"
 import { Logger } from "@services/logging/Logger"
+// CARET MODIFICATION: CaretLogger import 추가
+import { caretLogger } from "../../../caret-src/utils/caret-logger"
 import { ApiHandler, buildApiHandler } from "@api/index"
 import { AnthropicHandler } from "@api/providers/anthropic"
 import { ClineHandler } from "@/api/providers/caret"
@@ -1218,17 +1220,26 @@ export class Task {
 				//this.say("task_completed", `Task completed. Total API usage cost: ${totalCost}`)
 				break
 			} else {
-				// this.say(
-				// 	"tool",
-				// 	"Cline responded with only text blocks but has not called attempt_completion yet. Forcing him to continue with task..."
-				// )
-				nextUserContent = [
-					{
-						type: "text",
-						text: formatResponse.noToolsUsed(),
-					},
-				]
-				this.consecutiveMistakeCount++
+				// CARET MODIFICATION: Caret 모드에서 chatbot 모드일 때는 대화 허용
+				const isCaretChatbotMode = this.chatSettings.modeSystem === "caret" && this.chatSettings.mode === "chatbot"
+				
+				if (isCaretChatbotMode) {
+					// Caret Chatbot 모드에서는 도구 없이 대화 허용
+					break
+				} else {
+					// Cline 방식 또는 Caret Agent 모드에서는 도구 사용 강제
+					// this.say(
+					// 	"tool",
+					// 	"Cline responded with only text blocks but has not called attempt_completion yet. Forcing him to continue with task..."
+					// )
+					nextUserContent = [
+						{
+							type: "text",
+							text: formatResponse.noToolsUsed(),
+						},
+					]
+					this.consecutiveMistakeCount++
+				}
 			}
 		}
 	}
@@ -3283,6 +3294,7 @@ export class Task {
 								if (ignoredFileAttemptedToAccess) {
 									await this.say("clineignore_error", ignoredFileAttemptedToAccess)
 									pushToolResult(
+										// CARET MODIFICATION: formatResponse.clineIgnoreError handles caretignore file access errors
 										formatResponse.toolError(formatResponse.clineIgnoreError(ignoredFileAttemptedToAccess)),
 									)
 									await this.saveCheckpoint()
@@ -3592,12 +3604,14 @@ export class Task {
 					case "ask_followup_question": {
 						const question: string | undefined = block.params.question
 						const optionsRaw: string | undefined = block.params.options
+						Logger.debug(`[ASK-FOLLOWUP] Processing ask_followup_question tool, partial: ${block.partial}`)
 						const sharedMessage = {
 							question: removeClosingTag("question", question),
 							options: parsePartialArrayString(removeClosingTag("options", optionsRaw)),
 						} satisfies ClineAskQuestion
 						try {
 							if (block.partial) {
+								Logger.debug(`[ASK-FOLLOWUP] Calling this.ask("followup") with partial`)
 								await this.ask("followup", JSON.stringify(sharedMessage), block.partial).catch(() => {})
 								break
 							} else {
@@ -4031,6 +4045,7 @@ export class Task {
 							break
 						}
 					}
+					
 					case "plan_mode_respond": {
 						const response: string | undefined = block.params.response
 						const optionsRaw: string | undefined = block.params.options
@@ -4353,6 +4368,29 @@ export class Task {
 							break
 						}
 					}
+					case "chatbot_mode_respond": { // CARET MODIFICATION: handle chatbot mode respond (minimal pass-through)
+						const response: string | undefined = block.params.response
+						Logger.debug(`[CHATBOT-MODE] Processing chatbot_mode_respond tool, partial: ${block.partial}`)
+						if (block.partial) {
+							await this.ask("chatbot_mode_respond", removeClosingTag("response", response), block.partial).catch(() => {})
+							break
+						} else {
+							if (!response) {
+								this.consecutiveMistakeCount++
+								pushToolResult(await this.sayAndCreateMissingParamError("chatbot_mode_respond", "response"))
+								break
+							}
+							this.consecutiveMistakeCount = 0
+							
+							Logger.debug(`[CHATBOT-MODE] Chatbot response completed, calling ask to create message`)
+							// CARET MODIFICATION: Use ask() to create actual message like plan_mode_respond does
+							await this.ask("chatbot_mode_respond", removeClosingTag("response", response), false)
+							
+							// CARET MODIFICATION: Add pushToolResult to properly complete chatbot response and prevent infinite loop
+							pushToolResult(formatResponse.toolResult("Chatbot consultation response delivered."))
+							break
+						}
+					}
 				}
 				break
 		}
@@ -4529,6 +4567,16 @@ export class Task {
 			role: "user",
 			content: userContent,
 		})
+
+		// CARET MODIFICATION: API 요청 디버깅 로그 추가
+		Logger.debug(`[API-REQUEST] Sending user message to API: ${JSON.stringify({
+			model: this.api.getModel().id,
+			provider: currentProviderId,
+			contentBlocks: userContent.length,
+			hasImages: userContent.some(block => block.type === 'image'),
+			chatMode: this.chatSettings.mode,
+			modeSystem: this.chatSettings.modeSystem
+		}, null, 2)}`)
 
 		telemetryService.captureConversationTurnEvent(this.taskId, currentProviderId, this.api.getModel().id, "user", true)
 
@@ -4810,6 +4858,17 @@ export class Task {
 					content: [{ type: "text", text: assistantMessage }],
 				})
 
+				// CARET MODIFICATION: API 응답 디버깅 로그 추가
+				Logger.debug(`[API-RESPONSE] Received assistant message: ${JSON.stringify({
+					messageLength: assistantMessage.length,
+					messagePreview: assistantMessage.substring(0, 200) + (assistantMessage.length > 200 ? "..." : ""),
+					contentBlocks: this.assistantMessageContent.length,
+					toolUseBlocks: this.assistantMessageContent.filter(block => block.type === "tool_use").length,
+					textBlocks: this.assistantMessageContent.filter(block => block.type === "text").length,
+					chatMode: this.chatSettings.mode,
+					modeSystem: this.chatSettings.modeSystem
+				}, null, 2)}`)
+
 				// NOTE: this comment is here for future reference - this was a workaround for userMessageContent not getting set to true. It was due to it not recursively calling for partial blocks when didRejectTool, so it would get stuck waiting for a partial block to complete before it could continue.
 				// in case the content blocks finished
 				// it may be the api stream finished after the last parsed content block was executed, so  we are able to detect out of bounds and set userMessageContentReady to true (note you should not call presentAssistantMessage since if the last block is completed it will be presented again)
@@ -4824,16 +4883,47 @@ export class Task {
 				const didToolUse = this.assistantMessageContent.some((block) => block.type === "tool_use")
 
 				if (!didToolUse) {
-					// normal request where tool use is required
-					this.userMessageContent.push({
-						type: "text",
-						text: formatResponse.noToolsUsed(),
-					})
-					this.consecutiveMistakeCount++
+					// CARET MODIFICATION: Caret 모드에서 chatbot 모드일 때는 대화 허용
+					const isCaretChatbotMode = this.chatSettings.modeSystem === "caret" && this.chatSettings.mode === "chatbot"
+					
+					// CARET MODIFICATION: Debug logging for chatbot mode conditions
+					Logger.info(`[CHATBOT-DEBUG] No tool used. modeSystem: ${this.chatSettings.modeSystem}, mode: ${this.chatSettings.mode}, isCaretChatbotMode: ${isCaretChatbotMode}`)
+					
+					if (isCaretChatbotMode) {
+						// CARET MODIFICATION: 챗봇 모드에서는 도구 없이 대화 허용 - 루프 종료
+						Logger.info(`[CHATBOT-DEBUG] Ending loop for Caret chatbot mode without tools`)
+						didEndLoop = true
+					} else {
+						// normal request where tool use is required (Cline 방식 또는 Caret Agent 모드)
+						this.userMessageContent.push({
+							type: "text",
+							text: formatResponse.noToolsUsed(),
+						})
+						this.consecutiveMistakeCount++
+						
+						const recDidEndLoop = await this.recursivelyMakeClineRequests(this.userMessageContent)
+						didEndLoop = recDidEndLoop
+					}
+				} else {
+					// CARET MODIFICATION: Check if chatbot_mode_respond was used and end loop to prevent infinite recursion
+					const usedChatbotModeRespond = this.assistantMessageContent.some(
+						(block) => block.type === "tool_use" && block.name === "chatbot_mode_respond"
+					)
+					const isCaretChatbotMode = this.chatSettings.modeSystem === "caret" && this.chatSettings.mode === "chatbot"
+					
+					// CARET MODIFICATION: Debug logging for tool usage scenario
+					Logger.info(`[CHATBOT-DEBUG] Tool used. usedChatbotModeRespond: ${usedChatbotModeRespond}, isCaretChatbotMode: ${isCaretChatbotMode}`)
+					Logger.info(`[CHATBOT-DEBUG] Tool blocks: ${JSON.stringify(this.assistantMessageContent.filter(block => block.type === "tool_use").map(block => block.name))}`)
+					
+					if (usedChatbotModeRespond && isCaretChatbotMode) {
+						// End loop for chatbot mode respond tool to prevent infinite recursion
+						Logger.info(`[CHATBOT-DEBUG] Ending loop for chatbot_mode_respond tool usage`)
+						didEndLoop = true
+					} else {
+						const recDidEndLoop = await this.recursivelyMakeClineRequests(this.userMessageContent)
+						didEndLoop = recDidEndLoop
+					}
 				}
-
-				const recDidEndLoop = await this.recursivelyMakeClineRequests(this.userMessageContent)
-				didEndLoop = recDidEndLoop
 			} else {
 				// if there's no assistant_responses, that means we got no text or tool_use content blocks from API which we should assume is an error
 				await this.say(

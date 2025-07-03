@@ -6,7 +6,32 @@
 
 ## 1.1 빠른 시작 - 테스트 실행 명령어
 
-### 📊 전체 테스트 + 커버리지 실행 (권장)
+### 🚨 중요: 올바른 테스트 명령어 사용
+
+**❌ 주의: `npm test` 사용 금지**
+- `npm test` 명령어는 전체 빌드 + 컴파일 + 린트 + 모든 테스트를 실행하므로 매우 느림
+- 개발 중에는 아래의 **개별 테스트 명령어** 사용 권장
+
+### 🎯 개별 테스트 실행 (개발 시 권장)
+
+```bash
+# ✅ 백엔드 개별 테스트 (특정 파일)
+npm run test:backend caret-src/__tests__/your-test-file.test.ts
+
+# ✅ 백엔드 개별 테스트 (특정 테스트 이름)
+npm run test:backend caret-src/__tests__/your-test-file.test.ts -t "your test name"
+
+# ✅ 프론트엔드 테스트 (React 컴포넌트, UI 로직)
+npm run test:webview
+
+# ✅ 백엔드 감시 모드 (개발 중 자동 실행)
+npm run test:backend:watch
+
+# ✅ 빠른 개발 테스트 (웹뷰 제외, 실패 시 즉시 중단)
+npm run dev:build-test:fast
+```
+
+### 📊 전체 테스트 + 커버리지 실행 (CI/CD 또는 최종 검증용)
 
 ```bash
 # 🌟 가장 추천: 전체 테스트 + 커버리지 분석 한번에
@@ -14,19 +39,6 @@ npm run test:all; npm run caret:coverage
 
 # 또는 백엔드 상세 커버리지까지 포함
 npm run test:all; npm run test:backend:coverage; npm run caret:coverage
-```
-
-### 🎯 개별 테스트 실행
-
-```bash
-# 프론트엔드 테스트 (React 컴포넌트, UI 로직)
-npm run test:webview
-
-# 백엔드 단위 테스트 (개별 모듈, 함수)
-npm run test:backend
-
-# 백엔드 감시 모드 (개발 중 자동 실행)
-npm run test:backend:watch
 
 # 통합 테스트 (VSCode Extension 환경)
 npm run test:integration
@@ -43,6 +55,25 @@ npm run test:backend:coverage
 
 # VSCode Extension 통합 커버리지
 npm run test:coverage
+```
+
+### 📝 실용적인 테스트 워크플로우 예시
+
+```bash
+# 1. 개발 중: 특정 기능 테스트
+npm run test:backend caret-src/__tests__/json-overlay-real-files.test.ts
+
+# 2. 개발 중: 특정 테스트 케이스만
+npm run test:backend caret-src/__tests__/json-overlay-real-files.test.ts -t "should load and apply Alpha personality"
+
+# 3. 감시 모드로 개발 (코드 변경 시 자동 테스트)
+npm run test:backend:watch
+
+# 4. 빠른 전체 검증 (실패 시 즉시 중단)
+npm run dev:build-test:fast
+
+# 5. 최종 검증 (PR 전)
+npm run test:all && npm run caret:coverage
 ```
 
 ## 2. 테스트 전략

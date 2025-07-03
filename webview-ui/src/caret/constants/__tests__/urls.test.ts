@@ -29,6 +29,10 @@ describe("URLs Constants", () => {
 			const expectedUrls = [
 				"https://caret.team",
 				"https://github.com/aicoding-caret/caret",
+				"https://app.caret.team/credits",
+				"https://app.caret.team/credits/#buy",
+				"https://caret.team/tos",
+				"https://caret.team/privacy",
 				"https://caretive.ai",
 				"https://caretive.ai/about",
 				"https://caretive.ai/terms",

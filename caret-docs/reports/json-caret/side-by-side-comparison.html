@@ -1,101 +1,56 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html>
-	<head>
-		<title>Cline vs Caret Comparison</title>
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-				margin: 20px;
-			}
-			.comparison-grid {
-				display: grid;
-				grid-template-columns: 1fr 1fr;
-				gap: 20px;
-			}
-			.system-panel {
-				border: 1px solid #ccc;
-				padding: 15px;
-				border-radius: 5px;
-			}
-			.cline {
-				background-color: #f0f8ff;
-			}
-			.caret {
-				background-color: #f0fff0;
-			}
-			.diff-highlight {
-				background-color: #ffeb3b;
-				padding: 2px 4px;
-			}
-			.stats {
-				margin: 10px 0;
-			}
-		</style>
-	</head>
-	<body>
-		<h1>🔍 Cline vs Caret System Comparison</h1>
+<head>
+    <title>Cline vs Caret Comparison</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .system-panel { border: 1px solid #ccc; padding: 15px; border-radius: 5px; }
+        .cline { background-color: #f0f8ff; }
+        .caret { background-color: #f0fff0; }
+        .diff-highlight { background-color: #ffeb3b; padding: 2px 4px; }
+        .stats { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Cline vs Caret System Comparison</h1>
+    
+    <div class="stats">
+        <h3>📊 Statistics</h3>
+        <p>Cline Prompt Length: 47215 chars</p>
+        <p>Caret Prompt Length: 47215 chars</p>
+        <p>Size Difference: 0 chars</p>
+    </div>
 
-		<div class="stats">
-			<h3>📊 Statistics</h3>
-			<p>Cline Prompt Length: 47215 chars</p>
-			<p>Caret Prompt Length: 47215 chars</p>
-			<p>Size Difference: 0 chars</p>
-		</div>
+    <div class="comparison-grid">
+        <div class="system-panel cline">
+            <h3>🔧 Cline System</h3>
+            <p><strong>Tools:</strong> 14</p>
+            <ul>
+                <li>execute_command</li><li>read_file</li><li>write_to_file</li><li>replace_in_file</li><li>search_files</li><li>list_files</li><li>list_code_definition_names</li><li>browser_action</li><li>use_mcp_tool</li><li>access_mcp_resource</li><li>ask_followup_question</li><li>attempt_completion</li><li>new_task</li><li>load_mcp_documentation</li>
+            </ul>
+        </div>
+        
+        <div class="system-panel caret">
+            <h3>⚡ Caret System</h3>
+            <p><strong>Tools:</strong> 14</p>
+            <ul>
+                <li>execute_command</li><li>read_file</li><li>write_to_file</li><li>replace_in_file</li><li>search_files</li><li>list_files</li><li>list_code_definition_names</li><li>browser_action</li><li>use_mcp_tool</li><li>access_mcp_resource</li><li>ask_followup_question</li><li>attempt_completion</li><li>new_task</li><li>load_mcp_documentation</li>
+            </ul>
+        </div>
+    </div>
 
-		<div class="comparison-grid">
-			<div class="system-panel cline">
-				<h3>🔧 Cline System</h3>
-				<p><strong>Tools:</strong> 14</p>
-				<ul>
-					<li>execute_command</li>
-					<li>read_file</li>
-					<li>write_to_file</li>
-					<li>replace_in_file</li>
-					<li>search_files</li>
-					<li>list_files</li>
-					<li>list_code_definition_names</li>
-					<li>browser_action</li>
-					<li>use_mcp_tool</li>
-					<li>access_mcp_resource</li>
-					<li>ask_followup_question</li>
-					<li>attempt_completion</li>
-					<li>new_task</li>
-					<li>load_mcp_documentation</li>
-				</ul>
-			</div>
+    <h3>🔍 Key Differences</h3>
+    <ul>
+        <li><span class="diff-highlight">Tools only in Cline:</span> None</li>
+        <li><span class="diff-highlight">Tools only in Caret:</span> None</li>
+        <li><span class="diff-highlight">Plan/Act Mode (Cline):</span> Yes</li>
+        <li><span class="diff-highlight">Chatbot/Agent Mode (Caret):</span> No</li>
+        <li><span class="diff-highlight">Browser Support:</span> Both</li>
+        <li><span class="diff-highlight">MCP Support:</span> Both</li>
+    </ul>
 
-			<div class="system-panel caret">
-				<h3>⚡ Caret System</h3>
-				<p><strong>Tools:</strong> 14</p>
-				<ul>
-					<li>execute_command</li>
-					<li>read_file</li>
-					<li>write_to_file</li>
-					<li>replace_in_file</li>
-					<li>search_files</li>
-					<li>list_files</li>
-					<li>list_code_definition_names</li>
-					<li>browser_action</li>
-					<li>use_mcp_tool</li>
-					<li>access_mcp_resource</li>
-					<li>ask_followup_question</li>
-					<li>attempt_completion</li>
-					<li>new_task</li>
-					<li>load_mcp_documentation</li>
-				</ul>
-			</div>
-		</div>
-
-		<h3>🔍 Key Differences</h3>
-		<ul>
-			<li><span class="diff-highlight">Tools only in Cline:</span> None</li>
-			<li><span class="diff-highlight">Tools only in Caret:</span> None</li>
-			<li><span class="diff-highlight">Plan/Act Mode (Cline):</span> Yes</li>
-			<li><span class="diff-highlight">Chatbot/Agent Mode (Caret):</span> No</li>
-			<li><span class="diff-highlight">Browser Support:</span> Both</li>
-			<li><span class="diff-highlight">MCP Support:</span> Both</li>
-		</ul>
-
-		<p><em>Generated on 2025-07-02T03:59:59.650Z</em></p>
-	</body>
+    <p><em>Generated on 2025-07-03T06:28:42.983Z</em></p>
+</body>
 </html>

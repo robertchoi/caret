@@ -11,6 +11,7 @@ import { WebviewProviderType as WebviewProviderTypeEnum } from "../src/shared/pr
 import { WebviewProviderType } from "../src/shared/webview/types"
 import { caretLogger } from "./utils/caret-logger"
 import { CaretSystemPrompt } from "./core/prompts/CaretSystemPrompt"
+import { CaretResponses } from "./core/prompts/CaretResponses"
 import { DIFF_VIEW_URI_SCHEME } from "../src/integrations/editor/DiffViewProvider"
 
 let outputChannel: vscode.OutputChannel
@@ -42,6 +43,16 @@ export async function activate(context: vscode.ExtensionContext) {
 		caretLogger.success("CaretSystemPrompt initialized with JSON-based prompt system", "SYSTEM")
 	} catch (error) {
 		caretLogger.error("Failed to initialize CaretSystemPrompt", "SYSTEM")
+		caretLogger.error(error.toString(), "SYSTEM")
+	}
+
+	// CARET MODIFICATION: Initialize CaretResponses with extensionPath
+	// This loads RESPONSES.json and enables cached response retrieval
+	try {
+		await CaretResponses.initialize(context.extensionPath)
+		caretLogger.success("CaretResponses initialized with JSON-based response system", "SYSTEM")
+	} catch (error) {
+		caretLogger.error("Failed to initialize CaretResponses", "SYSTEM")
 		caretLogger.error(error.toString(), "SYSTEM")
 	}
 

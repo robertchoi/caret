@@ -1,19 +1,18 @@
-# Task #005: responses.ts 다국어 지원 (i18n) 구현
+# Task #005: Caret 전반의 다국어 지원 (i18n) 구현
 
 **프로젝트**: Caret  
 **담당자**: luke  
-**우선순위**: 📋 **Medium - 사용자 경험 개선**  
-**예상 시간**: 2-3시간  
+**우선순위**: 📋 **High - 사용자 경험 및 접근성 개선**  
+**예상 시간**: 4-6시간  
 **상태**: 📋 **예정**  
 
-## 🎯 **목표: AI 응답 메시지의 다국어 지원 구현**
+## 🎯 **목표: Caret 백엔드 응답 및 웹뷰 UI 전반의 다국어 지원 구현**
 
 ### **핵심 목적**
-- **다국어 지원**: AI → 사용자 메시지의 한국어/영어 다국어 지원
-- **i18n 시스템 구축**: 국제화 기반 메시지 템플릿 관리
-- **단순화된 접근**: JSON 복잡 시스템 대신 표준 i18n 라이브러리 활용
-- **사용자 경험 개선**: 현지화된 메시지로 접근성 향상
-- **🔄 Cline/Caret 모드 지원**: 모드별 다른 메시지 톤 적용
+- **통합 다국어 지원**: AI 응답 메시지, 설정 페이지 UI, 홈페이지 UI 등 Caret의 모든 사용자 대면 텍스트에 한국어/영어/일본어/중국어 다국어 지원
+- **기존 i18n 시스템 활용**: `webview-ui/src/caret/utils/i18n.ts`에 구현된 JSON 기반 국제화 시스템을 확장 및 활용
+- **사용자 경험 개선**: 현지화된 메시지와 UI로 접근성 및 사용성 향상
+- **🔄 Cline/Caret 모드 지원**: 모드별 다른 메시지 톤 및 스타일 적용
 
 ### **🎯 responses.ts 현황 분석**
 
@@ -64,459 +63,79 @@ export const formatResponse = {
 
 ## 📋 **i18n 구현 계획**
 
-### **Phase 1: i18n 시스템 설정 (30분)**
+### **Phase 1: 기존 i18n 시스템 이해 및 백엔드 통합 방안 수립 (1시간)**
 
-#### **1.1 i18next 라이브러리 설정**
-```typescript
-// caret-src/utils/i18n.ts
-import i18next from 'i18next'
-import { initReactI18next } from 'react-i18next'
+#### **1.1 기존 웹뷰 i18n 시스템 분석**
+- `webview-ui/src/caret/utils/i18n.ts` 파일에 구현된 JSON 기반 다국어 시스템 (`t` 함수, `setGlobalUILanguage` 등) 분석
+- `webview-ui/src/caret/locale/` 디렉토리 내 언어별 JSON 파일 구조 (`common.json`, `settings.json` 등) 파악
 
-// 언어 리소스 임포트
-import enResponses from '../locales/en/responses.json'
-import koResponses from '../locales/ko/responses.json'
+#### **1.2 백엔드 응답 메시지 통합 방안 수립**
+- `src/core/prompts/responses.ts`의 AI 응답 메시지를 웹뷰의 JSON 기반 i18n 시스템과 연동하는 방안 모색
+- **옵션 1 (권장)**: 백엔드에서도 `webview-ui/src/caret/locale/`의 JSON 파일을 공유하거나, 유사한 구조로 백엔드 전용 언어팩을 구성하고 `caret-src/utils/i18n.ts`를 확장하여 사용.
+- **옵션 2**: `005` 태스크의 초기 계획처럼 `i18next`를 백엔드에 도입하되, 웹뷰의 `t` 함수와 호환되도록 인터페이스를 맞추는 방안. (복잡도 높음)
+- **결정**: 현재 Caret의 `webview-ui`에 이미 JSON 기반의 다국어 시스템이 잘 구축되어 있으므로, 백엔드 응답 메시지도 이 시스템을 확장하여 사용하는 것을 우선적으로 고려합니다. `caret-src/utils/i18n.ts`를 웹뷰의 `i18n.ts`와 유사하게 확장하여 백엔드에서 다국어 데이터를 로드하고 `t` 함수를 사용할 수 있도록 합니다.
 
-export const initI18n = async (language: 'en' | 'ko' = 'ko') => {
-  await i18next
-    .use(initReactI18next)
-    .init({
-      lng: language,
-      fallbackLng: 'en',
-      resources: {
-        en: { responses: enResponses },
-        ko: { responses: koResponses }
-      },
-      interpolation: {
-        escapeValue: false
-      }
-    })
-}
+### **Phase 2: 언어팩 확장 및 생성 (1.5시간)**
 
-// 간편 사용 함수
-export const t = (key: string, options?: any) => {
-  return i18next.t(`responses.${key}`, options)
-}
-```
+#### **2.1 백엔드 응답 메시지 언어팩 (`responses.json`) 생성**
+- `webview-ui/src/caret/locale/en/responses.json`, `ko/responses.json` 등 생성
+- `src/core/prompts/responses.ts`의 44개 메시지 함수를 JSON 키-값 쌍으로 변환
 
-#### **1.2 언어팩 디렉터리 구조**
-```typescript
-📁 caret-src/locales/
-├── en/
-│   └── responses.json - 영어 메시지
-├── ko/
-│   └── responses.json - 한국어 메시지
-└── index.ts - 언어팩 관리
-```
+#### **2.2 설정 페이지 UI 언어팩 (`settings.json`) 보완**
+- `webview-ui/src/caret/locale/ko/settings.json` 등 기존 파일에 누락된 설정 UI 텍스트 추가
+- `webview-ui/src/caret/components/CaretUILanguageSetting.tsx` 및 기타 설정 관련 컴포넌트의 모든 텍스트 추출 및 번역
 
-### **Phase 2: 언어팩 생성 (1시간)**
+#### **2.3 홈페이지 UI 언어팩 (`homepage.json` 또는 `welcome.json` 확장) 생성**
+- 홈페이지 UI에 필요한 새로운 네임스페이스 (`homepage` 또는 기존 `welcome` 확장) 정의
+- `webview-ui/src/caret/locale/en/homepage.json`, `ko/homepage.json` 등 생성 및 텍스트 번역
 
-#### **2.1 한국어 언어팩 (ko/responses.json)**
-```json
-{
-  "tool": {
-    "denied": "사용자가 이 작업을 거부했습니다.",
-    "error": "도구 실행이 실패했습니다: {{error}}",
-    "no_tools_used": "도구를 사용하지 않았습니다! 도구를 사용해서 다시 시도하세요",
-    "file_read_notice": "[[NOTE] 이 파일은 이미 최근에 읽었습니다: {{filename}}]",
-    "context_truncation": "[NOTE] 이전 대화 기록이 일부 제거되었습니다 ({{removedCount}}개 메시지)]"
-  },
-  "task": {
-    "resumption": "작업이 {{timeAgo}}에 중단되었습니다. 프로젝트 상태가 변경되었을 수 있습니다 ({{cwd}})",
-    "completion": "작업이 성공적으로 완료되었습니다. {{summary}}",
-    "workflow_guidance": "다음 단계를 진행하세요: {{nextStep}}",
-    "progress_update": "진행률: {{progress}}% ({{completed}}/{{total}})"
-  },
-  "error": {
-    "recovery": "오류가 발생했지만 복구 중입니다. {{details}}",
-    "fallback_mode": "기본 모드로 전환됩니다. {{reason}}",
-    "validation_failure": "유효성 검사 실패: {{issue}}",
-    "system_error": "시스템 오류: {{error}}"
-  },
-  "interaction": {
-    "user_feedback": "사용자 피드백이 필요합니다: {{question}}",
-    "clarification_needed": "명확한 설명이 필요합니다: {{context}}",
-    "confirmation_request": "계속 진행하시겠습니까? {{action}}",
-    "guidance_provision": "도움말: {{guidance}}"
-  },
-  "mode": {
-    "cline": {
-      "prefix": "[CLINE]",
-      "tone": "formal",
-      "style": "direct"
-    },
-    "caret": {
-      "prefix": "[CARET]",
-      "tone": "friendly",
-      "style": "collaborative"
-    }
-  }
-}
-```
+#### **2.4 UI 텍스트 번역 상세 체크리스트 (next-session-guide.md 기반)**
 
-#### **2.2 영어 언어팩 (en/responses.json)**
-```json
-{
-  "tool": {
-    "denied": "The user denied this operation.",
-    "error": "Tool execution failed with error: {{error}}",
-    "no_tools_used": "No tools were used! Please try again using tools",
-    "file_read_notice": "[[NOTE] This file was already read recently: {{filename}}]",
-    "context_truncation": "[NOTE] Previous conversation history was truncated ({{removedCount}} messages removed)]"
-  },
-  "task": {
-    "resumption": "Task was interrupted {{timeAgo}}. Project state may have changed ({{cwd}})",
-    "completion": "Task completed successfully. {{summary}}",
-    "workflow_guidance": "Please proceed with: {{nextStep}}",
-    "progress_update": "Progress: {{progress}}% ({{completed}}/{{total}})"
-  },
-  "error": {
-    "recovery": "Error occurred but recovering. {{details}}",
-    "fallback_mode": "Switching to fallback mode. {{reason}}",
-    "validation_failure": "Validation failed: {{issue}}",
-    "system_error": "System error: {{error}}"
-  },
-  "interaction": {
-    "user_feedback": "User feedback needed: {{question}}",
-    "clarification_needed": "Clarification needed: {{context}}",
-    "confirmation_request": "Do you want to continue? {{action}}",
-    "guidance_provision": "Guidance: {{guidance}}"
-  },
-  "mode": {
-    "cline": {
-      "prefix": "[CLINE]",
-      "tone": "formal",
-      "style": "direct"
-    },
-    "caret": {
-      "prefix": "[CARET]",
-      "tone": "friendly", 
-      "style": "collaborative"
-    }
-  }
-}
-```
+##### **2.4.1 웰컴뷰 (Welcome View)**
+- **하단 풋터 번역 문제 (영문/일본어/중국어)**
+  - `footer.links.github`
+  - `footer.links.caretiveCompany`
 
-### **Phase 3: CaretResponses 클래스 구현 (1시간)**
+##### **2.4.2 메인 페이지 및 채팅창**
+- **하단의 "자동 승인 설정" 번역 안됨 (i18n 문제/한글 기준 확인된 내용)**
+  - `autoApprove.title`
+  - `autoApprove.actionHeader`
+  - `autoApprove.readFilesExternally.label`
+  - `autoApprove.executeAllCommands.label`
+  - `autoApprove.quickSettingsHeader`
+  - `autoApprove.maxRequestLabel`
+  - `autoApprove.label`
+  - `autoApprove.enableAutoApprove.shortName`
+- **채팅창 추가 다국어 설정 필요**
+  - **상단 Task 영역**: `Task`, `Tokens`
+  - **가운데 대화 영역**:
+    - `API Request`
+    - `Checkpoint`, `Compare`, `Restore`
+    - `Thinking`
+    - `Cline has a question` (Caret 혹은 한글은 캐럿으로)
 
-#### **3.1 다국어 응답 클래스**
-```typescript
-// caret-src/core/prompts/CaretResponses.ts
-import { t, initI18n } from '../../utils/i18n'
+### **Phase 3: CaretResponses 클래스 및 UI 컴포넌트 적용 (2시간)**
 
-export class CaretResponses {
-  private currentMode: 'cline' | 'caret'
-  private currentLanguage: 'en' | 'ko'
+#### **3.1 백엔드 `CaretResponses` 클래스 구현 및 `responses.ts` 적용**
+- `caret-src/core/prompts/CaretResponses.ts`를 구현하여 백엔드 응답 메시지에 다국어 적용
+- `src/core/prompts/responses.ts`의 기존 함수들을 `CaretResponses`를 통해 다국어 메시지를 반환하도록 래핑
 
-  constructor(mode: 'cline' | 'caret' = 'caret', language: 'en' | 'ko' = 'ko') {
-    this.currentMode = mode
-    this.currentLanguage = language
-    this.initializeI18n()
-  }
+#### **3.2 설정 페이지 UI 컴포넌트 적용**
+- `webview-ui/src/caret/components/CaretUILanguageSetting.tsx` 및 기타 설정 관련 컴포넌트 내 텍스트에 `t` 함수 적용
+- `webview-ui/src/caret/utils/i18n.ts`의 `t` 함수를 사용하여 텍스트 번역
 
-  private async initializeI18n() {
-    await initI18n(this.currentLanguage)
-  }
+#### **3.3 홈페이지 UI 컴포넌트 적용**
+- 홈페이지 관련 UI 컴포넌트 식별 및 해당 텍스트에 `t` 함수 적용
 
-  private applyModeFormatting(message: string): string {
-    const modeConfig = t(`mode.${this.currentMode}`, { returnObjects: true }) as any
-    
-    if (modeConfig.prefix) {
-      message = `${modeConfig.prefix} ${message}`
-    }
+### **Phase 4: 통합 및 테스트 (1시간)**
 
-    // 모드별 톤 적용
-    if (this.currentMode === 'caret' && modeConfig.tone === 'friendly') {
-      // Caret 모드: 친근한 톤 적용
-      message = message.replace(/\. /g, '~ ')
-    }
+#### **4.1 전체 다국어 시스템 통합 테스트**
+- 백엔드 응답 메시지, 설정 페이지 UI, 홈페이지 UI의 다국어 적용 확인
+- 한국어/영어/일본어/중국어 전환 시 모든 텍스트가 올바르게 변경되는지 검증
+- Cline/Caret 모드별 메시지 톤 및 스타일이 올바르게 적용되는지 확인
 
-    return message
-  }
-
-  // 도구 관련 메시지
-  toolDenied(): string {
-    const message = t('tool.denied')
-    return this.applyModeFormatting(message)
-  }
-
-  toolError(error: string): string {
-    const message = t('tool.error', { error })
-    return this.applyModeFormatting(message)
-  }
-
-  noToolsUsed(): string {
-    const message = t('tool.no_tools_used')
-    return this.applyModeFormatting(message)
-  }
-
-  duplicateFileReadNotice(filename: string): string {
-    const message = t('tool.file_read_notice', { filename })
-    return this.applyModeFormatting(message)
-  }
-
-  contextTruncationNotice(removedCount: number): string {
-    const message = t('tool.context_truncation', { removedCount })
-    return this.applyModeFormatting(message)
-  }
-
-  // 작업 관리 메시지
-  taskResumption(task: string, timeAgo: string, cwd: string): string {
-    const message = t('task.resumption', { task, timeAgo, cwd })
-    return this.applyModeFormatting(message)
-  }
-
-  taskCompletion(summary: string): string {
-    const message = t('task.completion', { summary })
-    return this.applyModeFormatting(message)
-  }
-
-  workflowGuidance(nextStep: string): string {
-    const message = t('task.workflow_guidance', { nextStep })
-    return this.applyModeFormatting(message)
-  }
-
-  progressUpdate(progress: number, completed: number, total: number): string {
-    const message = t('task.progress_update', { progress, completed, total })
-    return this.applyModeFormatting(message)
-  }
-
-  // 오류 처리 메시지
-  errorRecovery(details: string): string {
-    const message = t('error.recovery', { details })
-    return this.applyModeFormatting(message)
-  }
-
-  fallbackMode(reason: string): string {
-    const message = t('error.fallback_mode', { reason })
-    return this.applyModeFormatting(message)
-  }
-
-  validationFailure(issue: string): string {
-    const message = t('error.validation_failure', { issue })
-    return this.applyModeFormatting(message)
-  }
-
-  systemError(error: string): string {
-    const message = t('error.system_error', { error })
-    return this.applyModeFormatting(message)
-  }
-
-  // 상호작용 메시지
-  userFeedback(question: string): string {
-    const message = t('interaction.user_feedback', { question })
-    return this.applyModeFormatting(message)
-  }
-
-  clarificationNeeded(context: string): string {
-    const message = t('interaction.clarification_needed', { context })
-    return this.applyModeFormatting(message)
-  }
-
-  confirmationRequest(action: string): string {
-    const message = t('interaction.confirmation_request', { action })
-    return this.applyModeFormatting(message)
-  }
-
-  guidanceProvision(guidance: string): string {
-    const message = t('interaction.guidance_provision', { guidance })
-    return this.applyModeFormatting(message)
-  }
-
-  // 언어 변경
-  async changeLanguage(language: 'en' | 'ko'): Promise<void> {
-    this.currentLanguage = language
-    await this.initializeI18n()
-  }
-
-  // 모드 변경
-  changeMode(mode: 'cline' | 'caret'): void {
-    this.currentMode = mode
-  }
-}
-```
-
-### **Phase 4: 점진적 래퍼 적용 (30분)**
-
-#### **4.1 기존 responses.ts 수정**
-```typescript
-// src/core/prompts/responses.ts - 점진적 i18n 적용
-import { CaretResponses } from '../../../caret-src/core/prompts/CaretResponses'
-
-// CARET MODIFICATION: 다국어 지원 시스템 통합
-let caretResponses: CaretResponses | null = null
-
-// 기존 함수들을 래퍼로 변환
-export const formatResponse = {
-  toolDenied: (): string => {
-    const original = `사용자가 이 작업을 거부했습니다.`
-    
-    try {
-      if (!caretResponses) {
-        const mode = (global as any).caretMode || 'cline'
-        const language = (global as any).caretLanguage || 'ko'
-        caretResponses = new CaretResponses(mode, language)
-      }
-      
-      return caretResponses.toolDenied()
-    } catch (error) {
-      console.warn('[CARET] i18n response failed, using original:', error)
-      return original
-    }
-  },
-
-  toolError: (error: string): string => {
-    const original = `도구 실행이 실패했습니다: ${error}`
-    
-    try {
-      if (!caretResponses) {
-        const mode = (global as any).caretMode || 'cline'
-        const language = (global as any).caretLanguage || 'ko'
-        caretResponses = new CaretResponses(mode, language)
-      }
-      
-      return caretResponses.toolError(error)
-    } catch (error) {
-      console.warn('[CARET] i18n response failed, using original:', error)
-      return original
-    }
-  },
-
-  noToolsUsed: (): string => {
-    const original = `도구를 사용하지 않았습니다! 도구를 사용해서 다시 시도하세요`
-    
-    try {
-      if (!caretResponses) {
-        const mode = (global as any).caretMode || 'cline'
-        const language = (global as any).caretLanguage || 'ko'
-        caretResponses = new CaretResponses(mode, language)
-      }
-      
-      return caretResponses.noToolsUsed()
-    } catch (error) {
-      console.warn('[CARET] i18n response failed, using original:', error)
-      return original
-    }
-  },
-
-  duplicateFileReadNotice: (filename: string): string => {
-    const original = `[[NOTE] 이 파일은 이미 최근에 읽었습니다: ${filename}]`
-    
-    try {
-      if (!caretResponses) {
-        const mode = (global as any).caretMode || 'cline'
-        const language = (global as any).caretLanguage || 'ko'
-        caretResponses = new CaretResponses(mode, language)
-      }
-      
-      return caretResponses.duplicateFileReadNotice(filename)
-    } catch (error) {
-      console.warn('[CARET] i18n response failed, using original:', error)
-      return original
-    }
-  },
-
-  // ... 나머지 44개 함수들도 동일한 패턴으로 래퍼 적용
-}
-```
-
-### **Phase 5: 언어 설정 UI 통합 (30분)**
-
-#### **5.1 언어 설정 관리**
-```typescript
-// caret-src/core/config/LanguageConfig.ts
-export class LanguageConfig {
-  private static instance: LanguageConfig
-  private currentLanguage: 'en' | 'ko' = 'ko'
-  private currentMode: 'cline' | 'caret' = 'caret'
-
-  static getInstance(): LanguageConfig {
-    if (!LanguageConfig.instance) {
-      LanguageConfig.instance = new LanguageConfig()
-    }
-    return LanguageConfig.instance
-  }
-
-  setLanguage(language: 'en' | 'ko'): void {
-    this.currentLanguage = language
-    ;(global as any).caretLanguage = language
-  }
-
-  setMode(mode: 'cline' | 'caret'): void {
-    this.currentMode = mode
-    ;(global as any).caretMode = mode
-  }
-
-  getLanguage(): 'en' | 'ko' {
-    return this.currentLanguage
-  }
-
-  getMode(): 'cline' | 'caret' {
-    return this.currentMode
-  }
-}
-```
-
-#### **5.2 WebView 언어 설정 (간단한 구현)**
-```typescript
-// webview-ui/src/caret/components/LanguageSelector.tsx
-import React from 'react'
-import { vscode } from '../utils/vscode'
-
-export const LanguageSelector: React.FC = () => {
-  const [language, setLanguage] = React.useState<'en' | 'ko'>('ko')
-  const [mode, setMode] = React.useState<'cline' | 'caret'>('caret')
-
-  const handleLanguageChange = (newLanguage: 'en' | 'ko') => {
-    setLanguage(newLanguage)
-    vscode.postMessage({
-      type: 'changeLanguage',
-      payload: { language: newLanguage }
-    })
-  }
-
-  const handleModeChange = (newMode: 'cline' | 'caret') => {
-    setMode(newMode)
-    vscode.postMessage({
-      type: 'changeMode',
-      payload: { mode: newMode }
-    })
-  }
-
-  return (
-    <div className="language-selector">
-      <div className="language-options">
-        <button 
-          onClick={() => handleLanguageChange('ko')}
-          className={language === 'ko' ? 'active' : ''}
-        >
-          한국어
-        </button>
-        <button 
-          onClick={() => handleLanguageChange('en')}
-          className={language === 'en' ? 'active' : ''}
-        >
-          English
-        </button>
-      </div>
-      
-      <div className="mode-options">
-        <button 
-          onClick={() => handleModeChange('caret')}
-          className={mode === 'caret' ? 'active' : ''}
-        >
-          Caret Mode
-        </button>
-        <button 
-          onClick={() => handleModeChange('cline')}
-          className={mode === 'cline' ? 'active' : ''}
-        >
-          Cline Mode
-        </button>
-      </div>
-    </div>
-  )
-}
-```
+#### **4.2 성능 최적화**
+- 언어팩 로딩 및 전환 시 성능 저하 여부 확인 및 최적화
 
 ## 🎯 **Cline/Caret 모드별 차이점**
 
@@ -570,4 +189,4 @@ export const LanguageSelector: React.FC = () => {
 - **사용자 중심 설계**: 쉬운 언어 변경 및 모드 전환
 - **확장 가능한 구조**: 추가 언어 지원 용이
 
-**🎯 핵심 목적: 사용자 경험 개선을 통한 Caret의 접근성 및 사용성 향상!** ✨ 
+**🎯 핵심 목적: 사용자 경험 개선을 통한 Caret의 접근성 및 사용성 향상!** ✨

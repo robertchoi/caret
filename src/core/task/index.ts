@@ -1152,8 +1152,7 @@ export class Task {
 
 		// CARET MODIFICATION: Mission 2 - Cline/Caret 모드 용어 통합 처리
 		// CARET MODIFICATION: 모든 모드를 Cline 호환 plan/act로 매핑
-		const clineCompatibleMode = 
-			(this.chatSettings?.mode === "chatbot" || this.chatSettings?.mode === "plan") ? "plan" : "act"
+		const clineCompatibleMode = this.chatSettings?.mode === "chatbot" || this.chatSettings?.mode === "plan" ? "plan" : "act"
 		const [taskResumptionMessage, userResponseMessage] = formatResponse.taskResumption(
 			clineCompatibleMode,
 			agoText,
@@ -1222,7 +1221,7 @@ export class Task {
 			} else {
 				// CARET MODIFICATION: Caret 모드에서 chatbot 모드일 때는 대화 허용
 				const isCaretChatbotMode = this.chatSettings.modeSystem === "caret" && this.chatSettings.mode === "chatbot"
-				
+
 				if (isCaretChatbotMode) {
 					// Caret Chatbot 모드에서는 도구 없이 대화 허용
 					break
@@ -1722,23 +1721,30 @@ export class Task {
 			const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
 			caretLogger.warn(
 				`🔍 [MODE-CHECK-CLINE] Cline 모드 - SYSTEM_PROMPT 호출: chatSettings.mode=${this.chatSettings.mode}, modeSystem=${this.chatSettings.modeSystem}, mode 파라미터 미전달 (기본값 'agent' 사용됨!)`,
-				"MODE_CHECK"
+				"MODE_CHECK",
 			)
 
-			systemPrompt = await SYSTEM_PROMPT(cwd, supportsBrowserUse, this.mcpHub, this.browserSettings, isClaude4Model, undefined)
+			systemPrompt = await SYSTEM_PROMPT(
+				cwd,
+				supportsBrowserUse,
+				this.mcpHub,
+				this.browserSettings,
+				isClaude4Model,
+				undefined,
+			)
 		} else {
 			// Caret 모드: JSON 기반 개선된 프롬프트 사용 (mode 파라미터 포함)
 			// CARET MODIFICATION: Mission 2 - Caret 시스템용 모드 변환
-			const caretCompatibleMode: "chatbot" | "agent" = 
-				(this.chatSettings.mode === "chatbot" || this.chatSettings.mode === "plan") ? "chatbot" : "agent"
-			
+			const caretCompatibleMode: "chatbot" | "agent" =
+				this.chatSettings.mode === "chatbot" || this.chatSettings.mode === "plan" ? "chatbot" : "agent"
+
 			// CARET MODIFICATION: 현재 모드 확인 로그 추가
 			const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
 			caretLogger.info(
 				`🔍 [MODE-CHECK-CARET] Caret 모드 - SYSTEM_PROMPT 호출: chatSettings.mode=${this.chatSettings.mode} → caretCompatibleMode=${caretCompatibleMode}, modeSystem=${this.chatSettings.modeSystem}`,
-				"MODE_CHECK"
+				"MODE_CHECK",
 			)
-			
+
 			// CARET MODIFICATION: extensionPath 전달로 Caret JSON 시스템 활성화
 			systemPrompt = await SYSTEM_PROMPT(
 				cwd,
@@ -4045,7 +4051,6 @@ export class Task {
 							break
 						}
 					}
-					
 					case "plan_mode_respond": {
 						const response: string | undefined = block.params.response
 						const optionsRaw: string | undefined = block.params.options
@@ -4368,11 +4373,14 @@ export class Task {
 							break
 						}
 					}
-					case "chatbot_mode_respond": { // CARET MODIFICATION: handle chatbot mode respond (minimal pass-through)
+					case "chatbot_mode_respond": {
+						// CARET MODIFICATION: handle chatbot mode respond (minimal pass-through)
 						const response: string | undefined = block.params.response
 						Logger.debug(`[CHATBOT-MODE] Processing chatbot_mode_respond tool, partial: ${block.partial}`)
 						if (block.partial) {
-							await this.ask("chatbot_mode_respond", removeClosingTag("response", response), block.partial).catch(() => {})
+							await this.ask("chatbot_mode_respond", removeClosingTag("response", response), block.partial).catch(
+								() => {},
+							)
 							break
 						} else {
 							if (!response) {
@@ -4381,11 +4389,11 @@ export class Task {
 								break
 							}
 							this.consecutiveMistakeCount = 0
-							
-							Logger.debug(`[CHATBOT-MODE] Chatbot response completed, calling ask to create message`)
-							// CARET MODIFICATION: Use ask() to create actual message like plan_mode_respond does
-							await this.ask("chatbot_mode_respond", removeClosingTag("response", response), false)
-							
+
+							Logger.debug(`[CHATBOT-MODE] Chatbot response completed, calling say to create message`)
+							// CARET MODIFICATION: Use say() to create actual message without waiting for user response
+							await this.say("text", removeClosingTag("response", response))
+
 							// CARET MODIFICATION: Add pushToolResult to properly complete chatbot response and prevent infinite loop
 							pushToolResult(formatResponse.toolResult("Chatbot consultation response delivered."))
 							break
@@ -4569,14 +4577,20 @@ export class Task {
 		})
 
 		// CARET MODIFICATION: API 요청 디버깅 로그 추가
-		Logger.debug(`[API-REQUEST] Sending user message to API: ${JSON.stringify({
-			model: this.api.getModel().id,
-			provider: currentProviderId,
-			contentBlocks: userContent.length,
-			hasImages: userContent.some(block => block.type === 'image'),
-			chatMode: this.chatSettings.mode,
-			modeSystem: this.chatSettings.modeSystem
-		}, null, 2)}`)
+		Logger.debug(
+			`[API-REQUEST] Sending user message to API: ${JSON.stringify(
+				{
+					model: this.api.getModel().id,
+					provider: currentProviderId,
+					contentBlocks: userContent.length,
+					hasImages: userContent.some((block) => block.type === "image"),
+					chatMode: this.chatSettings.mode,
+					modeSystem: this.chatSettings.modeSystem,
+				},
+				null,
+				2,
+			)}`,
+		)
 
 		telemetryService.captureConversationTurnEvent(this.taskId, currentProviderId, this.api.getModel().id, "user", true)
 
@@ -4859,15 +4873,21 @@ export class Task {
 				})
 
 				// CARET MODIFICATION: API 응답 디버깅 로그 추가
-				Logger.debug(`[API-RESPONSE] Received assistant message: ${JSON.stringify({
-					messageLength: assistantMessage.length,
-					messagePreview: assistantMessage.substring(0, 200) + (assistantMessage.length > 200 ? "..." : ""),
-					contentBlocks: this.assistantMessageContent.length,
-					toolUseBlocks: this.assistantMessageContent.filter(block => block.type === "tool_use").length,
-					textBlocks: this.assistantMessageContent.filter(block => block.type === "text").length,
-					chatMode: this.chatSettings.mode,
-					modeSystem: this.chatSettings.modeSystem
-				}, null, 2)}`)
+				Logger.debug(
+					`[API-RESPONSE] Received assistant message: ${JSON.stringify(
+						{
+							messageLength: assistantMessage.length,
+							messagePreview: assistantMessage.substring(0, 200) + (assistantMessage.length > 200 ? "..." : ""),
+							contentBlocks: this.assistantMessageContent.length,
+							toolUseBlocks: this.assistantMessageContent.filter((block) => block.type === "tool_use").length,
+							textBlocks: this.assistantMessageContent.filter((block) => block.type === "text").length,
+							chatMode: this.chatSettings.mode,
+							modeSystem: this.chatSettings.modeSystem,
+						},
+						null,
+						2,
+					)}`,
+				)
 
 				// NOTE: this comment is here for future reference - this was a workaround for userMessageContent not getting set to true. It was due to it not recursively calling for partial blocks when didRejectTool, so it would get stuck waiting for a partial block to complete before it could continue.
 				// in case the content blocks finished
@@ -4885,10 +4905,12 @@ export class Task {
 				if (!didToolUse) {
 					// CARET MODIFICATION: Caret 모드에서 chatbot 모드일 때는 대화 허용
 					const isCaretChatbotMode = this.chatSettings.modeSystem === "caret" && this.chatSettings.mode === "chatbot"
-					
+
 					// CARET MODIFICATION: Debug logging for chatbot mode conditions
-					Logger.info(`[CHATBOT-DEBUG] No tool used. modeSystem: ${this.chatSettings.modeSystem}, mode: ${this.chatSettings.mode}, isCaretChatbotMode: ${isCaretChatbotMode}`)
-					
+					Logger.info(
+						`[CHATBOT-DEBUG] No tool used. modeSystem: ${this.chatSettings.modeSystem}, mode: ${this.chatSettings.mode}, isCaretChatbotMode: ${isCaretChatbotMode}`,
+					)
+
 					if (isCaretChatbotMode) {
 						// CARET MODIFICATION: 챗봇 모드에서는 도구 없이 대화 허용 - 루프 종료
 						Logger.info(`[CHATBOT-DEBUG] Ending loop for Caret chatbot mode without tools`)
@@ -4900,21 +4922,25 @@ export class Task {
 							text: formatResponse.noToolsUsed(),
 						})
 						this.consecutiveMistakeCount++
-						
+
 						const recDidEndLoop = await this.recursivelyMakeClineRequests(this.userMessageContent)
 						didEndLoop = recDidEndLoop
 					}
 				} else {
 					// CARET MODIFICATION: Check if chatbot_mode_respond was used and end loop to prevent infinite recursion
 					const usedChatbotModeRespond = this.assistantMessageContent.some(
-						(block) => block.type === "tool_use" && block.name === "chatbot_mode_respond"
+						(block) => block.type === "tool_use" && block.name === "chatbot_mode_respond",
 					)
 					const isCaretChatbotMode = this.chatSettings.modeSystem === "caret" && this.chatSettings.mode === "chatbot"
-					
+
 					// CARET MODIFICATION: Debug logging for tool usage scenario
-					Logger.info(`[CHATBOT-DEBUG] Tool used. usedChatbotModeRespond: ${usedChatbotModeRespond}, isCaretChatbotMode: ${isCaretChatbotMode}`)
-					Logger.info(`[CHATBOT-DEBUG] Tool blocks: ${JSON.stringify(this.assistantMessageContent.filter(block => block.type === "tool_use").map(block => block.name))}`)
-					
+					Logger.info(
+						`[CHATBOT-DEBUG] Tool used. usedChatbotModeRespond: ${usedChatbotModeRespond}, isCaretChatbotMode: ${isCaretChatbotMode}`,
+					)
+					Logger.info(
+						`[CHATBOT-DEBUG] Tool blocks: ${JSON.stringify(this.assistantMessageContent.filter((block) => block.type === "tool_use").map((block) => block.name))}`,
+					)
+
 					if (usedChatbotModeRespond && isCaretChatbotMode) {
 						// End loop for chatbot mode respond tool to prevent infinite recursion
 						Logger.info(`[CHATBOT-DEBUG] Ending loop for chatbot_mode_respond tool usage`)
@@ -5215,49 +5241,39 @@ export class Task {
 			const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
 			caretLogger.info(
 				`🔍 [MODE-CHECK-ENV] Environment Details 모드 확인: chatSettings.mode=${this.chatSettings.mode}, modeSystem=${this.chatSettings.modeSystem}`,
-				"MODE_CHECK"
+				"MODE_CHECK",
 			)
 
 			// Cline 원본 방식 복원: planModeInstructions() 포함
 			details += "\n\n# Current Mode"
 			if (this.chatSettings.mode === "plan") {
 				details += "\nPLAN MODE\n" + formatResponse.planModeInstructions()
-				
-				caretLogger.info(
-					`✅ [MODE-CHECK-ENV] Environment Details에 PLAN MODE 추가됨`,
-					"MODE_CHECK"
-				)
+
+				caretLogger.info(`✅ [MODE-CHECK-ENV] Environment Details에 PLAN MODE 추가됨`, "MODE_CHECK")
 			} else {
 				details += "\nACT MODE"
-				
-				caretLogger.info(
-					`✅ [MODE-CHECK-ENV] Environment Details에 ACT MODE 추가됨`,
-					"MODE_CHECK"
-				)
+
+				caretLogger.info(`✅ [MODE-CHECK-ENV] Environment Details에 ACT MODE 추가됨`, "MODE_CHECK")
 			}
 		} else {
 			// CARET MODIFICATION: Caret 모드에서도 현재 모드 정보 제공
 			const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
 			caretLogger.info(
 				`🔍 [MODE-CHECK-ENV-CARET] Environment Details Caret 모드: chatSettings.mode=${this.chatSettings.mode}, modeSystem=${this.chatSettings.modeSystem}`,
-				"MODE_CHECK"
+				"MODE_CHECK",
 			)
 
 			details += "\n\n# Current Mode"
 			if (this.chatSettings.mode === "chatbot") {
-				details += "\nCHATBOT MODE\nIn this mode, you should provide expert consultation and analysis without making changes to the codebase. You act as an expert consultant who can read files and examine the codebase for analysis purposes, but should not make any modifications. Use the chatbot_mode_respond tool to provide thoughtful, expert consultation."
-				
-				caretLogger.info(
-					`✅ [MODE-CHECK-ENV-CARET] Environment Details에 CHATBOT MODE 추가됨`,
-					"MODE_CHECK"
-				)
+				details +=
+					"\nCHATBOT MODE\nIn this mode, you should provide expert consultation and analysis without making changes to the codebase. You act as an expert consultant who can read files and examine the codebase for analysis purposes, but should not make any modifications. Use the chatbot_mode_respond tool to provide thoughtful, expert consultation."
+
+				caretLogger.info(`✅ [MODE-CHECK-ENV-CARET] Environment Details에 CHATBOT MODE 추가됨`, "MODE_CHECK")
 			} else {
-				details += "\nAGENT MODE\nIn this mode, you have access to all tools and can make changes to accomplish the user's task."
-				
-				caretLogger.info(
-					`✅ [MODE-CHECK-ENV-CARET] Environment Details에 AGENT MODE 추가됨`,
-					"MODE_CHECK"
-				)
+				details +=
+					"\nAGENT MODE\nIn this mode, you have access to all tools and can make changes to accomplish the user's task."
+
+				caretLogger.info(`✅ [MODE-CHECK-ENV-CARET] Environment Details에 AGENT MODE 추가됨`, "MODE_CHECK")
 			}
 		}
 

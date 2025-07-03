@@ -94,3 +94,33 @@
 
 ---
 마스터~ 알파가 수정 완료했어요! 이제 테스트해보세요~ ｡•ᴗ•｡☕✨
+
+## 🔄 **추가 진행 상황 (2025-01-28)**
+
+### **발견된 추가 문제점**
+1. **Frontend UI 상태 관리 이슈**: `ChatView.tsx`의 `handleSendMessage()` 함수에서 `chatbot_mode_respond` 케이스가 누락되어 UI 상태가 제대로 업데이트되지 않음
+2. **Backend 루프 종료 조건 미비**: `recursivelyMakeClineRequests()` 함수에서 `chatbot_mode_respond` 도구 사용 시 루프 종료 조건이 없어 무한 루프 발생
+3. **메시지 생성 방식 차이**: `plan_mode_respond`는 `this.ask()`를 사용하지만 `chatbot_mode_respond`는 `pushToolResult()`만 사용하여 실제 메시지가 생성되지 않음
+
+### **적용된 추가 수정**
+1. **Backend 수정** (`src/core/task/index.ts`):
+   - `recursivelyMakeClineRequests()` 함수에 `chatbot_mode_respond` 도구 감지 시 루프 종료 로직 추가
+   - `presentAssistantMessage()` 함수에서 `this.say("text", response)` 호출로 실제 메시지 생성하도록 변경
+   - 디버그 로깅 추가로 실행 흐름 추적 가능
+
+2. **Frontend 수정** (`webview-ui/src/components/chat/ChatView.tsx`):
+   - `handleSendMessage()` 함수의 switch 문에 `case "chatbot_mode_respond":` 추가
+   - UI 상태 정리: `setSendingDisabled(false)`, `setClineAsk(undefined)`, `setEnableButtons(true)`
+
+### **여전히 남은 문제**
+- 수정 후에도 여전히 무한 씽킹 현상 지속
+- **사용자 피드백**: Plan 모드는 정상 동작하므로 Plan 모드와 완전히 동일하게 만들어야 함
+- `setEnableButtons(false)`도 Plan 모드에서 사용하지만 대화는 잘 되므로, 함수명이나 단어에 집착하지 말고 실제 동작을 따라해야 함
+
+### **🎯 최종 시도 계획**
+- **전략**: Plan 모드와 완전히 동일한 동작 방식으로 변경
+- **목표**: 시스템 프롬프트 차이만 두고 나머지는 Plan 모드와 100% 동일하게 구현
+- **근거**: Plan 모드는 정상 동작하고 있으므로 검증된 구현을 그대로 활용
+
+---
+**상태 업데이트**: 🔄 **최종 수정 시도 중** (Plan 모드 완전 복사 전략)

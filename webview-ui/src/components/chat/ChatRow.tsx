@@ -1036,12 +1036,12 @@ export const ChatRowContent = ({
 				case "text":
 					return (
 						<div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-							<PersonaAvatar 
+							<PersonaAvatar
 								isThinking={false}
 								size={64}
-								style={{ 
+								style={{
 									marginTop: "2px",
-									flexShrink: 0 
+									flexShrink: 0,
 								}}
 							/>
 							<div style={{ flex: 1, minWidth: 0 }}>
@@ -1067,12 +1067,12 @@ export const ChatRowContent = ({
 				case "reasoning":
 					return (
 						<div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-							<PersonaAvatar 
+							<PersonaAvatar
 								isThinking={true}
 								size={64}
-								style={{ 
+								style={{
 									marginTop: "2px",
-									flexShrink: 0 
+									flexShrink: 0,
 								}}
 							/>
 							<div style={{ flex: 1, minWidth: 0 }}>
@@ -1624,6 +1624,41 @@ export const ChatRowContent = ({
 								options={options}
 								selected={selected}
 								isActive={isLast && lastModifiedMessage?.ask === "plan_mode_respond"}
+								inputValue={inputValue}
+							/>
+							{quoteButtonState.visible && (
+								<QuoteButton
+									top={quoteButtonState.top}
+									left={quoteButtonState.left}
+									onClick={() => {
+										handleQuoteClick()
+									}}
+								/>
+							)}
+						</WithCopyButton>
+					)
+				}
+				case "chatbot_mode_respond": {
+					// CARET MODIFICATION: Handle chatbot mode responses - identical to plan_mode_respond
+					let response: string | undefined
+					let options: string[] | undefined
+					let selected: string | undefined
+					try {
+						const parsedMessage = JSON.parse(message.text || "{}") as ClinePlanModeResponse
+						response = parsedMessage.response
+						options = parsedMessage.options
+						selected = parsedMessage.selected
+					} catch (e) {
+						// legacy messages would pass response directly
+						response = message.text
+					}
+					return (
+						<WithCopyButton ref={contentRef} onMouseUp={handleMouseUp} textToCopy={response} position="bottom-right">
+							<Markdown markdown={response} />
+							<OptionsButtons
+								options={options}
+								selected={selected}
+								isActive={isLast && lastModifiedMessage?.ask === "chatbot_mode_respond"}
 								inputValue={inputValue}
 							/>
 							{quoteButtonState.visible && (

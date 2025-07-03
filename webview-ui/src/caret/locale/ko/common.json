@@ -38,7 +38,7 @@
 		},
 		"subTitle": {
 			"caretRules": "Caret 규칙 (.caretrules)",
-			"clineRules": "Cline 규칙 (.clinerules)",
+			"CaretRules": "Caret 규칙 (.Caretrules)",
 			"cursorRules": "Cursor 규칙 (.cursorrules)",
 			"windsurfRules": "Windsurf 규칙 (.windsurfrules)"
 		},
@@ -48,13 +48,13 @@
 		},
 		"description": {
 			"personaManagement": "당신의 코딩 스타일과 선호도에 맞는 AI 페르소나를 선택하세요.",
-			"rulesDescription": "규칙을 통해 Cline에게 시스템 수준의 지침을 제공할 수 있습니다. 프로젝트별 또는 모든 대화에 대한 컨텍스트와 선호사항을 지속적으로 포함하는 방법으로 생각하세요.",
-			"workflowsDescription": "워크플로우를 통해 서비스 배포나 PR 제출과 같은 반복적인 작업들을 Cline이 수행할 수 있도록 일련의 단계를 정의할 수 있습니다. 워크플로우를 실행하려면 채팅에서 /워크플로우명을 입력하세요."
+			"rulesDescription": "규칙을 통해 Caret에게 시스템 수준의 지침을 제공할 수 있습니다. 프로젝트별 또는 모든 대화에 대한 컨텍스트와 선호사항을 지속적으로 포함하는 방법으로 생각하세요.",
+			"workflowsDescription": "워크플로우를 통해 서비스 배포나 PR 제출과 같은 반복적인 작업들을 Caret이 수행할 수 있도록 일련의 단계를 정의할 수 있습니다. 워크플로우를 실행하려면 채팅에서 /워크플로우명을 입력하세요."
 		},
 		"action": {
 			"newRuleFile": "새 규칙 파일..."
 		},
-		"title": "Cline 규칙 및 워크플로우 관리",
+		"title": "Caret 규칙 및 워크플로우 관리",
 		"toggleError": "규칙 토글 오류"
 	},
 	"mode": {
@@ -97,9 +97,10 @@
 		},
 		"modeSystem": {
 			"label": "모드 설정",
-			"description": "Cline모드 설정을 하면, Cline의 Plan/Act모드를 이용할 수 있습니다.",
+			"description": "Caret모드 설정을 하면, Caret의 Plan/Act모드를 이용할 수 있습니다.",
 			"options": {
 				"caret": "Caret",
+				"Caret": "Caret",
 				"cline": "Cline"
 			}
 		},
@@ -123,6 +124,21 @@
 	},
 	"common": {
 		"and": "및"
+	},
+	"chat": {
+		"caretHasQuestion": "캐럿이 질문이 있습니다",
+		"typeMessage": "메시지를 입력하세요...",
+		"typeTaskHere": "작업을 입력하세요...",
+		"cancel": "취소",
+		"apiRequestCancelled": "API 요청이 취소되었습니다",
+		"apiStreamingFailed": "API 스트리밍이 실패했습니다",
+		"apiRequest": "API 요청",
+		"apiRequestFailed": "API 요청 실패",
+		"apiRequestPending": "API 요청 중...",
+		"caretWantsToCreateNewFile": "캐럿이 새 파일을 생성하려고 합니다:",
+		"placeholderHint": "@ 입력으로 컨텍스트, / 입력으로 슬래시 명령어 및 워크플로우, Shift 키를 누른 채 드래그하여 파일/이미지 추가",
+		"caretIsUsingBrowser": "캐럿이 브라우저를 사용하고 있습니다:",
+		"caretWantsToUseBrowser": "캐럿이 브라우저를 사용하려고 합니다:"
 	},
 	"modelInfo": {
 		"supportsImages": "이미지 지원",
@@ -229,9 +245,9 @@
 		"viewAllHistory": "모든 기록 보기"
 	},
 	"telemetry": {
-		"helpImprove": "Cline 개선에 도움주기",
+		"helpImprove": "Caret 개선에 도움주기",
 		"experimentalFeatures": "(실험적 기능에 액세스)",
-		"description": "Cline은 버그 수정과 확장 프로그램 개선을 위해 익명의 오류 및 사용 데이터를 수집합니다. 코드, 프롬프트 또는 개인 정보는 전송되지 않습니다.",
+		"description": "Caret은 버그 수정과 확장 프로그램 개선을 위해 익명의 오류 및 사용 데이터를 수집합니다. 코드, 프롬프트 또는 개인 정보는 전송되지 않습니다.",
 		"settingsLink": "설정에서 이 기능을 끌 수 있습니다.",
 		"closeBannerAria": "배너 닫기 및 텔레메트리 활성화"
 	},
@@ -251,10 +267,16 @@
 	},
 	"mcp": {
 		"title": "MCP 서버",
+		"marketplace": "마켓플레이스",
+		"remoteServers": "원격 서버",
+		"installed": "설치됨",
 		"noServersInstalled": "설치된 MCP 서버가 없습니다",
 		"configureServers": "MCP 서버 구성",
 		"noMatchingServers": "일치하는 MCP 서버를 찾을 수 없습니다",
-		"noServersFound": "마켓플레이스에서 MCP 서버를 찾을 수 없습니다"
+		"noServersFound": "마켓플레이스에서 MCP 서버를 찾을 수 없습니다",
+		"description": "모델 컨텍스트 프로토콜을 통해 로컬에서 실행되는 MCP 서버와 통신하여 Cline의 기능을 확장할 수 있는 추가 도구와 리소스를 제공합니다.",
+		"autoApprove": "자동 승인",
+		"autoApproveAllTools": "모든 도구 자동 승인"
 	},
 	"autoApprove": {
 		"addQuickAccess": "빠른 액세스 메뉴에 추가",

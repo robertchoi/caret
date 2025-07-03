@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useFirebaseAuth } from "@/context/FirebaseAuthContext"
 import { vscode } from "@/utils/vscode"
 import VSCodeButtonLink from "../../components/common/VSCodeButtonLink"
-import ClineLogoWhite from "../../assets/ClineLogoWhite" // CARET MODIFICATION: Will be replaced with CaretLogoWhite
+import CaretLogoWhite from "../../assets/CaretLogoWhite" // CARET MODIFICATION: Changed from ClineLogoWhite to CaretLogoWhite
 import CountUp from "react-countup"
 import CreditsHistoryTable from "../../components/account/CreditsHistoryTable"
 import { UsageTransaction, PaymentTransaction } from "@shared/ClineAccount"
@@ -159,7 +159,7 @@ export const ClineAccountView = () => {
 			) : (
 				<div className="flex flex-col items-center pr-3">
 					{/* CARET MODIFICATION: Will be replaced with CaretLogoWhite when available */}
-					<ClineLogoWhite className="size-16 mb-4" />
+					<CaretLogoWhite className="size-16 mb-4" />
 
 					<p style={{}}>{t("account.signUpDescription", "common")}</p>
 

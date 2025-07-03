@@ -10,6 +10,7 @@ import Tooltip from "@/components/common/Tooltip"
 import { McpServers } from "@shared/proto/mcp"
 import { convertProtoMcpServersToMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion"
 import { EmptyRequest } from "@shared/proto/common"
+import { t } from "@/caret/utils/i18n"
 
 const ServersToggleModal: React.FC = () => {
 	const { mcpServers, navigateToMcp, setMcpServers } = useExtensionState()
@@ -55,10 +56,10 @@ const ServersToggleModal: React.FC = () => {
 	return (
 		<div ref={modalRef}>
 			<div ref={buttonRef} className="inline-flex min-w-0 max-w-full">
-				<Tooltip tipText="Manage MCP Servers" visible={isVisible ? false : undefined}>
+				<Tooltip tipText={t("mcp.configureServers", "common")} visible={isVisible ? false : undefined}>
 					<VSCodeButton
 						appearance="icon"
-						aria-label="MCP Servers"
+						aria-label={t("mcp.title", "common")}
 						onClick={() => setIsVisible(!isVisible)}
 						style={{ padding: "0px 0px", height: "20px" }}>
 						<div className="flex items-center gap-1 text-xs whitespace-nowrap min-w-0 w-full">
@@ -90,7 +91,7 @@ const ServersToggleModal: React.FC = () => {
 					/>
 
 					<div className="flex justify-between items-center mb-2.5">
-						<div className="m-0 text-base font-semibold">MCP Servers</div>
+						<div className="m-0 text-base font-semibold">{t("mcp.title", "common")}</div>
 						<VSCodeButton
 							appearance="icon"
 							onClick={() => {

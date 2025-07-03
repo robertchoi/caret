@@ -1,3 +1,6 @@
+import React from "react"
+import styled from "styled-components"
+import { t } from "@/caret/utils/i18n"
 import { McpServer } from "@shared/mcp"
 import ServerRow from "./server-row/ServerRow"
 
@@ -27,8 +30,8 @@ const ServersToggleList = ({
 			))}
 		</div>
 	) : (
-		<div className="flex flex-col items-center gap-3 my-5 text-[var(--vscode-descriptionForeground)]">
-			No MCP servers installed
+		<div className="text-[var(--vscode-descriptionForeground)] text-center py-4">
+			{t("mcp.noServersInstalled", "common")}
 		</div>
 	)
 }

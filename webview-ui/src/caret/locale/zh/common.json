@@ -38,7 +38,7 @@
 		},
 		"subTitle": {
 			"caretRules": "Caret规则 (.caretrules)",
-			"clineRules": "Cline规则 (.clinerules)",
+			"CaretRules": "Caret规则 (.Caretrules)",
 			"cursorRules": "Cursor规则 (.cursorrules)",
 			"windsurfRules": "Windsurf规则 (.windsurfrules)"
 		},
@@ -48,13 +48,13 @@
 		},
 		"description": {
 			"personaManagement": "选择符合您编码风格和偏好的AI角色。",
-			"rulesDescription": "规则允许您为Cline提供系统级指导。将其视为为您的项目或全局的每次对话持续包含上下文和偏好的方法。",
-			"workflowsDescription": "工作流允许您定义一系列步骤，让Cline执行部署服务或提交PR等重复性任务。要运行工作流，请在聊天中输入 /工作流名称。"
+			"rulesDescription": "规则允许您为Caret提供系统级指导。将其视为为您的项目或全局的每次对话持续包含上下文和偏好的方法。",
+			"workflowsDescription": "工作流允许您定义一系列步骤，让Caret执行部署服务或提交PR等重复性任务。要运行工作流，请在聊天中输入 /工作流名称。"
 		},
 		"action": {
 			"newRuleFile": "新建规则文件..."
 		},
-		"title": "Cline规则和工作流管理",
+		"title": "Caret规则和工作流管理",
 		"toggleError": "规则切换错误"
 	},
 	"mode": {
@@ -97,9 +97,10 @@
 		},
 		"modeSystem": {
 			"label": "模式设置",
-			"description": "设置Cline模式后，您可以使用Cline的Plan/Act模式。",
+			"description": "设置Caret模式后，您可以使用Caret的Plan/Act模式。",
 			"options": {
 				"caret": "Caret",
+				"Caret": "Caret",
 				"cline": "Cline"
 			}
 		},
@@ -123,6 +124,21 @@
 	},
 	"common": {
 		"and": "和"
+	},
+	"chat": {
+		"caretHasQuestion": "Caret有问题",
+		"typeMessage": "输入消息...",
+		"typeTaskHere": "在这里输入您的任务...",
+		"cancel": "取消",
+		"apiRequestCancelled": "API请求已取消",
+		"apiStreamingFailed": "API流传输失败",
+		"apiRequest": "API请求",
+		"apiRequestFailed": "API请求失败",
+		"apiRequestPending": "API请求中...",
+		"caretWantsToCreateNewFile": "Caret想要创建新文件：",
+		"placeholderHint": "输入@添加上下文，输入/添加斜杠命令和工作流，按住Shift拖拽添加文件/图片",
+		"caretIsUsingBrowser": "Caret正在使用浏览器：",
+		"caretWantsToUseBrowser": "Caret想要使用浏览器："
 	},
 	"modelInfo": {
 		"supportsImages": "支持图片",
@@ -226,9 +242,9 @@
 		"viewAllHistory": "查看所有历史"
 	},
 	"telemetry": {
-		"helpImprove": "帮助改进Cline",
+		"helpImprove": "帮助改进Caret",
 		"experimentalFeatures": "（并访问实验性功能）",
-		"description": "Cline收集匿名错误和使用数据以帮助我们修复错误并改进扩展。不会发送任何代码、提示或个人信息。",
+		"description": "Caret收集匿名错误和使用数据以帮助我们修复错误并改进扩展。不会发送任何代码、提示或个人信息。",
 		"settingsLink": "您可以在设置中关闭此功能。",
 		"closeBannerAria": "关闭横幅并启用遥测"
 	},
@@ -248,10 +264,16 @@
 	},
 	"mcp": {
 		"title": "MCP服务器",
+		"marketplace": "市场",
+		"remoteServers": "远程服务器",
+		"installed": "已安装",
 		"noServersInstalled": "未安装MCP服务器",
 		"configureServers": "配置MCP服务器",
 		"noMatchingServers": "未找到匹配的MCP服务器",
-		"noServersFound": "在市场中未找到MCP服务器"
+		"noServersFound": "市场中未找到MCP服务器",
+		"description": "模型上下文协议使您能够与本地运行的MCP服务器通信，提供额外的工具和资源来扩展Cline的功能。",
+		"autoApprove": "自动批准",
+		"autoApproveAllTools": "自动批准所有工具"
 	},
 	"autoApprove": {
 		"addQuickAccess": "添加到快速访问菜单",

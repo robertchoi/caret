@@ -12,6 +12,7 @@ import deepEqual from "fast-deep-equal"
 import React, { CSSProperties, memo, useEffect, useMemo, useRef, useState } from "react"
 import { useSize } from "react-use"
 import styled from "styled-components"
+import { t } from "@/caret/utils/i18n"
 
 interface BrowserSessionRowProps {
 	messages: ClineMessage[]
@@ -360,7 +361,7 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 					<span className="codicon codicon-inspect" style={browserIconStyle}></span>
 				)}
 				<span style={approveTextStyle}>
-					<>{isAutoApproved ? "Cline is using the browser:" : "Cline wants to use the browser:"}</>
+					<>{isAutoApproved ? t("chat.caretIsUsingBrowser", "common") : t("chat.caretWantsToUseBrowser", "common")}</>
 				</span>
 			</div>
 			<div

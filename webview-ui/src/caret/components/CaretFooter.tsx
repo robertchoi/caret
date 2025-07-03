@@ -21,7 +21,7 @@ const CaretFooter: React.FC = () => {
 						target="_blank"
 						rel="noopener noreferrer"
 						className="caret-footer-link">
-						{t("footer.links.github", "welcome")}
+						{t("footer.links.caretGithub", "welcome")}
 					</a>
 					<span className="caret-footer-separator"> • </span>
 					<a
@@ -37,7 +37,7 @@ const CaretFooter: React.FC = () => {
 						target="_blank"
 						rel="noopener noreferrer"
 						className="caret-footer-link">
-						{t("footer.links.caretiveCompany", "welcome")}
+						{t("footer.links.caretiveInc", "welcome")}
 					</a>
 					<span className="caret-footer-separator"> • </span>
 					<a

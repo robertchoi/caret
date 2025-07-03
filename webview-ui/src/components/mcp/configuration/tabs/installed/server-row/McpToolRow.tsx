@@ -4,6 +4,7 @@ import { McpTool } from "@shared/mcp"
 import { convertProtoMcpServersToMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion"
 import { ToggleToolAutoApproveRequest } from "@shared/proto/mcp"
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
+import { t } from "@/caret/utils/i18n"
 
 type McpToolRowProps = {
 	tool: McpTool
@@ -52,7 +53,7 @@ const McpToolRow = ({ tool, serverName }: McpToolRowProps) => {
 				</div>
 				{serverName && autoApprovalSettings.enabled && autoApprovalSettings.actions.useMcp && (
 					<VSCodeCheckbox checked={tool.autoApprove ?? false} onChange={handleAutoApproveChange} data-tool={tool.name}>
-						Auto-approve
+						{t("mcp.autoApprove", "common")}
 					</VSCodeCheckbox>
 				)}
 			</div>

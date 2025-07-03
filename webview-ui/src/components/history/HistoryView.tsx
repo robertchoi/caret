@@ -328,7 +328,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 						{/* CARET MODIFICATION: 다국어 처리된 History 제목 */}
 						{t("history.title", "common")}
 					</h3>
-					<VSCodeButton onClick={onDone}>Done</VSCodeButton>
+					<VSCodeButton onClick={onDone}>{t("buttons.done", "settings")}</VSCodeButton>
 				</div>
 				<div style={{ padding: "5px 17px 6px 17px" }}>
 					<div

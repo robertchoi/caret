@@ -12,6 +12,7 @@ import { AccountServiceClient } from "@/services/grpc-client"
 import { EmptyRequest } from "@shared/proto/common"
 // CARET MODIFICATION: Import Caret version for conditional rendering
 import { ClineAccountView as CaretAccountView } from "@/caret/components/CaretAccountView"
+import { t } from "@/caret/utils/i18n" // CARET MODIFICATION: 다국어 지원 추가
 
 type AccountViewProps = {
 	onDone: () => void
@@ -22,7 +23,7 @@ const AccountView = ({ onDone }: AccountViewProps) => {
 		<div className="fixed inset-0 flex flex-col overflow-hidden pt-[10px] pl-[20px]">
 			<div className="flex justify-between items-center mb-[17px] pr-[17px]">
 				<h3 className="text-[var(--vscode-foreground)] m-0">Account</h3>
-				<VSCodeButton onClick={onDone}>Done</VSCodeButton>
+				<VSCodeButton onClick={onDone}>{t("buttons.done", "settings")}</VSCodeButton>
 			</div>
 			<div className="flex-grow overflow-hidden pr-[8px] flex flex-col">
 				<div className="h-full mb-[5px]">

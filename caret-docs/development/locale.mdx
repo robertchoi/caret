@@ -21,14 +21,37 @@ Caret 웹뷰 UI는 다음 언어들을 지원하며, 언어 설정은 다음 우
 ```
 webview-ui/src/caret/locale/
 ├── ko/
-│   └── welcome.json     # 한국어 웰컴페이지 번역
+│   ├── welcome.json     # 한국어 웰컴페이지 번역 ✅
+│   ├── common.json      # 한국어 공통 UI 번역 ✅
+│   ├── settings.json    # 한국어 설정 페이지 번역 ✅
+│   └── rules.json       # 한국어 규칙 관리 번역 ✅
 ├── en/
-│   └── welcome.json     # 영어 웰컴페이지 번역
+│   ├── welcome.json     # 영어 웰컴페이지 번역 ✅
+│   ├── common.json      # 영어 공통 UI 번역 ✅
+│   ├── settings.json    # 영어 설정 페이지 번역 ✅
+│   └── rules.json       # 영어 규칙 관리 번역 ✅
 ├── ja/
-│   └── welcome.json     # 일본어 웰컴페이지 번역
+│   ├── welcome.json     # 일본어 웰컴페이지 번역 ✅
+│   ├── common.json      # 일본어 공통 UI 번역 ✅
+│   ├── settings.json    # 일본어 설정 페이지 번역 ✅
+│   └── rules.json       # 일본어 규칙 관리 번역 ✅
 └── zh/
-    └── welcome.json     # 중국어 웰컴페이지 번역
+    ├── welcome.json     # 중국어 웰컴페이지 번역 ✅
+    ├── common.json      # 중국어 공통 UI 번역 ✅
+    ├── settings.json    # 중국어 설정 페이지 번역 ✅
+    └── rules.json       # 중국어 규칙 관리 번역 ✅
 ```
+
+### ⚠️ 현재 누락된 다국어 지원 영역
+
+#### 메인 페이지 및 채팅창 UI
+- 자동 승인 설정 관련 텍스트
+- 채팅창 상단 Task/Tokens 영역
+- API Request, Checkpoint, Thinking 등 대화 상태 표시
+- "Cline has a question" → "Caret has a question" 표시
+
+#### 웰컴뷰 풋터
+- 일부 언어에서 풋터 링크 번역 누락
 
 ## 🔧 사용법
 

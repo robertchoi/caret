@@ -49,7 +49,7 @@
 		},
 		"subTitle": {
 			"caretRules": "Caret Rules (.caretrules)",
-			"clineRules": "Cline Rules (.clinerules)",
+			"CaretRules": "Caret Rules (.Caretrules)",
 			"cursorRules": "Cursor Rules (.cursorrules)",
 			"windsurfRules": "Windsurf Rules (.windsurfrules)"
 		},
@@ -60,18 +60,18 @@
 		"description": {
 			"personaManagement": "Choose an AI persona that matches your coding style and preferences.",
 			"rulesDescription": "Rules allow you to provide system-level guidance. Think of them as a persistent way to include context and preferences for your projects or globally for every conversation.",
-			"workflowsDescription": "Workflows allow you to define a series of steps for Cline to perform repetitive tasks like deploying services or submitting PRs. To run a workflow, type /workflow-name in the chat."
+			"workflowsDescription": "Workflows allow you to define a series of steps for Caret to perform repetitive tasks like deploying services or submitting PRs. To run a workflow, type /workflow-name in the chat."
 		},
 		"action": {
 			"newRuleFile": "New rule file..."
 		},
-		"title": "Cline Rules & Workflow Management",
+		"title": "Caret Rules & Workflow Management",
 		"docsLink": "Docs",
 		"toggleError": "Rule toggle error"
 	},
 	"rulesModal": {
-		"tooltip.manageRulesWorkflows": "Manage Cline Rules & Workflows",
-		"ariaLabel.clineRulesButton": "Cline Rules"
+		"tooltip.manageRulesWorkflows": "Manage Caret Rules & Workflows",
+		"ariaLabel.CaretRulesButton": "Caret Rules"
 	},
 	"mode": {
 		"chatbot": {
@@ -124,9 +124,10 @@
 		},
 		"modeSystem": {
 			"label": "Mode Settings",
-			"description": "Enable Cline mode to access Cline's Plan/Act modes.",
+			"description": "Enable Caret mode settings to use Caret's Plan/Act modes.",
 			"options": {
 				"caret": "Caret",
+				"Caret": "Caret",
 				"cline": "Cline"
 			}
 		},
@@ -150,6 +151,21 @@
 	},
 	"common": {
 		"and": "and"
+	},
+	"chat": {
+		"caretHasQuestion": "Caret has a question",
+		"typeMessage": "Type a message...",
+		"typeTaskHere": "Type your task here...",
+		"cancel": "Cancel",
+		"apiRequestCancelled": "API Request Cancelled",
+		"apiStreamingFailed": "API Streaming Failed",
+		"apiRequest": "API Request",
+		"apiRequestFailed": "API Request Failed",
+		"apiRequestPending": "API Request...",
+		"caretWantsToCreateNewFile": "Caret wants to create a new file:",
+		"placeholderHint": "Type @ for context, / for slash commands & workflows, hold shift to drag in files/images",
+		"caretIsUsingBrowser": "Caret is using the browser:",
+		"caretWantsToUseBrowser": "Caret wants to use the browser:"
 	},
 	"modelInfo": {
 		"supportsImages": "Supports images",
@@ -250,9 +266,9 @@
 		"reasoningEnabled": "Reasoning enabled by default"
 	},
 	"telemetry": {
-		"helpImprove": "Help Improve Cline",
+		"helpImprove": "Help Improve Caret",
 		"experimentalFeatures": "(and access experimental features)",
-		"description": "Cline collects anonymous error and usage data to help us fix bugs and improve the extension. No code, prompts, or personal information is ever sent.",
+		"description": "Caret collects anonymous error and usage data to help us fix bugs and improve the extension. No code, prompts, or personal information is ever sent.",
 		"settingsLink": "You can turn this setting off in settings.",
 		"closeBannerAria": "Close banner and enable telemetry"
 	},
@@ -272,10 +288,16 @@
 	},
 	"mcp": {
 		"title": "MCP Servers",
+		"marketplace": "Marketplace",
+		"remoteServers": "Remote Servers",
+		"installed": "Installed",
 		"noServersInstalled": "No MCP servers installed",
-		"configureServers": "Configure MCP Servers",
+		"configureServers": "Configure MCP servers",
 		"noMatchingServers": "No matching MCP servers found",
-		"noServersFound": "No MCP servers found in the marketplace"
+		"noServersFound": "No MCP servers found in marketplace",
+		"description": "The Model Context Protocol enables communication with locally running MCP servers that provide additional tools and resources to extend Cline's capabilities.",
+		"autoApprove": "Auto-approve",
+		"autoApproveAllTools": "Auto-approve all tools"
 	},
 	"autoApprove": {
 		"addQuickAccess": "Add to quick-access menu",

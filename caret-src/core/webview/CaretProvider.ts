@@ -120,12 +120,12 @@ export class CaretProvider extends ClineWebviewProvider {
 		const originalHtml = super.getHtmlContent(webview)
 		let caretBannerDataUri = ""
 		try {
-			const bannerPath = path.join(this.context.extensionPath, "caret-assets", "caret-main-banner.webp")
-			// CARET MODIFICATION: 배너 이미지 로딩 디버깅 추가
+			const bannerPath = path.join(this.context.extensionPath, "caret-assets", "icons", "icon.png")
+			// CARET MODIFICATION: 배너 이미지를 icon.png로 변경
 			caretLogger.info(`[CaretProvider] Attempting to load banner from: ${bannerPath}`)
 			if (fs.existsSync(bannerPath)) {
 				const fileBuffer = fs.readFileSync(bannerPath)
-				caretBannerDataUri = `data:image/webp;base64,${fileBuffer.toString("base64")}`
+				caretBannerDataUri = `data:image/png;base64,${fileBuffer.toString("base64")}`
 				caretLogger.info(`[CaretProvider] Banner loaded successfully, size: ${fileBuffer.length} bytes`)
 			} else {
 				caretLogger.error(`[CaretProvider] Banner file not found: ${bannerPath}`)

@@ -12,6 +12,7 @@ import { CODE_BLOCK_BG_COLOR } from "../common/CodeBlock"
 import { highlight } from "../history/HistoryView"
 import { ModelInfoView, normalizeApiConfiguration } from "./ApiOptions"
 import ThinkingBudgetSlider from "./ThinkingBudgetSlider"
+import { t } from "@/caret/utils/i18n"
 
 export interface RequestyModelPickerProps {
 	isPopup?: boolean
@@ -238,11 +239,11 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({ isPopup }) =>
 						color: "var(--vscode-descriptionForeground)",
 					}}>
 					<>
-						The extension automatically fetches the latest list of models available on{" "}
+						{t("settings.modelPicker.extensionFetches", "settings")}
 						<VSCodeLink style={{ display: "inline", fontSize: "inherit" }} href="https://app.requesty.ai/router/list">
 							Requesty.
 						</VSCodeLink>
-						If you're unsure which model to choose, Cline works best with{" "}
+						{t("settings.modelPicker.unsureWhichModel", "settings")}
 						<VSCodeLink
 							style={{ display: "inline", fontSize: "inherit" }}
 							onClick={() => handleModelChange("anthropic/claude-3-7-sonnet-latest")}>
@@ -425,7 +426,7 @@ export const ModelDescriptionMarkdown = memo(
 									backgroundColor: isPopup ? CODE_BLOCK_BG_COLOR : "var(--vscode-sideBar-background)",
 								}}
 								onClick={() => setIsExpanded(true)}>
-								See more
+								{t("settings.modelPicker.seeMore", "settings")}
 							</VSCodeLink>
 						</div>
 					)}

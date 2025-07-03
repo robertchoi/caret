@@ -172,6 +172,15 @@
 		}
 	},
 	"autoApprove": {
+		"title": "자동 승인 설정",
+		"tooltip": "다양한 작업에 대한 자동 승인 설정을 구성합니다",
+		"label": "자동 승인",
+		"actionsHeader": "작업",
+		"quickSettingsHeader": "빠른 설정",
+		"maxRequestsLabel": "최대 요청 수",
+		"maxRequestsTooltip": "자동 승인할 수 있는 최대 연속 요청 수",
+		"removeFromQuickAccess": "빠른 접근 메뉴에서 제거",
+		"addToQuickAccess": "빠른 접근 메뉴에 추가",
 		"enableAutoApprove": {
 			"label": "자동 승인 활성화",
 			"shortName": "활성화됨",
@@ -246,8 +255,15 @@
 		"description": "디버그 모드 및 관련 설정을 관리합니다."
 	},
 	"about": {
-		"feedbackPrompt": "질문이나 피드백이 있다면, 다음 주소에서 이슈를 열어주세요:",
+		"feedbackPrompt": "질문이나 피드백이 있다면, 언제라도 환영합니다.",
+		"version": "버전",
 		"title": "정보",
 		"description": "Caret 버전을 확인하고 관련 정보를 볼 수 있습니다."
+	},
+	"modelPicker": {
+		"extensionFetches": "확장 프로그램이 다음에서 사용 가능한 최신 모델 목록을 자동으로 가져옵니다: ",
+		"unsureWhichModel": "어떤 모델을 선택할지 확실하지 않다면, Caret은 다음과 함께 가장 잘 작동합니다: ",
+		"freeOptions": "현재 사용 가능한 무료 옵션을 찾으려면 \"free\"를 검색해보세요.",
+		"seeMore": "더 보기"
 	}
 } 

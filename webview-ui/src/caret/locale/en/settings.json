@@ -171,6 +171,15 @@
 		}
 	},
 	"autoApprove": {
+		"title": "Auto Approve Settings",
+		"tooltip": "Configure auto-approval settings for various actions",
+		"label": "Auto Approve",
+		"actionsHeader": "Actions",
+		"quickSettingsHeader": "Quick Settings",
+		"maxRequestsLabel": "Max Requests",
+		"maxRequestsTooltip": "Maximum number of consecutive requests that can be auto-approved",
+		"removeFromQuickAccess": "Remove from quick-access menu",
+		"addToQuickAccess": "Add to quick-access menu",
 		"enableAutoApprove": {
 			"label": "Enable auto-approve",
 			"shortName": "Enabled",
@@ -241,7 +250,15 @@
 		"resetGlobalStateDescription": "This will reset all global state and secret storage in the extension."
 	},
 	"about": {
-		"feedbackPrompt": "If you have any questions or feedback, feel free to open an issue at",
-		"title": "Caret Settings"
+		"feedbackPrompt": "If you have any questions or feedback, you're always welcome.",
+		"version": "Version",
+		"title": "About",
+		"description": "Check Caret version and related information."
+	},
+	"modelPicker": {
+		"extensionFetches": "The extension automatically fetches the latest list of models available on ",
+		"unsureWhichModel": "If you're unsure which model to choose, Caret works best with ",
+		"freeOptions": "You can also try searching \"free\" for no-cost options currently available.",
+		"seeMore": "See more"
 	}
 } 

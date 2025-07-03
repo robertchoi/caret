@@ -13,6 +13,7 @@ import { highlight } from "../history/HistoryView"
 import { ModelInfoView, normalizeApiConfiguration } from "./ApiOptions"
 import FeaturedModelCard from "./FeaturedModelCard"
 import ThinkingBudgetSlider from "./ThinkingBudgetSlider"
+import { t } from "@/caret/utils/i18n"
 
 // Star icon for favorites
 const StarIcon = ({ isFavorite, onClick }: { isFavorite: boolean; onClick: (e: React.MouseEvent) => void }) => {
@@ -326,17 +327,17 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({ isPopup }
 						color: "var(--vscode-descriptionForeground)",
 					}}>
 					<>
-						The extension automatically fetches the latest list of models available on{" "}
+						{t("settings.modelPicker.extensionFetches", "settings")}
 						<VSCodeLink style={{ display: "inline", fontSize: "inherit" }} href="https://openrouter.ai/models">
 							OpenRouter.
 						</VSCodeLink>
-						If you're unsure which model to choose, Cline works best with{" "}
+						{t("settings.modelPicker.unsureWhichModel", "settings")}
 						<VSCodeLink
 							style={{ display: "inline", fontSize: "inherit" }}
 							onClick={() => handleModelChange("anthropic/claude-3.7-sonnet")}>
 							anthropic/claude-3.7-sonnet.
 						</VSCodeLink>
-						You can also try searching "free" for no-cost options currently available.
+						{t("settings.modelPicker.freeOptions", "settings")}
 					</>
 				</p>
 			)}
@@ -514,7 +515,7 @@ export const ModelDescriptionMarkdown = memo(
 									backgroundColor: isPopup ? CODE_BLOCK_BG_COLOR : "var(--vscode-sideBar-background)",
 								}}
 								onClick={() => setIsExpanded(true)}>
-								See more
+								{t("settings.modelPicker.seeMore", "settings")}
 							</VSCodeLink>
 						</div>
 					)}

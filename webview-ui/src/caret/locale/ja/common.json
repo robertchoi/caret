@@ -38,7 +38,7 @@
 		},
 		"subTitle": {
 			"caretRules": "Caretルール (.caretrules)",
-			"clineRules": "Clineルール (.clinerules)",
+			"CaretRules": "Caretルール (.Caretrules)",
 			"cursorRules": "Cursorルール (.cursorrules)",
 			"windsurfRules": "Windsurfルール (.windsurfrules)"
 		},
@@ -48,13 +48,13 @@
 		},
 		"description": {
 			"personaManagement": "あなたのコーディングスタイルと好みに合うAIペルソナを選択してください。",
-			"rulesDescription": "ルールを通じてClineにシステムレベルのガイダンスを提供できます。プロジェクト別またはすべての会話に対するコンテキストと好みを持続的に含める方法と考えてください。",
-			"workflowsDescription": "ワークフローを通じて、サービスのデプロイやPRの提出のような反復的なタスクをClineが実行できるよう一連のステップを定義できます。ワークフローを実行するには、チャットで /ワークフロー名 を入力してください。"
+			"rulesDescription": "ルールを通じてCaretにシステムレベルのガイダンスを提供できます。プロジェクト別またはすべての会話に対するコンテキストと好みを持続的に含める方法と考えてください。",
+			"workflowsDescription": "ワークフローを通じて、サービスのデプロイやPRの提出のような反復的なタスクをCaretが実行できるよう一連のステップを定義できます。ワークフローを実行するには、チャットで /ワークフロー名 を入力してください。"
 		},
 		"action": {
 			"newRuleFile": "新しいルールファイル..."
 		},
-		"title": "Clineルール＆ワークフロー管理",
+		"title": "Caretルール＆ワークフロー管理",
 		"toggleError": "ルールトグルエラー"
 	},
 	"mode": {
@@ -97,9 +97,10 @@
 		},
 		"modeSystem": {
 			"label": "モード設定",
-			"description": "Clineモードを設定すると、ClineのPlan/Actモードを利用できます。",
+			"description": "Caretモード設定を有効にすると、CaretのPlan/Actモードを使用できます。",
 			"options": {
 				"caret": "Caret",
+				"Caret": "Caret",
 				"cline": "Cline"
 			}
 		},
@@ -123,6 +124,21 @@
 	},
 	"common": {
 		"and": "と"
+	},
+	"chat": {
+		"caretHasQuestion": "キャレットから質問があります",
+		"typeMessage": "メッセージを入力してください...",
+		"typeTaskHere": "タスクを入力してください...",
+		"cancel": "キャンセル",
+		"apiRequestCancelled": "APIリクエストがキャンセルされました",
+		"apiStreamingFailed": "APIストリーミングが失敗しました",
+		"apiRequest": "APIリクエスト",
+		"apiRequestFailed": "APIリクエスト失敗",
+		"apiRequestPending": "APIリクエスト中...",
+		"caretWantsToCreateNewFile": "キャレットが新しいファイルを作成しようとしています:",
+		"placeholderHint": "コンテキストには@、スラッシュコマンドとワークフローには/を入力し、Shiftキーを押しながらドラッグしてファイル/画像を追加",
+		"caretIsUsingBrowser": "キャレットがブラウザを使用しています:",
+		"caretWantsToUseBrowser": "キャレットがブラウザを使用しようとしています:"
 	},
 	"modelInfo": {
 		"supportsImages": "画像をサポート",
@@ -229,9 +245,9 @@
 		"viewAllHistory": "すべての履歴を表示"
 	},
 	"telemetry": {
-		"helpImprove": "Clineの改善にご協力ください",
+		"helpImprove": "Caretの改善にご協力ください",
 		"experimentalFeatures": "（実験的機能にアクセス）",
-		"description": "Clineはバグ修正と拡張機能の改善のために匿名のエラーと使用データを収集します。コード、プロンプト、個人情報は送信されません。",
+		"description": "Caretはバグ修正と拡張機能の改善のために匿名のエラーと使用データを収集します。コード、プロンプト、個人情報は送信されません。",
 		"settingsLink": "この設定は設定で無効にできます。",
 		"closeBannerAria": "バナーを閉じてテレメトリを有効にする"
 	},
@@ -251,10 +267,16 @@
 	},
 	"mcp": {
 		"title": "MCPサーバー",
+		"marketplace": "マーケットプレイス",
+		"remoteServers": "リモートサーバー",
+		"installed": "インストール済み",
 		"noServersInstalled": "MCPサーバーがインストールされていません",
 		"configureServers": "MCPサーバーを設定",
 		"noMatchingServers": "一致するMCPサーバーが見つかりません",
-		"noServersFound": "マーケットプレイスでMCPサーバーが見つかりません"
+		"noServersFound": "マーケットプレイスにMCPサーバーが見つかりません",
+		"description": "モデルコンテキストプロトコルにより、ローカルで実行されているMCPサーバーと通信し、Clineの機能を拡張する追加のツールとリソースを提供します。",
+		"autoApprove": "自動承認",
+		"autoApproveAllTools": "すべてのツールを自動承認"
 	},
 	"autoApprove": {
 		"addQuickAccess": "クイックアクセスメニューに追加",

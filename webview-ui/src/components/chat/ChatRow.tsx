@@ -41,6 +41,7 @@ import UserMessage from "./UserMessage"
 import QuoteButton from "./QuoteButton"
 // CARET MODIFICATION: Import PersonaAvatar for displaying persona images in chat
 import PersonaAvatar from "../../caret/components/PersonaAvatar"
+import { t } from "@/caret/utils/i18n" // CARET MODIFICATION: 다국어 지원을 위한 t 함수 임포트
 
 const normalColor = "var(--vscode-foreground)"
 const errorColor = "var(--vscode-errorForeground)"
@@ -409,18 +410,18 @@ export const ChatRowContent = ({
 					(() => {
 						if (apiReqCancelReason != null) {
 							return apiReqCancelReason === "user_cancelled" ? (
-								<span style={{ color: normalColor, fontWeight: "bold" }}>API Request Cancelled</span>
+								<span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat.apiRequestCancelled", "common")}</span>
 							) : (
-								<span style={{ color: errorColor, fontWeight: "bold" }}>API Streaming Failed</span>
+								<span style={{ color: errorColor, fontWeight: "bold" }}>{t("chat.apiStreamingFailed", "common")}</span>
 							)
 						}
 
 						if (cost != null) {
-							return <span style={{ color: normalColor, fontWeight: "bold" }}>API Request</span>
+							return <span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat.apiRequest", "common")}</span>
 						}
 
 						if (apiRequestFailedMessage) {
-							return <span style={{ color: errorColor, fontWeight: "bold" }}>API Request Failed</span>
+							return <span style={{ color: errorColor, fontWeight: "bold" }}>{t("chat.apiRequestFailed", "common")}</span>
 						}
 						// New: Check for retryStatus to modify the title
 						if (retryStatus && cost == null && !apiReqCancelReason) {
@@ -434,7 +435,7 @@ export const ChatRowContent = ({
 							)
 						}
 
-						return <span style={{ color: normalColor, fontWeight: "bold" }}>API Request...</span>
+						return <span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat.apiRequestPending", "common")}</span>
 					})(),
 				]
 			case "followup":
@@ -445,7 +446,7 @@ export const ChatRowContent = ({
 							color: normalColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: normalColor, fontWeight: "bold" }}>Cline has a question:</span>,
+					<span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat.caretHasQuestion", "common")}:</span>,
 				]
 			default:
 				return [null, null]
@@ -516,7 +517,7 @@ export const ChatRowContent = ({
 							{toolIcon("new-file")}
 							{tool.operationIsLocatedInWorkspace === false &&
 								toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
-							<span style={{ fontWeight: "bold" }}>Cline wants to create a new file:</span>
+							<span style={{ fontWeight: "bold" }}>{t("chat.caretWantsToCreateNewFile", "common")}</span>
 						</div>
 						<CodeAccordian
 							isLoading={message.partial}

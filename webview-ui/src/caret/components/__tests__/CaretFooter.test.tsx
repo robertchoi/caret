@@ -11,11 +11,11 @@ vi.mock("../../utils/i18n", () => ({
 		const links = {
 			CARET_GITHUB: "https://github.com/aicoding-caret/caret",
 			CARET_SERVICE: "https://caret.team",
-			CARETIVE_COMPANY: "https://caretive.co",
-			CARETIVE_TERMS: "https://caretive.co/terms",
-			CARETIVE_PRIVACY: "https://caretive.co/privacy",
-			CARETIVE_SUPPORT: "https://caretive.co/support",
-			CARETIVE_YOUTH_PROTECTION: "https://caretive.co/youth-protection",
+			CARETIVE_COMPANY: "https://caretive.ai",
+			CARETIVE_TERMS: "https://caretive.ai/terms",
+			CARETIVE_PRIVACY: "https://caretive.ai/privacy",
+			CARETIVE_SUPPORT: "https://caretive.ai/support",
+			CARETIVE_YOUTH_PROTECTION: "https://caretive.ai/youth-protection",
 		}
 		return links[linkKey as keyof typeof links] || "#"
 	},
@@ -56,7 +56,7 @@ describe("CaretFooter", () => {
 	describe("should render links correctly", () => {
 		it("should render GitHub link", () => {
 			render(React.createElement(CaretFooter))
-			const githubLink = screen.getByRole("link", { name: "welcome.footer.links.github" })
+			const githubLink = screen.getByRole("link", { name: "welcome.footer.links.caretGithub" })
 			expect(githubLink).toBeInTheDocument()
 			expect(githubLink).toHaveAttribute("href", "https://github.com/aicoding-caret/caret")
 			expect(githubLink).toHaveAttribute("target", "_blank")

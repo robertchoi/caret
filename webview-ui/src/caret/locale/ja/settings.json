@@ -171,6 +171,15 @@
 		}
 	},
 	"autoApprove": {
+		"title": "自動承認設定",
+		"tooltip": "様々なアクションに対する自動承認設定を構成します",
+		"label": "自動承認",
+		"actionsHeader": "アクション",
+		"quickSettingsHeader": "クイック設定",
+		"maxRequestsLabel": "最大リクエスト数",
+		"maxRequestsTooltip": "自動承認できる連続リクエストの最大数",
+		"removeFromQuickAccess": "クイックアクセスメニューから削除",
+		"addToQuickAccess": "クイックアクセスメニューに追加",
 		"enableAutoApprove": {
 			"label": "自動承認を有効にする",
 			"shortName": "有効",
@@ -226,5 +235,17 @@
 			"shortName": "通知",
 			"description": "Clineが続行するために承認が必要な場合、またはタスクが完了した場合にシステム通知を受け取ります。"
 		}
+	},
+	"about": {
+		"feedbackPrompt": "ご質問やフィードバックがございましたら、いつでもお気軽にお声がけください。",
+		"version": "バージョン",
+		"title": "情報",
+		"description": "Caretのバージョンと関連情報を確認できます。"
+	},
+	"modelPicker": {
+		"extensionFetches": "拡張機能は次から利用可能な最新のモデルリストを自動的に取得します: ",
+		"unsureWhichModel": "どのモデルを選択するか迷っている場合、Caretは次のモデルで最も良く動作します: ",
+		"freeOptions": "現在利用可能な無料オプションについては、\"free\"で検索することもできます。",
+		"seeMore": "もっと見る"
 	}
 } 

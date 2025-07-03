@@ -30,6 +30,7 @@ import { caretWebviewLogger } from "@/caret/utils/webview-logger"
 import { t, getLink, getGlobalLink } from "@/caret/utils/i18n"
 import { useCurrentLanguage } from "@/caret/hooks/useCurrentLanguage"
 import styled from "styled-components"
+import CaretFooter from "@/caret/components/CaretFooter"
 const { IS_DEV } = process.env
 
 // CARET MODIFICATION: Styled components for Caret/Cline mode toggle switch (copied from ChatTextArea)
@@ -848,14 +849,18 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 								<div>
 									{renderSectionHeader("about")}
 									<Section>
-										<div className="text-center text-[var(--vscode-descriptionForeground)] text-xs leading-[1.2] px-0 py-0 pr-2 pb-[15px] mt-auto">
-											<p className="break-words m-0 p-0">
-												{t("about.feedbackPrompt", "settings")}{ " "}
-												<VSCodeLink href={getGlobalLink("CARET_GITHUB")} className="inline">
-													{getGlobalLink("CARET_GITHUB")}
-												</VSCodeLink>
+										<div className="text-center text-[var(--vscode-foreground)] mb-[20px]">
+											<p className="text-sm font-medium mb-2">
+												{t("about.version", "settings")}: {version}
 											</p>
-											<p className="italic mt-[10px] mb-0 p-0">v{version}</p>
+											<p className="text-xs text-[var(--vscode-descriptionForeground)]">
+												{t("about.feedbackPrompt", "settings")}
+											</p>
+										</div>
+										
+										{/* CARET MODIFICATION: CaretFooter 추가 */}
+										<div className="mt-6 pt-4 border-t border-[var(--vscode-widget-border)]">
+											<CaretFooter />
 										</div>
 									</Section>
 								</div>

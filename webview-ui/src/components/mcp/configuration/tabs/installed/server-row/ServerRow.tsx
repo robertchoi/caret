@@ -18,6 +18,7 @@ import {
 import { useCallback, useState } from "react"
 import McpResourceRow from "./McpResourceRow"
 import McpToolRow from "./McpToolRow"
+import { t } from "@/caret/utils/i18n"
 // constant JSX.Elements
 const TimeoutOptions = [
 	{ value: "30", label: "30 seconds" },
@@ -342,7 +343,7 @@ const ServerRow = ({
 												checked={server.tools.every((tool) => tool.autoApprove)}
 												onChange={handleAutoApproveChange}
 												data-tool="all-tools">
-												Auto-approve all tools
+												{t("mcp.autoApproveAllTools", "common")}
 											</VSCodeCheckbox>
 										)}
 									</div>

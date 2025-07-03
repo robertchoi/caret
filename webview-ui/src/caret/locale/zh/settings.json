@@ -171,6 +171,15 @@
 		}
 	},
 	"autoApprove": {
+		"title": "自动批准设置",
+		"tooltip": "配置各种操作的自动批准设置",
+		"label": "自动批准",
+		"actionsHeader": "操作",
+		"quickSettingsHeader": "快速设置",
+		"maxRequestsLabel": "最大请求数",
+		"maxRequestsTooltip": "可以自动批准的连续请求的最大数量",
+		"removeFromQuickAccess": "从快速访问菜单中移除",
+		"addToQuickAccess": "添加到快速访问菜单",
 		"enableAutoApprove": {
 			"label": "启用自动批准",
 			"shortName": "已启用",
@@ -226,5 +235,17 @@
 			"shortName": "通知",
 			"description": "当Cline需要批准才能继续或任务完成时，接收系统通知。"
 		}
+	},
+	"about": {
+		"feedbackPrompt": "如果您有任何问题或反馈，随时欢迎您联系我们。",
+		"version": "版本",
+		"title": "关于",
+		"description": "查看Caret版本和相关信息。"
+	},
+	"modelPicker": {
+		"extensionFetches": "扩展程序自动从以下位置获取最新的可用模型列表: ",
+		"unsureWhichModel": "如果您不确定选择哪个模型，Caret与以下模型配合使用效果最佳: ",
+		"freeOptions": "您也可以尝试搜索\"free\"来查找当前可用的免费选项。",
+		"seeMore": "查看更多"
 	}
 } 

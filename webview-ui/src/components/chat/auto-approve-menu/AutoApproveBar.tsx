@@ -29,6 +29,7 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
 
 		return (
 			<AutoApproveMenuItem
+				key={action.id}
 				action={{...action, label: t(action.label, "settings"), description: t(action.description, "settings")}}
 				isChecked={isChecked}
 				isFavorited={isFavorited}

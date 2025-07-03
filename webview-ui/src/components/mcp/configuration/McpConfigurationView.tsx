@@ -80,7 +80,7 @@ const McpConfigurationView = ({ onDone, initialTab }: McpViewProps) => {
 				}}>
 				{/* CARET MODIFICATION: 다국어 처리된 MCP Servers 제목 */}
 				<h3 style={{ color: "var(--vscode-foreground)", margin: 0 }}>{t("mcp.title", "common")}</h3>
-				<VSCodeButton onClick={onDone}>Done</VSCodeButton>
+				<VSCodeButton onClick={onDone}>{t("buttons.done", "settings")}</VSCodeButton>
 			</div>
 
 			<div style={{ flex: 1, overflow: "auto" }}>
@@ -94,14 +94,14 @@ const McpConfigurationView = ({ onDone, initialTab }: McpViewProps) => {
 					}}>
 					{mcpMarketplaceEnabled && (
 						<TabButton isActive={activeTab === "marketplace"} onClick={() => handleTabChange("marketplace")}>
-							Marketplace
+							{t("mcp.marketplace", "common")}
 						</TabButton>
 					)}
 					<TabButton isActive={activeTab === "addRemote"} onClick={() => handleTabChange("addRemote")}>
-						Remote Servers
+						{t("mcp.remoteServers", "common")}
 					</TabButton>
 					<TabButton isActive={activeTab === "installed"} onClick={() => handleTabChange("installed")}>
-						Installed
+						{t("mcp.installed", "common")}
 					</TabButton>
 				</div>
 

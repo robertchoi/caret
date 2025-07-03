@@ -37,6 +37,7 @@ import AutoApproveBar from "./auto-approve-menu/AutoApproveBar"
 import { SuggestedTasks } from "../welcome/SuggestedTasks"
 import { BooleanRequest, EmptyRequest, StringRequest } from "@shared/proto/common"
 import { AskResponseRequest, NewTaskRequest } from "@shared/proto/task"
+import { t } from "@/caret/utils/i18n"
 
 interface ChatViewProps {
 	isHidden: boolean
@@ -1082,7 +1083,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 	useEvent("wheel", handleWheel, window, { passive: true }) // passive improves scrolling performance
 
 	const placeholderText = useMemo(() => {
-		const text = task ? "Type a message..." : "Type your task here..."
+		const text = task ? t("chat.typeMessage", "common") : t("chat.typeTaskHere", "common")
 		return text
 	}, [task])
 
@@ -1275,7 +1276,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 										marginLeft: isStreaming ? 0 : "6px",
 									}}
 									onClick={() => handleSecondaryButtonClick(inputValue, selectedImages, selectedFiles)}>
-									{isStreaming ? "Cancel" : secondaryButtonText}
+									{isStreaming ? t("chat.cancel", "common") : secondaryButtonText}
 								</VSCodeButton>
 							)}
 						</div>

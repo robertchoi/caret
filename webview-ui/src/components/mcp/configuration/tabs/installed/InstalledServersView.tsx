@@ -1,5 +1,6 @@
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
+import { t } from "@/caret/utils/i18n"
 
 import { McpServiceClient, UiServiceClient } from "@/services/grpc-client"
 
@@ -17,19 +18,7 @@ const InstalledServersView = () => {
 					marginBottom: "16px",
 					marginTop: "5px",
 				}}>
-				The{" "}
-				<VSCodeLink href="https://github.com/modelcontextprotocol" style={{ display: "inline" }}>
-					Model Context Protocol
-				</VSCodeLink>{" "}
-				enables communication with locally running MCP servers that provide additional tools and resources to extend
-				Cline's capabilities. You can use{" "}
-				<VSCodeLink href="https://github.com/modelcontextprotocol/servers" style={{ display: "inline" }}>
-					community-made servers
-				</VSCodeLink>{" "}
-				or ask Cline to create new tools specific to your workflow (e.g., "add a tool that gets the latest npm docs").{" "}
-				<VSCodeLink href="https://x.com/sdrzn/status/1867271665086074969" style={{ display: "inline" }}>
-					See a demo here.
-				</VSCodeLink>
+				{t("mcp.description", "common")}
 			</div>
 
 			<ServersToggleList servers={servers} isExpandable={true} hasTrashIcon={false} />
@@ -45,7 +34,7 @@ const InstalledServersView = () => {
 						})
 					}}>
 					<span className="codicon codicon-server" style={{ marginRight: "6px" }}></span>
-					Configure MCP Servers
+					{t("mcp.configureServers", "common")}
 				</VSCodeButton>
 
 				<div style={{ textAlign: "center" }}>

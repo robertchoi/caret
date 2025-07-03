@@ -62,6 +62,16 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 		// CARET MODIFICATION: Update uiLanguage separately in globalState (app-wide setting)
 		if (request.uiLanguage !== undefined) {
 			await controller.context.globalState.update("uiLanguage", request.uiLanguage)
+
+			// CARET MODIFICATION: 언어 설정 시 기본 페르소나(사랑이) 자동 설정
+			try {
+				const { initializeDefaultPersonaOnLanguageSet } = await import(
+					"../../../../caret-src/utils/persona-initialization"
+				)
+				await initializeDefaultPersonaOnLanguageSet(controller.context, request.uiLanguage)
+			} catch (error) {
+				console.warn("Failed to initialize default persona on language set:", error)
+			}
 		}
 
 		// Update chat settings

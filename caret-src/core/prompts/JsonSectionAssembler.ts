@@ -147,8 +147,14 @@ export class JsonSectionAssembler {
 					// CARET MODIFICATION: Handle mode-based tool filtering
 					if (mode) {
 						if (mode === "chatbot") {
-							// Chatbot mode: only read-only tools allowed
-							const readOnlyTools = ["read_file", "search_files", "list_files", "list_code_definition_names"]
+							// Chatbot mode: only read-only tools and chatbot_mode_respond allowed
+							const readOnlyTools = [
+								"read_file",
+								"search_files",
+								"list_files",
+								"list_code_definition_names",
+								"chatbot_mode_respond",
+							]
 							if (!readOnlyTools.includes(toolName)) {
 								this.caretLogger.debug(`Skipping non-read-only tool ${tool.title} in chatbot mode`)
 								continue

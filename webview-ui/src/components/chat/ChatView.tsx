@@ -282,9 +282,9 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							// setSecondaryButtonText(undefined)
 							break
 						case "chatbot_mode_respond":
-							setSendingDisabled(false)
-							setClineAsk(undefined) // No user response needed for chatbot mode
-							setEnableButtons(true)
+							setSendingDisabled(isPartial)
+							setClineAsk("chatbot_mode_respond")
+							setEnableButtons(false)
 							// setPrimaryButtonText(undefined)
 							// setSecondaryButtonText(undefined)
 							break

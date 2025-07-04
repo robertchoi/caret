@@ -372,7 +372,7 @@ export const ChatRowContent = ({
 							color: successColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: successColor, fontWeight: "bold" }}>Task Completed</span>,
+					<span style={{ color: successColor, fontWeight: "bold" }}>{t("systemMessages.taskCompleted", "common")}</span>,
 				]
 			case "api_req_started":
 				const getIconSpan = (iconName: string, color: string) => (
@@ -597,8 +597,8 @@ export const ChatRowContent = ({
 								toolIcon("sign-out", "yellow", -90, "This is outside of your workspace")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? "Cline wants to view the top level files in this directory:"
-									: "Cline viewed the top level files in this directory:"}
+									? t("systemMessages.wantsToViewTopLevelFiles", "common")
+									: t("systemMessages.viewedTopLevelFiles", "common")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -619,8 +619,8 @@ export const ChatRowContent = ({
 								toolIcon("sign-out", "yellow", -90, "This is outside of your workspace")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? "Cline wants to recursively view all files in this directory:"
-									: "Cline recursively viewed all files in this directory:"}
+									? t("systemMessages.wantsToViewFilesRecursively", "common")
+									: t("systemMessages.viewedFilesRecursively", "common")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -641,8 +641,8 @@ export const ChatRowContent = ({
 								toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? "Cline wants to view source code definition names used in this directory:"
-									: "Cline viewed source code definition names used in this directory:"}
+									? t("systemMessages.wantsToViewCodeDefinitions", "common")
+									: t("systemMessages.viewedCodeDefinitions", "common")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -661,7 +661,7 @@ export const ChatRowContent = ({
 							{tool.operationIsLocatedInWorkspace === false &&
 								toolIcon("sign-out", "yellow", -90, "This is outside of your workspace")}
 							<span style={{ fontWeight: "bold" }}>
-								Cline wants to search this directory for <code>{tool.regex}</code>:
+								{t("systemMessages.wantsToSearchDirectory", "common")} <code>{tool.regex}</code>:
 							</span>
 						</div>
 						<CodeAccordian
@@ -682,8 +682,8 @@ export const ChatRowContent = ({
 								toolIcon("sign-out", "yellow", -90, "This URL is external")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? "Cline wants to fetch content from this URL:"
-									: "Cline fetched content from this URL:"}
+									? t("systemMessages.wantsToFetchContentFromUrl", "common")
+									: t("systemMessages.fetchedContentFromUrl", "common")}
 							</span>
 						</div>
 						<div

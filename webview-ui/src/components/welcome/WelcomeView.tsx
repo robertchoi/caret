@@ -49,15 +49,20 @@ const WelcomeView = () => {
 				// 현재 UI 언어 가져오기 (chatSettings.uiLanguage 또는 현재 언어)
 				const currentUILanguage = chatSettings?.uiLanguage || currentLanguage
 
+				console.log("[WelcomeView] 🎯 Preparing to initialize default persona")
+				console.log("[WelcomeView] 📋 Current language:", currentLanguage)
+				console.log("[WelcomeView] 📋 ChatSettings uiLanguage:", chatSettings?.uiLanguage)
+				console.log("[WelcomeView] 📋 Final language for persona:", currentUILanguage)
+
 				// 백엔드에 페르소나 초기화 요청
 				vscode.postMessage({
 					type: "initializeDefaultPersona",
 					language: currentUILanguage,
 				})
 
-				console.log("[WelcomeView] Default persona initialization requested for language:", currentUILanguage)
+				console.log("[WelcomeView] 🚀 Default persona initialization requested for language:", currentUILanguage)
 			} catch (personaError) {
-				console.warn("[WelcomeView] Failed to initialize default persona:", personaError)
+				console.warn("[WelcomeView] ❌ Failed to initialize default persona:", personaError)
 			}
 
 			// API 설정 완료 후 자동으로 채팅 화면으로 이동

@@ -1,121 +1,164 @@
 import React from "react"
 import { render, screen } from "@testing-library/react"
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { I18nextProvider } from "react-i18next"
-import i18n from "i18next"
-import { initReactI18next } from "react-i18next"
+import { vi, describe, it, expect, beforeEach } from "vitest"
+import PersonaAvatar from "../PersonaAvatar"
+import { ExtensionStateContextProvider } from "@/context/ExtensionStateContext"
+import type { TemplateCharacter } from "../../../../../src/shared/persona"
 
-// Initialize i18n for testing
-i18n.use(initReactI18next).init({
-	lng: "en",
-	fallbackLng: "en",
-	debug: false,
-	interpolation: {
-		escapeValue: false,
+// Mock vscode API
+const mockPostMessage = vi.fn()
+vi.mock("../../utils/vscode", () => ({
+	vscode: {
+		postMessage: mockPostMessage,
 	},
-	resources: {
-		en: {
-			translation: {},
-		},
-	},
-})
-
-// Mock dependencies
-vi.mock("@/context/ExtensionStateContext", () => ({
-	useExtensionState: vi.fn(),
 }))
 
-import { useExtensionState } from "@/context/ExtensionStateContext"
-const mockUseExtensionState = vi.mocked(useExtensionState)
-
+// Mock logger
 vi.mock("../utils/webview-logger", () => ({
 	caretWebviewLogger: {
 		debug: vi.fn(),
-		warn: vi.fn(),
 		info: vi.fn(),
+		warn: vi.fn(),
 		error: vi.fn(),
 	},
 }))
 
-const renderWithProviders = (ui: React.ReactElement) => {
-	return render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>)
+// Mock extension state
+const mockExtensionState = {
+	personaProfile: "",
+	personaThinking: "",
+	chatSettings: { uiLanguage: "en" },
+	didHydrateState: true,
+	showWelcome: false,
+	theme: undefined,
+	openRouterModels: {},
+	openAiModels: [],
+	requestyModels: {},
+	mcpServers: [],
+	mcpMarketplaceCatalog: { items: [] },
+	filePaths: [],
+	totalTasksSize: null,
+	availableTerminalProfiles: [],
+	caretBanner: "",
+	showMcp: false,
+	showSettings: false,
+	showHistory: false,
+	showAccount: false,
+	showAnnouncement: false,
 }
 
-// Test the actual implementation
+// Mock ExtensionStateContext
+vi.mock("@/context/ExtensionStateContext", () => ({
+	useExtensionState: () => mockExtensionState,
+	ExtensionStateContextProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
+
+const testPersona: TemplateCharacter = {
+	character: "test",
+	avatarUri: "test://avatar.png",
+	thinkingAvatarUri: "test://thinking.png",
+	introIllustrationUri: "",
+	en: { name: "Test", description: "Test persona", customInstruction: {} as any },
+	ko: { name: "테스트", description: "테스트 페르소나", customInstruction: {} as any },
+	isDefault: false,
+}
+
 describe("PersonaAvatar Simple Tests", () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
-		
-		// Set default mock return value for useExtensionState
-		mockUseExtensionState.mockReturnValue({
-			chatSettings: { uiLanguage: "en" },
-			clineSettings: {},
-		} as any)
+		// Reset mock state
+		mockExtensionState.personaProfile = ""
+		mockExtensionState.personaThinking = ""
 	})
 
-	it("should render with testPersona", async () => {
-		// Import PersonaAvatar after mocks are set up
-		const { default: PersonaAvatar } = await import("../PersonaAvatar")
-		
-		// Arrange
-		const testPersona = {
-			character: "test",
-			avatarUri: "test://avatar.png",
-			thinkingAvatarUri: "test://thinking.png",
-			introIllustrationUri: "",
-			en: { name: "Test", description: "Test persona", customInstruction: {} as any },
-			ko: { name: "테스트", description: "테스트 페르소나", customInstruction: {} as any },
-			isDefault: false,
-		}
-
+	it("should render with testPersona", () => {
 		// Act
-		renderWithProviders(<PersonaAvatar testPersona={testPersona} />)
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={testPersona} />
+			</ExtensionStateContextProvider>,
+		)
 
 		// Assert
 		const avatar = screen.getByTestId("persona-avatar")
 		expect(avatar).toBeInTheDocument()
-		expect(avatar).toHaveAttribute("data-persona", "test")
+		expect(avatar).toHaveAttribute("data-persona", "Test") // 테스트 모드에서는 localeDetails.name 사용
 		expect(avatar).toHaveAttribute("src", "test://avatar.png")
 		expect(avatar).toHaveAttribute("alt", "Test normal")
 	})
 
-	it("should render loading state", async () => {
-		// Import PersonaAvatar after mocks are set up
-		const { default: PersonaAvatar } = await import("../PersonaAvatar")
-
-		// Act
-		renderWithProviders(<PersonaAvatar testPersona={null} />)
+	it("should render loading state", () => {
+		// Act - No testPersona and no direct injection
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={null} />
+			</ExtensionStateContextProvider>,
+		)
 
 		// Assert
 		const avatar = screen.getByTestId("persona-avatar")
 		expect(avatar).toBeInTheDocument()
-		expect(avatar).toHaveAttribute("data-persona", "loading")
+		expect(avatar).toHaveAttribute("data-persona", "Loading...")
 		expect(avatar).toHaveAttribute("alt", "Loading... normal")
 	})
 
-	it("should use thinking state correctly", async () => {
-		// Import PersonaAvatar after mocks are set up
-		const { default: PersonaAvatar } = await import("../PersonaAvatar")
-		
-		// Arrange
-		const testPersona = {
-			character: "test",
-			avatarUri: "test://avatar.png",
-			thinkingAvatarUri: "test://thinking.png",
-			introIllustrationUri: "",
-			en: { name: "Test", description: "Test persona", customInstruction: {} as any },
-			ko: { name: "테스트", description: "테스트 페르소나", customInstruction: {} as any },
-			isDefault: false,
-		}
-
+	it("should render with thinking state", () => {
 		// Act
-		renderWithProviders(<PersonaAvatar testPersona={testPersona} isThinking={true} />)
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={testPersona} isThinking={true} />
+			</ExtensionStateContextProvider>,
+		)
 
 		// Assert
 		const avatar = screen.getByTestId("persona-avatar")
 		expect(avatar).toBeInTheDocument()
-		expect(avatar).toHaveAttribute("data-thinking", "true")
+		expect(avatar).toHaveAttribute("data-persona", "Test")
 		expect(avatar).toHaveAttribute("src", "test://thinking.png")
 		expect(avatar).toHaveAttribute("alt", "Test thinking")
+		expect(avatar).toHaveAttribute("data-thinking", "true")
+	})
+
+	it("should render with custom size", () => {
+		// Act
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={testPersona} size={64} />
+			</ExtensionStateContextProvider>,
+		)
+
+		// Assert
+		const avatar = screen.getByTestId("persona-avatar")
+		expect(avatar).toHaveStyle({ width: "64px", height: "64px" })
+	})
+
+	it("should render with custom className", () => {
+		// Act
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={testPersona} className="custom-class" />
+			</ExtensionStateContextProvider>,
+		)
+
+		// Assert
+		const avatar = screen.getByTestId("persona-avatar")
+		expect(avatar).toHaveClass("persona-avatar", "custom-class")
+	})
+
+	it("should handle Korean locale", () => {
+		// Arrange
+		mockExtensionState.chatSettings = { uiLanguage: "ko" }
+
+		// Act
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={testPersona} />
+			</ExtensionStateContextProvider>,
+		)
+
+		// Assert
+		const avatar = screen.getByTestId("persona-avatar")
+		expect(avatar).toHaveAttribute("data-persona", "테스트") // Korean name
+		expect(avatar).toHaveAttribute("alt", "테스트 normal")
 	})
 }) 

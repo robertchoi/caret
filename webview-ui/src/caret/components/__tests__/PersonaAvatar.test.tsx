@@ -1,132 +1,78 @@
 import React from "react"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { I18nextProvider } from "react-i18next"
-import i18n from "i18next"
-import { initReactI18next } from "react-i18next"
+import { vi, describe, it, expect, beforeEach, afterEach } from "vitest"
 import PersonaAvatar from "../PersonaAvatar"
+import { ExtensionStateContextProvider } from "@/context/ExtensionStateContext"
 import type { TemplateCharacter } from "../../../../../src/shared/persona"
-import { act } from "react-dom/test-utils"
-
-// Initialize i18n for testing
-i18n.use(initReactI18next).init({
-	lng: "en",
-	fallbackLng: "en",
-	debug: false,
-	interpolation: {
-		escapeValue: false,
-	},
-	resources: {
-		en: {
-			translation: {},
-		},
-	},
-})
 
 // Mock dependencies
-vi.mock("@/context/ExtensionStateContext", () => ({
-	useExtensionState: vi.fn(),
-}))
-
-import { useExtensionState } from "@/context/ExtensionStateContext"
-const mockUseExtensionState = vi.mocked(useExtensionState)
-
+const mockPostMessage = vi.fn()
 vi.mock("../../utils/vscode", () => ({
 	vscode: {
-		postMessage: vi.fn(),
+		postMessage: mockPostMessage,
 	},
 }))
 
 vi.mock("../utils/webview-logger", () => ({
 	caretWebviewLogger: {
 		debug: vi.fn(),
-		warn: vi.fn(),
 		info: vi.fn(),
+		warn: vi.fn(),
 		error: vi.fn(),
 	},
 }))
 
-// Mock template character data for new simple 2-file system
-const mockTemplateCharacter: TemplateCharacter = {
-	character: "current",
-	en: {
-		name: "Current Persona",
-		description: "Currently set persona",
-		customInstruction: {
-			persona: {
-				name: "Current",
-				nickname: "Current",
-				type: "AI Assistant",
-				inspiration: ["Test"],
-			},
-			language: {
-				style: "Friendly",
-				endings: ["!"],
-				expressions: ["😊"],
-			},
-			emotion_style: {
-				tone: "Warm",
-				attitude: "Helpful",
-				phrasing: "Clear",
-				exclamations: ["Great!"],
-			},
-			behavior: {
-				loyalty: "High",
-				communication_focus: "Clarity",
-				thought_process: ["Think first"],
-			},
-			signature_phrase: "Hello!",
-		},
-	},
-	ko: {
-		name: "현재 페르소나",
-		description: "현재 설정된 페르소나",
-		customInstruction: {
-			persona: {
-				name: "현재",
-				nickname: "현재",
-				type: "AI 어시스턴트",
-				inspiration: ["테스트"],
-			},
-			language: {
-				style: "친근한",
-				endings: ["~요"],
-				expressions: ["😊"],
-			},
-			emotion_style: {
-				tone: "따뜻한",
-				attitude: "도움이 되는",
-				phrasing: "명확한",
-				exclamations: ["좋아요!"],
-			},
-			behavior: {
-				loyalty: "높음",
-				communication_focus: "명확성",
-				thought_process: ["먼저 생각하기"],
-			},
-			signature_phrase: "안녕하세요!",
-		},
-	},
-	// 새로운 단순한 2파일 시스템: agent_profile.png, agent_thinking.png 사용
-	avatarUri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-	thinkingAvatarUri: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-	introIllustrationUri: "",
-	isDefault: true,
+// Mock extension state for direct injection
+const mockExtensionState = {
+	personaProfile: "",
+	personaThinking: "",
+	chatSettings: { uiLanguage: "en" },
+	didHydrateState: true,
+	showWelcome: false,
+	theme: undefined,
+	openRouterModels: {},
+	openAiModels: [],
+	requestyModels: {},
+	mcpServers: [],
+	mcpMarketplaceCatalog: { items: [] },
+	filePaths: [],
+	totalTasksSize: null,
+	availableTerminalProfiles: [],
+	caretBanner: "",
+	showMcp: false,
+	showSettings: false,
+	showHistory: false,
+	showAccount: false,
+	showAnnouncement: false,
 }
 
+vi.mock("@/context/ExtensionStateContext", () => ({
+	useExtensionState: () => mockExtensionState,
+	ExtensionStateContextProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
+
 const renderWithProviders = (ui: React.ReactElement) => {
-	return render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>)
+	return render(<ExtensionStateContextProvider>{ui}</ExtensionStateContextProvider>)
 }
 
 describe("PersonaAvatar Component - New Simple 2-File System", () => {
+	// Mock template character for testing
+	const mockTemplateCharacter: TemplateCharacter = {
+		character: "current",
+		avatarUri: "data:image/png;base64,MockAvatarImage",
+		thinkingAvatarUri: "data:image/png;base64,MockThinkingImage",
+		introIllustrationUri: "",
+		en: { name: "Current Persona", description: "Test persona", customInstruction: {} as any },
+		ko: { name: "현재 페르소나", description: "테스트 페르소나", customInstruction: {} as any },
+		isDefault: false,
+	}
+
 	beforeEach(() => {
 		vi.clearAllMocks()
-		
-		// Set default mock return value for useExtensionState
-		mockUseExtensionState.mockReturnValue({
-			chatSettings: { uiLanguage: "en" },
-			clineSettings: {},
-		} as any)
+		// Reset mock state
+		mockExtensionState.personaProfile = ""
+		mockExtensionState.personaThinking = ""
+		mockExtensionState.chatSettings = { uiLanguage: "en" }
 	})
 
 	afterEach(() => {
@@ -141,7 +87,7 @@ describe("PersonaAvatar Component - New Simple 2-File System", () => {
 			expect(avatar).toBeInTheDocument()
 			expect(avatar).toHaveAttribute("src", mockTemplateCharacter.avatarUri)
 			expect(avatar).toHaveAttribute("alt", "Current Persona normal")
-			expect(avatar).toHaveAttribute("data-persona", "current")
+			expect(avatar).toHaveAttribute("data-persona", "Current Persona") // localeDetails.name 사용
 			expect(avatar).toHaveAttribute("data-thinking", "false")
 		})
 
@@ -161,7 +107,7 @@ describe("PersonaAvatar Component - New Simple 2-File System", () => {
 			
 			const avatar = screen.getByTestId("persona-avatar")
 			expect(avatar).toBeInTheDocument()
-			expect(avatar).toHaveAttribute("data-persona", "loading")
+			expect(avatar).toHaveAttribute("data-persona", "Loading...")
 			expect(avatar).toHaveAttribute("alt", "Loading... normal")
 		})
 	})
@@ -177,9 +123,9 @@ describe("PersonaAvatar Component - New Simple 2-File System", () => {
 			expect(avatar).toHaveAttribute("data-thinking", "false")
 			
 			rerender(
-				<I18nextProvider i18n={i18n}>
+				<ExtensionStateContextProvider>
 					<PersonaAvatar testPersona={mockTemplateCharacter} isThinking={true} />
-				</I18nextProvider>
+				</ExtensionStateContextProvider>
 			)
 			
 			avatar = screen.getByTestId("persona-avatar")
@@ -196,11 +142,11 @@ describe("PersonaAvatar Component - New Simple 2-File System", () => {
 			let avatar = screen.getByTestId("persona-avatar")
 			expect(avatar).toHaveAttribute("src", mockTemplateCharacter.avatarUri)
 			
-			rerender(<I18nextProvider i18n={i18n}><PersonaAvatar testPersona={mockTemplateCharacter} isThinking={true} /></I18nextProvider>)
+			rerender(<ExtensionStateContextProvider><PersonaAvatar testPersona={mockTemplateCharacter} isThinking={true} /></ExtensionStateContextProvider>)
 			avatar = screen.getByTestId("persona-avatar")
 			expect(avatar).toHaveAttribute("src", mockTemplateCharacter.thinkingAvatarUri)
 			
-			rerender(<I18nextProvider i18n={i18n}><PersonaAvatar testPersona={mockTemplateCharacter} isThinking={false} /></I18nextProvider>)
+			rerender(<ExtensionStateContextProvider><PersonaAvatar testPersona={mockTemplateCharacter} isThinking={false} /></ExtensionStateContextProvider>)
 			avatar = screen.getByTestId("persona-avatar")
 			expect(avatar).toHaveAttribute("src", mockTemplateCharacter.avatarUri)
 		})
@@ -270,7 +216,7 @@ describe("PersonaAvatar Component - New Simple 2-File System", () => {
 			
 			const avatar = screen.getByTestId("persona-avatar")
 			expect(avatar).toBeInTheDocument()
-			expect(avatar).toHaveAttribute("data-persona", "loading")
+			expect(avatar).toHaveAttribute("data-persona", "Loading...")
 		})
 	})
 
@@ -301,10 +247,7 @@ describe("PersonaAvatar Component - New Simple 2-File System", () => {
 
 	describe("Locale Support", () => {
 		it("should use Korean locale when set", () => {
-			mockUseExtensionState.mockReturnValue({
-				chatSettings: { uiLanguage: "ko" },
-				clineSettings: {},
-			} as any)
+			mockExtensionState.chatSettings = { uiLanguage: "ko" }
 
 			renderWithProviders(<PersonaAvatar testPersona={mockTemplateCharacter} />)
 			
@@ -313,15 +256,45 @@ describe("PersonaAvatar Component - New Simple 2-File System", () => {
 		})
 
 		it("should fallback to English when invalid locale", () => {
-			mockUseExtensionState.mockReturnValue({
-				chatSettings: { uiLanguage: "invalid" },
-				clineSettings: {},
-			} as any)
+			mockExtensionState.chatSettings = { uiLanguage: "invalid" }
 
 			renderWithProviders(<PersonaAvatar testPersona={mockTemplateCharacter} />)
 			
 			const avatar = screen.getByTestId("persona-avatar")
 			expect(avatar).toHaveAttribute("alt", "Current Persona normal")
+		})
+	})
+
+	describe("Direct Injection Mode", () => {
+		it("should render with injected persona images", () => {
+			// Arrange - Direct injection
+			mockExtensionState.personaProfile = "data:image/png;base64,InjectedProfile"
+			mockExtensionState.personaThinking = "data:image/png;base64,InjectedThinking"
+			
+			// Act
+			renderWithProviders(<PersonaAvatar testPersona={null} />)
+			
+			// Assert
+			const avatar = screen.getByTestId("persona-avatar")
+			expect(avatar).toHaveAttribute("src", "data:image/png;base64,InjectedProfile")
+			expect(avatar).toHaveAttribute("data-persona", "오사랑")
+			expect(avatar).toHaveAttribute("alt", "오사랑 normal")
+		})
+
+		it("should switch to thinking image in direct injection mode", () => {
+			// Arrange - Direct injection
+			mockExtensionState.personaProfile = "data:image/png;base64,InjectedProfile"
+			mockExtensionState.personaThinking = "data:image/png;base64,InjectedThinking"
+			
+			// Act
+			renderWithProviders(<PersonaAvatar testPersona={null} isThinking={true} />)
+			
+			// Assert
+			const avatar = screen.getByTestId("persona-avatar")
+			expect(avatar).toHaveAttribute("src", "data:image/png;base64,InjectedThinking")
+			expect(avatar).toHaveAttribute("data-persona", "오사랑")
+			expect(avatar).toHaveAttribute("alt", "오사랑 thinking")
+			expect(avatar).toHaveAttribute("data-thinking", "true")
 		})
 	})
 }) 

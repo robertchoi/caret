@@ -51,8 +51,8 @@
 	"apiSetup": {
 		"backButton": "← Back",
 		"title": "🔧 API Setup",
-		"description": "Set up your AI API to use Caret.",
-		"instructions": "Subscribe to Caret or set up API keys for OpenAI, Anthropic, or other AI services, or configure local LLM.",
+		"description": "Caret supports various LLMs. You can subscribe to Caret service for free access, use ChatGPT, Claude, Gemma APIs, or configure local LLMs.",
+		"instructions": "Subscribe to Caret or set up API keys for OpenAI, Anthropic, Gemma, or other AI services, or configure local LLM.",
 		"saveButton": "Save and Get Started",
 		"help": {
 			"title": "Need Help?",

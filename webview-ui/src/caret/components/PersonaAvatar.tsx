@@ -33,9 +33,9 @@ interface PersonaAvatarProps {
 const LOADING_PERSONA: TemplateCharacter = {
 	character: "loading",
 	avatarUri:
-		"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9InZhcigtLXZzY29kZS1idXR0b24tYmFja2dyb3VuZCkiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiPgo8cGF0aCBkPSJNOCA2QzggNC44OTU0MyA4Ljg5NTQzIDQgMTAgNEgxNEMxNS4xMDQ2IDQgMTYgNC44OTU0MyAxNiA2VjhDMTYgOS4xMDQ1NyAxNS4xMDQ2IDEwIDE0IDEwSDEwQzguODk1NDMgMTAgOCA5LjEwNDU3IDggOFY2WiIgZmlsbD0idmFyKC0tdnNjb2RlLWJ1dHRvbi1mb3JlZ3JvdW5kKSIvPgo8cGF0aCBkPSJNNiAxNEM2IDEyLjg5NTQgNi44OTU0MyAxMiA4IDEySDEyQzEzLjEwNDYgMTIgMTQgMTIuODk1NCAxNiAxNFYxNkMxNiAxNy4xMDQ2IDE1LjEwNDYgMTggMTQgMThIMThDMTkuMTA0NiAxOCAyMCAxOC44OTU0IDIwIDIwViAyMkMyMCAyMy4xMDQ2IDE5LjEwNDYgMjQgMTggMjRIMTBDOC44OTU0MyAyNCA4IDIzLjEwNDYgOCAyMlYyMEM4IDE4Ljg5NTQgNy4xMDQ1NyAxOCA2IDE4VjE2QzYgMTQuODk1NCA2IDE0IDYgMTRaIiBmaWxsPSJ2YXIoLS12c2NvZGUtYnV0dG9uLWZvcmVncm91bmQpIi8+Cjwvc3ZnPgo8L3N2Zz4K",
+		"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTUiIGZpbGw9IiNkZGRkZGQiIHN0cm9rZT0iIzk5OTk5OSIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjIiIGZpbGw9IiM2NjY2NjYiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxMiIgcj0iMiIgZmlsbD0iIzY2NjY2NiIvPgo8cGF0aCBkPSJNMTAgMjAgUTE2IDI1IDIyIDIwIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjx0ZXh0IHg9IjE2IiB5PSI3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iOCIgZmlsbD0iIzY2NjY2NiI+Pz88L3RleHQ+Cjwvc3ZnPg==",
 	thinkingAvatarUri:
-		"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9InZhcigtLXZzY29kZS1jaGFydC1ibHVlKSIgb3BhY2l0eT0iMC44Ii8+CjxjaXJjbGUgY3g9IjEwIiBjeT0iMTAiIHI9IjIiIGZpbGw9InZhcigtLXZzY29kZS1idXR0b24tZm9yZWdyb3VuZCkiLz4KPGNpcmNsZSBjeD0iMjIiIGN5PSIxMiIgcj0iMSIgZmlsbD0idmFyKC0tdnNjb2RlLWJ1dHRvbi1mb3JlZ3JvdW5kKSIvPgo8Y2lyY2xlIGN4PSIxOCIgY3k9IjIwIiByPSIxLjUiIGZpbGw9InZhcigtLXZzY29kZS1idXR0b24tZm9yZWdyb3VuZCkiLz4KPC9zdmc+Cg==",
+		"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTUiIGZpbGw9IiNlZmY0ZmYiIHN0cm9rZT0iIzk5OTk5OSIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjIiIGZpbGw9IiM2NjY2NjYiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxMiIgcj0iMiIgZmlsbD0iIzY2NjY2NiIvPgo8cGF0aCBkPSJNMTAgMjAgUTE2IDIyIDIyIDIwIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxjaXJjbGUgY3g9IjEwIiBjeT0iNiIgcj0iMSIgZmlsbD0iIzY2NjY2NiIgb3BhY2l0eT0iMC44Ii8+CjxjaXJjbGUgY3g9IjE1IiBjeT0iNSIgcj0iMS41IiBmaWxsPSIjNjY2NjY2IiBvcGFjaXR5PSIwLjYiLz4KPGNpcmNsZSBjeD0iMjIiIGN5PSI3IiByPSIwLjUiIGZpbGw9IiM2NjY2NjYiIG9wYWNpdHk9IjAuNCIvPgo8L3N2Zz4=",
 	introIllustrationUri: "",
 	en: { name: "Loading...", description: "Loading persona", customInstruction: {} as any },
 	ko: { name: "로딩 중...", description: "페르소나 로딩 중", customInstruction: {} as any },
@@ -49,80 +49,14 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 	style = {},
 	testPersona = null,
 }) => {
-	// CARET MODIFICATION: Start with loading persona for non-test mode, then update when data loads
-	const [selectedPersona, setSelectedPersona] = useState<TemplateCharacter | null>(testPersona || LOADING_PERSONA)
+	// CARET MODIFICATION: 웰컴페이지처럼 window에서 직접 이미지 받는 방식으로 변경
 	const [imageError, setImageError] = useState<boolean>(false)
-	const [isLoading, setIsLoading] = useState<boolean>(testPersona === null)
 
 	const extensionState = useExtensionState()
 	const currentLocale = extensionState?.chatSettings?.uiLanguage || "en"
 
-	// Request current persona data when component mounts (only if not in test mode)
-	useEffect(() => {
-		if (testPersona === null) {
-			caretWebviewLogger.debug("PersonaAvatar: Requesting current persona images")
-
-			// Request current persona images from globalStorage
-			vscode.postMessage({
-				type: "REQUEST_PERSONA_IMAGES",
-			})
-		}
-	}, [testPersona])
-
-	// Listen for persona data updates
-	useEffect(() => {
-		if (testPersona !== null) {
-			return // Skip message listening in test mode
-		}
-
-		const handleMessage = (event: MessageEvent) => {
-			const message = event.data
-
-			// Handle current persona images response
-			if (message.type === "RESPONSE_PERSONA_IMAGES") {
-				const personaData = message.payload
-				caretWebviewLogger.debug("PersonaAvatar: Received current persona images:", personaData)
-
-				// Create a persona object from the current images
-				if (personaData && personaData.avatarUri && personaData.thinkingAvatarUri) {
-					const currentPersona: TemplateCharacter = {
-						character: "current",
-						avatarUri: personaData.avatarUri,
-						thinkingAvatarUri: personaData.thinkingAvatarUri,
-						introIllustrationUri: "",
-						en: { name: "Current Persona", description: "Your current persona", customInstruction: {} as any },
-						ko: { name: "현재 페르소나", description: "현재 설정된 페르소나", customInstruction: {} as any },
-						isDefault: false,
-					}
-					setSelectedPersona(currentPersona)
-					setIsLoading(false)
-				} else {
-					caretWebviewLogger.warn("PersonaAvatar: Invalid persona images payload:", personaData)
-				}
-			}
-
-			// Handle persona update - refresh data
-			if (message.type === "PERSONA_UPDATED") {
-				caretWebviewLogger.debug("PersonaAvatar: Persona updated, refreshing data")
-				// Reload current persona images
-				vscode.postMessage({
-					type: "REQUEST_PERSONA_IMAGES",
-				})
-			}
-		}
-
-		window.addEventListener("message", handleMessage)
-		return () => {
-			window.removeEventListener("message", handleMessage)
-		}
-	}, [currentLocale, testPersona])
-
-	// Get persona name in current locale
-	const getPersonaName = useCallback(() => {
-		const persona = selectedPersona || LOADING_PERSONA // CARET MODIFICATION: Use LOADING_PERSONA as fallback
-		const localeDetails = (persona[currentLocale as keyof typeof persona] as any) || persona.en
-		return localeDetails?.name || ""
-	}, [selectedPersona, currentLocale])
+	// CARET MODIFICATION: 웰컴페이지처럼 ExtensionStateContext에서 직접 받기
+	const { personaProfile, personaThinking } = extensionState
 
 	// Handle image loading errors
 	const handleImageError = useCallback(
@@ -136,37 +70,55 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 		[isThinking],
 	)
 
-	// Reset image errors when thinking state or persona changes
+	// Reset image errors when thinking state changes
 	useEffect(() => {
 		setImageError(false)
-	}, [isThinking, selectedPersona])
+	}, [isThinking, personaProfile, personaThinking])
 
-	// CARET MODIFICATION: Use loading persona as fallback with extra safety
-	const currentPersona = selectedPersona && selectedPersona.character ? selectedPersona : LOADING_PERSONA
+	// CARET MODIFICATION: 직접 주입된 이미지 사용 (테스트 모드가 아닐 때)
+	let imageUri: string
+	let personaName: string
 
-	// CARET MODIFICATION: 단순한 2파일 시스템 - avatarUri 또는 thinkingAvatarUri만 사용
-	let imageUri = isThinking ? currentPersona.thinkingAvatarUri : currentPersona.avatarUri
+	if (testPersona !== null) {
+		// 테스트 모드: 기존 방식 유지
+		imageUri = isThinking ? testPersona.thinkingAvatarUri : testPersona.avatarUri
+		const localeDetails = (testPersona[currentLocale as keyof typeof testPersona] as any) || testPersona.en
+		personaName = localeDetails?.name || ""
+	} else {
+		// 프로덕션 모드: 직접 주입된 이미지 사용
+		if (personaProfile && personaThinking) {
+			// 페르소나 이미지가 있는 경우
+			imageUri = isThinking ? personaThinking : personaProfile
+			personaName = "오사랑" // 기본 페르소나는 사랑이
+		} else {
+			// 페르소나 이미지가 없는 경우 로딩 이미지 사용
+			imageUri = isThinking ? LOADING_PERSONA.thinkingAvatarUri : LOADING_PERSONA.avatarUri
+			const localeDetails = (LOADING_PERSONA[currentLocale as keyof typeof LOADING_PERSONA] as any) || LOADING_PERSONA.en
+			personaName = localeDetails?.name || ""
+		}
+	}
 
 	// 이미지 에러 시 loading persona의 이미지 사용
 	if (imageError) {
 		imageUri = isThinking ? LOADING_PERSONA.thinkingAvatarUri : LOADING_PERSONA.avatarUri
+		const localeDetails = (LOADING_PERSONA[currentLocale as keyof typeof LOADING_PERSONA] as any) || LOADING_PERSONA.en
+		personaName = localeDetails?.name || ""
 	}
 
-	const personaName = getPersonaName()
 	const altText = `${personaName} ${isThinking ? "thinking" : "normal"}`
 
 	// CARET MODIFICATION: Debug logging for image switching
 	useEffect(() => {
-		caretWebviewLogger.info("PersonaAvatar: Image state changed", {
+		caretWebviewLogger.debug("PersonaAvatar: Direct injection mode", {
 			personaName,
 			isThinking,
-			imageUri,
+			imageUri: imageUri ? imageUri.substring(0, 50) + "..." : "none",
 			imageError,
-			personaCharacter: currentPersona.character,
-			avatarUri: currentPersona.avatarUri,
-			thinkingAvatarUri: currentPersona.thinkingAvatarUri,
+			hasPersonaProfile: !!personaProfile,
+			hasPersonaThinking: !!personaThinking,
+			testMode: testPersona !== null,
 		})
-	}, [isThinking, selectedPersona, personaName, imageUri, imageError, currentPersona])
+	}, [isThinking, personaName, imageUri, imageError, personaProfile, personaThinking, testPersona])
 
 	return (
 		<img
@@ -186,7 +138,7 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 			onError={handleImageError}
 			data-testid="persona-avatar"
 			data-thinking={isThinking}
-			data-persona={currentPersona.character}
+			data-persona={personaName}
 		/>
 	)
 }

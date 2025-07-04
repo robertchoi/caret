@@ -2601,7 +2601,7 @@ const formatTiers = (
 
 			return (
 				<span style={{ paddingLeft: "15px" }} key={index}>
-					{formatPrice(price)}/million tokens (
+					{formatPrice(price)}/{t("millionTokens", "common")} (
 					{tier.contextWindow === Number.POSITIVE_INFINITY ? (
 						<span>
 							{">"} {prevLimit.toLocaleString()}
@@ -2611,7 +2611,7 @@ const formatTiers = (
 							{"<="} {tier.contextWindow.toLocaleString()}
 						</span>
 					)}
-					{" tokens)"}
+					{" "}{t("tokens", "common")})
 					{index < arr.length - 1 && <br />}
 				</span>
 			)
@@ -2646,7 +2646,7 @@ export const ModelInfoView = ({
 	) : modelInfo.inputPrice !== undefined && modelInfo.inputPrice > 0 ? (
 		<span key="inputPrice">
 			<span style={{ fontWeight: 500 }}>{t("modelInfo.inputPrice", "common")}:</span> {formatPrice(modelInfo.inputPrice)}
-			/million tokens
+			/{t("millionTokens", "common")}
 		</span>
 	) : null
 
@@ -2657,10 +2657,10 @@ export const ModelInfoView = ({
 		outputPriceElement = (
 			<Fragment key="outputPriceConditional">
 				<span style={{ fontWeight: 500 }}>{t("modelInfo.outputPriceStandard", "common")}:</span>{" "}
-				{formatPrice(modelInfo.outputPrice)}/million tokens
+				{formatPrice(modelInfo.outputPrice)}/{t("millionTokens", "common")}
 				<br />
 				<span style={{ fontWeight: 500 }}>{t("modelInfo.outputPriceThinkingBudget", "common")}:</span>{" "}
-				{formatPrice(modelInfo.thinkingConfig.outputPrice)}/million tokens
+				{formatPrice(modelInfo.thinkingConfig.outputPrice)}/{t("millionTokens", "common")}
 			</Fragment>
 		)
 	} else if (hasTiers) {
@@ -2678,7 +2678,7 @@ export const ModelInfoView = ({
 		outputPriceElement = (
 			<span key="outputPrice">
 				<span style={{ fontWeight: 500 }}>{t("modelInfo.outputPrice", "common")}:</span>{" "}
-				{formatPrice(modelInfo.outputPrice)}/million tokens
+				{formatPrice(modelInfo.outputPrice)}/{t("millionTokens", "common")}
 			</span>
 		)
 	}
@@ -2717,7 +2717,7 @@ export const ModelInfoView = ({
 		modelInfo.maxTokens !== undefined && modelInfo.maxTokens > 0 && (
 			<span key="maxTokens">
 				<span style={{ fontWeight: 500 }}>{t("modelInfo.maxOutput", "common")}:</span>{" "}
-				{modelInfo.maxTokens?.toLocaleString()} tokens
+				{modelInfo.maxTokens?.toLocaleString()} {t("tokens", "common")}
 			</span>
 		),
 		inputPriceElement, // Add the generated input price block
@@ -2725,13 +2725,13 @@ export const ModelInfoView = ({
 			<span key="cacheWritesPrice">
 				<span style={{ fontWeight: 500 }}>{t("modelInfo.cacheWritesPrice", "common")}:</span>{" "}
 				{formatPrice(modelInfo.cacheWritesPrice || 0)}
-				/million tokens
+				/{t("millionTokens", "common")}
 			</span>
 		),
 		modelInfo.supportsPromptCache && modelInfo.cacheReadsPrice && (
 			<span key="cacheReadsPrice">
 				<span style={{ fontWeight: 500 }}>{t("modelInfo.cacheReadsPrice", "common")}:</span>{" "}
-				{formatPrice(modelInfo.cacheReadsPrice || 0)}/million tokens
+				{formatPrice(modelInfo.cacheReadsPrice || 0)}/{t("millionTokens", "common")}
 			</span>
 		),
 		outputPriceElement, // Add the generated output price block
@@ -2799,7 +2799,7 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): 
 	selectedModelId: string
 	selectedModelInfo: ModelInfo
 } {
-	const provider = apiConfiguration?.apiProvider || "anthropic"
+	const provider = apiConfiguration?.apiProvider || "caret"
 	const modelId = apiConfiguration?.apiModelId
 
 	const getProviderData = (models: Record<string, ModelInfo>, defaultId: string) => {

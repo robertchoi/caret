@@ -46,6 +46,9 @@ interface ExtensionStateContextType extends ExtensionState {
 	totalTasksSize: number | null
 	availableTerminalProfiles: TerminalProfile[]
 	caretBanner: string
+	// CARET MODIFICATION: 페르소나 이미지 직접 주입 방식으로 변경
+	personaProfile: string
+	personaThinking: string
 
 	// View state
 	showMcp: boolean
@@ -223,6 +226,9 @@ export const ExtensionStateContextProvider: React.FC<{
 	const [totalTasksSize, setTotalTasksSize] = useState<number | null>(null)
 	const [availableTerminalProfiles, setAvailableTerminalProfiles] = useState<TerminalProfile[]>([])
 	const [caretBanner] = useState<string>((window as any).caretBanner || "")
+	// CARET MODIFICATION: 페르소나 이미지 직접 주입 방식으로 변경
+	const [personaProfile] = useState<string>((window as any).personaProfile || "")
+	const [personaThinking] = useState<string>((window as any).personaThinking || "")
 
 	const [openAiModels, setOpenAiModels] = useState<string[]>([])
 	const [requestyModels, setRequestyModels] = useState<Record<string, ModelInfo>>({
@@ -740,6 +746,9 @@ export const ExtensionStateContextProvider: React.FC<{
 		totalTasksSize,
 		availableTerminalProfiles,
 		caretBanner,
+		// CARET MODIFICATION: 페르소나 이미지 직접 주입 방식으로 변경
+		personaProfile,
+		personaThinking,
 		showMcp,
 		mcpTab,
 		showSettings,

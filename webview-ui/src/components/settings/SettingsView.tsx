@@ -849,15 +849,6 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 								<div>
 									{renderSectionHeader("about")}
 									<Section>
-										<div className="text-center text-[var(--vscode-foreground)] mb-[20px]">
-											<p className="text-sm font-medium mb-2">
-												{t("about.version", "settings")}: {version}
-											</p>
-											<p className="text-xs text-[var(--vscode-descriptionForeground)]">
-												{t("about.feedbackPrompt", "settings")}
-											</p>
-										</div>
-										
 										{/* CARET MODIFICATION: CaretFooter 추가 */}
 										<div className="mt-6 pt-4 border-t border-[var(--vscode-widget-border)]">
 											<CaretFooter />

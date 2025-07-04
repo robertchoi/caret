@@ -120,12 +120,12 @@ export class CaretProvider extends ClineWebviewProvider {
 		const originalHtml = super.getHtmlContent(webview)
 		let caretBannerDataUri = ""
 		try {
-			const bannerPath = path.join(this.context.extensionPath, "caret-assets", "icons", "icon.png")
-			// CARET MODIFICATION: 배너 이미지를 icon.png로 변경
+			const bannerPath = path.join(this.context.extensionPath, "caret-assets", "caret-main-banner.webp")
+			// CARET MODIFICATION: 배너 이미지를 caret-main-banner.webp로 변경
 			caretLogger.info(`[CaretProvider] Attempting to load banner from: ${bannerPath}`)
 			if (fs.existsSync(bannerPath)) {
 				const fileBuffer = fs.readFileSync(bannerPath)
-				caretBannerDataUri = `data:image/png;base64,${fileBuffer.toString("base64")}`
+				caretBannerDataUri = `data:image/webp;base64,${fileBuffer.toString("base64")}`
 				caretLogger.info(`[CaretProvider] Banner loaded successfully, size: ${fileBuffer.length} bytes`)
 			} else {
 				caretLogger.error(`[CaretProvider] Banner file not found: ${bannerPath}`)
@@ -135,14 +135,39 @@ export class CaretProvider extends ClineWebviewProvider {
 			caretLogger.error(`[CaretProvider] Error loading banner image:`, e)
 		}
 
+		// CARET MODIFICATION: 페르소나 이미지 로딩 추가
+		let personaProfileDataUri = ""
+		let personaThinkingDataUri = ""
+		try {
+			const personaDir = path.join(this.context.globalStorageUri.fsPath, "personas")
+			const profilePath = path.join(personaDir, "agent_profile.png")
+			const thinkingPath = path.join(personaDir, "agent_thinking.png")
+			
+			if (fs.existsSync(profilePath)) {
+				const profileBuffer = fs.readFileSync(profilePath)
+				personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
+				caretLogger.debug(`[CaretProvider] Persona profile loaded, size: ${profileBuffer.length} bytes`)
+			}
+			
+			if (fs.existsSync(thinkingPath)) {
+				const thinkingBuffer = fs.readFileSync(thinkingPath)
+				personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
+				caretLogger.debug(`[CaretProvider] Persona thinking loaded, size: ${thinkingBuffer.length} bytes`)
+			}
+		} catch (e) {
+			caretLogger.debug(`[CaretProvider] No persona images found or error loading:`, e)
+		}
+
 		// Update the title
 		let updatedHtml = originalHtml.replace(/<title>Cline<\/title>/, `<title>Caret</title>`)
 
-		// Add caret banner for the UI
+		// Add caret banner and persona images for the UI
 		updatedHtml = updatedHtml.replace(
 			/window\.clineClientId = "[^"]*";/,
 			`window.clineClientId = "\${this.clientId}";
-                    window.caretBanner = "${caretBannerDataUri}";`,
+                    window.caretBanner = "${caretBannerDataUri}";
+                    window.personaProfile = "${personaProfileDataUri}";
+                    window.personaThinking = "${personaThinkingDataUri}";`,
 		)
 
 		// Update Content-Security-Policy to allow data: URLs and asset URLs for persona images
@@ -189,14 +214,39 @@ export class CaretProvider extends ClineWebviewProvider {
 			caretLogger.error(`[CaretProvider] HMR - Error loading banner image:`, e)
 		}
 
+		// CARET MODIFICATION: 페르소나 이미지 로딩 추가 (HMR 모드)
+		let personaProfileDataUri = ""
+		let personaThinkingDataUri = ""
+		try {
+			const personaDir = path.join(this.context.globalStorageUri.fsPath, "personas")
+			const profilePath = path.join(personaDir, "agent_profile.png")
+			const thinkingPath = path.join(personaDir, "agent_thinking.png")
+			
+			if (fs.existsSync(profilePath)) {
+				const profileBuffer = fs.readFileSync(profilePath)
+				personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
+				caretLogger.debug(`[CaretProvider] HMR - Persona profile loaded, size: ${profileBuffer.length} bytes`)
+			}
+			
+			if (fs.existsSync(thinkingPath)) {
+				const thinkingBuffer = fs.readFileSync(thinkingPath)
+				personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
+				caretLogger.debug(`[CaretProvider] HMR - Persona thinking loaded, size: ${thinkingBuffer.length} bytes`)
+			}
+		} catch (e) {
+			caretLogger.debug(`[CaretProvider] HMR - No persona images found or error loading:`, e)
+		}
+
 		// Update the title
 		let updatedHtml = originalHtml.replace(/<title>Cline<\/title>/, `<title>Caret</title>`)
 
-		// Add caret banner for the UI
+		// Add caret banner and persona images for the UI
 		updatedHtml = updatedHtml.replace(
 			/window\.clineClientId = "[^"]*";/,
 			`window.clineClientId = "\${this.clientId}";
-						window.caretBanner = "${caretBannerDataUri}";`,
+						window.caretBanner = "${caretBannerDataUri}";
+						window.personaProfile = "${personaProfileDataUri}";
+						window.personaThinking = "${personaThinkingDataUri}";`,
 		)
 
 		// Update Content-Security-Policy for HMR mode to allow data: URLs and asset URLs

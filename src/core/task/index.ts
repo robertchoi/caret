@@ -952,12 +952,15 @@ export class Task {
 	}
 
 	async sayAndCreateMissingParamError(toolName: ToolUseName, paramName: string, relPath?: string) {
-		await this.say(
-			"error",
-			`Cline tried to use ${toolName}${
-				relPath ? ` for '${relPath.toPosix()}'` : ""
-			} without value for required parameter '${paramName}'. Retrying...`,
-		)
+		// CARET MODIFICATION: 다국어 지원을 위한 백엔드 i18n 시스템 사용
+		const { backendT } = await import("../../../caret-src/utils/backend-i18n")
+		const pathInfo = relPath ? ` for '${relPath.toPosix()}'` : ""
+		const errorMessage = backendT("task.retryWithoutParam", this.chatSettings, {
+			toolName,
+			pathInfo,
+			paramName
+		})
+		await this.say("error", errorMessage)
 		return formatResponse.toolError(formatResponse.missingToolParameterError(paramName))
 	}
 

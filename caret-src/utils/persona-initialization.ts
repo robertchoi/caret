@@ -46,17 +46,22 @@ export async function resetPersonaData(context: vscode.ExtensionContext): Promis
  */
 export async function initializeDefaultPersonaOnLanguageSet(context: vscode.ExtensionContext, language: string): Promise<void> {
 	try {
-		// 이미 페르소나가 설정되어 있으면 스킵
+		caretLogger.info(`🎯 initializeDefaultPersonaOnLanguageSet called with language: ${language}`)
+
+		// 페르소나 존재 여부 확인
 		const personaExists = await isPersonaDataExists(context)
+		caretLogger.info(`📋 Persona exists check: ${personaExists}`)
+		
 		if (personaExists) {
-			caretLogger.debug("Persona already exists, skipping initialization")
+			caretLogger.info("✅ Persona already exists, skipping initialization")
 			return
 		}
 
-		caretLogger.info(`Initializing default persona (sarang) for language: ${language}`)
+		caretLogger.info(`🚀 Initializing default persona (sarang) for language: ${language}`)
 
 		// 1. 페르소나 디렉토리 생성
 		const personaDir = path.join(context.globalStorageUri.fsPath, "personas")
+		caretLogger.debug(`📁 Creating persona directory: ${personaDir}`)
 		await fs.mkdir(personaDir, { recursive: true })
 
 		// 2. 사랑이 이미지 복사
@@ -65,15 +70,32 @@ export async function initializeDefaultPersonaOnLanguageSet(context: vscode.Exte
 		const profileDst = path.join(personaDir, "agent_profile.png")
 		const thinkingDst = path.join(personaDir, "agent_thinking.png")
 
+		caretLogger.debug(`📷 Copying sarang profile: ${sarangProfileSrc} -> ${profileDst}`)
+		caretLogger.debug(`🤔 Copying sarang thinking: ${sarangThinkingSrc} -> ${thinkingDst}`)
+
+		// 소스 파일 존재 확인
+		const srcProfileExists = await fs.access(sarangProfileSrc).then(() => true).catch(() => false)
+		const srcThinkingExists = await fs.access(sarangThinkingSrc).then(() => true).catch(() => false)
+		caretLogger.info(`📂 Source files exist - Profile: ${srcProfileExists}, Thinking: ${srcThinkingExists}`)
+
+		if (!srcProfileExists || !srcThinkingExists) {
+			throw new Error(`Source files not found - Profile: ${srcProfileExists}, Thinking: ${srcThinkingExists}`)
+		}
+
 		await fs.copyFile(sarangProfileSrc, profileDst)
 		await fs.copyFile(sarangThinkingSrc, thinkingDst)
+
+		// 파일 복사 완료 확인
+		const profileExists = await fs.access(profileDst).then(() => true).catch(() => false)
+		const thinkingExists = await fs.access(thinkingDst).then(() => true).catch(() => false)
+		caretLogger.info(`📁 Profile file copied: ${profileExists}, Thinking file copied: ${thinkingExists}`)
 
 		// 3. 사랑이 커스텀 인스트럭션 설정
 		await setDefaultPersonaInstructions(context, language)
 
-		caretLogger.info("Default persona (sarang) initialized successfully")
+		caretLogger.info("🎉 Default persona (sarang) initialized successfully")
 	} catch (error) {
-		caretLogger.error("Failed to initialize default persona:", error)
+		caretLogger.error("❌ Failed to initialize default persona:", error)
 		throw error
 	}
 }

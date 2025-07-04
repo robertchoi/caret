@@ -1,113 +1,108 @@
 import React from "react"
 import { render, screen } from "@testing-library/react"
-import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest"
-import { I18nextProvider } from "react-i18next"
-import i18n from "i18next"
-import { initReactI18next } from "react-i18next"
-import PersonaAvatar from "../PersonaAvatar"
+import { vi, describe, it, expect, beforeEach } from "vitest"
+import { PersonaAvatar } from "../PersonaAvatar"
+import { ExtensionStateContextProvider } from "@/context/ExtensionStateContext"
+import type { TemplateCharacter } from "../../../../../src/shared/persona"
 
-// Initialize i18n for testing
-i18n.use(initReactI18next).init({
-	lng: "en",
-	fallbackLng: "en",
-	debug: false,
-	interpolation: {
-		escapeValue: false,
-	},
-	resources: {
-		en: {
-			translation: {},
-		},
-	},
-})
+// CARET MODIFICATION: PersonaAvatar 디버그 테스트 - 직접 주입 방식으로 변경
+// 기존 메시지 기반 시스템에서 직접 주입 방식으로 변경된 동작을 테스트
 
-// Mock dependencies
-vi.mock("@/context/ExtensionStateContext", () => ({
-	useExtensionState: vi.fn(),
-}))
-
-import { useExtensionState } from "@/context/ExtensionStateContext"
-const mockUseExtensionState = vi.mocked(useExtensionState)
-
-// Mock vscode API - correct path from PersonaAvatar's perspective
-vi.mock("../../../utils/vscode", () => ({
+// Mock vscode API
+const mockPostMessage = vi.fn()
+vi.mock("../../utils/vscode", () => ({
 	vscode: {
-		postMessage: vi.fn(),
+		postMessage: mockPostMessage,
 	},
 }))
 
-// Import mocked vscode after mocking
-import { vscode } from "../../../utils/vscode"
-const mockPostMessage = vi.mocked(vscode.postMessage)
-
-// Mock webview logger to prevent it from calling vscode.postMessage
+// Mock logger
 vi.mock("../utils/webview-logger", () => ({
 	caretWebviewLogger: {
 		debug: vi.fn(),
-		warn: vi.fn(),
 		info: vi.fn(),
+		warn: vi.fn(),
 		error: vi.fn(),
-	},
-	LogLevel: {
-		DEBUG: "debug",
-		INFO: "info", 
-		WARN: "warn",
-		ERROR: "error",
 	},
 }))
 
-const renderWithProviders = (ui: React.ReactElement) => {
-	return render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>)
+// Mock window globals for direct injection
+const mockExtensionState = {
+	personaProfile: "",
+	personaThinking: "",
+	chatSettings: { uiLanguage: "en" },
+	didHydrateState: true,
+	showWelcome: false,
+	theme: undefined,
+	openRouterModels: {},
+	openAiModels: [],
+	requestyModels: {},
+	mcpServers: [],
+	mcpMarketplaceCatalog: { items: [] },
+	filePaths: [],
+	totalTasksSize: null,
+	availableTerminalProfiles: [],
+	caretBanner: "",
+	showMcp: false,
+	showSettings: false,
+	showHistory: false,
+	showAccount: false,
+	showAnnouncement: false,
+	// ... other properties
 }
+
+// Mock ExtensionStateContext
+vi.mock("@/context/ExtensionStateContext", () => ({
+	useExtensionState: () => mockExtensionState,
+	ExtensionStateContextProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
 
 describe("PersonaAvatar Debug Tests", () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
-		
-		// Set default mock return value for useExtensionState
-		mockUseExtensionState.mockReturnValue({
-			chatSettings: { uiLanguage: "en" },
-			clineSettings: {},
-		} as any)
+		// Reset direct injection state
+		mockExtensionState.personaProfile = ""
+		mockExtensionState.personaThinking = ""
 	})
 
 	it("should render with loading state", () => {
-		// Act - explicitly pass null for testPersona
-		renderWithProviders(<PersonaAvatar testPersona={null} />)
+		// Arrange - No persona images in direct injection
+		mockExtensionState.personaProfile = ""
+		mockExtensionState.personaThinking = ""
 
-		// Assert
+		// Act
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={null} />
+			</ExtensionStateContextProvider>,
+		)
+
+		// Assert - Should show loading state
 		const avatar = screen.getByTestId("persona-avatar")
 		expect(avatar).toBeInTheDocument()
-		expect(avatar).toHaveAttribute("data-persona", "loading")
+		expect(avatar).toHaveAttribute("data-persona", "Loading...")
 		expect(avatar).toHaveAttribute("alt", "Loading... normal")
 	})
 
-	it("should call vscode.postMessage when testPersona is null", () => {
-		// Act - explicitly pass null for testPersona
-		renderWithProviders(<PersonaAvatar testPersona={null} />)
+	it("should NOT call vscode.postMessage when using direct injection", () => {
+		// Arrange - Direct injection mode (no testPersona)
+		mockExtensionState.personaProfile = ""
+		mockExtensionState.personaThinking = ""
 
-		// Assert - PersonaAvatar calls REQUEST_PERSONA_IMAGES + logger calls for logs
-		expect(mockPostMessage).toHaveBeenCalledTimes(2)
-		
-		// Check that REQUEST_PERSONA_IMAGES was called
-		expect(mockPostMessage).toHaveBeenCalledWith({
-			type: "REQUEST_PERSONA_IMAGES",
-		})
-		
-		// Check that logging was called  
-		expect(mockPostMessage).toHaveBeenCalledWith({
-			type: "log",
-			entry: expect.objectContaining({
-				component: "Caret",
-				level: "info",
-				message: "PersonaAvatar: Image state changed",
-			}),
-		})
+		// Act
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={null} />
+			</ExtensionStateContextProvider>,
+		)
+
+		// Assert - Should not call postMessage in direct injection mode
+		expect(mockPostMessage).not.toHaveBeenCalled()
 	})
 
-	it("should NOT call REQUEST_PERSONA_IMAGES when testPersona is provided", () => {
-		// Arrange
-		const testPersona = {
+	it("should NOT call vscode.postMessage when testPersona is provided", () => {
+		// Arrange - Test persona provided
+		const testPersona: TemplateCharacter = {
 			character: "test",
 			avatarUri: "test://avatar.png",
 			thinkingAvatarUri: "test://thinking.png",
@@ -118,56 +113,75 @@ describe("PersonaAvatar Debug Tests", () => {
 		}
 
 		// Act
-		renderWithProviders(<PersonaAvatar testPersona={testPersona} />)
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={testPersona} />
+			</ExtensionStateContextProvider>,
+		)
 
-		// Assert - Should only call logger (1 time), NOT REQUEST_PERSONA_IMAGES
-		expect(mockPostMessage).toHaveBeenCalledTimes(1)
-		
-		// Should only call logging, not REQUEST_PERSONA_IMAGES
-		expect(mockPostMessage).toHaveBeenCalledWith({
-			type: "log",
-			entry: expect.objectContaining({
-				component: "Caret",
-				level: "info",
-				message: "PersonaAvatar: Image state changed",
-			}),
-		})
-		
-		// Should NOT call REQUEST_PERSONA_IMAGES
-		expect(mockPostMessage).not.toHaveBeenCalledWith({
-			type: "REQUEST_PERSONA_IMAGES",
-		})
-		
-		const avatar = screen.getByTestId("persona-avatar")
-		expect(avatar).toHaveAttribute("data-persona", "test")
-		expect(avatar).toHaveAttribute("src", "test://avatar.png")
+		// Assert - Should not call postMessage when testPersona is provided
+		expect(mockPostMessage).not.toHaveBeenCalled()
 	})
 
 	it("should render without testPersona prop (undefined case)", () => {
-		// Act - render without testPersona prop (should default to null internally)
-		renderWithProviders(<PersonaAvatar />)
+		// Arrange - No testPersona, direct injection
+		mockExtensionState.personaProfile = ""
+		mockExtensionState.personaThinking = ""
 
-		// Assert
+		// Act
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar />
+			</ExtensionStateContextProvider>,
+		)
+
+		// Assert - Should render loading state
 		const avatar = screen.getByTestId("persona-avatar")
 		expect(avatar).toBeInTheDocument()
-		expect(avatar).toHaveAttribute("data-persona", "loading")
-		
-		// Should call vscode.postMessage twice (REQUEST_PERSONA_IMAGES + logging)
-		expect(mockPostMessage).toHaveBeenCalledTimes(2)
-		
-		// Check that REQUEST_PERSONA_IMAGES was called
-		expect(mockPostMessage).toHaveBeenCalledWith({
-			type: "REQUEST_PERSONA_IMAGES",
-		})
-		
-		// Check that logging was called  
-		expect(mockPostMessage).toHaveBeenCalledWith({
-			type: "log",
-			entry: expect.objectContaining({
-				component: "Caret",
-				level: "info",
-				message: "PersonaAvatar: Image state changed",
-			}),
-		})
+		expect(avatar).toHaveAttribute("data-persona", "Loading...")
+
+		// Should not call postMessage in direct injection mode
+		expect(mockPostMessage).not.toHaveBeenCalled()
+	})
+
+	it("should render with direct injection persona images", () => {
+		// Arrange - Direct injection with persona images
+		mockExtensionState.personaProfile = "data:image/png;base64,ProfileImage"
+		mockExtensionState.personaThinking = "data:image/png;base64,ThinkingImage"
+
+		// Act
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={null} />
+			</ExtensionStateContextProvider>,
+		)
+
+		// Assert - Should use injected images
+		const avatar = screen.getByTestId("persona-avatar")
+		expect(avatar).toBeInTheDocument()
+		expect(avatar).toHaveAttribute("src", "data:image/png;base64,ProfileImage")
+		expect(avatar).toHaveAttribute("data-persona", "오사랑")
+		expect(avatar).toHaveAttribute("alt", "오사랑 normal")
+	})
+
+	it("should switch to thinking image when isThinking is true", () => {
+		// Arrange - Direct injection with persona images
+		mockExtensionState.personaProfile = "data:image/png;base64,ProfileImage"
+		mockExtensionState.personaThinking = "data:image/png;base64,ThinkingImage"
+
+		// Act
+		render(
+			<ExtensionStateContextProvider>
+				<PersonaAvatar testPersona={null} isThinking={true} />
+			</ExtensionStateContextProvider>,
+		)
+
+		// Assert - Should use thinking image
+		const avatar = screen.getByTestId("persona-avatar")
+		expect(avatar).toBeInTheDocument()
+		expect(avatar).toHaveAttribute("src", "data:image/png;base64,ThinkingImage")
+		expect(avatar).toHaveAttribute("data-persona", "오사랑")
+		expect(avatar).toHaveAttribute("alt", "오사랑 thinking")
+		expect(avatar).toHaveAttribute("data-thinking", "true")
 	})
 }) 

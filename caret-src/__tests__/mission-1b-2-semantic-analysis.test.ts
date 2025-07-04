@@ -8,7 +8,7 @@ describe("Mission 1B-2: AI Semantic Equivalence Analysis", () => {
 
 		const outputDir = path.join(process.cwd(), "caret-docs", "reports", "json-caret")
 
-		// Load comparison data from Mission 1B-1
+		// Updated file names to match Mission 1B-1 output
 		const diffReportPath = path.join(outputDir, "cline-vs-caret-diff-report.json")
 		const detailedAnalysisPath = path.join(outputDir, "detailed-difference-analysis.json")
 
@@ -26,7 +26,7 @@ describe("Mission 1B-2: AI Semantic Equivalence Analysis", () => {
 		).toBe(true)
 
 		const diffReport = JSON.parse(await fs.readFile(diffReportPath, "utf8"))
-		const detailedAnalysis = JSON.parse(await fs.readFile(detailedAnalysisPath, "utf8"))
+		const detailedAnalysis = JSON.parse(await fs.readFile(detailedAnalysisPath, "utf8").catch(() => "{}"))
 
 		console.log(
 			`[SEMANTIC] 📊 Loaded data: Cline ${diffReport.tools_comparison.cline_tools.length} tools, Caret ${diffReport.tools_comparison.caret_tools.length} tools`,
@@ -56,13 +56,14 @@ async function generateSemanticReport(diffReport: any, detailedAnalysis: any): P
 	const timestamp = new Date().toISOString()
 
 	// Extract key data
-	const commonTools = diffReport.tools_comparison.common_tools || []
-	const clineOnlyTools = diffReport.tools_comparison.tools_only_in_cline || []
-	const caretOnlyTools = diffReport.tools_comparison.tools_only_in_caret || []
+	const coverage = diffReport.tool_analysis?.coverage_analysis || { covered_tools: [], missing_tools: [], extra_tools: [] }
+	const commonTools = coverage.covered_tools || []
+	const clineOnlyTools = coverage.missing_tools || []
+	const caretOnlyTools = coverage.extra_tools || []
 
-	const clineLength = detailedAnalysis.comparison_summary.cline_length
-	const caretLength = detailedAnalysis.comparison_summary.caret_length
-	const sizeDiff = detailedAnalysis.comparison_summary.size_difference_percentage
+	const clineLength = diffReport.prompt_comparison?.cline.length_chars || 0
+	const caretLength = diffReport.prompt_comparison?.caret.length_chars || 0
+	const sizeDiff = diffReport.prompt_comparison?.size_comparison.size_difference_percentage || 0
 
 	// Build comprehensive report in Korean
 	const sections = [

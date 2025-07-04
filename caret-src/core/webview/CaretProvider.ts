@@ -119,6 +119,7 @@ export class CaretProvider extends ClineWebviewProvider {
 		// Get the original HTML content
 		const originalHtml = super.getHtmlContent(webview)
 		let caretBannerDataUri = ""
+		let caretIconDataUri = ""
 		try {
 			const bannerPath = path.join(this.context.extensionPath, "caret-assets", "caret-main-banner.webp")
 			// CARET MODIFICATION: 배너 이미지를 caret-main-banner.webp로 변경
@@ -129,6 +130,16 @@ export class CaretProvider extends ClineWebviewProvider {
 				caretLogger.info(`[CaretProvider] Banner loaded successfully, size: ${fileBuffer.length} bytes`)
 			} else {
 				caretLogger.error(`[CaretProvider] Banner file not found: ${bannerPath}`)
+			}
+
+			const iconPath = path.join(this.context.extensionPath, "caret-assets", "icons", "icon.png")
+			caretLogger.info(`[CaretProvider] Attempting to load caret icon from: ${iconPath}`)
+			if (fs.existsSync(iconPath)) {
+				const iconBuffer = fs.readFileSync(iconPath)
+				caretIconDataUri = `data:image/png;base64,${iconBuffer.toString("base64")}`
+				caretLogger.info(`[CaretProvider] Caret icon loaded successfully, size: ${iconBuffer.length} bytes`)
+			} else {
+				caretLogger.error(`[CaretProvider] Caret icon file not found: ${iconPath}`)
 			}
 		} catch (e) {
 			// CARET MODIFICATION: 오류 로깅 추가
@@ -166,6 +177,7 @@ export class CaretProvider extends ClineWebviewProvider {
 			/window\.clineClientId = "[^"]*";/,
 			`window.clineClientId = "\${this.clientId}";
                     window.caretBanner = "${caretBannerDataUri}";
+                    window.caretIcon = "${caretIconDataUri}";
                     window.personaProfile = "${personaProfileDataUri}";
                     window.personaThinking = "${personaThinkingDataUri}";`,
 		)
@@ -198,6 +210,7 @@ export class CaretProvider extends ClineWebviewProvider {
 		// Get the original HMR HTML content
 		const originalHtml = await super.getHMRHtmlContent(webview)
 		let caretBannerDataUri = ""
+		let caretIconDataUri = ""
 		try {
 			const bannerPath = path.join(this.context.extensionPath, "caret-assets", "caret-main-banner.webp")
 			// CARET MODIFICATION: 배너 이미지 로딩 디버깅 추가
@@ -208,6 +221,16 @@ export class CaretProvider extends ClineWebviewProvider {
 				caretLogger.info(`[CaretProvider] HMR - Banner loaded successfully, size: ${fileBuffer.length} bytes`)
 			} else {
 				caretLogger.error(`[CaretProvider] HMR - Banner file not found: ${bannerPath}`)
+			}
+
+			const iconPath = path.join(this.context.extensionPath, "caret-assets", "icons", "icon.png")
+			caretLogger.info(`[CaretProvider] HMR - Attempting to load caret icon from: ${iconPath}`)
+			if (fs.existsSync(iconPath)) {
+				const iconBuffer = fs.readFileSync(iconPath)
+				caretIconDataUri = `data:image/png;base64,${iconBuffer.toString("base64")}`
+				caretLogger.info(`[CaretProvider] HMR - Caret icon loaded successfully, size: ${iconBuffer.length} bytes`)
+			} else {
+				caretLogger.error(`[CaretProvider] HMR - Caret icon file not found: ${iconPath}`)
 			}
 		} catch (e) {
 			// CARET MODIFICATION: 오류 로깅 추가
@@ -245,6 +268,7 @@ export class CaretProvider extends ClineWebviewProvider {
 			/window\.clineClientId = "[^"]*";/,
 			`window.clineClientId = "\${this.clientId}";
 						window.caretBanner = "${caretBannerDataUri}";
+						window.caretIcon = "${caretIconDataUri}";
 						window.personaProfile = "${personaProfileDataUri}";
 						window.personaThinking = "${personaThinkingDataUri}";`,
 		)

@@ -7,6 +7,7 @@ import AutoApproveMenuItem from "./AutoApproveMenuItem"
 import AutoApproveModal from "./AutoApproveModal"
 import { ACTION_METADATA, NOTIFICATIONS_SETTING } from "./constants"
 import { t } from "@/caret/utils/i18n"
+import { ActionMetadata } from "./types"
 
 interface AutoApproveBarProps {
 	style?: React.CSSProperties
@@ -21,6 +22,20 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
 
 	const favorites = useMemo(() => autoApprovalSettings.favorites || [], [autoApprovalSettings.favorites])
 
+	// CARET MODIFICATION: 액션과 하위 액션 재귀 번역 헬퍼
+	const translateAction = (action: ActionMetadata): ActionMetadata => {
+		const translated: ActionMetadata = {
+			...action,
+			label: t(action.label, "settings"),
+			description: t(action.description, "settings"),
+			shortName: t(action.shortName, "settings"),
+		}
+		if (action.subAction) {
+			translated.subAction = translateAction(action.subAction)
+		}
+		return translated
+	}
+
 	// Render a favorited item with a checkbox
 	const renderFavoritedItem = (favId: string) => {
 		const actions = [...ACTION_METADATA.flatMap((a) => [a, a.subAction]), NOTIFICATIONS_SETTING]
@@ -30,7 +45,7 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
 		return (
 			<AutoApproveMenuItem
 				key={action.id}
-				action={{...action, label: t(action.label, "settings"), description: t(action.description, "settings")}}
+				action={translateAction(action)}
 				isChecked={isChecked}
 				isFavorited={isFavorited}
 				onToggle={updateAction}

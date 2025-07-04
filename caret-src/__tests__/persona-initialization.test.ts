@@ -44,7 +44,7 @@ describe("Persona Initialization System", () => {
 
 		it("should handle missing persona directory gracefully", async () => {
 			// Arrange
-			mockFs.rm = vi.fn().mockRejectedValue(new Error("ENOENT: no such file or directory"))
+			mockFs.rm = vi.fn().mockRejectedValue(new Error("ENOENT"))
 
 			// Act & Assert
 			await expect(resetPersonaData(mockContext)).resolves.not.toThrow()
@@ -66,7 +66,12 @@ describe("Persona Initialization System", () => {
 
 		it("should return false when persona images don't exist", async () => {
 			// Arrange
-			mockFs.access = vi.fn().mockRejectedValue(new Error("ENOENT"))
+			mockFs.access = vi.fn().mockImplementation((filePath: string) => {
+				if (filePath.includes("template_characters")) {
+					return Promise.resolve()
+				}
+				return Promise.reject(new Error("ENOENT"))
+			})
 
 			// Act
 			const result = await isPersonaDataExists(mockContext)
@@ -108,7 +113,13 @@ describe("Persona Initialization System", () => {
 				},
 			]
 
-			mockFs.access = vi.fn().mockRejectedValue(new Error("ENOENT")) // No persona exists
+			// Mock access: persona files missing (globalStorage) but template source files exist
+			mockFs.access = vi.fn().mockImplementation((filePath: string) => {
+				if (filePath.includes("template_characters")) {
+					return Promise.resolve()
+				}
+				return Promise.reject(new Error("ENOENT"))
+			})
 			mockFs.mkdir = vi.fn().mockResolvedValue(undefined)
 			mockFs.copyFile = vi.fn().mockResolvedValue(undefined)
 			mockFs.writeFile = vi.fn().mockResolvedValue(undefined)
@@ -170,7 +181,13 @@ describe("Persona Initialization System", () => {
 				},
 			]
 
-			mockFs.access = vi.fn().mockRejectedValue(new Error("ENOENT"))
+			// Mock access: persona files missing (globalStorage) but template source files exist
+			mockFs.access = vi.fn().mockImplementation((filePath: string) => {
+				if (filePath.includes("template_characters")) {
+					return Promise.resolve()
+				}
+				return Promise.reject(new Error("ENOENT"))
+			})
 			mockFs.mkdir = vi.fn().mockResolvedValue(undefined)
 			mockFs.copyFile = vi.fn().mockResolvedValue(undefined)
 			mockFs.writeFile = vi.fn().mockResolvedValue(undefined)

@@ -850,7 +850,7 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 									{renderSectionHeader("about")}
 									<Section>
 										{/* CARET MODIFICATION: CaretFooter 추가 */}
-										<div className="mt-6 pt-4 border-t border-[var(--vscode-widget-border)]">
+										<div className="mt-6 pt-4">
 											<CaretFooter />
 										</div>
 									</Section>

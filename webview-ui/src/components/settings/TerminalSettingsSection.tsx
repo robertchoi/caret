@@ -33,7 +33,7 @@ export const TerminalSettingsSection: React.FC = () => {
 
 		const seconds = parseFloat(value)
 		if (isNaN(seconds) || seconds <= 0) {
-			setInputError(t("terminal.positiveNumberError"))
+			setInputError(t("terminal.positiveNumberError", "settings"))
 			return
 		}
 
@@ -84,7 +84,7 @@ export const TerminalSettingsSection: React.FC = () => {
 		<div id="terminal-settings-section" style={{ marginBottom: 20 }}>
 			<div style={{ marginBottom: 15 }}>
 				<label htmlFor="default-terminal-profile" style={{ fontWeight: "500", display: "block", marginBottom: 5 }}>
-					{t("terminal.defaultProfile")}
+					{t("terminal.defaultProfile", "settings")}
 				</label>
 				<VSCodeDropdown
 					id="default-terminal-profile"
@@ -98,20 +98,20 @@ export const TerminalSettingsSection: React.FC = () => {
 					))}
 				</VSCodeDropdown>
 				<p style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)", margin: "5px 0 0 0" }}>
-					{t("terminal.defaultProfileDescription")}
+					{t("terminal.defaultProfileDescription", "settings")}
 				</p>
 			</div>
 
 			<div style={{ marginBottom: 15 }}>
 				<div style={{ marginBottom: 8 }}>
 					<label style={{ fontWeight: "500", display: "block", marginBottom: 5 }}>
-						{t("terminal.shellTimeout")}
+						{t("terminal.shellTimeout", "settings")}
 					</label>
 					<div style={{ display: "flex", alignItems: "center" }}>
 						<VSCodeTextField
 							style={{ width: "100%" }}
 							value={inputValue}
-							placeholder={t("terminal.timeoutPlaceholder")}
+							placeholder={t("terminal.timeoutPlaceholder", "settings")}
 							onChange={(event) => handleTimeoutChange(event as Event)}
 							onBlur={handleInputBlur}
 						/>
@@ -121,7 +121,7 @@ export const TerminalSettingsSection: React.FC = () => {
 					)}
 				</div>
 				<p style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)", margin: 0 }}>
-					{t("terminal.shellTimeoutDescription")}
+					{t("terminal.shellTimeoutDescription", "settings")}
 				</p>
 			</div>
 
@@ -130,11 +130,11 @@ export const TerminalSettingsSection: React.FC = () => {
 					<VSCodeCheckbox
 						checked={terminalReuseEnabled ?? true}
 						onChange={(event) => handleTerminalReuseChange(event as Event)}>
-						{t("terminal.aggressiveReuse")}
+						{t("terminal.aggressiveReuse", "settings")}
 					</VSCodeCheckbox>
 				</div>
 				<p style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)", margin: 0 }}>
-					{t("terminal.aggressiveReuseDescription")}
+					{t("terminal.aggressiveReuseDescription", "settings")}
 				</p>
 			</div>
 			<TerminalOutputLineLimitSlider />

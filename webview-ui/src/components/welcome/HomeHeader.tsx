@@ -1,12 +1,14 @@
-import ClineLogoVariable from "@/assets/ClineLogoVariable"
 import HeroTooltip from "@/components/common/HeroTooltip"
 import { t } from "@/caret/utils/i18n"
+
+// CARET MODIFICATION: CaretProvider에서 주입한 window.caretIcon 사용
+const caretLogo = (window as any).caretIcon || (window as any).caretBanner || ""
 
 const HomeHeader = () => {
 	return (
 		<div className="flex flex-col items-center mb-5">
 			<div className="my-5">
-				<ClineLogoVariable className="size-16" />
+				<img src={caretLogo} alt="Caret Logo" className="size-16" />
 			</div>
 			<div className="text-center flex items-center justify-center">
 				<h2 className="m-0 text-[var(--vscode-font-size)]">{t("welcome.whatCanIDo", "common")}</h2>

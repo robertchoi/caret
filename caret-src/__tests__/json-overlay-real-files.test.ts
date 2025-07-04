@@ -98,7 +98,7 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 				// Verify Alpha personality was applied
 				expect(result.prompt).toContain("Alpha Yang (알파)")
 				expect(result.prompt).toContain("Personality: Alpha Yang (알파)") // Fixed: no header formatting
-				expect(result.prompt).toContain("digital maid-like AI assistant") // More reliable text to match
+				expect(result.prompt).toContain("AI Maid assistant helping your master Luke") // Updated phrase to match template
 				expect(result.metrics.appliedTemplates).toContain("alpha-personality")
 				expect(result.metrics.enhancementRatio).toBeGreaterThan(1)
 
@@ -118,7 +118,7 @@ describe("JSON Overlay System - Real File Integration Tests (003-03)", () => {
 				// Verify TDD content was applied
 				expect(result.prompt).toContain("Test-Driven Development (TDD)")
 				expect(result.prompt).toContain("🔴 RED Phase")
-				expect(result.prompt).toContain("RED -> GREEN -> REFACTOR") // Fixed: simple arrow format
+				expect(result.prompt).toContain("RED → GREEN → REFACTOR") // Updated to Unicode arrow format
 				expect(result.metrics.appliedTemplates).toContain("tdd-focused")
 
 				console.log("✅ TDD template applied successfully")

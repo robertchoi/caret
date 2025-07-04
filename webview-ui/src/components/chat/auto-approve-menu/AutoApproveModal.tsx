@@ -83,6 +83,20 @@ const AutoApproveModal: React.FC<AutoApproveModalProps> = ({
 		}
 	}, [isVisible])
 
+	// CARET MODIFICATION: 액션과 하위 액션까지 재귀적으로 번역하는 헬퍼
+	const translateAction = (action: ActionMetadata): ActionMetadata => {
+		const translated: ActionMetadata = {
+			...action,
+			label: t(action.label, "settings"),
+			description: t(action.description, "settings"),
+			shortName: t(action.shortName, "settings"),
+		}
+		if (action.subAction) {
+			translated.subAction = translateAction(action.subAction)
+		}
+		return translated
+	}
+
 	if (!isVisible) return null
 
 	return (
@@ -141,7 +155,7 @@ const AutoApproveModal: React.FC<AutoApproveModalProps> = ({
 					{ACTION_METADATA.map((action) => (
 						<AutoApproveMenuItem
 							key={action.id}
-							action={{...action, label: t(action.label, "settings"), description: t(action.description, "settings"), shortName: t(action.shortName, "settings")}}
+							action={translateAction(action)}
 							isChecked={isChecked}
 							isFavorited={isFavorited}
 							onToggle={updateAction}
@@ -156,7 +170,7 @@ const AutoApproveModal: React.FC<AutoApproveModalProps> = ({
 
 				<AutoApproveMenuItem
 					key={NOTIFICATIONS_SETTING.id}
-					action={{...NOTIFICATIONS_SETTING, label: t(NOTIFICATIONS_SETTING.label, "settings"), description: t(NOTIFICATIONS_SETTING.description, "settings"), shortName: t(NOTIFICATIONS_SETTING.shortName, "settings")}}
+					action={translateAction(NOTIFICATIONS_SETTING)}
 					isChecked={isChecked}
 					isFavorited={isFavorited}
 					onToggle={updateAction}

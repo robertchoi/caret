@@ -68,6 +68,26 @@ export async function activate(context: vscode.ExtensionContext) {
 		Logger.log(`Failed to initialize persona storage system: ${error}`)
 	}
 
+	// CARET MODIFICATION: 확장 활성화 시 modeSystem을 "caret"으로 강제 설정
+	try {
+		const { getAllExtensionState } = await import("./core/storage/state")
+		const currentState = await getAllExtensionState(context)
+
+		// modeSystem이 cline으로 설정되어 있으면 caret으로 변경
+		if (currentState.chatSettings?.modeSystem === "cline") {
+			const { updateWorkspaceState } = await import("./core/storage/state")
+			const updatedChatSettings = {
+				...currentState.chatSettings,
+				modeSystem: "caret",
+				mode: "agent" as const, // caret 모드의 기본값
+			}
+			await updateWorkspaceState(context, "chatSettings", updatedChatSettings)
+			Logger.log("Mode system changed from cline to caret on activation")
+		}
+	} catch (error) {
+		Logger.log(`Failed to ensure caret mode system: ${error}`)
+	}
+
 	// Version checking for autoupdate notification
 	const currentVersion = context.extension.packageJSON.version
 	const previousVersion = context.globalState.get<string>("clineVersion")

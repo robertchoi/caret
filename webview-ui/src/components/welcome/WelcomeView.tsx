@@ -42,6 +42,24 @@ const WelcomeView = () => {
 					apiConfiguration: protoConfig,
 				}),
 			)
+
+			// CARET MODIFICATION: 웰컴 페이지 완료 시 페르소나 초기화
+			// 사용자가 언어를 선택하지 않고 넘어가도 현재 언어로 페르소나 초기화
+			try {
+				// 현재 UI 언어 가져오기 (chatSettings.uiLanguage 또는 현재 언어)
+				const currentUILanguage = chatSettings?.uiLanguage || currentLanguage
+
+				// 백엔드에 페르소나 초기화 요청
+				vscode.postMessage({
+					type: "initializeDefaultPersona",
+					language: currentUILanguage,
+				})
+
+				console.log("[WelcomeView] Default persona initialization requested for language:", currentUILanguage)
+			} catch (personaError) {
+				console.warn("[WelcomeView] Failed to initialize default persona:", personaError)
+			}
+
 			// API 설정 완료 후 자동으로 채팅 화면으로 이동
 			// API 설정 페이지 닫기
 			setShowApiOptions(false)

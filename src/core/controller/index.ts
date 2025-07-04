@@ -364,6 +364,25 @@ export class Controller {
 				break
 			}
 
+			// CARET MODIFICATION: Handle initializeDefaultPersona for welcome page completion
+			case "initializeDefaultPersona": {
+				if (message.language) {
+					caretLogger.info(`[Controller] Received initializeDefaultPersona for language: ${message.language}`)
+					try {
+						const { initializeDefaultPersonaOnLanguageSet } = await import(
+							"../../../caret-src/utils/persona-initialization"
+						)
+						await initializeDefaultPersonaOnLanguageSet(this.context, message.language)
+						caretLogger.info(
+							`[Controller] Default persona initialized successfully for language: ${message.language}`,
+						)
+					} catch (error) {
+						caretLogger.warn(`[Controller] Failed to initialize default persona: ${error}`)
+					}
+				}
+				break
+			}
+
 			// CARET MODIFICATION: Handle REQUEST_PERSONA_IMAGES to provide current persona images to PersonaAvatar
 			case "REQUEST_PERSONA_IMAGES": {
 				caretLogger.info("[Controller] Received REQUEST_PERSONA_IMAGES")

@@ -32,6 +32,7 @@ export interface WebviewMessage {
 		| "RESPONSE_RULE_FILE_CONTENT"
 		| "UPLOAD_CUSTOM_PERSONA_IMAGE"
 		| "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE"
+		| "initializeDefaultPersona"
 		| "reinitiate_task"
 		| "delete_task"
 		| "export_task"
@@ -115,6 +116,9 @@ export interface WebviewMessage {
 
 	// CARET MODIFICATION: For welcome page context setting
 	showWelcome?: boolean
+
+	// CARET MODIFICATION: For persona initialization on language set
+	language?: string
 
 	personaInstruction?: PersonaInstruction
 	payload?: any // Used for RESPONSE_TEMPLATE_CHARACTERS and potentially others

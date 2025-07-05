@@ -13,6 +13,7 @@ import { caretLogger } from "./utils/caret-logger"
 import { CaretSystemPrompt } from "./core/prompts/CaretSystemPrompt"
 import { CaretResponses } from "./core/prompts/CaretResponses"
 import { DIFF_VIEW_URI_SCHEME } from "../src/integrations/editor/DiffViewProvider"
+import pWaitFor from "p-wait-for"
 
 let outputChannel: vscode.OutputChannel
 
@@ -214,6 +215,52 @@ export async function activate(context: vscode.ExtensionContext) {
 		}),
 	)
 	caretLogger.info("Caret extension activated and all commands registered.")
+
+	// CARET MODIFICATION: Quick implementation of caret.focusChatInput to ensure webview visible
+	context.subscriptions.push(
+		vscode.commands.registerCommand("caret.focusChatInput", async () => {
+			// Try to reveal existing visible instance first
+			let activeProvider = CaretProvider.getVisibleInstance() as any
+
+			if (!activeProvider) {
+				// Fallback to sidebar focus
+				await vscode.commands.executeCommand("caret.SidebarProvider.focus")
+				await pWaitFor(() => !!CaretProvider.getVisibleInstance(), { timeout: 2000 }).catch(() => {})
+				activeProvider = CaretProvider.getVisibleInstance() as any
+			}
+
+			// If still not found, open a new tab
+			if (!activeProvider) {
+				await vscode.commands.executeCommand("caret.openInNewTab")
+				await pWaitFor(() => !!CaretProvider.getVisibleInstance(), { timeout: 2000 }).catch(() => {})
+			}
+		}),
+	)
+
+	// CARET MODIFICATION: Quick implementation of caret.addToChat (editor context menu)
+	context.subscriptions.push(
+		vscode.commands.registerCommand("caret.addToChat", async (range?: vscode.Range) => {
+			await vscode.commands.executeCommand("caret.focusChatInput")
+			await pWaitFor(() => !!CaretProvider.getVisibleInstance(), { timeout: 2000 }).catch(() => {})
+
+			const editor = vscode.window.activeTextEditor
+			if (!editor) {
+				return
+			}
+
+			const textRange = range instanceof vscode.Range ? range : editor.selection
+			const selectedText = editor.document.getText(textRange)
+			if (!selectedText.trim()) {
+				return
+			}
+
+			const filePath = editor.document.uri.fsPath
+			const languageId = editor.document.languageId
+
+			const visibleProvider = CaretProvider.getVisibleInstance() as any
+			await visibleProvider?.controller.addSelectedCodeToChat(selectedText, filePath, languageId, [])
+		}),
+	)
 }
 
 export function deactivate() {

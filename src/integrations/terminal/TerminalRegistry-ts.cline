@@ -21,16 +21,11 @@ export class TerminalRegistry {
 	private static nextTerminalId = 1
 
 	static createTerminal(cwd?: string | vscode.Uri | undefined, shellPath?: string): TerminalInfo {
-		// CARET MODIFICATION: Use custom Caret shell icon instead of default VSCode robot icon
+		
 		const terminalOptions: vscode.TerminalOptions = {
 			cwd,
 			name: "Caret",
-			iconPath: vscode.Uri.joinPath(
-				vscode.extensions.getExtension("caret-team.caret")!.extensionUri,
-				"caret-assets",
-				"icons",
-				"caret_shell_icon.svg",
-			),
+			iconPath: new vscode.ThemeIcon("robot"),
 		}
 
 		// If a specific shell path is provided, use it

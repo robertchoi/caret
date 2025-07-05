@@ -43,7 +43,9 @@
 	"activationEvents": [
 		"onLanguage",
 		"onStartupFinished",
-		"workspaceContains:evals.env"
+		"workspaceContains:evals.env",
+		"onCommand:caret.addToChat",
+		"onCommand:caret.focusChatInput"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {

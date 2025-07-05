@@ -344,41 +344,29 @@ npm run package:release
 - **예시**: `output/caret-0.1.0-202501271545.vsix`
 - **설치**: `code --install-extension output/caret-0.1.0-202501271545.vsix`
 
-## 테스트 및 품질 관리 🧪
+### 📊 Telemetry (PostHog) 설정
 
-Caret은 **100% 테스트 커버리지**(Caret 전용 코드 기준)와 **TDD(테스트 주도 개발)**를 목표로 하는 품질 우선 개발을 지향합니다. **모든 코드는 Git 푸시 전에 반드시 전체 테스트를 통과해야 합니다.**
+Caret Community/Dev 빌드와 Release 빌드에서 **텔레메트리 활성 여부**를 완전히 분리했습니다.
 
-### 테스트 실행
+| 빌드 종류 | 환경 변수 | 결과 |
+|-----------|-----------|-------|
+| dev / community | _(미설정)_ | PostHog **비활성화** (이벤트 0건) |
+| release (enterprise) | `POSTHOG_API_KEY`, `POSTHOG_HOST`, `POSTHOG_UIHOST` | PostHog **활성화** – `posthog.caret.team` 으로 전송 |
+
+빌드 예시:
 
 ```bash
-# ⭐ 권장: 전체 테스트 실행 (프론트엔드 + 백엔드)
-# Git 푸시 전 반드시 이 명령어로 전체 테스트를 실행하여 통과 여부를 확인해야 합니다.
-npm run test:all
+# 🚧 Community/dev (VSCode F5)
+npm run watch            # 텔레메트리 없음
 
-# ⚠️ 주의: 과거 ESM 관련 이슈가 있었던 명령어
-# 현재는 'npm run test:all'과 동일하게 동작하며 모든 테스트가 통과합니다.
-# 하지만, 'npm run test:all' 사용을 우선적으로 권장합니다.
-npm test
+# 🚀 Release / CI
+export BUILD_FLAVOR=enterprise
+export POSTHOG_API_KEY=phc_xxx            # PostHog UI에서 발급
+export POSTHOG_HOST="https://posthog.caret.team"
+export POSTHOG_UIHOST="https://posthog.caret.team"
 
-# 테스트 커버리지 확인 (자세한 내용은 테스팅 가이드 참조)
-npm run test:coverage
-
-# 테스트 watch 모드 (개발 시, 자세한 내용은 테스팅 가이드 참조)
-npm run test:watch # 주로 백엔드 watch, 프론트엔드 watch는 테스팅 가이드 확인
-
-# Caret 전용 코드 커버리지 상세 분석 (스크립트 활용)
-node caret-scripts/caret-coverage-check.js
+npm run package:release   # output/caret-<ver>-<ts>.vsix
 ```
 
-### 테스트 가이드
-
-- **[Caret 테스트 가이드](./caret-docs/development/testing-guide.mdx)**: 전체 테스트 전략, 다양한 실행 방법, 작성 표준, TDD 방법론 등 **테스트에 관한 가장 상세하고 정확한 정보를 제공하는 핵심 문서입니다.**
-- **[테스트 작성 표준](./caret-docs/development/test-writing-standards.mdx)**: (Deprecated될 수 있으며, 주요 내용은 테스트 가이드에 통합됨)
-- **[TDD 가이드](./caret-docs/development/tdd-guide.mdx)**: (Deprecated될 수 있으며, 주요 내용은 테스트 가이드에 통합됨)
-
-### 테스트 원칙
-
-- **Caret 전용 코드 100% 커버리지**: `caret-src/`, `webview-ui/src/caret/` 디렉토리의 모든 코드는 100% 테스트 커버리지를 목표로 합니다.
-- **TDD (Test-Driven Development) 방식**: Red-Green-Refactor 사이클을 따르는 테스트 주도 개발을 필수 원칙으로 합니다.
-- **품질 우선 및 푸시 전 검증**: 테스트 실패 시 코드 변경 및 푸시를 금지하며, 근본 원인 해결을 원칙으로 합니다. `npm run test:all`을 통해 모든 테스트가 통과하는 것을 확인한 후에만 코드를 푸시합니다.
+> 환경 변수를 설정하지 않으면 `PostHogClientProvider` 가 자동으로 더미 클라이언트로 폴백됩니다.
 

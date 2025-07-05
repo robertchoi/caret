@@ -1,0 +1,55 @@
+# Azure DevOps pipeline for Caret VS Code extension
+# CARET MODIFICATION: Initial pipeline to automate build, package and publish
+
+trigger:
+  tags:
+    include:
+      - 'v*'  # 빌드 트리거: 버전 태그(v1.2.3) 푸시 시 자동 실행
+
+pr: none  # PR 빌드 제외
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  NODE_VERSION: '18.x'
+  VSCE_PAT: '$(VSCE_PAT)'  # 마켓플레이스 Personal Access Token (Pipeline secret variable)
+
+steps:
+  # 1. Node 설치
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '$(NODE_VERSION)'
+    displayName: 'Install Node.js $(NODE_VERSION)'
+
+  # 2. 의존성 설치 (루트 + webview-ui)
+  - script: |
+      npm ci
+      cd webview-ui
+      npm ci
+    displayName: 'Install dependencies'
+
+  # 3. 빌드 (프로토 → 백엔드 TS → Webview)
+  - script: |
+      npm run protos
+      npm run compile
+      npm run build:webview
+    displayName: 'Build extension'
+
+  # 4. VSIX 패키징
+  - script: |
+      npx vsce package --out caret-$(Build.SourceVersion).vsix --allow-missing-repository
+    displayName: 'Package VSIX'
+
+  # 5. 빌드 산출물 업로드 (선택)
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: 'caret-$(Build.SourceVersion).vsix'
+      ArtifactName: 'vsix'
+    displayName: 'Publish VSIX artifact'
+
+  # 6. Marketplace 배포 (main 브랜치에만)
+  - script: |
+      npx vsce publish -p $(VSCE_PAT)
+    condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/main'), succeeded())
+    displayName: 'Publish to VSCode Marketplace' 

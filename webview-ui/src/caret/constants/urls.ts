@@ -9,8 +9,8 @@ export const CARET_URLS = {
 	// 계정 관련 (언어 무관)
 	CARET_APP_CREDITS: "https://app.caret.team/credits",
 	CARET_APP_CREDITS_BUY: "https://app.caret.team/credits/#buy",
-	CARET_TERMS_OF_SERVICE: "https://caret.team/tos",
-	CARET_PRIVACY_POLICY: "https://caret.team/privacy",
+	CARET_TERMS_OF_SERVICE: "https://caretive.ai/terms",
+	CARET_PRIVACY_POLICY: "https://caretive.ai/privacy",
 
 	// 회사 관련 (언어 무관)
 	CARETIVE_COMPANY: "https://caretive.ai",
@@ -48,6 +48,20 @@ export const CARET_LOCALIZED_URLS = {
 		en: "https://github.com/aicoding-caret/caret/blob/main/README.en.md",
 		ja: "https://github.com/aicoding-caret/caret/blob/main/README.en.md",
 		zh: "https://github.com/aicoding-caret/caret/blob/main/README.en.md",
+	},
+
+	// 이용약관 및 개인정보취급방침 (한국어 별도, 그 외 영어 기본)
+	CARETIVE_TERMS: {
+		ko: "https://caretive.ai/terms.ko.html",
+		en: "https://caretive.ai/terms.en.html",
+		ja: "https://caretive.ai/terms.en.html",
+		zh: "https://caretive.ai/terms.en.html",
+	},
+	CARETIVE_PRIVACY: {
+		ko: "https://caretive.ai/privacy.ko.html",
+		en: "https://caretive.ai/privacy.en.html",
+		ja: "https://caretive.ai/privacy.en.html",
+		zh: "https://caretive.ai/privacy.en.html",
 	},
 } as const
 

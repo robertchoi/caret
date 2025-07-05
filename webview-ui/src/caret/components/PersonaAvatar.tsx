@@ -49,14 +49,15 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 	style = {},
 	testPersona = null,
 }) => {
-	// CARET MODIFICATION: 웰컴페이지처럼 window에서 직접 이미지 받는 방식으로 변경
-	const [imageError, setImageError] = useState<boolean>(false)
-
 	const extensionState = useExtensionState()
+	const { personaProfile, personaThinking } = extensionState // initial values from context
 	const currentLocale = extensionState?.chatSettings?.uiLanguage || "en"
+	
+	const [avatarUri, setAvatarUri] = useState<string>(personaProfile)
+	const [thinkingUri, setThinkingUri] = useState<string>(personaThinking)
 
-	// CARET MODIFICATION: 웰컴페이지처럼 ExtensionStateContext에서 직접 받기
-	const { personaProfile, personaThinking } = extensionState
+	// CARET MODIFICATION: maintain local avatar URIs that update via message events
+	const [imageError, setImageError] = useState<boolean>(false)
 
 	// Handle image loading errors
 	const handleImageError = useCallback(
@@ -73,7 +74,35 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 	// Reset image errors when thinking state changes
 	useEffect(() => {
 		setImageError(false)
-	}, [isThinking, personaProfile, personaThinking])
+	}, [isThinking, avatarUri, thinkingUri])
+
+	// CARET MODIFICATION: listen for backend updates to persona images
+	useEffect(() => {
+		const handler = (event: MessageEvent) => {
+			const msg = event.data
+			if (msg?.type === "RESPONSE_PERSONA_IMAGES") {
+				if (msg.payload?.avatarUri) setAvatarUri(msg.payload.avatarUri)
+				if (msg.payload?.thinkingAvatarUri) setThinkingUri(msg.payload.thinkingAvatarUri)
+			}
+		}
+		window.addEventListener("message", handler)
+		return () => window.removeEventListener("message", handler)
+	}, [])
+
+	// CARET MODIFICATION: if avatar URIs not yet available, proactively request from backend
+	useEffect(() => {
+		// 첫 마운트 시 window 전역 값과 동기화 (Settings → Chat 새 줄 케이스)
+		const globalProfile = (window as any).personaProfile as string | undefined
+		const globalThinking = (window as any).personaThinking as string | undefined
+		if (globalProfile && globalProfile !== avatarUri) setAvatarUri(globalProfile)
+		if (globalThinking && globalThinking !== thinkingUri) setThinkingUri(globalThinking)
+
+		if (!avatarUri || !thinkingUri) {
+			vscode.postMessage({ type: "REQUEST_PERSONA_IMAGES" })
+		}
+		// run once on mount
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
 	// CARET MODIFICATION: 직접 주입된 이미지 사용 (테스트 모드가 아닐 때)
 	let imageUri: string
@@ -86,9 +115,8 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 		personaName = localeDetails?.name || ""
 	} else {
 		// 프로덕션 모드: 직접 주입된 이미지 사용
-		if (personaProfile && personaThinking) {
-			// 페르소나 이미지가 있는 경우
-			imageUri = isThinking ? personaThinking : personaProfile
+		if (avatarUri && thinkingUri) {
+			imageUri = isThinking ? thinkingUri : avatarUri
 			personaName = "오사랑" // 기본 페르소나는 사랑이
 		} else {
 			// 페르소나 이미지가 없는 경우 로딩 이미지 사용

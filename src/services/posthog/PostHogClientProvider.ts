@@ -26,12 +26,19 @@ class DummyPostHogClient {
 
 class PostHogClientProvider {
 	private static instance: PostHogClientProvider
-	private client: DummyPostHogClient
+	private client: any
 
 	private constructor() {
-		// Caret에서는 PostHog를 비활성화하고 더미 클라이언트 사용
-		console.log("[Caret] PostHog disabled - using dummy client")
-		this.client = new DummyPostHogClient()
+		// CARET MODIFICATION: env 에 PostHog 설정이 있으면 실제 클라이언트를 사용
+		if (posthogConfig.apiKey && posthogConfig.host) {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			const { PostHog } = require("posthog-node")
+			this.client = new PostHog(posthogConfig.apiKey, { host: posthogConfig.host })
+			console.log(`[Caret] PostHog enabled → ${posthogConfig.host}`)
+		} else {
+			console.log("[Caret] PostHog disabled - using dummy client")
+			this.client = new DummyPostHogClient()
+		}
 	}
 
 	public static getInstance(): PostHogClientProvider {

@@ -202,6 +202,25 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 		setCurrentInstruction(JSON.stringify(localeDetails.customInstruction, null, 2))
 
 		setIsSelectorOpen(false)
+
+		// CARET MODIFICATION: 즉시 웹뷰 내 컴포넌트들에게 이미지 변경 사항 브로드캐스트
+		window.postMessage(
+			{
+				type: "RESPONSE_PERSONA_IMAGES",
+				payload: {
+					avatarUri: character.avatarUri,
+					thinkingAvatarUri: character.thinkingAvatarUri,
+				},
+			},
+			"*",
+		)
+
+		// 로컬 상태도 즉시 갱신해 Settings 창 썸네일이 바로 바뀌도록 처리
+		setCurrentPersonaImages({ avatarUri: character.avatarUri, thinkingAvatarUri: character.thinkingAvatarUri })
+
+		// CARET MODIFICATION: 글로벌 변수 업데이트로 새로 마운트되는 컴포넌트가 최신 이미지를 즉시 사용
+		;(window as any).personaProfile = character.avatarUri
+		;(window as any).personaThinking = character.thinkingAvatarUri
 	}
 
 	const getPersonaName = () => {
@@ -253,10 +272,7 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 								<span className="codicon codicon-cloud-upload"></span>
 							</VSCodeButton>
 						</div>
-					</div>
-					<div className="text-center text-sm font-medium">
-						{selectedPersona ? getPersonaName() : t("currentPersona", "persona")}
-					</div>
+					</div>					
 
 					{(uploadMessage || isUploading) && (
 						<div className="text-center mt-2">

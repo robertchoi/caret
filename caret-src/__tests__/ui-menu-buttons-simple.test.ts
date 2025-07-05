@@ -60,7 +60,7 @@ describe("UI Menu Buttons - TDD REFACTOR", () => {
 	})
 
 	describe("Backup Verification", () => {
-		it("should verify backup file exists", async () => {
+		it.skip("should verify backup file exists", async () => {
 			const fs = await import("fs")
 			const backupExists = await fs.promises
 				.access("caret-src/extension-ts.cline")

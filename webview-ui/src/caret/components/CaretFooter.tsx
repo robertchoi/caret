@@ -1,7 +1,15 @@
 import React from "react"
-import { t, getGlobalLink } from "../utils/i18n"
+import { t, getGlobalLink, getLink } from "../utils/i18n"
+import { useExtensionState } from "../../context/ExtensionStateContext"
 
 const CaretFooter: React.FC = () => {
+	const { version } = useExtensionState()
+
+	const rawVersionText = t("footer.copyright.version", "welcome")
+	const dynamicVersionText = version
+		? rawVersionText.replace(/v[0-9A-Za-z.-]+/, `v${version}`)
+		: rawVersionText
+
 	return (
 		<footer className="caret-footer">
 			<div className="caret-footer-container">
@@ -41,7 +49,7 @@ const CaretFooter: React.FC = () => {
 					</a>
 					<span className="caret-footer-separator"> • </span>
 					<a
-						href={getGlobalLink("CARETIVE_TERMS")}
+						href={getLink("CARETIVE_TERMS")}
 						target="_blank"
 						rel="noopener noreferrer"
 						className="caret-footer-link">
@@ -49,7 +57,7 @@ const CaretFooter: React.FC = () => {
 					</a>
 					<span className="caret-footer-separator"> • </span>
 					<a
-						href={getGlobalLink("CARETIVE_PRIVACY")}
+						href={getLink("CARETIVE_PRIVACY")}
 						target="_blank"
 						rel="noopener noreferrer"
 						className="caret-footer-link">
@@ -65,21 +73,14 @@ const CaretFooter: React.FC = () => {
 						className="caret-footer-link">
 						{t("footer.links.support", "welcome")}
 					</a>
-					<span className="caret-footer-separator"> • </span>
-					<a
-						href={getGlobalLink("CARETIVE_YOUTH_PROTECTION")}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="caret-footer-link">
-						{t("footer.links.youthProtection", "welcome")}
-					</a>
+					<span className="caret-footer-separator"> • </span>					
 				</div>
 
 				{/* 저작권 정보 */}
 				<div className="caret-footer-copyright">
 					<p>{t("footer.copyright.builtWith", "welcome")}</p>
 					<p className="caret-footer-version">
-						<small>{t("footer.copyright.version", "welcome")}</small>
+						<small>{dynamicVersionText}</small>
 					</p>
 				</div>
 			</div>

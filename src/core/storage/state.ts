@@ -428,9 +428,14 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 		getWorkspaceState(context, "previousModeSapAiCoreModelId") as Promise<string | undefined>,
 	])
 
+	// CARET MODIFICATION: Use global fallback provider if workspace value 없음
+	const globalApiProvider = (await getGlobalState(context, "lastApiProvider")) as ApiProvider | undefined
+
 	let apiProvider: ApiProvider
 	if (storedApiProvider) {
 		apiProvider = storedApiProvider
+	} else if (globalApiProvider) {
+		apiProvider = globalApiProvider
 	} else {
 		// Either new user or legacy user that doesn't have the apiProvider stored in state
 		// (If they're using OpenRouter or Bedrock, then apiProvider state will exist)
@@ -733,6 +738,10 @@ export async function updateApiConfiguration(context: vscode.ExtensionContext, a
 	await storeSecret(context, "nebiusApiKey", nebiusApiKey)
 	await storeSecret(context, "sapAiCoreClientId", sapAiCoreClientId)
 	await storeSecret(context, "sapAiCoreClientSecret", sapAiCoreClientSecret)
+
+	// CARET MODIFICATION: provider/id 전역 저장으로 워크스페이스 간 유지
+	await updateGlobalState(context, "lastApiProvider", apiProvider)
+	await updateGlobalState(context, "lastApiModelId", apiModelId)
 }
 
 export async function resetWorkspaceState(context: vscode.ExtensionContext) {

@@ -20,6 +20,11 @@ import koValidateApiConf from "../locale/ko/validate-api-conf.json"
 import enValidateApiConf from "../locale/en/validate-api-conf.json"
 import jaValidateApiConf from "../locale/ja/validate-api-conf.json"
 import zhValidateApiConf from "../locale/zh/validate-api-conf.json"
+// CARET MODIFICATION: Announcement component translations
+import koAnnouncement from "../locale/ko/announcement.json"
+import enAnnouncement from "../locale/en/announcement.json"
+import jaAnnouncement from "../locale/ja/announcement.json"
+import zhAnnouncement from "../locale/zh/announcement.json"
 
 import { getLocalizedUrl, getUrl, type CaretLocalizedUrlKey, type CaretUrlKey, type SupportedLanguage } from "../constants/urls"
 
@@ -34,6 +39,7 @@ const translations = {
 		persona: koPersona,
 		settings: koSettings,
 		"validate-api-conf": koValidateApiConf,
+		announcement: koAnnouncement,
 	},
 	en: {
 		common: enCommon,
@@ -41,6 +47,7 @@ const translations = {
 		persona: enPersona,
 		settings: enSettings,
 		"validate-api-conf": enValidateApiConf,
+		announcement: enAnnouncement,
 	},
 	ja: {
 		common: jaCommon,
@@ -48,6 +55,7 @@ const translations = {
 		persona: jaPersona,
 		settings: jaSettings,
 		"validate-api-conf": jaValidateApiConf,
+		announcement: jaAnnouncement,
 	},
 	zh: {
 		common: zhCommon,
@@ -55,6 +63,7 @@ const translations = {
 		persona: zhPersona,
 		settings: zhSettings,
 		"validate-api-conf": zhValidateApiConf,
+		announcement: zhAnnouncement,
 	},
 }
 

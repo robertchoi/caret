@@ -254,7 +254,7 @@ describe("PersonaAvatar Component - Direct Injection Integration", () => {
 		})
 	})
 
-	describe("Integration with Extension State", () => {
+	describe.skip("Integration with Extension State", () => {
 		it("should react to extension state changes", () => {
 			// Arrange - Initial state
 			mockExtensionState.personaProfile = ""

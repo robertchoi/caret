@@ -56,6 +56,32 @@ export async function activate(context: vscode.ExtensionContext) {
 		caretLogger.error(error.toString(), "SYSTEM")
 	}
 
+	// CARET MODIFICATION: Copy default persona images to global storage on first activation
+	// This ensures persona images are available in globalStorageUri for consistent loading
+	const personaImagesCopiedKey = "caret.personaImagesCopied"
+	const hasPersonaImagesBeenCopied = context.globalState.get<boolean>(personaImagesCopiedKey) || false
+
+	if (!hasPersonaImagesBeenCopied) {
+		try {
+			const personaStoragePath = vscode.Uri.joinPath(context.globalStorageUri, "personas")
+			await vscode.workspace.fs.createDirectory(personaStoragePath)
+
+			const defaultProfilePath = vscode.Uri.joinPath(context.extensionUri, "caret-assets", "agent_profile.png")
+			const defaultThinkingPath = vscode.Uri.joinPath(context.extensionUri, "caret-assets", "agent_thinking.png")
+			const targetProfilePath = vscode.Uri.joinPath(personaStoragePath, "agent_profile.png")
+			const targetThinkingPath = vscode.Uri.joinPath(personaStoragePath, "agent_thinking.png")
+
+			await vscode.workspace.fs.copy(defaultProfilePath, targetProfilePath, { overwrite: false })
+			await vscode.workspace.fs.copy(defaultThinkingPath, targetThinkingPath, { overwrite: false })
+
+			await context.globalState.update(personaImagesCopiedKey, true)
+			caretLogger.success("Default persona images copied to global storage.", "SYSTEM")
+		} catch (error) {
+			caretLogger.error("Failed to copy default persona images to global storage.", "SYSTEM")
+			caretLogger.error(error.toString(), "SYSTEM")
+		}
+	}
+
 	const sidebarWebviewProvider = new CaretProvider(context, outputChannel, WebviewProviderType.SIDEBAR)
 
 	context.subscriptions.push(

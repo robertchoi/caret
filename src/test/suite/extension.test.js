@@ -8,7 +8,7 @@ describe("Caret Extension Tests", function () {
 
 	// Activate the extension once before all tests
 	before(async () => {
-		extension = vscode.extensions.getExtension("caret-team.caret")
+		extension = vscode.extensions.getExtension("caretive.caret")
 		expect(extension).to.not.be.undefined
 		if (!extension.isActive) {
 			await extension.activate()

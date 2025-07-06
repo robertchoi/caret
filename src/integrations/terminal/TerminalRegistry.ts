@@ -26,7 +26,7 @@ export class TerminalRegistry {
 			cwd,
 			name: "Caret",
 			iconPath: vscode.Uri.joinPath(
-				vscode.extensions.getExtension("caret-team.caret")!.extensionUri,
+				vscode.extensions.getExtension("caretive.caret")!.extensionUri,
 				"caret-assets",
 				"icons",
 				"caret_shell_icon.svg",

@@ -5,8 +5,8 @@
   <h1>Caret: Your New AI Companion</h1>
   <p><strong>Adding Cursor's flexibility to Cline's transparency</strong></p>
   <p>
-    <a href="https://marketplace.visualstudio.com/items?itemName=caret-team.caret">
-      <img src="https://img.shields.io/visual-studio-marketplace/v/caret-team.caret.svg?color=blue&label=VS%20Code%20Marketplace" alt="VS Code Marketplace">
+    <a href="https://marketplace.visualstudio.com/items?itemName=caretive.caret">
+      <img src="https://img.shields.io/visual-studio-marketplace/v/caretive.caret.svg?color=blue&label=VS%20Code%20Marketplace" alt="VS Code Marketplace">
     </a>
     <a href="https://github.com/aicoding-caret/caret">
       <img src="https://img.shields.io/github/stars/aicoding-caret/caret.svg?style=social&label=Star" alt="GitHub stars">

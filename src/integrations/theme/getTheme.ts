@@ -137,5 +137,5 @@ export function mergeJson(
 }
 
 function getExtensionUri(): vscode.Uri {
-	return vscode.extensions.getExtension("caret-team.caret")!.extensionUri
+	return vscode.extensions.getExtension("caretive.caret")!.extensionUri
 }

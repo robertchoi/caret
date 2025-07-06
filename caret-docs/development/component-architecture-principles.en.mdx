@@ -1,0 +1,269 @@
+# Caret Component Architecture Principles
+
+## 📋 **Overview**
+
+This document defines the architectural principles to be adhered to when developing UI components in the Caret project. These principles have been established to effectively implement Caret's unique features while maintaining compatibility with the original Cline code.
+
+## 🎯 **Core Principles**
+
+### **1. Structure Preservation**
+
+**Principle**: Maintain the structure and patterns of the original Cline components as much as possible.
+
+```typescript
+// ❌ Incorrect Example: Hardcoded structure
+const CaretWelcome = () => {
+  return (
+    <div style={{ padding: "20px", border: "1px solid red" }}>
+      <h2>Hardcoded Title</h2>
+      <p>Hardcoded Content</p>
+    </div>
+  )
+}
+
+// ✅ Correct Example: Structure Preservation
+const CaretWelcome = () => {
+  const renderSection = (headerKey: string, bodyKey: string, buttonConfig?: ButtonConfig) => (
+    <div style={{
+      marginBottom: "25px",
+      padding: "20px",
+      border: "1px solid var(--vscode-settings-headerBorder)",
+      borderRadius: "8px"
+    }}>
+      <h3>{t(headerKey, 'welcome')}</h3>
+      <p>{t(bodyKey, 'welcome')}</p>
+      {buttonConfig && renderButton(buttonConfig)}
+    </div>
+  )
+
+  return (
+    <div className="caret-welcome">
+      {renderSection('coreFeatures.header', 'coreFeatures.description')}
+      {renderSection('apiSetup.header', 'apiSetup.description', {
+        text: 'apiSetup.button',
+        handler: handleApiSetup
+      })}
+    </div>
+  )
+}
+```
+
+### **2. Component Separation**
+
+**Principle**: Create clearly separated components by functionality.
+
+```typescript
+// ✅ Component Separation Example
+// components/caret/CaretWelcomeSection.tsx
+interface CaretWelcomeSectionProps {
+  headerKey: string
+  bodyKey: string
+  buttonConfig?: ButtonConfig
+  className?: string
+}
+
+const CaretWelcomeSection: React.FC<CaretWelcomeSectionProps> = ({
+  headerKey, bodyKey, buttonConfig, className
+}) => {
+  return (
+    <div className={`caret-welcome-section ${className || ''}`}>
+      <h3>{t(headerKey, 'welcome')}</h3>
+      <p>{t(bodyKey, 'welcome')}</p>
+      {buttonConfig && <CaretButton {...buttonConfig} />}
+    </div>
+  )
+}
+
+// components/caret/CaretApiSetup.tsx
+const CaretApiSetup: React.FC<CaretApiSetupProps> = ({ onConfigSave }) => {
+  return (
+    <div className="caret-api-setup">
+      <CaretWelcomeSection
+        headerKey="apiSetup.title"
+        bodyKey="apiSetup.description"
+      />
+      <ApiOptions showModelOptions={true} />
+      <CaretButton onClick={onConfigSave} appearance="primary">
+        {t('apiSetup.saveButton', 'welcome')}
+      </CaretButton>
+    </div>
+  )
+}
+```
+
+### **3. State Management Pattern**
+
+**Principle**: Follow the state management patterns of the original Cline.
+
+```typescript
+// ✅ Correct State Management
+const CaretWelcome = () => {
+  const { apiConfiguration, caretBanner } = useExtensionState()
+  const [showApiOptions, setShowApiOptions] = useState(false)
+  const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
+
+  // Same validation logic as Cline pattern
+  useEffect(() => {
+    setApiErrorMessage(validateApiConfiguration(apiConfiguration))
+  }, [apiConfiguration])
+
+  // State-based conditional rendering
+  if (showApiOptions) {
+    return <CaretApiSetup onBack={() => setShowApiOptions(false)} />
+  }
+
+  return <CaretWelcomeContent onShowApiOptions={() => setShowApiOptions(true)} />
+}
+```
+
+### **4. Styling Consistency**
+
+**Principle**: Use VSCode theme variables and maintain consistent styling patterns.
+
+```typescript
+// ✅ Correct Styling
+const sectionStyle = {
+	marginBottom: "25px",
+	padding: "20px",
+	border: "1px solid var(--vscode-settings-headerBorder)",
+	borderRadius: "8px",
+	backgroundColor: "var(--vscode-sideBar-background)",
+}
+
+// Utilizing CSS variables
+const CARET_THEME = {
+	section: {
+		border: "var(--vscode-settings-headerBorder)",
+		background: "var(--vscode-sideBar-background)",
+		text: "var(--vscode-editor-foreground)",
+		description: "var(--vscode-descriptionForeground)",
+	},
+}
+```
+
+### **5. i18n Integration**
+
+**Principle**: All text is managed through the i18n system.
+
+```typescript
+// ✅ Correct i18n Usage
+const CaretWelcomeHeader = () => {
+  return (
+    <div className="caret-welcome-header">
+      <h2>{t('greeting', 'welcome')}</h2>
+      <p>{t('catchPhrase', 'welcome')}</p>
+      <img
+        src={caretBanner}
+        alt={t('bannerAlt', 'welcome')}
+        className="caret-banner-image"
+      />
+    </div>
+  )
+}
+```
+
+## 🔧 **Implementation Guidelines**
+
+### **Component File Structure**
+
+```
+webview-ui/src/caret/
+├── components/
+│   ├── CaretWelcome.tsx         # Main Welcome Component
+│   ├── CaretWelcomeSection.tsx  # Reusable Section
+│   ├── CaretApiSetup.tsx        # API Configuration Specific Component
+│   ├── CaretButton.tsx          # Common Button Component
+│   └── CaretFooter.tsx          # Footer Component
+├── hooks/
+│   └── useCaretWelcome.ts       # Welcome-related Logic Hook
+├── utils/
+│   └── welcomeHelpers.ts        # Helper Functions
+└── styles/
+    └── CaretWelcome.css         # Style Definitions
+```
+
+### **Property Interface Design**
+
+```typescript
+interface CaretWelcomeProps {
+	onGetStarted?: () => void
+	initialView?: "welcome" | "apiSetup"
+	theme?: "light" | "dark" | "auto"
+}
+
+interface CaretSectionProps {
+	headerKey: string
+	bodyKey: string
+	buttonConfig?: {
+		textKey: string
+		handler: () => void
+		appearance?: "primary" | "secondary"
+		disabled?: boolean
+	}
+	className?: string
+	children?: React.ReactNode
+}
+```
+
+## 🚨 **Anti-patterns**
+
+### **❌ Hardcoded Structure**
+
+```typescript
+// Patterns to avoid
+const BadComponent = () => (
+  <div style={{ padding: "20px", border: "1px solid red" }}>
+    <h2>Hardcoded Title</h2>
+    <p>Hardcoded Description</p>
+    <button onClick={() => alert("Click!")}>Button</button>
+  </div>
+)
+```
+
+### **❌ Excessive Inline Styles**
+
+```typescript
+// Patterns to avoid
+const BadStyling = () => (
+  <div style={{
+    backgroundColor: "#1e1e1e",
+    color: "#ffffff",
+    padding: "15px",
+    marginBottom: "10px"
+  }}>
+    Content
+  </div>
+)
+```
+
+### **❌ Untranslated Text**
+
+```typescript
+// Patterns to avoid
+const BadI18n = () => (
+  <div>
+    <h2>Caret Settings</h2>
+    <p>Please enter API key</p>
+  </div>
+)
+```
+
+## 📋 **Checklist**
+
+When developing new components, check the following:
+
+-   [ ] Analysis of original Cline component structure completed
+-   [ ] Component separation design by functionality completed
+-   [ ] Use of VSCode theme variables
+-   [ ] All text applied with i18n
+-   [ ] Consistency in state management patterns ensured
+-   [ ] Reusable component design
+-   [ ] TypeScript interface definitions
+-   [ ] Test code written
+-   [ ] Documentation completed
+
+## 🔗 **Related Documents**
+
+-   [Caret Architecture Guide](./caret-architecture-and-implementation-guide.en.mdx)
+-   [Test Writing Guide](./test-writing-standards.en.mdx)
+-   [i18n Development Guide](./locale.en.mdx)

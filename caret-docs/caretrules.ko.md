@@ -505,6 +505,14 @@ caret-docs/
 보고서: {task-number}-03-report-{task-name}.md
 ```
 
+**다국어 문서 구조 (신규)**:
+- **기본 원칙**: 모든 문서는 한국어(`.md`, `.mdx`)를 원본으로 하며, 영어 번역본은 `.en.md`, `.en.mdx` 접미사를 사용합니다.
+- **README**: `README.ko.md`(한), `README.md`(영), `README.ja.md`(일), `README.zh-cn.md`(중)으로 구성됩니다.
+  - 각 README 파일 상단에는 다른 언어 버전으로의 링크가 포함되어야 합니다.
+  - 일본어, 중국어 README의 내부 문서 링크(`CONTRIBUTING`, `DEVELOPER_GUIDE` 등)는 영어 버전(`.en.md`)을 가리켜야 합니다.
+- **기타 문서**: `CONTRIBUTING.md`와 `DEVELOPER_GUIDE.md`는 각각 `CONTRIBUTING.en.md`, `DEVELOPER_GUIDE.en.md` 영어 버전을 가집니다.
+- **동기화 규칙**: 하나의 문서를 업데이트할 경우, 해당 문서의 다른 언어 번역본도 반드시 함께 업데이트하여 내용의 일관성을 유지해야 합니다.
+
 ## 테스트 및 품질 관리
 
 **테스트 프레임워크**: Vitest (업데이트 완료)

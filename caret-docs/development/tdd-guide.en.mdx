@@ -1,0 +1,523 @@
+# Caret TDD (Test-Driven Development) Guide
+
+## 1. Overview
+
+This document explains how to apply the TDD (Test-Driven Development) methodology in the Caret project. TDD is a core development methodology for achieving Caret's 100% test coverage goal and ensuring code quality.
+
+## 2. TDD Basic Principles
+
+### 2.1 Red-Green-Refactor Cycle
+
+```
+🔴 Red    → Write a failing test
+🟢 Green  → Write the minimum code to pass the test
+🔵 Refactor → Improve code quality (tests continue to pass)
+```
+
+### 2.2 Core Rules of TDD
+1.  **Never write production code unless it is to make a failing test pass.**
+2.  **Never write more of a test than is sufficient to fail.**
+3.  **Never write more production code than is sufficient to pass the currently failing test.**
+
+## 3. Applying TDD in Caret
+
+### 3.1 Development Process
+
+#### 3.1.1 When Developing New Features
+```typescript
+// Step 1: Write a failing test (Red)
+describe('CaretLogger', () => {
+  it('should format log message with context', () => {
+    const logger = new CaretLogger('test-context');
+    const result = logger.formatMessage('INFO', 'test message');
+    expect(result).toBe('[INFO][test-context] test message');
+  });
+});
+
+// Running this will fail (CaretLogger class does not exist)
+```
+
+```typescript
+// Step 2: Write the minimum code to pass the test (Green)
+export class CaretLogger {
+  constructor(private context: string) {}
+  
+  formatMessage(level: string, message: string): string {
+    return `[${level}][${this.context}] ${message}`;
+  }
+}
+
+// Test passes!
+```
+
+```typescript
+// Step 3: Refactor
+export class CaretLogger {
+  constructor(private context: string) {}
+  
+  formatMessage(level: LogLevel, message: string): string {
+    const timestamp = new Date().toISOString();
+    return `[${timestamp}][${level}][${this.context}] ${message}`;
+  }
+}
+
+// Verify that the test still passes
+```
+
+#### 3.1.2 When Fixing Bugs
+```typescript
+// Step 1: Write a test that reproduces the bug
+it('should handle empty message gracefully', () => {
+  const logger = new CaretLogger('test');
+  expect(() => logger.formatMessage('INFO', '')).not.toThrow();
+  expect(logger.formatMessage('INFO', '')).toBe('[INFO][test] ');
+});
+
+// Step 2: Fix the bug to make the test pass
+// Step 3: Refactor
+```
+
+### 3.2 React Component TDD
+
+#### 3.2.1 Component Development Example
+```typescript
+// Step 1: Write a failing test
+describe('CaretButton', () => {
+  it('should render with given text', () => {
+    render(<CaretButton text="Click Me" />);
+    expect(screen.getByRole('button', { name: 'Click Me' })).toBeInTheDocument();
+  });
+});
+
+// Step 2: Implement the minimum component
+export function CaretButton({ text }: { text: string }) {
+  return <button>{text}</button>;
+}
+
+// Step 3: Add additional features and refactor
+```
+
+## 4. TDD Practical Guide
+
+### 4.1 Test Case Priority
+
+#### 4.1.1 Happy Path First
+```typescript
+// 1st Priority: Normal behavior
+it('should return user data when valid ID provided', async () => {
+  const userData = await fetchUser('123');
+  expect(userData.id).toBe('123');
+});
+```
+
+#### 4.1.2 Edge Cases Next
+```typescript
+// 2nd Priority: Boundary values and exceptions
+it('should throw error when user not found', async () => {
+  await expect(fetchUser('nonexistent')).rejects.toThrow('User not found');
+});
+
+it('should handle empty ID', async () => {
+  await expect(fetchUser('')).rejects.toThrow('Invalid user ID');
+});
+```
+
+### 4.2 TDD Step-by-Step Checklist
+
+#### 4.2.1 Red Phase Checklist
+- [ ] Does the test actually fail?
+- [ ] Is the reason for failure the same as expected?
+- [ ] Is the test name specific and clear?
+- [ ] Does it test only one behavior?
+
+#### 4.2.2 Green Phase Checklist
+- [ ] Does the test pass?
+- [ ] Is the implementation the minimum necessary code?
+- [ ] Do other tests still pass?
+- [ ] Were you not afraid to use hardcoding or temporary fixes?
+
+#### 4.2.3 Refactor Phase Checklist
+- [ ] Do all tests still pass?
+- [ ] Has code duplication been removed?
+- [ ] Is the code more readable?
+- [ ] Has performance improved?
+
+## 5. Caret-Specific TDD Patterns
+
+### 5.1 VSCode Extension TDD
+
+#### 5.1.1 Command Development
+```typescript
+// Step 1: Write Command test
+describe('caret.welcome command', () => {
+  it('should show welcome panel', async () => {
+    const mockShowWebview = jest.fn();
+    const command = new WelcomeCommand(mockShowWebview);
+    
+    await command.execute();
+    
+    expect(mockShowWebview).toHaveBeenCalledWith('welcome');
+  });
+});
+
+// Step 2: Implement Command
+export class WelcomeCommand {
+  constructor(private showWebview: (panel: string) => void) {}
+  
+  async execute() {
+    this.showWebview('welcome');
+  }
+}
+```
+
+#### 5.1.2 Provider Development
+```typescript
+// CaretProvider TDD Example
+describe('CaretProvider', () => {
+  it('should initialize with default state', () => {
+    const provider = new CaretProvider();
+    expect(provider.getState()).toEqual({
+      isWelcomeVisible: false,
+      currentTask: null
+    });
+  });
+});
+```
+
+### 5.2 i18n Feature TDD
+
+#### 5.2.1 Translation Function Development
+```typescript
+// Step 1: Write Translation test
+describe('i18n translate function', () => {
+  it('should return Korean text for ko locale', () => {
+    const t = createTranslator('ko');
+    expect(t('welcome.title')).toBe('Caret에 오신 것을 환영합니다');
+  });
+  
+  it('should fallback to English for unknown locale', () => {
+    const t = createTranslator('unknown');
+    expect(t('welcome.title')).toBe('Welcome to Caret');
+  });
+});
+
+// Step 2: Implement
+export function createTranslator(locale: string) {
+  return (key: string) => {
+    // Minimum implementation
+  };
+}
+```
+
+## 6. TDD Tools and Configuration
+
+### 6.1 Jest/Vitest Configuration
+
+#### 6.1.1 Utilizing Watch Mode
+```bash
+# Automatically run tests on file changes
+npm run test:watch
+
+# Watch only specific files
+npm run test:watch -- CaretLogger
+```
+
+#### 6.1.2 Checking Coverage
+```bash
+# Check coverage during TDD
+npm run test:coverage
+
+# Coverage for specific files
+npm run test:coverage -- --testPathPattern=CaretLogger
+```
+
+### 6.2 IDE Configuration
+
+#### 6.2.1 VSCode Settings
+```json
+// .vscode/settings.json
+{
+  "jest.autoRun": "watch",
+  "jest.showCoverageOnLoad": true,
+  "testing.automaticallyOpenPeekView": "never"
+}
+```
+
+## 7. TDD Anti-patterns and Solutions
+
+### 7.1 Anti-patterns to Avoid
+
+#### 7.1.1 Writing Tests Later
+```typescript
+// ❌ Bad Example: Writing code first
+export class CaretLogger {
+  formatMessage(level: string, message: string) {
+    return `[${level}] ${message}`;
+  }
+}
+
+// Writing tests later... (Not TDD)
+```
+
+#### 7.1.2 Implementing Too Many Features at Once
+```typescript
+// ❌ Bad Example: Implementing all features at once
+export class CaretLogger {
+  formatMessage(level: string, message: string) {
+    const timestamp = new Date().toISOString();
+    const formatted = `[${timestamp}][${level}] ${message}`;
+    this.writeToFile(formatted);
+    this.sendToRemote(formatted);
+    return formatted;
+  }
+}
+
+// ✅ Good Example: Step-by-step implementation
+// 1. Basic formatting only
+// 2. Add timestamp
+// 3. Add file writing
+// 4. Add remote sending
+```
+
+#### 7.1.3 Writing Tests for the Sake of Writing Tests
+```typescript
+// ❌ Bad Example: Meaningless test
+it('should have formatMessage method', () => {
+  const logger = new CaretLogger();
+  expect(typeof logger.formatMessage).toBe('function');
+});
+
+// ✅ Good Example: Testing behavior
+it('should format message with log level', () => {
+  const logger = new CaretLogger();
+  const result = logger.formatMessage('INFO', 'test');
+  expect(result).toBe('[INFO] test');
+});
+```
+
+### 7.2 Common Problems and Solutions
+
+#### 7.2.1 When Tests Are Too Complex
+```typescript
+// Problem: Complex test
+it('should handle complex user workflow', () => {
+  // 50 lines of complex test...
+});
+
+// Solution: Break down into smaller units
+describe('user workflow', () => {
+  it('should validate user input', () => {
+    // Simple test
+  });
+  
+  it('should process valid input', () => {
+    // Simple test
+  });
+  
+  it('should save processed data', () => {
+    // Simple test
+  });
+});
+```
+
+#### 7.2.2 When There Are Many External Dependencies
+```typescript
+// Problem: Difficult to test due to external dependencies
+export class CaretService {
+  constructor(
+    private api: ApiClient,
+    private storage: Storage,
+    private logger: Logger
+  ) {}
+}
+
+// Solution: Dependency Injection and Mocking
+describe('CaretService', () => {
+  let mockApi: jest.Mocked<ApiClient>;
+  let mockStorage: jest.Mocked<Storage>;
+  let mockLogger: jest.Mocked<Logger>;
+  
+  beforeEach(() => {
+    mockApi = createMockApiClient();
+    mockStorage = createMockStorage();
+    mockLogger = createMockLogger();
+  });
+});
+```
+
+## 8. TDD Performance Measurement
+
+### 8.1 Quantitative Metrics
+
+#### 8.1.1 Coverage Metrics
+-   **Statement Coverage**: 100% goal
+-   **Branch Coverage**: 100% goal
+-   **Function Coverage**: 100% goal
+-   **Line Coverage**: 100% goal
+
+#### 8.1.2 Test Quality Metrics
+```bash
+# Test execution time
+npm run test:time
+
+# Test stability (run 10 times)
+npm run test:stability
+
+# Coverage trend analysis
+npm run test:coverage:trend
+```
+
+### 8.2 Qualitative Metrics
+
+#### 8.2.1 Code Quality Improvement
+- Better design (testable code)
+- Low coupling, high cohesion
+- Clear interfaces
+
+#### 8.2.2 Development Speed Improvement
+- Faster feedback loop
+- Safe refactoring
+- Less debugging time
+
+## 9. Team TDD Guidelines
+
+### 9.1 Code Review Checklist
+
+#### 9.1.1 TDD Process Check
+- [ ] Were tests written first?
+- [ ] Was the Red-Green-Refactor cycle followed?
+- [ ] Was each commit a small unit?
+
+#### 9.1.2 Test Quality Check
+- [ ] Are test names clear?
+- [ ] Does it test only one behavior?
+- [ ] Does it follow the AAA pattern?
+- [ ] Does it use appropriate assertions?
+
+### 9.2 TDD Training and Mentoring
+
+#### 9.2.1 New Developer Onboarding
+```typescript
+// TDD practice examples
+// 1. Practice TDD with a simple calculator function
+describe('Calculator', () => {
+  it('should add two numbers', () => {
+    expect(add(2, 3)).toBe(5);
+  });
+});
+
+// 2. Practice with actual Caret features
+// 3. Challenge with complex components
+```
+
+#### 9.2.2 Pair Programming
+-   **Driver**: Writes code.
+-   **Navigator**: Guides the TDD process.
+-   Switch roles to learn.
+
+## 10. Practical TDD Example
+
+### 10.1 Full CaretLogger Development Example
+
+#### 10.1.1 Step 1: Basic Logging
+```typescript
+// Red
+describe('CaretLogger', () => {
+  it('should log info message', () => {
+    const logger = new CaretLogger();
+    const result = logger.info('test message');
+    expect(result).toBe('[INFO] test message');
+  });
+});
+
+// Green
+export class CaretLogger {
+  info(message: string): string {
+    return `[INFO] ${message}`;
+  }
+}
+
+// Refactor (if needed)
+```
+
+#### 10.1.2 Step 2: Various Log Levels
+```typescript
+// Red
+it('should log error message', () => {
+  const logger = new CaretLogger();
+  const result = logger.error('error message');
+  expect(result).toBe('[ERROR] error message');
+});
+
+// Green
+export class CaretLogger {
+  info(message: string): string {
+    return `[INFO] ${message}`;
+  }
+  
+  error(message: string): string {
+    return `[ERROR] ${message}`;
+  }
+}
+
+// Refactor
+export class CaretLogger {
+  private formatMessage(level: string, message: string): string {
+    return `[${level}] ${message}`;
+  }
+  
+  info(message: string): string {
+    return this.formatMessage('INFO', message);
+  }
+  
+  error(message: string): string {
+    return this.formatMessage('ERROR', message);
+  }
+}
+```
+
+#### 10.1.3 Step 3: Add Context
+```typescript
+// Red
+it('should include context in log message', () => {
+  const logger = new CaretLogger('TestContext');
+  const result = logger.info('test message');
+  expect(result).toBe('[INFO][TestContext] test message');
+});
+
+// Green & Refactor
+export class CaretLogger {
+  constructor(private context?: string) {}
+  
+  private formatMessage(level: string, message: string): string {
+    const contextPart = this.context ? `[${this.context}]` : '';
+    return `[${level}]${contextPart} ${message}`;
+  }
+  
+  info(message: string): string {
+    return this.formatMessage('INFO', message);
+  }
+  
+  error(message: string): string {
+    return this.formatMessage('ERROR', message);
+  }
+}
+```
+
+## 11. References
+
+### 11.1 Related Documents
+-   [Test Writing Standards](./test-writing-standards.en.mdx)
+-   [Testing Guide](./testing-guide.en.mdx)
+-   [Documentation Guide](./documentation-guide.en.mdx)
+
+### 11.2 Recommended Books and Resources
+-   "Test Driven Development: By Example" - Kent Beck
+-   "Growing Object-Oriented Software, Guided by Tests" - Steve Freeman
+-   "The Art of Unit Testing" - Roy Osherove
+
+---
+
+**Last Updated**: June 17, 2025 - Initial TDD Guide Draft
+**Author**: Alpha (AI Assistant)
+**Reviewer**: Luke (Developer)

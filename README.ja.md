@@ -1,4 +1,4 @@
-[英語で読む](./README.md) | [韓国語で読む](./README.ko.md) | [日本語で読む](./README.ja.md) | [中国語(簡体)で読む](./README.zh-cn.md)
+[Englishで読む](./README.en.md) | [韓国語で読む](./README.ko.md) | [日本語で読む](./README.ja.md) | [中国語で読む](./README.zh-cn.md)
 
 <div align="center">
   <img src="caret-assets/icons/icon.png" alt="Caret icon" width="128">
@@ -15,8 +15,6 @@
 </div>
 
 Caretは単なるAIコーディングツールではありません。**開発者と共に成長するAIコンパニオン**を目指すVS Code拡張機能です。実績のあるオープンソース[Cline](https://github.com/cline/cline)の利点を維持しつつ、より強力で柔軟な機能を「オーバーレイ」することで、開発体験を最大限に引き出します。
-
-**Caretive Inc.**は、AI時代の開発者が直面する問題を解決し、より良い開発文化を創造するためにCaretを開発しています。私たちは、AIが開発者に取って代わるのではなく、最高のパートナーになれると信じています。
 
 ## ✨ Caretの何が違うのか？
 

@@ -1,4 +1,4 @@
-[Read in English](./README.md) | [한국어로 읽기](./README.ko.md) | [日本語で読む](./README.ja.md) | [中文(简体)阅读](./README.zh-cn.md)
+[Read this document in English](./README.md) | [한국어로 읽기](./README.ko.md) | [日本語で読む](./README.ja.md) | [阅读中文版](./README.zh-cn.md)
 
 <div align="center">
   <img src="caret-assets/icons/icon.png" alt="Caret icon" width="128">
@@ -15,8 +15,6 @@
 </div>
 
 Caret은 단순한 AI 코딩 도구를 넘어, **개발자와 함께 성장하는 AI 동료**를 목표로 하는 VS Code 확장 프로그램입니다. 안정성이 검증된 오픈소스 [Cline](https://github.com/cline/cline)의 장점은 그대로 유지하면서, 그 위에 더욱 강력하고 유연한 기능들을 '오버레이'하여 개발 경험을 극대화합니다.
-
-**Caretive Inc.**는 AI 시대의 개발자들이 겪는 문제들을 해결하고, 더 나은 개발 문화를 만들기 위해 Caret을 만들고 있습니다. 저희는 AI가 개발자를 대체하는 것이 아니라, 최고의 파트너가 될 수 있다고 믿습니다.
 
 ## ✨ 캐럿, 무엇이 다른가요?
 
@@ -91,10 +89,10 @@ Caret은 여러분의 참여로 성장하는 오픈소스 프로젝트입니다.
 3. **코드 기여**: Fork → 개발 → Pull Request 과정으로 코드 기여
 4. **문서 기여**: `caret-docs/` 폴더의 문서 개선이나 번역 작업
 
-자세한 기여 가이드는 [CONTRIBUTING.md](./CONTRIBUTING.en.md)를 참조하세요.
+자세한 기여 가이드는 [CONTRIBUTING.md](./CONTRIBUTING.md)를 참조하세요.
 
 ---
 
 ## 🛠️ 개발자를 위한 정보
 
-Caret 프로젝트의 빌드, 테스트, 패키징 등 개발과 관련된 상세 정보는 **[개발자 가이드(DEVELOPER_GUIDE.md)](./DEVELOPER_GUIDE.en.md)**를 참조해주세요.
+Caret 프로젝트의 빌드, 테스트, 패키징 등 개발과 관련된 상세 정보는 **[개발자 가이드(DEVELOPER_GUIDE.md)](./DEVELOPER_GUIDE.md)**를 참조해주세요.

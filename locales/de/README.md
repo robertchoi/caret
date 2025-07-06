@@ -158,5 +158,4 @@ Um zum Projekt beizutragen, beginnen Sie mit unserem [Beitragsleitfaden](CONTRIB
 
 ## Lizenz
 
-[Apache 2.0 © 2025 Cline Bot Inc.](./LICENSE)
-
+[Apache 2.0 © 2025 Cline Bot Inc.](../../LICENSE.md)

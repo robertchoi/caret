@@ -1,4 +1,4 @@
-[阅读英文版](./README.en.md) | [阅读韩文版](./README.ko.md) | [阅读日文版](./README.ja.md) | [阅读中文版](./README.zh-cn.md)
+[阅读英文版](./README.md) | [阅读韩文版](./README.ko.md) | [阅读日文版](./README.ja.md) | [阅读中文版(简体)](./README.zh-cn.md)
 
 <div align="center">
   <img src="caret-assets/icons/icon.png" alt="Caret icon" width="128">
@@ -15,6 +15,8 @@
 </div>
 
 Caret不仅仅是一个AI编码工具；它是一个VS Code扩展，旨在成为一个**与开发者共同成长的AI伴侣**。它保留了经过验证的开源[Cline](https://github.com/cline/cline)的优势，同时通过“叠加”更强大、更灵活的功能，最大限度地提升开发体验。
+
+**Caretive Inc.** 正在开发 Caret，以解决 AI 时代开发者面临的挑战，并营造更好的开发文化。我们相信，AI 可以成为开发者的最佳伙伴，而不是替代品。
 
 ## ✨ Caret有何不同？
 

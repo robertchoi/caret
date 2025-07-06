@@ -2,6 +2,8 @@ import * as vscode from "vscode"
 import * as fs from "fs/promises"
 import * as path from "path"
 import { caretLogger } from "./caret-logger"
+// CARET MODIFICATION: WebviewProvider 임포트 (웹뷰로 메시지 전송 위함)
+import { WebviewProvider } from "../../src/core/webview"
 
 // CARET MODIFICATION: 새로운 globalStorage 기반 페르소나 이미지 시스템
 export interface PersonaStorageImages {
@@ -140,11 +142,20 @@ export async function saveCustomPersonaImage(
 		}
 
 		// globalStorage에 이미지 저장
-		await fs.writeFile(imagePath, imageBuffer)
+		await fs.writeFile(imagePath, new Uint8Array(imageBuffer)) // CARET MODIFICATION: Buffer를 Uint8Array로 변환하여 타입 에러 해결
 
 		// CARET MODIFICATION: Return base64 for CSP compliance
 		const savedImageBase64 = `data:image/png;base64,${imageBuffer.toString("base64")}`
 		caretLogger.info(`Custom persona image saved successfully: ${fileName} (${imageBuffer.length} bytes) -> base64 data`)
+
+		// CARET MODIFICATION: 웹뷰로 페르소나 이미지 업데이트 메시지 전송
+		const updatedImages = await loadPersonaImagesFromStorage(context) // 최신 이미지 URI 로드
+		WebviewProvider.getAllInstances().forEach((webviewInstance) => {
+			webviewInstance.controller.postMessageToWebview({
+				type: "PERSONA_UPDATED",
+				payload: updatedImages,
+			})
+		})
 
 		return savedImageBase64
 	} catch (error) {
@@ -172,6 +183,15 @@ export async function replacePersonaImageFromTemplate(
 		await fs.copyFile(templateImagePath, targetPath)
 
 		caretLogger.info(`Persona image replaced from template: ${fileName}`)
+
+		// CARET MODIFICATION: 웹뷰로 페르소나 이미지 업데이트 메시지 전송
+		const updatedImages = await loadPersonaImagesFromStorage(context) // 최신 이미지 URI 로드
+		WebviewProvider.getAllInstances().forEach((webviewInstance) => {
+			webviewInstance.controller.postMessageToWebview({
+				type: "PERSONA_UPDATED",
+				payload: updatedImages,
+			})
+		})
 	} catch (error) {
 		caretLogger.error(`Failed to replace persona image from template: ${error}`)
 		throw error

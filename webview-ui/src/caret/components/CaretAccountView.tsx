@@ -3,22 +3,21 @@ import { useEffect, useState } from "react"
 import { useFirebaseAuth } from "@/context/FirebaseAuthContext"
 import { vscode } from "@/utils/vscode"
 import VSCodeButtonLink from "../../components/common/VSCodeButtonLink"
-import CaretLogoWhite from "../../assets/CaretLogoWhite" // CARET MODIFICATION: Changed from ClineLogoWhite to CaretLogoWhite
 import CountUp from "react-countup"
 import CreditsHistoryTable from "../../components/account/CreditsHistoryTable"
 import { UsageTransaction, PaymentTransaction } from "@shared/ClineAccount"
-import { useExtensionState } from "@/context/ExtensionStateContext"
+import { useExtensionState, ExtensionStateContextType } from "@/context/ExtensionStateContext" // CARET MODIFICATION: ExtensionStateContextType 임포트 추가
 import { AccountServiceClient } from "@/services/grpc-client"
 import { EmptyRequest } from "@shared/proto/common"
 import WebviewLogger from "@/caret/utils/webview-logger"
-import { t } from "@/caret/utils/i18n"
+import { t, getLink } from "@/caret/utils/i18n" // CARET MODIFICATION: getLink 함수 임포트
 import { getUrl } from "@/caret/constants/urls"
 
 const logger = new WebviewLogger("[CARET-UI-ACCOUNT-VIEW]")
 
 export const ClineAccountView = () => {
 	const { user: firebaseUser, handleSignOut } = useFirebaseAuth()
-	const { userInfo, apiConfiguration } = useExtensionState()
+	const { userInfo, apiConfiguration, personaProfile } = useExtensionState() as ExtensionStateContextType // CARET MODIFICATION: personaProfile 추가 및 타입 명시
 
 	let user = apiConfiguration?.clineApiKey ? firebaseUser || userInfo : undefined
 
@@ -158,8 +157,8 @@ export const ClineAccountView = () => {
 				</div>
 			) : (
 				<div className="flex flex-col items-center pr-3">
-					{/* CARET MODIFICATION: Will be replaced with CaretLogoWhite when available */}
-					<CaretLogoWhite className="size-16 mb-4" />
+					{/* CARET MODIFICATION: personaProfile 이미지로 변경 */}
+					<img src={personaProfile} alt="Caret" className="size-16 mb-4" />
 
 					<p style={{}}>{t("account.signUpDescription", "common")}</p>
 
@@ -169,9 +168,10 @@ export const ClineAccountView = () => {
 
 					<p className="text-[var(--vscode-descriptionForeground)] text-xs text-center m-0">
 						{t("account.byContining", "common")}{" "}
-						<VSCodeLink href={getUrl("CARET_TERMS_OF_SERVICE")}>{t("account.termsOfService", "common")}</VSCodeLink>{" "}
+						{/* CARET MODIFICATION: 풋터와 동일한 약관 링크 사용 */}
+						<VSCodeLink href={getLink("CARETIVE_TERMS")}>{t("account.termsOfService", "common")}</VSCodeLink>{" "}
 						{t("common.and", "common")}{" "}
-						<VSCodeLink href={getUrl("CARET_PRIVACY_POLICY")}>{t("account.privacyPolicy", "common")}</VSCodeLink>.
+						<VSCodeLink href={getLink("CARETIVE_PRIVACY")}>{t("account.privacyPolicy", "common")}</VSCodeLink>.
 					</p>
 				</div>
 			)}

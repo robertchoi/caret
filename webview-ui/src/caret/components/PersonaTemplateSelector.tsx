@@ -20,8 +20,8 @@ const CharacterTab = styled.button.withConfig({
 })<{ isActive: boolean }>`
 	border: none;
 	background: none;
-	padding: 0.5rem;
-	margin: 0 0.5rem;
+	padding: 0; /* CARET MODIFICATION: Remove padding to reduce spacing */
+	margin: 0;
 	cursor: pointer;
 	opacity: ${(props) => (props.isActive ? 1 : 0.5)};
 	border-bottom: 2px solid ${(props) => (props.isActive ? "var(--vscode-focusBorder)" : "transparent")};
@@ -131,7 +131,8 @@ export const PersonaTemplateSelector: React.FC<PersonaTemplateSelectorProps> = (
 				<p className="text-sm text-[var(--vscode-descriptionForeground)] mb-2">{t("selector.description", "persona")}</p>
 
 				{/* Character Tabs */}
-				<div className="flex justify-center mb-4 border-b border-[var(--vscode-settings-headerBorder)]">
+				{/* CARET MODIFICATION: Apply character-tabs class for grid layout */}
+				<div className="character-tabs mb-4 border-b border-[var(--vscode-settings-headerBorder)]">
 					{characters.map((char) => {
 						const isActive = activeTab === char.character
 						return (

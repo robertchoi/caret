@@ -41,6 +41,7 @@ import { ExtensionMessage } from "@shared/ExtensionMessage"
 import { DEFAULT_REQUEST_TIMEOUT_MS } from "./constants"
 import { Transport, McpConnection, McpTransportType, McpServerConfig } from "./types"
 import { BaseConfigSchema, ServerConfigSchema, McpSettingsSchema } from "./schemas"
+// CARET MODIFICATION: Added MCP support. Original backed up as mcp-hub.ts.cline
 
 export class McpHub {
 	getMcpServersPath: () => Promise<string>
@@ -198,7 +199,7 @@ export class McpHub {
 			// Each MCP server requires its own transport connection and has unique capabilities, configurations, and error handling. Having separate clients also allows proper scoping of resources/tools and independent server management like reconnection.
 			const client = new Client(
 				{
-					name: "Cline",
+					name: "Caret",
 					version: this.clientVersion,
 				},
 				{

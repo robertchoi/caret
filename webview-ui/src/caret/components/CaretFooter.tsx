@@ -66,8 +66,9 @@ const CaretFooter: React.FC = () => {
 				</div>
 
 				<div className="caret-footer-links-horizontal">
+					{/* CARET MODIFICATION: 고객센터 링크를 mailto로 변경 */}
 					<a
-						href={getGlobalLink("CARETIVE_SUPPORT")}
+						href="mailto:support@caretive.ai"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="caret-footer-link">

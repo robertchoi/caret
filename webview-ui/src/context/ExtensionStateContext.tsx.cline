@@ -46,6 +46,9 @@ interface ExtensionStateContextType extends ExtensionState {
 	totalTasksSize: number | null
 	availableTerminalProfiles: TerminalProfile[]
 	caretBanner: string
+	// CARET MODIFICATION: 페르소나 이미지 직접 주입 방식으로 변경
+	personaProfile: string
+	personaThinking: string
 
 	// View state
 	showMcp: boolean
@@ -72,6 +75,9 @@ interface ExtensionStateContextType extends ExtensionState {
 	setChatSettings: (value: ChatSettings) => void
 	// CARET MODIFICATION: UI 언어만 업데이트하는 별도 함수
 	setUILanguage: (language: string) => void
+	// CARET MODIFICATION: Mode system (Caret/Cline interface) setter
+	setModeSystem: (modeSystem: string) => void
+
 	setMcpServers: (value: McpServer[]) => void
 	setGlobalClineRulesToggles: (toggles: Record<string, boolean>) => void
 	setLocalClineRulesToggles: (toggles: Record<string, boolean>) => void
@@ -220,6 +226,9 @@ export const ExtensionStateContextProvider: React.FC<{
 	const [totalTasksSize, setTotalTasksSize] = useState<number | null>(null)
 	const [availableTerminalProfiles, setAvailableTerminalProfiles] = useState<TerminalProfile[]>([])
 	const [caretBanner] = useState<string>((window as any).caretBanner || "")
+	// CARET MODIFICATION: 페르소나 이미지 직접 주입 방식으로 변경
+	const [personaProfile] = useState<string>((window as any).personaProfile || "")
+	const [personaThinking] = useState<string>((window as any).personaThinking || "")
 
 	const [openAiModels, setOpenAiModels] = useState<string[]>([])
 	const [requestyModels, setRequestyModels] = useState<Record<string, ModelInfo>>({
@@ -277,6 +286,22 @@ export const ExtensionStateContextProvider: React.FC<{
 	}, [])
 	const mcpServersSubscriptionRef = useRef<(() => void) | null>(null)
 
+	// CARET MODIFICATION: 웰컴 상태 변경을 백엔드에 알려서 VSCode 컨텍스트 업데이트
+	useEffect(() => {
+		// showWelcome 상태가 변경될 때마다 백엔드에 알려서 VSCode 컨텍스트를 업데이트
+		if (didHydrateState) {
+			// 간단한 메시지로 백엔드에 웰컴 상태 전달
+			window.postMessage(
+				{
+					type: "setWelcomeContext",
+					showWelcome: showWelcome,
+				},
+				"*",
+			)
+			console.log(`[DEBUG] Sent welcome context to backend: showWelcome=${showWelcome}`)
+		}
+	}, [showWelcome, didHydrateState])
+
 	// Subscribe to state updates and UI events using the gRPC streaming API
 	useEffect(() => {
 		// Determine the webview provider type
@@ -290,7 +315,27 @@ export const ExtensionStateContextProvider: React.FC<{
 					try {
 						const stateData = JSON.parse(response.stateJson) as ExtensionState
 						console.log("[DEBUG] parsed state JSON, updating state")
+
+						// CARET MODIFICATION: Mission 2 - 상태 업데이트 수신 로깅
+						import("../caret/utils/webview-logger").then(({ caretWebviewLogger }) => {
+							caretWebviewLogger.info("📥 [RECEIVE] State update received from backend", {
+								hasChatSettings: !!stateData.chatSettings,
+								newMode: stateData.chatSettings?.mode,
+								timestamp: new Date().toISOString(),
+							})
+						})
+
 						setState((prevState) => {
+							// CARET MODIFICATION: Mission 2 - 모드 변경 감지 로깅
+							const modeChanged = prevState.chatSettings?.mode !== stateData.chatSettings?.mode
+							if (modeChanged) {
+								import("../caret/utils/webview-logger").then(({ caretWebviewLogger }) => {
+									caretWebviewLogger.info("🔄 [MODE-CHANGE] Chat mode changed", {
+										from: prevState.chatSettings?.mode,
+										to: stateData.chatSettings?.mode,
+									})
+								})
+							}
 							// Versioning logic for autoApprovalSettings
 							const incomingVersion = stateData.autoApprovalSettings?.version ?? 1
 							const currentVersion = prevState.autoApprovalSettings?.version ?? 1
@@ -324,7 +369,7 @@ export const ExtensionStateContextProvider: React.FC<{
 										config.doubaoApiKey,
 										config.mistralApiKey,
 										config.vsCodeLmModelSelector,
-										config.clineApiKey,
+										config.caretApiKey,
 										config.asksageApiKey,
 										config.xaiApiKey,
 										config.sambanovaApiKey,
@@ -362,7 +407,10 @@ export const ExtensionStateContextProvider: React.FC<{
 			{
 				onResponse: () => {
 					console.log("[DEBUG] Received mcpButtonClicked event from gRPC stream")
-					navigateToMcp()
+					// CARET MODIFICATION: 웰컴 페이지에서는 상단 메뉴 비활성화
+					if (!showWelcome) {
+						navigateToMcp()
+					}
 				},
 				onError: (error) => {
 					console.error("Error in mcpButtonClicked subscription:", error)
@@ -382,7 +430,10 @@ export const ExtensionStateContextProvider: React.FC<{
 				onResponse: () => {
 					// When history button is clicked, navigate to history view
 					console.log("[DEBUG] Received history button clicked event from gRPC stream")
-					navigateToHistory()
+					// CARET MODIFICATION: 웰컴 페이지에서는 상단 메뉴 비활성화
+					if (!showWelcome) {
+						navigateToHistory()
+					}
 				},
 				onError: (error) => {
 					console.error("Error in history button clicked subscription:", error)
@@ -442,7 +493,10 @@ export const ExtensionStateContextProvider: React.FC<{
 			{
 				onResponse: () => {
 					// When settings button is clicked, navigate to settings
-					navigateToSettings()
+					// CARET MODIFICATION: 웰컴 페이지에서는 상단 메뉴 비활성화
+					if (!showWelcome) {
+						navigateToSettings()
+					}
 				},
 				onError: (error) => {
 					console.error("Error in settings button clicked subscription:", error)
@@ -553,7 +607,10 @@ export const ExtensionStateContextProvider: React.FC<{
 			onResponse: () => {
 				// When account button is clicked, navigate to account view
 				console.log("[DEBUG] Received account button clicked event from gRPC stream")
-				navigateToAccount()
+				// CARET MODIFICATION: 웰컴 페이지에서는 상단 메뉴 비활성화
+				if (!showWelcome) {
+					navigateToAccount()
+				}
 			},
 			onError: (error) => {
 				console.error("Error in account button clicked subscription:", error)
@@ -689,6 +746,9 @@ export const ExtensionStateContextProvider: React.FC<{
 		totalTasksSize,
 		availableTerminalProfiles,
 		caretBanner,
+		// CARET MODIFICATION: 페르소나 이미지 직접 주입 방식으로 변경
+		personaProfile,
+		personaThinking,
 		showMcp,
 		mcpTab,
 		showSettings,
@@ -785,7 +845,14 @@ export const ExtensionStateContextProvider: React.FC<{
 		closeMcpView,
 		setChatSettings: async (value) => {
 			try {
-				// CARET MODIFICATION: Backend 저장을 먼저 수행하여 상태 덮어쓰기 방지
+				// CARET MODIFICATION: Mission 2 - 간단한 로깅으로 모드 동기화 문제 추적
+				const { caretWebviewLogger } = await import("../caret/utils/webview-logger")
+				caretWebviewLogger.info("📤 [SEND] setChatSettings called", {
+					currentMode: state.chatSettings.mode,
+					newMode: value.mode,
+					modeChanged: state.chatSettings.mode !== value.mode,
+				})
+
 				// Import the conversion functions
 				const { convertApiConfigurationToProtoApiConfiguration } = await import(
 					"@shared/proto-conversions/state/settings-conversion"
@@ -794,6 +861,7 @@ export const ExtensionStateContextProvider: React.FC<{
 					"@shared/proto-conversions/state/chat-settings-conversion"
 				)
 
+				caretWebviewLogger.info("🚀 [BACKEND] Sending updateSettings to backend")
 				await StateServiceClient.updateSettings(
 					UpdateSettingsRequest.create({
 						chatSettings: convertChatSettingsToProtoChatSettings(value),
@@ -801,19 +869,23 @@ export const ExtensionStateContextProvider: React.FC<{
 							? convertApiConfigurationToProtoApiConfiguration(state.apiConfiguration)
 							: undefined,
 						telemetrySetting: state.telemetrySetting,
-						ChatbotAgentSeparateModelsSetting: state.planActSeparateModelsSetting,
+						chatbotAgentSeparateModelsSetting: state.planActSeparateModelsSetting,
 						enableCheckpointsSetting: state.enableCheckpointsSetting,
 						mcpMarketplaceEnabled: state.mcpMarketplaceEnabled,
 						mcpRichDisplayEnabled: state.mcpRichDisplayEnabled,
 						mcpResponsesCollapsed: state.mcpResponsesCollapsed,
 					}),
 				)
+				caretWebviewLogger.info("✅ [BACKEND] updateSettings completed")
 
-				// Backend 저장 성공 후 Frontend 상태 업데이트
+				// Frontend 상태 업데이트
+				caretWebviewLogger.info("💾 [SAVE] Updating frontend state")
 				setState((prevState) => ({
 					...prevState,
 					chatSettings: value,
 				}))
+
+				caretWebviewLogger.info("🔄 [SYNC] setChatSettings completed")
 			} catch (error) {
 				console.error("Failed to update chat settings:", error)
 			}
@@ -880,6 +952,76 @@ export const ExtensionStateContextProvider: React.FC<{
 				console.log("[DEBUG] 🌐 setUILanguage completed:", language)
 			} catch (error) {
 				console.error("Failed to update UI language:", error)
+			}
+		},
+		// CARET MODIFICATION: Mode system setter for Caret/Cline interface switching
+		setModeSystem: async (modeSystem: string) => {
+			try {
+				// CARET MODIFICATION: Mission 2 - 모드 변경 감지 및 자동 New Task
+				const currentModeSystem = state.chatSettings.modeSystem
+				const isModeChanged = currentModeSystem !== modeSystem
+
+				// CARET MODIFICATION: 기본값 설정 로직 - Caret=Agent, Cline=Plan
+				let defaultMode: "chatbot" | "agent" | "plan" | "act"
+
+				// 모드 시스템 변경 시 해당 시스템의 기본값으로 설정
+				if (modeSystem === "caret") {
+					// Caret 모드: 기본값은 항상 agent
+					defaultMode = "agent"
+				} else if (modeSystem === "cline") {
+					// Cline 모드: 기본값은 항상 plan
+					defaultMode = "plan"
+				} else {
+					// 알 수 없는 모드 시스템인 경우 현재 모드 유지
+					defaultMode = state.chatSettings.mode
+				}
+
+				// Import the conversion functions for proper chat settings update
+				const { convertChatSettingsToProtoChatSettings } = await import(
+					"@shared/proto-conversions/state/chat-settings-conversion"
+				)
+
+				const updatedChatSettings = {
+					...state.chatSettings,
+					mode: defaultMode,
+					modeSystem,
+				}
+
+				// Update both modeSystem and mode if needed
+				await StateServiceClient.updateSettings(
+					UpdateSettingsRequest.create({
+						modeSystem,
+						chatSettings: convertChatSettingsToProtoChatSettings(updatedChatSettings),
+					}),
+				)
+
+				// Update frontend state with both modeSystem and default mode
+				setState((prevState) => ({
+					...prevState,
+					chatSettings: updatedChatSettings,
+				}))
+
+				// CARET MODIFICATION: Mission 2 - 모드 변경 시 자동 New Task 트리거
+				if (isModeChanged) {
+					try {
+						const { TaskServiceClient } = await import("../services/grpc-client")
+						const { EmptyRequest } = await import("@shared/proto/common")
+
+						// 기존 태스크 정리
+						await TaskServiceClient.clearTask(EmptyRequest.create({}))
+
+						console.log(
+							`[DEBUG] 🔄 Mode changed from ${currentModeSystem} to ${modeSystem} - Auto New Task triggered`,
+						)
+					} catch (taskError) {
+						console.error("Failed to trigger auto new task after mode change:", taskError)
+						// 모드 변경은 성공했으므로 에러를 던지지 않음
+					}
+				}
+
+				console.log("[DEBUG] 🔧 setModeSystem completed:", modeSystem, "with default mode:", defaultMode)
+			} catch (error) {
+				console.error("Failed to update mode system:", error)
 			}
 		},
 	}

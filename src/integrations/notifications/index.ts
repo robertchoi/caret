@@ -65,7 +65,8 @@ async function showLinuxNotification(options: NotificationOptions): Promise<void
 
 export async function showSystemNotification(options: NotificationOptions): Promise<void> {
 	try {
-		const { title = "Cline", message } = options
+		// CARET MODIFICATION: Changed "Cline" to "Caret"
+		const { title = "Caret", message } = options
 
 		if (!message) {
 			throw new Error("Message is required")

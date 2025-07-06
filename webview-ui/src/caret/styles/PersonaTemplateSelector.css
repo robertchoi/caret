@@ -93,8 +93,9 @@
 }
 
 .character-tabs {
-	display: flex;
-	gap: 4px;
+	display: grid; /* CARET MODIFICATION: Change to grid for 3-column layout */
+	grid-template-columns: repeat(3, 1fr); /* CARET MODIFICATION: 3 columns, equal width */
+	gap: 2px; /* CARET MODIFICATION: Further reduce gap for even narrower spacing */
 	padding: 16px 20px 0;
 	border-bottom: 1px solid var(--vscode-panel-border);
 	background-color: var(--vscode-tab-inactiveBackground);

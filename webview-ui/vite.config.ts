@@ -104,6 +104,8 @@ export default defineConfig(({ mode }) => {
 				"@common": resolve(__dirname, "../src/common"),
 				"@globals": resolve(__dirname, "../src/globals"),
 				"@shared": resolve(__dirname, "../src/shared"),
+				// CARET MODIFICATION: caret-assets 디렉토리 별칭 추가
+				"@caretAssets": resolve(__dirname, "../caret-assets"),
 			},
 		},
 	}

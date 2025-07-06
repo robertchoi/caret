@@ -33,7 +33,7 @@ import { OpenRouterCompatibleModelInfo } from "@shared/proto/models"
 
 // CARET MODIFICATION: Added caretBanner property for Caret welcome page
 // Original backed up to: ExtensionStateContext-tsx.cline
-interface ExtensionStateContextType extends ExtensionState {
+export interface ExtensionStateContextType extends ExtensionState { // CARET MODIFICATION: ExtensionStateContextType export
 	didHydrateState: boolean
 	showWelcome: boolean
 	theme: Record<string, string> | undefined
@@ -227,8 +227,8 @@ export const ExtensionStateContextProvider: React.FC<{
 	const [availableTerminalProfiles, setAvailableTerminalProfiles] = useState<TerminalProfile[]>([])
 	const [caretBanner] = useState<string>((window as any).caretBanner || "")
 	// CARET MODIFICATION: 페르소나 이미지 직접 주입 방식으로 변경
-	const [personaProfile] = useState<string>((window as any).personaProfile || "")
-	const [personaThinking] = useState<string>((window as any).personaThinking || "")
+	const [personaProfile, setPersonaProfile] = useState<string>((window as any).personaProfile || "")
+	const [personaThinking, setPersonaThinking] = useState<string>((window as any).personaThinking || "")
 
 	const [openAiModels, setOpenAiModels] = useState<string[]>([])
 	const [requestyModels, setRequestyModels] = useState<Record<string, ModelInfo>>({
@@ -250,6 +250,16 @@ export const ExtensionStateContextProvider: React.FC<{
 					[requestyDefaultModelId]: requestyDefaultModelInfo,
 					...updatedModels,
 				})
+				break
+			}
+			// CARET MODIFICATION: Persona 이미지 업데이트 메시지 수신
+			case "PERSONA_UPDATED": {
+				if (message.payload?.avatarUri) {
+					setPersonaProfile(message.payload.avatarUri)
+				}
+				if (message.payload?.thinkingAvatarUri) {
+					setPersonaThinking(message.payload.thinkingAvatarUri)
+				}
 				break
 			}
 		}

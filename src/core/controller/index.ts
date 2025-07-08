@@ -275,8 +275,14 @@ export class Controller {
 			// CARET MODIFICATION: Handle UPDATE_PERSONA_CUSTOM_INSTRUCTION to update the global custom instructions file.
 			case "UPDATE_PERSONA_CUSTOM_INSTRUCTION": {
 				if (message.payload?.personaInstruction) {
-					// Check if personaInstruction exists
-					caretLogger.info("[Controller] Received UPDATE_PERSONA_CUSTOM_INSTRUCTION")
+					caretLogger.info(
+						`[Controller] Received UPDATE_PERSONA_CUSTOM_INSTRUCTION - personaInstruction: ${JSON.stringify(
+							message.payload.personaInstruction,
+							null,
+							2,
+						)}`,
+					)
+
 					await updateRuleFileContent({
 						rulePath: "custom_instructions.md",
 						isGlobal: true,
@@ -293,6 +299,22 @@ export class Controller {
 							await saveCustomPersonaImage(this.context, "normal", message.payload.avatarUri)
 							await saveCustomPersonaImage(this.context, "thinking", message.payload.thinkingAvatarUri)
 							caretLogger.info("[Controller] Persona images updated successfully from template selection.")
+
+							// CARET MODIFICATION: 템플릿 선택 후 CaretProvider의 notifyPersonaImagesChanged 호출
+							try {
+								const { CaretProvider } = await import("../../../caret-src/core/webview/CaretProvider")
+								const provider = CaretProvider.getInstance()
+								if (provider) {
+									provider.notifyPersonaImagesChanged()
+									caretLogger.info("[Controller] 페르소나 템플릿 선택 후 알림 전송 완료")
+								} else {
+									caretLogger.warn(
+										"[Controller] CaretProvider 인스턴스를 찾을 수 없어 알림을 보내지 못했습니다",
+									)
+								}
+							} catch (error) {
+								caretLogger.error(`[Controller] 페르소나 템플릿 선택 후 알림 전송 실패: ${error}`)
+							}
 						} catch (error) {
 							caretLogger.error(`[Controller] Failed to replace persona images from template: ${error}`)
 						}
@@ -341,6 +363,20 @@ export class Controller {
 							},
 						})
 
+						// CARET MODIFICATION: 이미지 업로드 후 CaretProvider의 notifyPersonaImagesChanged 호출
+						try {
+							const { CaretProvider } = await import("../../../caret-src/core/webview/CaretProvider")
+							const provider = CaretProvider.getInstance()
+							if (provider) {
+								provider.notifyPersonaImagesChanged()
+								caretLogger.info("[Controller] 페르소나 이미지 업로드 후 알림 전송 완료")
+							} else {
+								caretLogger.warn("[Controller] CaretProvider 인스턴스를 찾을 수 없어 알림을 보내지 못했습니다")
+							}
+						} catch (error) {
+							caretLogger.error(`[Controller] 페르소나 이미지 업로드 후 알림 전송 실패: ${error}`)
+						}
+
 						// CARET MODIFICATION: 이미지 업로드 후 상태를 새로고침하여 웹뷰에 반영
 						this.postMessageToWebview({
 							type: "PERSONA_UPDATED",
@@ -369,10 +405,9 @@ export class Controller {
 				if (message.language) {
 					caretLogger.info(`[Controller] Received initializeDefaultPersona for language: ${message.language}`)
 					try {
-						const { initializeDefaultPersonaOnLanguageSet } = await import(
-							"../../../caret-src/utils/persona-initialization"
-						)
-						await initializeDefaultPersonaOnLanguageSet(this.context, message.language)
+						const { PersonaInitializer } = await import("../../../caret-src/utils/persona-initializer")
+						const personaInitializer = new PersonaInitializer(this.context)
+						await personaInitializer.initializeOnLanguageSet(message.language)
 						caretLogger.info(
 							`[Controller] Default persona initialized successfully for language: ${message.language}`,
 						)

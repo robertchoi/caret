@@ -765,6 +765,17 @@ export async function resetGlobalState(context: vscode.ExtensionContext) {
 	} catch (error) {
 		console.warn("Failed to reset persona data:", error)
 	}
+
+	// CARET MODIFICATION: 초기화 후 기본 페르소나 설정
+	try {
+		const { PersonaInitializer } = await import("../../../caret-src/utils/persona-initializer")
+		const initializer = new PersonaInitializer(context)
+		await initializer.initialize()
+		console.info("Default persona initialized after reset")
+	} catch (error) {
+		console.warn("Failed to initialize default persona after reset:", error)
+	}
+
 	const secretKeys: SecretKey[] = [
 		"apiKey",
 		"openRouterApiKey",

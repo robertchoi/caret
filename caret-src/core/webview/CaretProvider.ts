@@ -14,6 +14,13 @@ export const CARET_SIDEBAR_ID = "caret.SidebarProvider"
 export const CARET_TAB_PANEL_ID = "caret.TabPanelProvider"
 
 export class CaretProvider extends ClineWebviewProvider {
+	// CARET MODIFICATION: 싱글톤 패턴을 위한 정적 인스턴스 변수 추가
+	private static instance: CaretProvider | null = null
+
+	// 페르소나 이미지 데이터 URI 저장용 변수
+	private _personaProfileDataUri: string = ""
+	private _personaThinkingDataUri: string = ""
+
 	constructor(
 		public override readonly context: vscode.ExtensionContext,
 		outputChannel: vscode.OutputChannel,
@@ -24,6 +31,14 @@ export class CaretProvider extends ClineWebviewProvider {
 		caretLogger.setOutputChannel(outputChannel)
 		caretLogger.extensionActivated()
 		logCaretWelcome()
+
+		// CARET MODIFICATION: 싱글톤 인스턴스 설정
+		CaretProvider.instance = this
+	}
+
+	// CARET MODIFICATION: 싱글톤 인스턴스 접근자 메서드
+	public static getInstance(): CaretProvider | null {
+		return CaretProvider.instance
 	}
 
 	public override async resolveWebviewView(webviewView: vscode.WebviewView | vscode.WebviewPanel) {
@@ -147,26 +162,32 @@ export class CaretProvider extends ClineWebviewProvider {
 		}
 
 		// CARET MODIFICATION: 페르소나 이미지 로딩 추가
-		let personaProfileDataUri = ""
-		let personaThinkingDataUri = ""
-		try {
-			const personaDir = path.join(this.context.globalStorageUri.fsPath, "personas")
-			const profilePath = path.join(personaDir, "agent_profile.png")
-			const thinkingPath = path.join(personaDir, "agent_thinking.png")
-			
-			if (fs.existsSync(profilePath)) {
-				const profileBuffer = fs.readFileSync(profilePath)
-				personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
-				caretLogger.debug(`[CaretProvider] Persona profile loaded, size: ${profileBuffer.length} bytes`)
+		let personaProfileDataUri = this._personaProfileDataUri || ""
+		let personaThinkingDataUri = this._personaThinkingDataUri || ""
+
+		// 저장된 이미지가 없으면 파일에서 로드
+		if (!personaProfileDataUri || !personaThinkingDataUri) {
+			try {
+				const personaDir = path.join(this.context.globalStorageUri.fsPath, "personas")
+				const profilePath = path.join(personaDir, "agent_profile.png")
+				const thinkingPath = path.join(personaDir, "agent_thinking.png")
+
+				if (fs.existsSync(profilePath)) {
+					const profileBuffer = fs.readFileSync(profilePath)
+					personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
+					this._personaProfileDataUri = personaProfileDataUri
+					caretLogger.debug(`[CaretProvider] Persona profile loaded, size: ${profileBuffer.length} bytes`)
+				}
+
+				if (fs.existsSync(thinkingPath)) {
+					const thinkingBuffer = fs.readFileSync(thinkingPath)
+					personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
+					this._personaThinkingDataUri = personaThinkingDataUri
+					caretLogger.debug(`[CaretProvider] Persona thinking loaded, size: ${thinkingBuffer.length} bytes`)
+				}
+			} catch (e) {
+				caretLogger.debug(`[CaretProvider] No persona images found or error loading:`, e)
 			}
-			
-			if (fs.existsSync(thinkingPath)) {
-				const thinkingBuffer = fs.readFileSync(thinkingPath)
-				personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
-				caretLogger.debug(`[CaretProvider] Persona thinking loaded, size: ${thinkingBuffer.length} bytes`)
-			}
-		} catch (e) {
-			caretLogger.debug(`[CaretProvider] No persona images found or error loading:`, e)
 		}
 
 		// Update the title
@@ -186,7 +207,7 @@ export class CaretProvider extends ClineWebviewProvider {
 		updatedHtml = updatedHtml.replace(/content="([^"]*)"/, (match, csp) => {
 			// Only modify the img-src policy
 			const policies = csp.split("; ")
-			const updatedPolicies = policies.map((policy) => {
+			const updatedPolicies = policies.map((policy: string) => {
 				if (policy.startsWith("img-src")) {
 					// CARET MODIFICATION: 이미지 로딩을 위한 CSP 설정 강화
 					const imgSrcValue = `img-src 'self' ${webview.cspSource} https://*.vscode-cdn.net https: data: blob: asset: vscode-resource: *`
@@ -238,26 +259,32 @@ export class CaretProvider extends ClineWebviewProvider {
 		}
 
 		// CARET MODIFICATION: 페르소나 이미지 로딩 추가 (HMR 모드)
-		let personaProfileDataUri = ""
-		let personaThinkingDataUri = ""
-		try {
-			const personaDir = path.join(this.context.globalStorageUri.fsPath, "personas")
-			const profilePath = path.join(personaDir, "agent_profile.png")
-			const thinkingPath = path.join(personaDir, "agent_thinking.png")
-			
-			if (fs.existsSync(profilePath)) {
-				const profileBuffer = fs.readFileSync(profilePath)
-				personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
-				caretLogger.debug(`[CaretProvider] HMR - Persona profile loaded, size: ${profileBuffer.length} bytes`)
+		let personaProfileDataUri = this._personaProfileDataUri || ""
+		let personaThinkingDataUri = this._personaThinkingDataUri || ""
+
+		// 저장된 이미지가 없으면 파일에서 로드
+		if (!personaProfileDataUri || !personaThinkingDataUri) {
+			try {
+				const personaDir = path.join(this.context.globalStorageUri.fsPath, "personas")
+				const profilePath = path.join(personaDir, "agent_profile.png")
+				const thinkingPath = path.join(personaDir, "agent_thinking.png")
+
+				if (fs.existsSync(profilePath)) {
+					const profileBuffer = fs.readFileSync(profilePath)
+					personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
+					this._personaProfileDataUri = personaProfileDataUri
+					caretLogger.debug(`[CaretProvider] HMR - Persona profile loaded, size: ${profileBuffer.length} bytes`)
+				}
+
+				if (fs.existsSync(thinkingPath)) {
+					const thinkingBuffer = fs.readFileSync(thinkingPath)
+					personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
+					this._personaThinkingDataUri = personaThinkingDataUri
+					caretLogger.debug(`[CaretProvider] HMR - Persona thinking loaded, size: ${thinkingBuffer.length} bytes`)
+				}
+			} catch (e) {
+				caretLogger.debug(`[CaretProvider] HMR - No persona images found or error loading:`, e)
 			}
-			
-			if (fs.existsSync(thinkingPath)) {
-				const thinkingBuffer = fs.readFileSync(thinkingPath)
-				personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
-				caretLogger.debug(`[CaretProvider] HMR - Persona thinking loaded, size: ${thinkingBuffer.length} bytes`)
-			}
-		} catch (e) {
-			caretLogger.debug(`[CaretProvider] HMR - No persona images found or error loading:`, e)
 		}
 
 		// Update the title
@@ -287,5 +314,53 @@ export class CaretProvider extends ClineWebviewProvider {
 		}
 
 		return updatedHtml
+	}
+
+	/**
+	 * CARET MODIFICATION: 페르소나 이미지 변경 알림 메서드
+	 * 페르소나 이미지가 변경될 때 웹뷰에 알리고 전역 변수를 업데이트합니다.
+	 * 이 메서드는 PersonaInitializer와 컨트롤러의 이미지 업로드 핸들러에서 호출됩니다.
+	 */
+	public notifyPersonaImagesChanged(): void {
+		try {
+			// 1. globalStorage에서 최신 이미지 로드
+			const personaDir = path.join(this.context.globalStorageUri.fsPath, "personas")
+			const profilePath = path.join(personaDir, "agent_profile.png")
+			const thinkingPath = path.join(personaDir, "agent_thinking.png")
+
+			let personaProfileDataUri = ""
+			let personaThinkingDataUri = ""
+
+			if (fs.existsSync(profilePath)) {
+				const profileBuffer = fs.readFileSync(profilePath)
+				personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
+				this._personaProfileDataUri = personaProfileDataUri
+				caretLogger.debug(`[CaretProvider] Persona profile updated, size: ${profileBuffer.length} bytes`)
+			}
+
+			if (fs.existsSync(thinkingPath)) {
+				const thinkingBuffer = fs.readFileSync(thinkingPath)
+				personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
+				this._personaThinkingDataUri = personaThinkingDataUri
+				caretLogger.debug(`[CaretProvider] Persona thinking updated, size: ${thinkingBuffer.length} bytes`)
+			}
+
+			// 2. 웹뷰에 메시지 전송
+			if (personaProfileDataUri && personaThinkingDataUri) {
+				this.controller.postMessageToWebview({
+					type: "RESPONSE_PERSONA_IMAGES",
+					payload: {
+						avatarUri: personaProfileDataUri,
+						thinkingAvatarUri: personaThinkingDataUri,
+					},
+				})
+
+				caretLogger.info("[CaretProvider] 페르소나 이미지 업데이트 알림 전송 완료")
+			} else {
+				caretLogger.warn("[CaretProvider] 페르소나 이미지를 찾을 수 없어 업데이트 알림을 보내지 않았습니다.")
+			}
+		} catch (e) {
+			caretLogger.error(`[CaretProvider] 페르소나 이미지 업데이트 알림 실패: ${e}`)
+		}
 	}
 }

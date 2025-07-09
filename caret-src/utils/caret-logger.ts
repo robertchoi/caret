@@ -60,7 +60,7 @@ export class CaretLogger {
 		const formattedMessage = this.formatMessage(level, message, context)
 
 		// VSCode 출력 채널에 로깅
-		if (this.outputChannel) {
+		if (this.outputChannel && typeof this.outputChannel.appendLine === 'function') {
 			this.outputChannel.appendLine(formattedMessage)
 		}
 

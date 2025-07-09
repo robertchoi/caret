@@ -25,6 +25,22 @@
   - `webview-ui/src/caret/components/PersonaAvatar.tsx` (페르소나 아바타 표시)
   - `caret-assets/template_characters/` (기본 페르소나 이미지)
 
+### **상세 분석 결과**
+- **페르소나 이미지 로드 방식 (`webview-ui/src/caret/components/PersonaAvatar.tsx`):**
+  - `ExtensionStateContext`에서 `personaProfile`, `personaThinking` URI를 초기값으로 가져오거나, 백엔드 메시지(`RESPONSE_PERSONA_IMAGES`)를 통해 동적으로 업데이트됩니다.
+  - 로딩 중/에러 시에는 Base64 인코딩된 SVG 폴백 이미지를 사용합니다.
+- **규칙 창 이미지 표시 방식 (`webview-ui/src/caret/components/PersonaManagement.tsx`):**
+  - 컴포넌트 로드 시 `REQUEST_PERSONA_IMAGES` 메시지를 통해 백엔드에 이미지 URI를 명시적으로 요청하고, 응답을 즉시 `<img>` 태그에 반영합니다.
+  - 페르소나 템플릿 선택 및 이미지 업로드 시 `window.postMessage`를 통해 웹뷰 내 다른 컴포넌트에 변경 사항을 즉시 브로드캐스트하고 전역 변수를 업데이트합니다.
+- **규칙 창과 다른 UI 간 이미지 표시 불일치 원인 추정:**
+  - 규칙 창은 이미지를 명시적으로 요청하고 즉시 반영하는 반면, 다른 UI(예: 채팅 영역)는 초기 로드 시 `ExtensionStateContext`의 값이 비어있거나, 백엔드의 "순환 메시지 방지 패턴"으로 인해 단일 필드 업데이트 시 전체 상태 브로드캐스트가 스킵되어 이미지 업데이트가 지연/누락될 수 있습니다.
+- **Caret 아이콘(새 태스크 시 표시) 설정 파일 및 방식 (`caret-src/utils/persona-initialization.ts`):**
+  - `initializeDefaultPersonaOnLanguageSet` 함수가 Caret 초기 설치 또는 언어 설정 변경 시 호출됩니다.
+  - 이 함수는 `caret-assets/template_characters/sarang.png` 및 `sarang_thinking.png` 파일을 읽어와 `globalStorageUri/personas/agent_profile.png` 및 `agent_thinking.png`로 복사하여 기본 페르소나 이미지를 설정합니다.
+  - 따라서 `newTask` 시 보이는 Caret 아이콘은 기본 페르소나 '사랑이'의 이미지입니다.
+- **개발 가이드 명시 여부:**
+  - 프론트엔드-백엔드 상호작용 패턴은 `caret-docs/development/frontend-backend-interaction-patterns.mdx` 문서에 명시되어 있습니다. 특히, 백엔드에서 단일 필드 업데이트 시 브로드캐스트를 스킵하는 내용이 포함되어 있습니다.
+
 ### **📋 구현 계획**
 
 #### **Phase 1: 문제 진단 및 초기화 로직 분석 (0.5시간)**

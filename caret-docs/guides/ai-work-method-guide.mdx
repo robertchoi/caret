@@ -55,12 +55,19 @@
 
 #### **테스트 관련 업무**
 
-**업무 예시**: 테스트 작성, TDD, 테스트 수정
+**업무 예시**: 테스트 작성, TDD, 테스트 수정, 모킹 설정
 **필수 체크 문서**:
 
 -   `caret-docs/development/testing-guide.mdx` ⚡ **MANDATORY**
+-   **섹션 4.2.2 Vitest 모킹 패턴 및 모범 사례** ⚡ **CRITICAL**
 -   **TDD 필수 원칙** 확인 (RED → GREEN → REFACTOR)
 -   **테스트 우선 작성** 강제화
+
+**⚠️ 반복 실수 방지 - 모킹 관련 체크포인트**:
+-   `vi.mock` 호이스팅 문제 방지 패턴 확인
+-   `vi.resetAllMocks()` vs `vi.clearAllMocks()` 구분 사용
+-   VSCode 확장 특화 모킹 표준 패턴 적용
+-   복잡한 의존성 주입 테스트 패턴 활용
 
 #### **페르소나/AI 캐릭터 개발 관련 업무**
 
@@ -198,6 +205,25 @@
 -   [ ] CARET MODIFICATION 주석 추가
 -   [ ] 최소 수정 원칙 (1-3라인) 준수
 -   [ ] 파일 수정 체크리스트 완료
+
+### 테스트 및 모킹 ⚡ **NEW**
+
+**🚨 반복 실수 방지 체크리스트:**
+
+-   [ ] **모킹 패턴**: 모든 모킹을 `vi.mock` 블록 내에서 직접 정의
+-   [ ] **호이스팅 방지**: 변수 참조 대신 블록 내 직접 정의 사용
+-   [ ] **안전한 초기화**: `vi.resetAllMocks()` 대신 `vi.clearAllMocks()` 사용
+-   [ ] **VSCode API 모킹**: extensionUri, outputChannel 등 표준 패턴 적용
+-   [ ] **fs.promises 모킹**: 비동기 파일 작업 모킹 표준 패턴 적용
+-   [ ] **TDD 순서 준수**: 테스트 먼저 작성 (RED → GREEN → REFACTOR)
+-   [ ] **즉시 검증**: 테스트 파일 생성 후 바로 실행하여 include path 확인
+
+**🔧 모킹 디버깅 체크:**
+
+-   [ ] 호이스팅 오류 (`ReferenceError: Cannot access ... before initialization`) 발생 시
+-   [ ] `undefined` 접근 오류 (`TypeError: Cannot read properties of undefined`) 발생 시
+-   [ ] 모킹된 함수가 실제로 호출되지 않는 경우
+-   [ ] 기대값과 실제값 불일치 (경로, 타입, 형식 차이) 발생 시
 
 ### 컴포넌트 개발
 

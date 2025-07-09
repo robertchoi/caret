@@ -1,9 +1,10 @@
+
 [Read this document in English](./README.md) | [한국어로 읽기](./README.ko.md) | [日本語で読む](./README.ja.md) | [阅读中文版](./README.zh-cn.md)
 
 <div align="center">
   <img src="caret-assets/icons/icon.png" alt="Caret icon" width="128">
   <h1>Caret: Your New AI Companion</h1>
-  <p><strong>Adding Cursor's flexibility to Cline's transparency</strong></p>
+  <p><strong>Adding Cursor's Flexibility to Cline's Transparency</strong></p>
   <p>
     <a href="https://marketplace.visualstudio.com/items?itemName=caretive.caret">
       <img src="https://img.shields.io/visual-studio-marketplace/v/caretive.caret.svg?color=blue&label=VS%20Code%20Marketplace" alt="VS Code Marketplace">
@@ -14,85 +15,122 @@
   </p>
 </div>
 
-Caret is more than just an AI coding tool; it's a VS Code extension that aims to be an **AI companion that grows with developers**. It preserves the advantages of the proven open-source [Cline](https://github.com/cline/cline) while maximizing the development experience by 'overlaying' more powerful and flexible features.
+Caret is more than just an AI coding tool; it's a VS Code extension that aims to be an **AI companion growing with developers**. It preserves the proven advantages of the open-source [Cline](https://github.com/cline/cline) while 'overlaying' more powerful and flexible features to maximize the development experience.
 
-## ✨ What makes Caret different?
+## ✨ What Makes Caret Different?
 
 | Feature | Cline | Cursor | **Caret** |
 | :--- | :--- | :--- | :--- |
-| **AI Behavior** | Plan/Act (Slightly unnatural) | Ask/Agent (Natural) | **Chatbot/Agent Mode (More intuitive & powerful)** |
+| **AI Behavior** | Plan/Act (somewhat rigid) | Ask/Agent (natural) | **Chatbot/Agent Mode (more intuitive and powerful)** |
 | **AI Transparency** | ✅ Open Source (High) | ❌ Black Box (Low) | **✅ Open Source + Improved System Prompt (Very High)** |
-| **Persona** | ❌ Not Supported | ❌ Not Supported | **✅ Template & Custom Persona, Profile Image Support** |
+| **Persona Support** | ❌ Not Supported | ❌ Not Supported | **✅ Template & Custom Personas, Profile Image Support** |
 | **Multilingual Support** | ❌ Not Supported | ❌ Not Supported | **✅ Full Multilingual Support (i18n Overlay)** |
 | **Architecture** | Core Features | Closed | **Overlay Structure (Stability + Extensibility)** |
 
-### 1. More Natural Conversations with AI: Chatbot & Agent Mode
-Going beyond Cline's somewhat rigid Plan/Act mode, Caret offers a more intuitive **Chatbot/Agent mode**, similar to Cursor's flexible Ask/Agent approach but with more intuitive terminology. Furthermore, it's not just about changing the behavior; our **independently improved system prompt** enhances both the AI's response performance and attitude, enabling smarter, more natural collaboration. This not only makes collaboration smarter and more natural but also reduces unnecessary token usage, leading to **API cost savings** and **improved cost predictability**.
+### 1. More Natural AI Conversation: Chatbot & Agent Mode
+Beyond Cline's somewhat rigid Plan/Act mode, Caret offers **Chatbot/Agent Mode**—flexible like Cursor's Ask/Agent, but more intuitive than 'Ask'. We haven't just changed the interaction style; we've **improved the system prompts** to enhance both AI response performance and demeanor. This not only enables smarter and more natural collaboration but also reduces unnecessary token usage, leading to **API cost savings** and **improved cost predictability**.
 
 ### 2. Create Your Own AI Companion: Custom Personas
 <img src="caret-assets/template_characters/caret_illust.png" alt="Caret Persona Illustration" width="300"/>
 
-Add fun to your coding with pre-made **template personas** like Caret's default character, a K-POP idol, and OS-tans. You can create a visually vibrant development environment by registering your own AI agent name and **profile image**.
+Add joy to your coding with Caret's pre-prepared **template personas** like K-POP idols, OS-tans, and more. You can **register your own AI agent name and profile image** to create a visually vibrant development environment.
 
 **Default Personas:**
-*   <img src="caret-assets/template_characters/caret.png" width="24" align="center"/> **Caret**: A friendly robot friend who loves to code and help developers.
-*   <img src="caret-assets/template_characters/sarang.png" width="24" align="center"/> **Oh Sarang**: A K-pop idol and tsundere engineering girl who helps you navigate between logic and emotion.
+*   <img src="caret-assets/template_characters/caret.png" width="24" align="center"/> **Caret**: A friendly robot friend who loves coding and helps developers.
+*   <img src="caret-assets/template_characters/sarang.png" width="24" align="center"/> **Oh Sarang**: A K-pop idol and a tsundere engineering girl who helps you navigate between logic and emotion.
 *   <img src="caret-assets/template_characters/ichika.png" width="24" align="center"/> **Madobe Ichika**: A neat and reliable assistant inspired by Windows 11.
-*   <img src="caret-assets/template_characters/cyan.png" width="24" align="center"/> **Cyan Mackin**: A concise and efficient assistant inspired by macOS.
-*   <img src="caret-assets/template_characters/ubuntu.png" width="24" align="center"/> **Thando Ubuntu**: A warm collaborator who solves problems together in the spirit of open source.
+*   <img src="caret-assets/template_characters/cyan.png" width="24" align="center"/> **Cyan Macin**: A concise and efficient helper modeled after macOS.
+*   <img src="caret-assets/template_characters/ubuntu.png" width="24" align="center"/> **Tando Ubuntu**: A warm collaborator who solves problems with an open-source spirit.
 
 ### 3. Coding Without Language Barriers: Full Multilingual Support
-Caret addresses the multilingual support that other AI tools have overlooked. Through an **i18n-based overlay structure**, developers who are not comfortable with English can use all features seamlessly in their **native language, including Korean, Japanese, and Chinese**.
+Other AI tools often overlook multilingual support, but Caret solves this. With an **i18n-based overlay architecture**, developers unfamiliar with English can fully utilize all features in their native languages, including **Korean, Japanese, and Chinese**.
 
-### 4. Stability and Extensibility at Once: Overlay Architecture
-By preserving Cline's proven stable core and overlaying Caret's unique, innovative features, you can enjoy both **Cline's stability and transparency** and **Caret's powerful extensibility**.
+### 4. Stability and Extensibility: Overlay Architecture
+Caret preserves the core of Cline's proven stability and layers its innovative features on top as an 'overlay'. This allows you to benefit from **Cline's stability and transparency** while experiencing **Caret's powerful extensibility**.
 
 ## 🚀 Getting Started
 
-1.  **Installation:** Search for and install **"Caret"** from the VS Code Marketplace. (Coming Soon)
-2.  **Select a Persona:** Choose your favorite AI persona from the sidebar or create your own.
-3.  **Start Chatting:** Begin coding with your new AI companion!
+1.  **Installation:** Search for **"Caret"** in the VS Code Marketplace and install it. (Coming Soon)
+2.  **Select Persona:** Choose your favorite AI persona from the sidebar or create your own.
+3.  **Start Chatting:** Begin coding with your AI companion!
 
-## 🔮 Vision & Roadmap
+## 🔮 Future Vision & Roadmap
 
-Caret is continuously evolving towards the ultimate AI companion.
+Caret continues to evolve towards becoming the 'ultimate AI companion'.
 
-*   **Proprietary Login & Credit System:** We are preparing a proprietary login feature (scheduled within 1 week) and a credit purchase feature (scheduled within 2 weeks).
-*   **sLLM and Sovereign Model Support:** We will enhance support for local LLMs (sLLM) and country-specific sovereign models for security and cost-efficiency.
-*   **Community-Driven Feature Expansion:** We plan to add features created together through user feedback and contributions.
+*   **Self-Login & Credit System:** We are preparing self-login functionality (available within 1 week) and a credit purchase system (available within 2 weeks).
+*   **sLLM & Sovereign Model Support:** We will enhance support for local LLMs (sLLM) and specialized sovereign models for security and cost efficiency.
+*   **Community-Driven Feature Expansion:** We plan to add features co-created with user feedback and contributions.
 
-## 🤝 Contributing
+## 🤝 Contribute
 
 Caret is an open-source project that grows with your participation. We welcome any form of collaboration, including bug reports, feature suggestions, and code contributions!
 
-### 🌟 How to Contribute
+### 🌟 Contribution Types
 
 | Contribution Type | Description | Benefits |
-|---|---|---|
-| **💻 Code Contribution** | Feature development, bug fixes, documentation improvements | Service credits + GitHub contributor listing |
-| **🐛 Bug Report** | Reporting issues, providing reproduction steps | Service credits |
-| **💡 Idea Proposal** | Suggesting new features, improvements | Service credits |
-| **💰 Financial Contribution** | Sponsoring the project, supporting development | Service credits + Special contributor listing |
-| **📖 Documentation** | Writing guides, translations, tutorials | Service credits + Documentation contributor listing |
+|-------------------|-------------|----------|
+| **💻 Code Contribution** | Feature development, bug fixes, documentation improvements | Service Credits + GitHub Contributor Listing |
+| **🐛 Bug Report** | Issue reporting, providing reproduction steps | Service Credits |
+| **💡 Idea Suggestion** | Proposing new features, improvements | Service Credits |
+| **💰 Financial Contribution** | Project sponsorship, development support | Service Credits + Special Contributor Listing |
+| **📖 Documentation** | Writing guides, translations, tutorials | Service Credits + Documentation Contributor Listing |
 
 ### 🎁 Contributor Benefits
 
-- **Service Credits**: Caret service credits provided based on the scale of contribution.
-- **GitHub Contributor Listing**: Your name will be listed in the project README and release notes.
-- **Service Page Listing**: Your profile will be listed on the official website's contributor page.
-- **Priority Support**: Priority access to new features and beta versions.
+- **Service Usage Credits**: Caret service credits provided based on contribution scale
+- **GitHub Contributor Listing**: Name listed in project README and release notes
+- **Service Page Listing**: Profile listed on the official website's contributor page
+- **Priority Support**: Priority access to new features and beta versions
 
-### 🚀 How to Start
+### 🚀 How to Get Started
 
-1. **Check Issues**: Find issues you can contribute to on [GitHub Issues](https://github.com/aicoding-caret/caret/issues).
-2. **Join Discussions**: Share feature proposals or questions in Issues or Discussions.
-3. **Contribute Code**: Contribute code through the Fork → Develop → Pull Request process.
-4. **Contribute to Documentation**: Improve or translate documents in the `caret-docs/` folder.
+1. **Check Issues**: Find issues to contribute to on [GitHub Issues](https://github.com/aicoding-caret/caret/issues)
+2. **Join Discussion**: Share feature suggestions or questions in Issues or Discussions
+3. **Code Contribution**: Contribute code through Fork → Develop → Pull Request process
+4. **Documentation Contribution**: Improve or translate documents in the `caret-docs/` folder
 
-For detailed contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
+For detailed contribution guidelines, please refer to [CONTRIBUTING.md](./CONTRIBUTING.en.md).
 
 ---
 
-## 🛠️ For Developers
+## 🛠️ Information for Developers
 
-For detailed information related to the development of the Caret project, such as building, testing, and packaging, please refer to the **[Developer Guide(DEVELOPER_GUIDE.md)](./DEVELOPER_GUIDE.md)**.
+All information necessary for Caret project development is systematically organized here.
+
+### 📚 Core Development Guides
+
+#### 🏗️ Architecture & Design
+- **[Developer Guide (DEVELOPER_GUIDE.md)](./DEVELOPER_GUIDE.en.md)** - Basic information on build, test, and packaging
+- **[Development Guide Overview (development/)](./caret-docs/development/index.en.mdx)** - Navigation for all development guides
+- **[Caret Architecture Guide](./caret-docs/development/caret-architecture-and-implementation-guide.en.mdx)** - Fork structure, extension strategy, design principles
+
+#### 🧪 Testing & Quality Management
+- **[Testing Guide](./caret-docs/development/testing-guide.en.mdx)** - TDD, test writing standards, coverage management
+- **[Logging System](./caret-docs/development/logging.en.mdx)** - Integrated logging, debugging, development/production modes
+
+#### 🔄 Frontend-Backend Communication
+- **[Interaction Patterns](./caret-docs/development/frontend-backend-interaction-patterns.en.mdx)** - Preventing circular messages, Optimistic Update
+- **[Webview Communication](./caret-docs/development/webview-extension-communication.en.mdx)** - Message types, state management, communication structure
+
+#### 🎨 UI/UX Development
+- **[Component Architecture](./caret-docs/development/component-architecture-principles.en.mdx)** - React component design principles
+- **[i18n System](./caret-docs/development/backend-i18n-system.en.mdx)** - Multilingual support implementation
+
+#### 🤖 AI Work Methodology
+- **[AI Work Guide](./caret-docs/guides/ai-work-method-guide.en.mdx)** - TDD, architecture review, Phase-based work
+
+### 🎯 Quick Start Workflow
+
+1. **Environment Setup**: [Developer Guide](./DEVELOPER_GUIDE.en.md) → [Development Guide Overview](./caret-docs/development/index.en.mdx)
+2. **Understand Architecture**: [Caret Architecture Guide](./caret-docs/development/caret-architecture-and-implementation-guide.en.mdx)
+3. **Start Development**: [AI Work Guide](./caret-docs/guides/ai-work-method-guide.en.mdx) → [Testing Guide](./caret-docs/development/testing-guide.en.mdx)
+4. **Advanced Features**: [Interaction Patterns](./caret-docs/development/frontend-backend-interaction-patterns.en.mdx) → [Component Architecture](./caret-docs/development/component-architecture-principles.en.mdx)
+
+### 📖 Additional Resources
+
+- **[Task Documents](./caret-docs/tasks/)** - Specific implementation task guides
+- **[Strategy Documents](./caret-docs/strategy-archive/)** - Project vision and roadmap
+- **[User Guide](./caret-docs/user-guide/)** - Usage instructions for end-users
+
+💡 **Mandatory read before starting development**: Please familiarize yourself with the TDD-based development process and architectural principles in the [AI Work Methodology Guide](./caret-docs/guides/ai-work-method-guide.en.mdx).

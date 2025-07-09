@@ -69,11 +69,16 @@ export class Controller {
 
 	constructor(
 		readonly context: vscode.ExtensionContext,
-		private readonly outputChannel: vscode.OutputChannel,
+		private outputChannel: vscode.OutputChannel, // CARET MODIFICATION: Removed 'readonly' to resolve type inference issues with OutputChannel.
 		postMessage: (message: ExtensionMessage) => Thenable<boolean> | undefined,
 	) {
 		caretLogger.info(`Controller constructor called. ID: ${this.id}`)
-		this.outputChannel.appendLine("ClineProvider instantiated")
+		// CARET MODIFICATION: Ensure outputChannel is defined before using appendLine.
+		if (this.outputChannel) {
+			this.outputChannel.appendLine("ClineProvider instantiated")
+		} else {
+			console.warn("Controller: outputChannel is undefined during instantiation.")
+		}
 		this.postMessage = postMessage
 
 		this.workspaceTracker = new WorkspaceTracker()

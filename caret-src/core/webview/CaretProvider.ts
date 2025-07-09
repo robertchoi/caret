@@ -1,69 +1,86 @@
+// CARET MODIFICATION: CaretProvider is now an independent WebviewProvider, not inheriting from ClineWebviewProvider.
+// Original backed up to: caret-src/core/webview/CaretProvider-ts.cline
+// Purpose: Ensure CaretProvider's independence and allow custom login/API handling.
 import * as vscode from "vscode"
 import axios from "axios"
 import * as fs from "fs"
 import * as path from "path"
-import { WebviewProvider as ClineWebviewProvider } from "../../../src/core/webview/index"
+import { Auth0Client } from "@auth0/auth0-spa-js" // CARET MODIFICATION: Import Auth0Client
 import { WebviewProviderType } from "../../../src/shared/webview/types"
 import { getNonce } from "../../../src/core/webview/getNonce"
 import { getUri } from "../../../src/core/webview/getUri"
 import { getTheme } from "../../utils/caretGetTheme"
 import { sendThemeEvent } from "../../../src/core/controller/ui/subscribeToTheme"
-import { caretLogger, logCaretWelcome } from "../../utils/caret-logger"
+import { CaretLogger, logCaretWelcome } from "../../utils/caret-logger" // Import CaretLogger
+import { Controller } from "../../../src/core/controller/index"
+import { v4 as uuidv4 } from "uuid"
 
 export const CARET_SIDEBAR_ID = "caret.SidebarProvider"
 export const CARET_TAB_PANEL_ID = "caret.TabPanelProvider"
 
-export class CaretProvider extends ClineWebviewProvider {
+export class CaretProvider implements vscode.WebviewViewProvider {
+	public view?: vscode.WebviewView | vscode.WebviewPanel
+	private disposables: vscode.Disposable[] = []
+	private controller: Controller
+	private clientId: string
+	private outputChannel: vscode.OutputChannel
+	private providerType: WebviewProviderType
+	private caretLogger: CaretLogger // Add caretLogger as a member
+	private auth0Client?: Auth0Client // CARET MODIFICATION: Add Auth0Client field
+
 	constructor(
-		public override readonly context: vscode.ExtensionContext,
+		public readonly context: vscode.ExtensionContext,
 		outputChannel: vscode.OutputChannel,
 		providerType: WebviewProviderType = WebviewProviderType.SIDEBAR,
+		caretLoggerInstance?: CaretLogger, // Make optional and handle default inside
 	) {
-		super(context, outputChannel, providerType)
-		caretLogger.info(`CaretProvider constructor called for ${providerType}.`)
-		caretLogger.setOutputChannel(outputChannel)
-		caretLogger.extensionActivated()
-		logCaretWelcome()
+		this.outputChannel = outputChannel
+		this.providerType = providerType
+		this.caretLogger = caretLoggerInstance || new CaretLogger() // Assign injected or new instance
+		this.clientId = uuidv4()
+		// CARET MODIFICATION: Pass the actual outputChannel to the Controller, casting to 'any' to bypass persistent type inference issue.
+		this.controller = new Controller(context, outputChannel as any, (message) => this.view?.webview.postMessage(message))
+
+		this.caretLogger.info(`CaretProvider constructor called for ${providerType}.`)
+		this.caretLogger.setOutputChannel(outputChannel)
+		this.caretLogger.extensionActivated()
+		this.caretLogger.welcomePageLoaded() // Use instance method instead of global function
 	}
 
-	public override async resolveWebviewView(webviewView: vscode.WebviewView | vscode.WebviewPanel) {
-		caretLogger.info(`resolveWebviewView started for ${this.providerType} with client ID: ${this.getClientId()}`)
+	public getClientId(): string {
+		return this.clientId
+	}
+
+	public async resolveWebviewView(webviewView: vscode.WebviewView | vscode.WebviewPanel) {
+		this.caretLogger.info(`resolveWebviewView started for ${this.providerType} with client ID: ${this.getClientId()}`)
 		this.view = webviewView
 		const isDev = this.context.extensionMode === vscode.ExtensionMode.Development
 
-		// 1. Set webview options, adding Vite HMR server for development mode.
 		const localResourceRoots = [this.context.extensionUri]
 		if (isDev) {
-			let localServerPort = "5173" // Default Vite port
+			let localServerPort = "5173"
 			try {
 				const portFilePath = path.join(this.context.extensionPath, "webview-ui", ".vite-port")
 				if (fs.existsSync(portFilePath)) {
 					localServerPort = fs.readFileSync(portFilePath, "utf-8").trim()
 				}
 			} catch (error) {
-				caretLogger.error("Error reading .vite-port file", error)
+				this.caretLogger.error("Error reading .vite-port file", error)
 			}
 			localResourceRoots.push(vscode.Uri.parse(`http://localhost:${localServerPort}`))
 		}
+		localResourceRoots.push(this.context.globalStorageUri)
 		webviewView.webview.options = {
 			enableScripts: true,
 			localResourceRoots: localResourceRoots,
 		}
 
-		// 2. Set HTML content. This will call the overridden getHMRHtmlContent or getHtmlContent.
 		webviewView.webview.html = isDev
 			? await this.getHMRHtmlContent(webviewView.webview)
 			: this.getHtmlContent(webviewView.webview)
 
-		// 3. Set up listeners using the now-accessible `protected disposables`.
-		// This correctly wires up the webview to the controller.
-		webviewView.webview.onDidReceiveMessage(
-			(message) => this.controller.handleWebviewMessage(message),
-			null,
-			this.disposables,
-		)
+		this.setWebviewMessageListener(webviewView.webview)
 
-		// Visibility change listener
 		if ("onDidChangeViewState" in webviewView) {
 			webviewView.onDidChangeViewState(
 				() => {
@@ -86,10 +103,8 @@ export class CaretProvider extends ClineWebviewProvider {
 			)
 		}
 
-		// Dispose listener
 		webviewView.onDidDispose(() => this.dispose(), null, this.disposables)
 
-		// Configuration change listener for theme and other settings
 		vscode.workspace.onDidChangeConfiguration(
 			async (e) => {
 				if (e.affectsConfiguration("workbench.colorTheme")) {
@@ -106,47 +121,60 @@ export class CaretProvider extends ClineWebviewProvider {
 			this.disposables,
 		)
 
-		// 4. Finalize initialization.
 		this.controller.clearTask()
-		this.controller.postStateToWebview() // Ensure webview has the latest state on load.
+		this.controller.postStateToWebview()
 		this.outputChannel.appendLine("Caret Webview view resolved successfully.")
-		caretLogger.info(
+		this.caretLogger.info(
 			`resolveWebviewView finished for ${this.providerType} with client ID: ${this.getClientId()}. Controller is ready.`,
 		)
 	}
 
-	protected override getHtmlContent(webview: vscode.Webview): string {
-		// Get the original HTML content
-		const originalHtml = super.getHtmlContent(webview)
+	protected getHtmlContent(webview: vscode.Webview): string {
+		const stylesUri = getUri(webview, this.context.extensionUri, ["webview-ui", "build", "assets", "index.css"])
+		const scriptUri = getUri(webview, this.context.extensionUri, ["webview-ui", "build", "assets", "index.js"])
+		const codiconsUri = getUri(webview, this.context.extensionUri, [
+			"node_modules",
+			"@vscode",
+			"codicons",
+			"dist",
+			"codicon.css",
+		])
+		const katexCssUri = getUri(webview, this.context.extensionUri, [
+			"webview-ui",
+			"node_modules",
+			"katex",
+			"dist",
+			"katex.min.css",
+		])
+
+		const nonce = getNonce()
+
 		let caretBannerDataUri = ""
 		let caretIconDataUri = ""
 		try {
 			const bannerPath = path.join(this.context.extensionPath, "caret-assets", "caret-main-banner.webp")
-			// CARET MODIFICATION: 배너 이미지를 caret-main-banner.webp로 변경
-			caretLogger.info(`[CaretProvider] Attempting to load banner from: ${bannerPath}`)
+			this.caretLogger.info(`[CaretProvider] Attempting to load banner from: ${bannerPath}`)
 			if (fs.existsSync(bannerPath)) {
 				const fileBuffer = fs.readFileSync(bannerPath)
 				caretBannerDataUri = `data:image/webp;base64,${fileBuffer.toString("base64")}`
-				caretLogger.info(`[CaretProvider] Banner loaded successfully, size: ${fileBuffer.length} bytes`)
+				this.caretLogger.info(`[CaretProvider] Banner loaded successfully, size: ${fileBuffer.length} bytes`)
 			} else {
-				caretLogger.error(`[CaretProvider] Banner file not found: ${bannerPath}`)
+				this.caretLogger.error(`[CaretProvider] Banner file not found: ${bannerPath}`)
 			}
 
 			const iconPath = path.join(this.context.extensionPath, "caret-assets", "icons", "icon.png")
-			caretLogger.info(`[CaretProvider] Attempting to load caret icon from: ${iconPath}`)
+			this.caretLogger.info(`[CaretProvider] Attempting to load caret icon from: ${iconPath}`)
 			if (fs.existsSync(iconPath)) {
 				const iconBuffer = fs.readFileSync(iconPath)
 				caretIconDataUri = `data:image/png;base64,${iconBuffer.toString("base64")}`
-				caretLogger.info(`[CaretProvider] Caret icon loaded successfully, size: ${iconBuffer.length} bytes`)
+				this.caretLogger.info(`[CaretProvider] Caret icon loaded successfully, size: ${iconBuffer.length} bytes`)
 			} else {
-				caretLogger.error(`[CaretProvider] Caret icon file not found: ${iconPath}`)
+				this.caretLogger.error(`[CaretProvider] Caret icon file not found: ${iconPath}`)
 			}
 		} catch (e) {
-			// CARET MODIFICATION: 오류 로깅 추가
-			caretLogger.error(`[CaretProvider] Error loading banner image:`, e)
+			this.caretLogger.error(`[CaretProvider] Error loading banner image:`, e)
 		}
 
-		// CARET MODIFICATION: 페르소나 이미지 로딩 추가
 		let personaProfileDataUri = ""
 		let personaThinkingDataUri = ""
 		try {
@@ -157,87 +185,145 @@ export class CaretProvider extends ClineWebviewProvider {
 			if (fs.existsSync(profilePath)) {
 				const profileBuffer = fs.readFileSync(profilePath)
 				personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
-				caretLogger.debug(`[CaretProvider] Persona profile loaded, size: ${profileBuffer.length} bytes`)
+				this.caretLogger.debug(`[CaretProvider] Persona profile loaded, size: ${profileBuffer.length} bytes`)
 			}
 			
 			if (fs.existsSync(thinkingPath)) {
 				const thinkingBuffer = fs.readFileSync(thinkingPath)
 				personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
-				caretLogger.debug(`[CaretProvider] Persona thinking loaded, size: ${thinkingBuffer.length} bytes`)
+				this.caretLogger.debug(`[CaretProvider] Persona thinking loaded, size: ${thinkingBuffer.length} bytes`)
 			}
 		} catch (e) {
-			caretLogger.debug(`[CaretProvider] No persona images found or error loading:`, e)
+			this.caretLogger.debug(`[CaretProvider] No persona images found or error loading:`, e)
 		}
 
-		// Update the title
-		let updatedHtml = originalHtml.replace(/<title>Cline<\/title>/, `<title>Caret</title>`)
-
-		// Add caret banner and persona images for the UI
-		updatedHtml = updatedHtml.replace(
-			/window\.clineClientId = "[^"]*";/,
-			`window.clineClientId = "\${this.clientId}";
+		let updatedHtml = /*html*/ `
+			<!DOCTYPE html>
+			<html lang="en">
+				<head>
+				<meta charset="utf-8">
+				<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+				<meta name="theme-color" content="#000000">
+				<link rel="stylesheet" type="text/css" href="${stylesUri}">
+				<link href="${codiconsUri}" rel="stylesheet" />
+				<link href="${katexCssUri}" rel="stylesheet" />
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://*.posthog.com https://*.firebaseauth.com https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com; font-src ${webview.cspSource} data:; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} https: data: blob: asset: vscode-resource: *; script-src 'nonce-${nonce}' 'unsafe-eval';">
+				<title>Caret</title>
+			</head>
+			<body>
+				<noscript>You need to enable JavaScript to run this app.</noscript>
+				<div id="root"></div>
+				 <script type="text/javascript" nonce="${nonce}">
+                    window.WEBVIEW_PROVIDER_TYPE = ${JSON.stringify(this.providerType)};
+                    window.clineClientId = "${this.clientId}";
                     window.caretBanner = "${caretBannerDataUri}";
                     window.caretIcon = "${caretIconDataUri}";
                     window.personaProfile = "${personaProfileDataUri}";
-                    window.personaThinking = "${personaThinkingDataUri}";`,
-		)
-
-		// Update Content-Security-Policy to allow data: URLs and asset URLs for persona images
-		updatedHtml = updatedHtml.replace(/content="([^"]*)"/, (match, csp) => {
-			// Only modify the img-src policy
-			const policies = csp.split("; ")
-			const updatedPolicies = policies.map((policy) => {
-				if (policy.startsWith("img-src")) {
-					// CARET MODIFICATION: 이미지 로딩을 위한 CSP 설정 강화
-					const imgSrcValue = `img-src 'self' ${webview.cspSource} https://*.vscode-cdn.net https: data: blob: asset: vscode-resource: *`
-					console.log("[CaretProvider] Setting CSP img-src:", imgSrcValue)
-					return imgSrcValue
-				}
-				return policy
-			})
-			return `content="${updatedPolicies.join("; ")}"`
-		})
-
+                    window.personaThinking = "${personaThinkingDataUri}";
+                </script>
+				<script type="module" nonce="${nonce}" src="${scriptUri}"></script>
+			</body>
+		</html>
+		`
 		return updatedHtml
 	}
 
-	public override async dispose() {
-		caretLogger.info(`Disposing CaretProvider for ${this.providerType} with client ID: ${this.getClientId()}.`)
-		await super.dispose()
+	private getDevServerPort(): Promise<number> {
+		const DEFAULT_PORT = 25463
+		const portFilePath = path.join(this.context.extensionPath, "webview-ui", ".vite-port")
+
+		return fs.promises.readFile(portFilePath, "utf8")
+			.then((portFile) => {
+				const port = parseInt(portFile.trim()) || DEFAULT_PORT
+				this.caretLogger.info(`[getDevServerPort] Using dev server port ${port} from .vite-port file`)
+				return port
+			})
+			.catch((err) => {
+				this.caretLogger.warn(
+					`[getDevServerPort] Port file not found or couldn't be read at ${portFilePath}, using default port: ${DEFAULT_PORT}`,
+				)
+				return DEFAULT_PORT
+			})
 	}
 
-	protected override async getHMRHtmlContent(webview: vscode.Webview): Promise<string> {
-		// Get the original HMR HTML content
-		const originalHtml = await super.getHMRHtmlContent(webview)
+	protected async getHMRHtmlContent(webview: vscode.Webview): Promise<string> {
+		const localPort = await this.getDevServerPort()
+		const localServerUrl = `localhost:${localPort}`
+
+		try {
+			await axios.get(`http://${localServerUrl}`)
+		} catch (error) {
+			vscode.window.showErrorMessage(
+				"Caret: Local webview dev server is not running, HMR will not work. Please run 'npm run dev:webview' before launching the extension to enable HMR. Using bundled assets.",
+			)
+			return this.getHtmlContent(webview)
+		}
+
+		const nonce = getNonce()
+		const stylesUri = getUri(webview, this.context.extensionUri, ["webview-ui", "build", "assets", "index.css"])
+		const codiconsUri = getUri(webview, this.context.extensionUri, [
+			"node_modules",
+			"@vscode",
+			"codicons",
+			"dist",
+			"codicon.css",
+		])
+		const katexCssUri = getUri(webview, this.context.extensionUri, [
+			"webview-ui",
+			"node_modules",
+			"katex",
+			"dist",
+			"katex.min.css",
+		])
+
+		const scriptEntrypoint = "src/main.tsx"
+		const scriptUri = `http://${localServerUrl}/${scriptEntrypoint}`
+
+		const reactRefresh = /*html*/ `
+			<script nonce="${nonce}" type="module">
+				import RefreshRuntime from "http://${localServerUrl}/@react-refresh"
+				RefreshRuntime.injectIntoGlobalHook(window)
+				window.$RefreshReg$ = () => {}
+				window.$RefreshSig$ = () => (type) => type
+				window.__vite_plugin_react_preamble_installed__ = true
+			</script>
+		`
+
+		const csp = [
+			"default-src 'none'",
+			`font-src ${webview.cspSource} data:`,
+			`style-src ${webview.cspSource} 'unsafe-inline' https://* http://${localServerUrl} http://0.0.0.0:${localPort}`,
+			`img-src ${webview.cspSource} https: data: blob: asset: vscode-resource: *`, // CARET MODIFICATION: Added blob: asset: vscode-resource: * for persona images
+			`script-src 'unsafe-eval' https://* http://${localServerUrl} http://0.0.0.0:${localPort} 'nonce-${nonce}' https://data.cline.bot`,
+			`connect-src https://* ws://${localServerUrl} ws://0.0.0.0:${localPort} http://${localServerUrl} http://0.0.0.0:${localPort} https://data.cline.bot`,
+		]
+
 		let caretBannerDataUri = ""
 		let caretIconDataUri = ""
 		try {
 			const bannerPath = path.join(this.context.extensionPath, "caret-assets", "caret-main-banner.webp")
-			// CARET MODIFICATION: 배너 이미지 로딩 디버깅 추가
-			caretLogger.info(`[CaretProvider] HMR - Attempting to load banner from: ${bannerPath}`)
+			this.caretLogger.info(`[CaretProvider] HMR - Attempting to load banner from: ${bannerPath}`)
 			if (fs.existsSync(bannerPath)) {
 				const fileBuffer = fs.readFileSync(bannerPath)
 				caretBannerDataUri = `data:image/webp;base64,${fileBuffer.toString("base64")}`
-				caretLogger.info(`[CaretProvider] HMR - Banner loaded successfully, size: ${fileBuffer.length} bytes`)
+				this.caretLogger.info(`[CaretProvider] HMR - Banner loaded successfully, size: ${fileBuffer.length} bytes`)
 			} else {
-				caretLogger.error(`[CaretProvider] HMR - Banner file not found: ${bannerPath}`)
+				this.caretLogger.error(`[CaretProvider] HMR - Banner file not found: ${bannerPath}`)
 			}
 
 			const iconPath = path.join(this.context.extensionPath, "caret-assets", "icons", "icon.png")
-			caretLogger.info(`[CaretProvider] HMR - Attempting to load caret icon from: ${iconPath}`)
+			this.caretLogger.info(`[CaretProvider] HMR - Attempting to load caret icon from: ${iconPath}`)
 			if (fs.existsSync(iconPath)) {
 				const iconBuffer = fs.readFileSync(iconPath)
 				caretIconDataUri = `data:image/png;base64,${iconBuffer.toString("base64")}`
-				caretLogger.info(`[CaretProvider] HMR - Caret icon loaded successfully, size: ${iconBuffer.length} bytes`)
+				this.caretLogger.info(`[CaretProvider] HMR - Caret icon loaded successfully, size: ${iconBuffer.length} bytes`)
 			} else {
-				caretLogger.error(`[CaretProvider] HMR - Caret icon file not found: ${iconPath}`)
+				this.caretLogger.error(`[CaretProvider] HMR - Caret icon file not found: ${iconPath}`)
 			}
 		} catch (e) {
-			// CARET MODIFICATION: 오류 로깅 추가
-			caretLogger.error(`[CaretProvider] HMR - Error loading banner image:`, e)
+			this.caretLogger.error(`[CaretProvider] HMR - Error loading banner image:`, e)
 		}
 
-		// CARET MODIFICATION: 페르소나 이미지 로딩 추가 (HMR 모드)
 		let personaProfileDataUri = ""
 		let personaThinkingDataUri = ""
 		try {
@@ -248,44 +334,206 @@ export class CaretProvider extends ClineWebviewProvider {
 			if (fs.existsSync(profilePath)) {
 				const profileBuffer = fs.readFileSync(profilePath)
 				personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
-				caretLogger.debug(`[CaretProvider] HMR - Persona profile loaded, size: ${profileBuffer.length} bytes`)
+				this.caretLogger.debug(`[CaretProvider] HMR - Persona profile loaded, size: ${profileBuffer.length} bytes`)
 			}
 			
 			if (fs.existsSync(thinkingPath)) {
 				const thinkingBuffer = fs.readFileSync(thinkingPath)
 				personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
-				caretLogger.debug(`[CaretProvider] HMR - Persona thinking loaded, size: ${thinkingBuffer.length} bytes`)
+				this.caretLogger.debug(`[CaretProvider] HMR - Persona thinking loaded, size: ${thinkingBuffer.length} bytes`)
 			}
 		} catch (e) {
-			caretLogger.debug(`[CaretProvider] HMR - No persona images found or error loading:`, e)
+			this.caretLogger.debug(`[CaretProvider] HMR - No persona images found or error loading:`, e)
 		}
 
-		// Update the title
-		let updatedHtml = originalHtml.replace(/<title>Cline<\/title>/, `<title>Caret</title>`)
-
-		// Add caret banner and persona images for the UI
-		updatedHtml = updatedHtml.replace(
-			/window\.clineClientId = "[^"]*";/,
-			`window.clineClientId = "\${this.clientId}";
+		return /*html*/ `
+			<!DOCTYPE html>
+			<html lang="en">
+				<head>
+					<script src="http://localhost:8097"></script> 
+					<meta charset="utf-8">
+					<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+					<meta http-equiv="Content-Security-Policy" content="${csp.join("; ")}">
+					<link rel="stylesheet" type="text/css" href="${stylesUri}">
+					<link href="${codiconsUri}" rel="stylesheet" />
+					<link href="${katexCssUri}" rel="stylesheet" />
+					<title>Caret</title>
+				</head>
+				<body>
+					<div id="root"></div>
+					<script type="text/javascript" nonce="${nonce}">
+						window.WEBVIEW_PROVIDER_TYPE = ${JSON.stringify(this.providerType)};
+						window.clineClientId = "${this.clientId}";
 						window.caretBanner = "${caretBannerDataUri}";
 						window.caretIcon = "${caretIconDataUri}";
 						window.personaProfile = "${personaProfileDataUri}";
-						window.personaThinking = "${personaThinkingDataUri}";`,
-		)
+						window.personaThinking = "${personaThinkingDataUri}";
+					</script>
+					${reactRefresh}
+					<script type="module" src="${scriptUri}"></script>
+				</body>
+			</html>
+		`
+	}
 
-		// Update Content-Security-Policy for HMR mode to allow data: URLs and asset URLs
-		const cspRegex = /const csp = \[(.*?)\]/s // Use 's' flag for multiline matching
-		if (cspRegex.test(updatedHtml)) {
-			updatedHtml = updatedHtml.replace(cspRegex, (match, cspContent) => {
-				// Find and replace the img-src line
-				const updatedCspContent = cspContent.replace(
-					/`img-src [^`]+`/,
-					`\`img-src 'self' \${webview.cspSource} https://*.vscode-cdn.net https: data: blob: asset: vscode-resource:\``,
-				)
-				return `const csp = [${updatedCspContent}]`
-			})
+	private setWebviewMessageListener(webview: vscode.Webview) {
+		webview.onDidReceiveMessage(
+			(message) => {
+				this.controller.handleWebviewMessage(message)
+			},
+			null,
+			this.disposables,
+		)
+	}
+
+	public async dispose() {
+		this.caretLogger.info(`Disposing CaretProvider for ${this.providerType} with client ID: ${this.getClientId()}.`)
+		while (this.disposables.length) {
+			const x = this.disposables.pop()
+			if (x) {
+				x.dispose()
+			}
+		}
+		await this.controller.dispose()
+	}
+
+	/**
+	 * Loads environment variables from .env.dev or .env.prod based on extension mode.
+	 * @returns A promise that resolves to an object containing environment variables.
+	 */
+	// CARET MODIFICATION: Changed to protected for testing purposes, following forTest_ prefix rule.
+	protected async forTest_loadEnvironmentVariables(): Promise<Record<string, string>> {
+		const envFileName = this.context.extensionMode === vscode.ExtensionMode.Development ? ".env.dev" : ".env.prod";
+		const envFilePath = path.join(this.context.extensionPath, "webview-ui", envFileName);
+		
+		this.caretLogger.info(`Attempting to load environment variables from: ${envFilePath}`, "ENV_LOAD");
+
+		try {
+			const fileContent = await fs.promises.readFile(envFilePath, "utf8");
+			const envVars: Record<string, string> = {};
+			fileContent.split('\n').forEach(line => {
+				const trimmedLine = line.trim();
+				if (trimmedLine && !trimmedLine.startsWith('#')) {
+					const [key, value] = trimmedLine.split('=');
+					if (key && value) {
+						envVars[key.trim()] = value.trim();
+					}
+				}
+			});
+			this.caretLogger.info(`Successfully loaded environment variables from ${envFileName}`, "ENV_LOAD");
+			return envVars;
+		} catch (error) {
+			this.caretLogger.error(`Failed to load environment variables from ${envFileName}: ${error}`, "ENV_LOAD");
+			return {}; // Return empty object on error
+		}
+	}
+
+	// CARET MODIFICATION: Add login method for Auth0 authentication
+	public async login(): Promise<void> {
+		this.caretLogger.info("Initiating login process...", "AUTH");
+		try {
+			await this.initializeAuth0Client(); // CARET MODIFICATION: Ensure client is initialized
+			const authorizeUrl = await this.generateLoginUrl(); // CARET MODIFICATION: Use new method to get URL
+
+			this.caretLogger.info(`Opening browser for authentication: ${authorizeUrl}`, "AUTH");
+			await vscode.env.openExternal(vscode.Uri.parse(authorizeUrl));
+			this.caretLogger.info("Browser opened for authentication.", "AUTH");
+
+		} catch (error) {
+			this.caretLogger.error(`Login process failed: ${error}`, "AUTH");
+			this.handleAuthError(error); // CARET MODIFICATION: Use new error handling method
+		}
+	}
+
+	// CARET MODIFICATION: Public method to initialize Auth0 client
+	private async initializeAuth0Client(): Promise<void> {
+		await this.forTest_initializeAuth0Client();
+	}
+
+	// CARET MODIFICATION: Initializes the Auth0 client for testing purposes, following forTest_ prefix rule.
+	protected async forTest_initializeAuth0Client(): Promise<void> {
+		if (this.auth0Client) {
+			this.caretLogger.info("Auth0 client already initialized.", "AUTH");
+			return;
 		}
 
-		return updatedHtml
+		const envVars = await this.forTest_loadEnvironmentVariables();
+		const auth0Domain = envVars.AUTH0_DOMAIN;
+		const auth0ClientId = envVars.AUTH0_CLIENT_ID;
+		const auth0CallbackUrl = envVars.AUTH0_CALLBACK_URL;
+
+		if (!auth0Domain || !auth0ClientId || !auth0CallbackUrl) {
+			this.caretLogger.error("Missing Auth0 environment variables for client initialization.", "AUTH");
+			throw new Error("Auth0 configuration incomplete.");
+		}
+
+		this.auth0Client = new Auth0Client({
+			domain: auth0Domain,
+			clientId: auth0ClientId,
+			authorizationParams: {
+				redirect_uri: auth0CallbackUrl,
+				audience: "", // Optional: specify API audience
+				scope: "openid profile email",
+			},
+			useRefreshTokens: true,
+			cacheLocation: "localstorage", // Or 'memory' depending on requirements
+		});
+		this.caretLogger.info("Auth0 client initialized successfully.", "AUTH");
+	}
+
+	// CARET MODIFICATION: Generates the login URL using Auth0 SPA JS approach
+	public async generateLoginUrl(): Promise<string> {
+		await this.initializeAuth0Client();
+		if (!this.auth0Client) {
+			throw new Error("Auth0 client not initialized.");
+		}
+		
+		// CARET MODIFICATION: Use Auth0 SPA JS approach to build authorize URL
+		const envVars = await this.forTest_loadEnvironmentVariables();
+		const auth0Domain = envVars.AUTH0_DOMAIN;
+		const auth0ClientId = envVars.AUTH0_CLIENT_ID;
+		const auth0CallbackUrl = envVars.AUTH0_CALLBACK_URL;
+		
+		const state = uuidv4();
+		const nonce = uuidv4();
+		
+		const authorizeUrl = `https://${auth0Domain}/authorize?` +
+			`client_id=${encodeURIComponent(auth0ClientId)}&` +
+			`response_type=code&` +
+			`redirect_uri=${encodeURIComponent(auth0CallbackUrl)}&` +
+			`scope=${encodeURIComponent("openid profile email").replace(/%20/g, '+')}&` +
+			`audience=${encodeURIComponent("")}&` +
+			`state=${encodeURIComponent(state)}&` +
+			`nonce=${encodeURIComponent(nonce)}`;
+		
+		this.caretLogger.info(`Generated login URL: ${authorizeUrl}`, "AUTH");
+		return authorizeUrl;
+	}
+
+	// CARET MODIFICATION: Handles the authentication callback
+	public async handleAuthCallback(url: string): Promise<void> {
+		this.caretLogger.info(`Handling authentication callback for URL: ${url}`, "AUTH");
+		await this.initializeAuth0Client();
+		if (!this.auth0Client) {
+			throw new Error("Auth0 client not initialized.");
+		}
+		try {
+			// CARET MODIFICATION: Use Auth0 SPA JS approach - handle redirect callback
+			await this.auth0Client.handleRedirectCallback(url);
+			this.caretLogger.info("Authentication callback processed successfully.", "AUTH");
+			const user = await this.auth0Client.getUser();
+			this.caretLogger.info(`Logged in user: ${user?.email}`, "AUTH");
+			vscode.window.showInformationMessage(`Caret: Logged in as ${user?.email}`);
+			// TODO: Save user session/tokens securely
+		} catch (error) {
+			this.caretLogger.error(`Error processing authentication callback: ${error}`, "AUTH");
+			this.handleAuthError(error);
+		}
+	}
+
+	// CARET MODIFICATION: Handles authentication errors gracefully
+	public handleAuthError(error: any): void {
+		this.caretLogger.error(`Authentication error: ${error}`, "AUTH");
+		vscode.window.showErrorMessage(`Caret: Authentication failed. ${error?.message || error}`);
 	}
 }

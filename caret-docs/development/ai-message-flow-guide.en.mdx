@@ -1,25 +1,25 @@
-# AI Message Flow Guide
+# AI Message Sending and Receiving Flow Guide
 
-**Date**: 2025-01-28
-**Author**: Alpha
-**Audience**: Caret Developers
+**Date**: 2025-01-28  
+**Author**: Alpha  
+**Target**: Caret Developers  
 
 ## 📋 **Overview**
 
-This document details the entire process of how users send messages to the AI and receive responses in Caret. It covers the complete flow from Frontend → Backend → AI API → Backend → Frontend.
+This document describes in detail the entire process of how users send messages to AI and receive responses in Caret. It covers the complete flow from Frontend → Backend → AI API → Backend → Frontend.
 
 ## 🎯 **Key Learning Objectives**
 
 - Understand the overall architecture of AI message sending and receiving
 - Identify the role and responsibilities of each layer
-- Improve ability to pinpoint issues during debugging
+- Improve ability to identify problem points during debugging
 - Understand necessary modifications when adding new AI modes
 
 ---
 
 ## 🏗️ **Overall Architecture Overview**
 
-### **System Structure Diagram**
+### **System Architecture Diagram**
 
 ```mermaid
 graph TB
@@ -73,7 +73,7 @@ sequenceDiagram
     participant AI as 🤖 AI API
     participant ChatRow as 🖼️ ChatRow
     
-    Note over User, ChatRow: 📤 Step 1: User Message Transmission
+    Note over User, ChatRow: 📤 Step 1: User Message Sending
     User->>ChatView: Input & Send Message
     ChatView->>TaskClient: handleSendMessage()
     TaskClient->>WebviewProvider: postMessage({type: "newTask"})
@@ -87,16 +87,16 @@ sequenceDiagram
     Note over User, ChatRow: 🤖 Step 3: AI Response Processing
     AI-->>Task: Streaming Response (including tool use)
     Task->>Task: presentAssistantMessage()
-    Task->>Task: Detect chatbot_mode_respond
+    Task->>Task: detect chatbot_mode_respond
     Task->>Task: ask("chatbot_mode_respond", response)
     
-    Note over User, ChatRow: 📡 Step 4: State Transmission
+    Note over User, ChatRow: 📡 Step 4: State Transfer
     Task->>WebviewProvider: postStateToWebview()
     WebviewProvider->>ChatView: postMessage({type: "state"})
     ChatView->>ChatView: setClineMessages()
     
     Note over User, ChatRow: 🎨 Step 5: UI Update
-    ChatView->>ChatView: useEffect - Detect Message Change
+    ChatView->>ChatView: useEffect - Detect message change
     ChatView->>ChatView: setClineAsk("chatbot_mode_respond")
     ChatView->>ChatRow: Render Message
     ChatRow->>ChatRow: renderAskMessage()
@@ -116,20 +116,20 @@ sequenceDiagram
 stateDiagram-v2
     [*] --> Idle: Initial State
     
-    Idle --> Sending: User Message Input
-    Sending --> Processing: Backend Processing Starts
-    Processing --> Streaming: AI API Call
-    Streaming --> ToolDetected: Tool Use Detected
+    Idle --> Sending: User message input
+    Sending --> Processing: Backend processing starts
+    Processing --> Streaming: AI API call
+    Streaming --> ToolDetected: Tool use detected
     
-    ToolDetected --> AskWaiting: ask() Call
-    AskWaiting --> UIUpdated: WebView State Update
-    UIUpdated --> UserInput: Waiting for User Response
+    ToolDetected --> AskWaiting: ask() called
+    AskWaiting --> UIUpdated: WebView state updated
+    UIUpdated --> UserInput: Waiting for user response
     
-    UserInput --> ResponseReceived: User Feedback
-    ResponseReceived --> Processing: Start Next Processing
+    UserInput --> ResponseReceived: User feedback
+    ResponseReceived --> Processing: Next processing starts
     
-    Processing --> Completed: Task Completed
-    Completed --> Idle: Return to Idle State
+    Processing --> Completed: Task completed
+    Completed --> Idle: Return to idle state
     
     note right of AskWaiting
         clineAsk = "chatbot_mode_respond"
@@ -140,20 +140,20 @@ stateDiagram-v2
     note right of UIUpdated
         Render response in ChatRow
         Display option buttons
-        Markdown processing
+        Process markdown
     end note
 ```
 
 ---
 
-## 📤 **Step 1: User Message Transmission (Frontend → Backend)**
+## 📤 **Step 1: User Message Sending (Frontend → Backend)**
 
 ### **1.1 User Input Processing**
 
 **File**: `webview-ui/src/components/chat/ChatView.tsx`
 
 ```typescript
-// When user inputs message and clicks send button
+// User inputs message and clicks send button
 const handleSendMessage = useCallback(
     async (text: string, images: string[], files: string[]) => {
         if (messages.length === 0) {
@@ -211,7 +211,7 @@ export class TaskServiceClient {
 **File**: `src/core/webview/index.ts`
 
 ```typescript
-// Extension receives WebView messages and forwards to Task
+// Extension receives WebView messages and passes them to Task
 case "newTask":
     const newTaskRequest = NewTaskRequest.fromBinary(message.request)
     await task.startTask(
@@ -275,7 +275,7 @@ async generateFromJsonSections(
     // 1. Load base sections (including tool definitions)
     const baseSections = await this.assembler.loadBaseSections(mode)
     
-    // 2. Generate dynamic sections (MCP, system information)
+    // 2. Generate dynamic sections (MCP, system info)
     const dynamicSections = await this.assembler.generateDynamicSections(cwd, mcpHub)
     
     // 3. Add conditional sections (browser, Claude4)
@@ -293,14 +293,14 @@ async generateFromJsonSections(
 **File**: `caret-src/core/prompts/JsonSectionAssembler.ts`
 
 ```typescript
-// Chatbot mode: Allow read-only tools + chatbot_mode_respond only
+// Chatbot mode: allow read-only tools + chatbot_mode_respond only
 if (mode === "chatbot") {
     const readOnlyTools = [
         "read_file", 
         "search_files", 
         "list_files", 
         "list_code_definition_names", 
-        "chatbot_mode_respond"  // 🔑 Key: Include response tool
+        "chatbot_mode_respond"  // 🔑 Key: include response tool
     ]
     if (!readOnlyTools.includes(toolName)) {
         continue // Exclude other tools
@@ -315,7 +315,7 @@ if (mode === "chatbot") {
 ```typescript
 // Actual AI API call in recursivelyMakeClineRequests()
 async *attemptApiRequest(previousApiReqIndex: number): ApiStream {
-    // 1. Construct system prompt + conversation history
+    // 1. Compose system prompt + conversation history
     const systemPrompt = await this.generateSystemPrompt()
     const messages = [
         { role: "system", content: systemPrompt },
@@ -405,7 +405,7 @@ async ask(
 
 ---
 
-## 📡 **Step 4: Backend → Frontend State Transmission**
+## 📡 **Step 4: Backend → Frontend State Transfer**
 
 ### **4.1 State Update**
 
@@ -440,7 +440,7 @@ useEffect(() => {
         
         switch (message.type) {
             case "state":
-                // Update state
+                // State update
                 setClineMessages(message.state.clineMessages)
                 setTaskHistory(message.state.taskHistory)
                 break
@@ -469,8 +469,8 @@ useEffect(() => {
         switch (lastMessage.ask) {
             case "chatbot_mode_respond":
                 setSendingDisabled(isPartial)        // Send button state
-                setClineAsk("chatbot_mode_respond")   // Set Ask type
-                setEnableButtons(false)               // Button enabled state
+                setClineAsk("chatbot_mode_respond")   // Ask type setting
+                setEnableButtons(false)               // Button active state
                 break
         }
     }
@@ -497,7 +497,7 @@ function renderAskMessage(message: ClineMessage) {
                 options = parsedMessage.options
                 selected = parsedMessage.selected
             } catch (e) {
-                response = message.text // Handle legacy message
+                response = message.text // Handle legacy messages
             }
             
             // Markdown rendering + option buttons
@@ -520,9 +520,9 @@ function renderAskMessage(message: ClineMessage) {
 
 ## 🔄 **Step 6: User Response Processing (Frontend → Backend)**
 
-### **6.1 User Input Transmission**
+### **6.1 User Input Transfer**
 
-When the user inputs feedback for the AI response, it is sent back to the Backend through the same process as **Step 1**:
+When the user inputs feedback on the AI response, it is sent back to the Backend following the same process as **Step 1**:
 
 ```typescript
 // ChatView.tsx - handleSendMessage()
@@ -561,27 +561,27 @@ async handleWebviewAskResponse(askResponse: ClineAskResponse, text?: string, ima
 
 ## 🚨 **Key Debugging Points**
 
-### **Things to Check When Issues Occur**
+### **Things to check when issues occur**
 
-1.  **If AI does not respond**:
-    - Is the tool included in the system prompt? (`JsonSectionAssembler.ts`)
-    - Is the tool processing case implemented in the Backend? (`Task.ts`)
+1. **If AI does not respond**:
+   - Is the tool included in the system prompt? (`JsonSectionAssembler.ts`)
+   - Is the tool handling case implemented in the Backend? (`Task.ts`)
 
-2.  **If response is not displayed in UI**:
-    - Is the corresponding Ask type case implemented in ChatRow? (`ChatRow.tsx`)
-    - Is state management correct in ChatView? (`ChatView.tsx`)
+2. **If response is not displayed in UI**:
+   - Is the corresponding Ask type case implemented in ChatRow? (`ChatRow.tsx`)
+   - Is state management correct in ChatView? (`ChatView.tsx`)
 
-3.  **If an infinite loop occurs**:
-    - Is the `didAlreadyUseTool` flag set in the Backend?
-    - Is the loop termination condition correct in `recursivelyMakeClineRequests()`?
+3. **If an infinite loop occurs**:
+   - Is the `didAlreadyUseTool` flag set in the Backend?
+   - Is the loop termination condition correct in `recursivelyMakeClineRequests()`?
 
-### **How to Check Logs**
+### **How to check logs**
 
 ```typescript
 // Backend Logging
 Logger.info(`[CHATBOT-MODE] Processing tool: ${block.name}`)
 
-// Frontend Logging
+// Frontend Logging  
 console.log("[ChatView] handleSendMessage - Sending message:", messageToSend)
 ```
 
@@ -596,5 +596,5 @@ console.log("[ChatView] handleSendMessage - Sending message:", messageToSend)
 
 ---
 
-**Last Update**: 2025-01-28
-**Reviewer**: Luke Yang
+**Last Updated**: 2025-01-28  
+**Reviewer**: Luke Yang 

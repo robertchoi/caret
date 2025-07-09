@@ -2,7 +2,7 @@
 
 ## 📋 **Overview**
 
-This document defines the architectural principles to be adhered to when developing UI components in the Caret project. These principles have been established to effectively implement Caret's unique features while maintaining compatibility with the original Cline code.
+This document defines the architectural principles to be adhered to when developing UI components in the Caret project. These principles are established to effectively implement Caret's unique features while maintaining compatibility with the original Cline code.
 
 ## 🎯 **Core Principles**
 
@@ -11,7 +11,7 @@ This document defines the architectural principles to be adhered to when develop
 **Principle**: Maintain the structure and patterns of the original Cline components as much as possible.
 
 ```typescript
-// ❌ Incorrect Example: Hardcoded structure
+// ❌ Bad example: Hardcoded structure
 const CaretWelcome = () => {
   return (
     <div style={{ padding: "20px", border: "1px solid red" }}>
@@ -21,7 +21,7 @@ const CaretWelcome = () => {
   )
 }
 
-// ✅ Correct Example: Structure Preservation
+// ✅ Correct example: Preserving original structure
 const CaretWelcome = () => {
   const renderSection = (headerKey: string, bodyKey: string, buttonConfig?: ButtonConfig) => (
     <div style={{
@@ -50,10 +50,10 @@ const CaretWelcome = () => {
 
 ### **2. Component Separation**
 
-**Principle**: Create clearly separated components by functionality.
+**Principle**: Create clearly separated components based on functionality.
 
 ```typescript
-// ✅ Component Separation Example
+// ✅ Component separation example
 // components/caret/CaretWelcomeSection.tsx
 interface CaretWelcomeSectionProps {
   headerKey: string
@@ -96,7 +96,7 @@ const CaretApiSetup: React.FC<CaretApiSetupProps> = ({ onConfigSave }) => {
 **Principle**: Follow the state management patterns of the original Cline.
 
 ```typescript
-// ✅ Correct State Management
+// ✅ Correct state management
 const CaretWelcome = () => {
   const { apiConfiguration, caretBanner } = useExtensionState()
   const [showApiOptions, setShowApiOptions] = useState(false)
@@ -121,7 +121,7 @@ const CaretWelcome = () => {
 **Principle**: Use VSCode theme variables and maintain consistent styling patterns.
 
 ```typescript
-// ✅ Correct Styling
+// ✅ Correct styling
 const sectionStyle = {
 	marginBottom: "25px",
 	padding: "20px",
@@ -141,12 +141,12 @@ const CARET_THEME = {
 }
 ```
 
-### **5. i18n Integration**
+### **5. i18n Integration (Internationalization Integration)**
 
-**Principle**: All text is managed through the i18n system.
+**Principle**: All text should be managed through the i18n system.
 
 ```typescript
-// ✅ Correct i18n Usage
+// ✅ Correct i18n usage
 const CaretWelcomeHeader = () => {
   return (
     <div className="caret-welcome-header">
@@ -169,17 +169,17 @@ const CaretWelcomeHeader = () => {
 ```
 webview-ui/src/caret/
 ├── components/
-│   ├── CaretWelcome.tsx         # Main Welcome Component
-│   ├── CaretWelcomeSection.tsx  # Reusable Section
-│   ├── CaretApiSetup.tsx        # API Configuration Specific Component
-│   ├── CaretButton.tsx          # Common Button Component
-│   └── CaretFooter.tsx          # Footer Component
+│   ├── CaretWelcome.tsx         # Main welcome component
+│   ├── CaretWelcomeSection.tsx  # Reusable section
+│   ├── CaretApiSetup.tsx        # API setup component
+│   ├── CaretButton.tsx          # Common button component
+│   └── CaretFooter.tsx          # Footer component
 ├── hooks/
-│   └── useCaretWelcome.ts       # Welcome-related Logic Hook
+│   └── useCaretWelcome.ts       # Welcome-related logic hook
 ├── utils/
-│   └── welcomeHelpers.ts        # Helper Functions
+│   └── welcomeHelpers.ts        # Helper functions
 └── styles/
-    └── CaretWelcome.css         # Style Definitions
+    └── CaretWelcome.css         # Style definitions
 ```
 
 ### **Property Interface Design**
@@ -210,7 +210,7 @@ interface CaretSectionProps {
 ### **❌ Hardcoded Structure**
 
 ```typescript
-// Patterns to avoid
+// Pattern to avoid
 const BadComponent = () => (
   <div style={{ padding: "20px", border: "1px solid red" }}>
     <h2>Hardcoded Title</h2>
@@ -223,7 +223,7 @@ const BadComponent = () => (
 ### **❌ Excessive Inline Styles**
 
 ```typescript
-// Patterns to avoid
+// Pattern to avoid
 const BadStyling = () => (
   <div style={{
     backgroundColor: "#1e1e1e",
@@ -239,7 +239,7 @@ const BadStyling = () => (
 ### **❌ Untranslated Text**
 
 ```typescript
-// Patterns to avoid
+// Pattern to avoid
 const BadI18n = () => (
   <div>
     <h2>Caret Settings</h2>
@@ -247,23 +247,3 @@ const BadI18n = () => (
   </div>
 )
 ```
-
-## 📋 **Checklist**
-
-When developing new components, check the following:
-
--   [ ] Analysis of original Cline component structure completed
--   [ ] Component separation design by functionality completed
--   [ ] Use of VSCode theme variables
--   [ ] All text applied with i18n
--   [ ] Consistency in state management patterns ensured
--   [ ] Reusable component design
--   [ ] TypeScript interface definitions
--   [ ] Test code written
--   [ ] Documentation completed
-
-## 🔗 **Related Documents**
-
--   [Caret Architecture Guide](./caret-architecture-and-implementation-guide.en.mdx)
--   [Test Writing Guide](./test-writing-standards.en.mdx)
--   [i18n Development Guide](./locale.en.mdx)

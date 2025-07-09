@@ -210,6 +210,110 @@ Caret 프로젝트는 다음 TDD 원칙을 준수합니다:
 
 자세한 테스트 가이드는 **[테스트 가이드](./caret-docs/development/testing-guide.mdx)**를 참조하세요.
 
+## 🔄 개발 워크플로우
+
+### 1. 새 기능 개발 (권장 프로세스)
+
+#### 백엔드 확장 패턴
+```typescript
+// caret-src/core/feature/NewFeature.ts
+import { WebviewProvider } from "../../../src/core/webview/WebviewProvider"
+
+export class NewFeature extends WebviewProvider {
+	// Cline 기능 확장
+	override async handleRequest(request: any) {
+		// Caret 고유 로직
+		const caretResult = await this.processCaretSpecific(request)
+
+		// Cline 기본 처리와 결합
+		const baseResult = await super.handleRequest(request)
+
+		return { ...baseResult, ...caretResult }
+	}
+}
+```
+
+#### 프론트엔드 확장 패턴
+```typescript
+// webview-ui/src/caret/components/NewComponent.tsx
+import React from 'react'
+import { useExtensionState } from '../../context/ExtensionStateContext'
+
+export const NewComponent: React.FC = () => {
+	const { state } = useExtensionState()
+	
+	// Caret 전용 UI 로직
+	return <div>새로운 기능</div>
+}
+```
+
+### 2. 개발 단계별 검증
+
+1. **Phase 0**: 아키텍처 검토 및 문서 확인
+2. **Phase 1**: TDD RED - 실패하는 테스트 작성
+3. **Phase 2**: TDD GREEN - 최소 구현
+4. **Phase 3**: TDD REFACTOR - 코드 품질 개선
+
+### 3. 빌드 명령어 상세
+
+```bash
+# 📦 Protocol Buffer 컴파일 (gRPC 통신용)
+npm run protos
+
+# 🔧 TypeScript 컴파일 (전체 검증 포함)
+npm run compile
+
+# ⚡ 빠른 컴파일 (개발 중 빠른 빌드용)
+npm run compile:fast
+
+# 🌐 Webview UI 빌드 (프론트엔드)
+cd webview-ui && npm run build && cd ..
+
+# 📱 VSIX 패키지 생성
+npm run package
+
+# 🚀 VSIX 릴리즈 패키지 생성 (타임스탬프 포함)
+npm run package:release
+
+# 👀 개발용 watch 모드
+npm run watch
+```
+
+#### 빌드 최적화 팁
+- **`npm run compile`**: 완전한 빌드 (타입 체크 + 린팅 + 컴파일) - PR 제출 전 사용
+- **`npm run compile:fast`**: 빠른 빌드 (컴파일만) - 개발 중 반복 사용
+- **Protocol Buffer**: MCP 서버 통신을 위한 protobuf 컴파일 자동화
+- **esbuild**: 빠른 TypeScript 번들링으로 개발 속도 향상
+
+## 📚 상세 개발 가이드
+
+### 🏗️ 아키텍처 & 설계 가이드
+- **[Caret 아키텍처 가이드](./caret-docs/development/caret-architecture-and-implementation-guide.mdx)** - Fork 구조, 확장 전략, 설계 원칙
+- **[개발 가이드 개요](./caret-docs/development/index.mdx)** - 전체 개발 가이드 네비게이션
+- **[AI 작업 방법론](./caret-docs/guides/ai-work-method-guide.mdx)** - TDD, 아키텍처 검토, Phase 기반 작업
+
+### 🔄 Frontend-Backend 통신 가이드
+- **[상호작용 패턴](./caret-docs/development/frontend-backend-interaction-patterns.mdx)** - 순환 메시지 방지, Optimistic Update 패턴
+- **[Webview 통신](./caret-docs/development/webview-extension-communication.mdx)** - 메시지 타입, 상태 관리, 통신 구조
+
+### 🎨 UI/UX 개발 가이드
+- **[컴포넌트 아키텍처](./caret-docs/development/component-architecture-principles.mdx)** - React 컴포넌트 설계 원칙
+- **[i18n 시스템](./caret-docs/development/backend-i18n-system.mdx)** - 다국어 지원 구현 가이드
+
+### 🔧 개발 도구 & 유틸리티
+- **[로깅 시스템](./caret-docs/development/logging.mdx)** - 통합 로깅, 디버깅, 개발/프로덕션 모드
+- **[문서화 가이드](./caret-docs/development/documentation-guide.mdx)** - MDX 형식, 문서 작성 표준
+
+### 🎯 개발 시작 추천 순서
+
+1. **아키텍처 이해**: [Caret 아키텍처 가이드](./caret-docs/development/caret-architecture-and-implementation-guide.mdx)
+2. **개발 방법론**: [AI 작업 방법론](./caret-docs/guides/ai-work-method-guide.mdx)
+3. **테스트 전략**: [테스트 가이드](./caret-docs/development/testing-guide.mdx)
+4. **통신 패턴**: [상호작용 패턴](./caret-docs/development/frontend-backend-interaction-patterns.mdx)
+5. **UI 컴포넌트**: [컴포넌트 아키텍처](./caret-docs/development/component-architecture-principles.mdx)
+
+💡 **개발 시작 전 필독**: [AI 작업 방법론 가이드](./caret-docs/guides/ai-work-method-guide.mdx)에서 TDD 기반 개발 프로세스와 아키텍처 원칙을 먼저 숙지하시기 바랍니다.
+
 ## 🔬 특허 기술
 
 ### 핵심 기술

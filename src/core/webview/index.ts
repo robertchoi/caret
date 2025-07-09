@@ -1,6 +1,3 @@
-// CARET MODIFICATION: Changed several private members to protected to allow for proper subclassing by CaretProvider.
-// Original backed up to: src/core/webview/index-ts.cline
-// Purpose: Enable extension of WebviewProvider without re-implementing the entire class, adhering to DRY principles.
 import axios from "axios"
 import * as vscode from "vscode"
 import { getNonce } from "./getNonce"
@@ -25,7 +22,7 @@ export class WebviewProvider implements vscode.WebviewViewProvider {
 	private static activeInstances: Set<WebviewProvider> = new Set()
 	private static clientIdMap = new Map<WebviewProvider, string>()
 	public view?: vscode.WebviewView | vscode.WebviewPanel
-	protected disposables: vscode.Disposable[] = []
+	private disposables: vscode.Disposable[] = []
 	controller: Controller
 	private clientId: string
 

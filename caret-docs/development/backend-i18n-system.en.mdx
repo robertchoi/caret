@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes a simple template-based internationalization system used in the Caret backend. It translates system messages generated in the backend into the appropriate language according to the user's language settings.
+This document describes the simple template-based multilingual system used in the Caret backend. It translates system messages generated in the backend into appropriate languages according to the user's language settings.
 
 ## Structure
 
@@ -10,7 +10,7 @@ This document describes a simple template-based internationalization system used
 - **Location**: `caret-src/utils/backend-i18n.ts`
 - **Functionality**: Template-based message translation and parameter substitution
 
-### 2. Key Function
+### 2. Key Functions
 
 #### `backendT(key: string, chatSettings: ChatSettings, params?: Record<string, string>): string`
 
@@ -27,13 +27,13 @@ const errorMessage = backendT("task.retryWithoutParam", this.chatSettings, {
 **Parameters:**
 - `key`: Translation key (e.g., "task.retryWithoutParam")
 - `chatSettings`: Current chat settings (including language information)
-- `params`: Parameter object for template substitution (optional)
+- `params`: Optional parameter object for template substitution
 
 ## Supported Languages
 
 - **English (en)**: Default language
 - **Korean (ko)**: Korean
-- **Japanese (ja)**: Japanese
+- **Japanese (ja)**: Japanese  
 - **Chinese (zh)**: Chinese
 
 ## Message Definitions
@@ -43,12 +43,12 @@ const errorMessage = backendT("task.retryWithoutParam", this.chatSettings, {
 #### `task.retryWithoutParam`
 Error message displayed when a required parameter is missing during tool use.
 
-**Template Variables:**
+**Template variables:**
 - `{toolName}`: Name of the tool attempted to use
-- `{pathInfo}`: Path information (if available)
+- `{pathInfo}`: Path information (if any)
 - `{paramName}`: Name of the missing parameter
 
-**Translation Example:**
+**Translation example:**
 ```typescript
 {
     "task.retryWithoutParam": {
@@ -62,9 +62,9 @@ Error message displayed when a required parameter is missing during tool use.
 
 ## Usage
 
-### 1. Adding New Messages
+### 1. Add New Message
 
-Add new keys and translations to the `messages` object in `caret-src/utils/backend-i18n.ts`:
+Add new key and translation to the `messages` object in `caret-src/utils/backend-i18n.ts`:
 
 ```typescript
 const messages: BackendMessages = {
@@ -78,7 +78,7 @@ const messages: BackendMessages = {
 }
 ```
 
-### 2. Using in Backend
+### 2. Use in Backend
 
 ```typescript
 // 1. Add import
@@ -86,7 +86,7 @@ const { backendT } = await import("../../../caret-src/utils/backend-i18n")
 
 // 2. Translate message
 const translatedMessage = backendT("new.key", this.chatSettings, {
-    param: "actual_value"
+    param: "actualValue"
 })
 
 // 3. Use
@@ -96,10 +96,10 @@ await this.say("error", translatedMessage)
 ## Template System
 
 ### Substitution Rules
-- Template variables are defined in `{variableName}` format.
-- Substituted with key-value pairs from the `params` object.
-- Case-sensitive.
-- Global substitution using regular expressions.
+- Template variables are defined in `{variableName}` format
+- Substituted with key-value pairs from `params` object
+- Case-sensitive
+- Global substitution using regular expressions
 
 ### Example
 ```typescript
@@ -110,35 +110,35 @@ await this.say("error", translatedMessage)
 
 ## Extensibility
 
-### Adding New Languages
-1. Add new language codes to each key in the `messages` object.
-2. Provide translations for the new language.
-3. Confirm support for the new language in frontend language settings.
+### Add New Language
+1. Add new language code to each key in the `messages` object
+2. Provide translations for that language
+3. Verify support for the language in frontend language settings
 
-### Adding New Features
-- Pluralization handling
+### Add New Features
+- Pluralization
 - Number formatting
 - Date/time formatting
-- Context-specific translations
+- Contextual translations
 
-## Caveats
+## Notes
 
-1. **Language Fallback**: Falls back to English if the requested language is not available.
-2. **Missing Key**: If a key is missing, returns the key itself with a warning log.
-3. **Missing Parameter**: If a parameter corresponding to a template variable is missing, the variable remains as is.
-4. **Asynchronous Import**: Use dynamic imports in the backend to prevent circular references.
+1. **Language Fallback**: Falls back to English if the requested language is not found
+2. **Missing Key**: Returns the key itself with a warning log if the key is not found
+3. **Missing Parameter**: Keeps the template variable as is if the corresponding parameter is missing
+4. **Asynchronous Import**: Use dynamic imports in the backend to prevent circular references
 
 ## Applied Files
 
 ### Backend
 - `src/core/task/index.ts`: `sayAndCreateMissingParamError()` method
 
-### Frontend
+### Frontend  
 - `webview-ui/src/components/chat/ChatRow.tsx`: Various system messages
 - `webview-ui/src/components/chat/task-header/TaskTimelineTooltip.tsx`: Task completion messages
 
 ## Performance Considerations
 
-- Minimize initial loading time by using dynamic imports.
-- Message object loaded into memory only once.
-- Regex caching currently not implemented (can be added if needed).
+- Minimize initial loading time using dynamic imports
+- Message object loaded into memory only once
+- Regex caching currently not implemented (can be added if needed)

@@ -151,6 +151,215 @@ const setUILanguage = async (language: string) => {
 // REFACTOR: 에러 처리, 상태 업데이트 등 개선
 ```
 
+#### 2.3.1 TDD 핵심 규칙 (Kent Beck)
+
+1. **실패하는 테스트 없이는 프로덕션 코드를 작성하지 않는다**
+2. **실패하는 테스트를 통과시키는 것 이상으로 프로덕션 코드를 작성하지 않는다**
+3. **현재 실패하는 테스트를 통과시키는 것 이상으로 테스트를 작성하지 않는다**
+
+#### 2.3.2 TDD 단계별 체크리스트
+
+**Red 단계 체크리스트:**
+- [ ] 테스트가 실제로 실패하는가?
+- [ ] 실패 이유가 예상한 것과 같은가?
+- [ ] 테스트 이름이 구체적이고 명확한가?
+- [ ] 하나의 동작만 테스트하는가?
+- [ ] 테스트가 간단하고 이해하기 쉬운가?
+
+**Green 단계 체크리스트:**
+- [ ] 테스트가 통과하는가?
+- [ ] 최소한의 코드로 구현했는가?
+- [ ] 다른 테스트들도 여전히 통과하는가?
+- [ ] 하드코딩이나 임시방편 사용을 두려워하지 않았는가?
+
+**Refactor 단계 체크리스트:**
+- [ ] 모든 테스트가 여전히 통과하는가?
+- [ ] 코드 중복이 제거되었는가?
+- [ ] 코드가 더 읽기 쉬워졌는가?
+- [ ] 성능이 개선되었는가?
+- [ ] 설계가 개선되었는가?
+
+#### 2.3.3 TDD 실전 예시: CaretLogger 완전 개발
+
+**1단계: 기본 로깅 기능**
+```typescript
+// Red - 실패하는 테스트 작성
+describe('CaretLogger', () => {
+  it('should log info message', () => {
+    const logger = new CaretLogger();
+    const result = logger.info('test message');
+    expect(result).toBe('[INFO] test message');
+  });
+});
+
+// Green - 최소 구현
+export class CaretLogger {
+  info(message: string): string {
+    return `[INFO] ${message}`;
+  }
+}
+
+// Refactor - 필요시 개선
+```
+
+**2단계: 다양한 로그 레벨 추가**
+```typescript
+// Red - 에러 로깅 테스트
+it('should log error message', () => {
+  const logger = new CaretLogger();
+  const result = logger.error('error message');
+  expect(result).toBe('[ERROR] error message');
+});
+
+// Green - 에러 메서드 추가
+export class CaretLogger {
+  info(message: string): string {
+    return `[INFO] ${message}`;
+  }
+  
+  error(message: string): string {
+    return `[ERROR] ${message}`;
+  }
+}
+
+// Refactor - 중복 제거
+export class CaretLogger {
+  private formatMessage(level: string, message: string): string {
+    return `[${level}] ${message}`;
+  }
+  
+  info(message: string): string {
+    return this.formatMessage('INFO', message);
+  }
+  
+  error(message: string): string {
+    return this.formatMessage('ERROR', message);
+  }
+}
+```
+
+**3단계: 컨텍스트 추가**
+```typescript
+// Red - 컨텍스트 테스트
+it('should include context in log message', () => {
+  const logger = new CaretLogger('TestContext');
+  const result = logger.info('test message');
+  expect(result).toBe('[INFO][TestContext] test message');
+});
+
+// Green & Refactor - 컨텍스트 지원
+export class CaretLogger {
+  constructor(private context?: string) {}
+  
+  private formatMessage(level: string, message: string): string {
+    const contextPart = this.context ? `[${this.context}]` : '';
+    return `[${level}]${contextPart} ${message}`;
+  }
+  
+  info(message: string): string {
+    return this.formatMessage('INFO', message);
+  }
+  
+  error(message: string): string {
+    return this.formatMessage('ERROR', message);
+  }
+}
+```
+
+#### 2.3.4 TDD 성과 측정
+
+**정량적 지표:**
+- **Statement Coverage**: 100% 목표
+- **Branch Coverage**: 100% 목표
+- **Function Coverage**: 100% 목표
+- **Line Coverage**: 100% 목표
+
+**TDD 품질 지표:**
+```bash
+# 테스트 실행 시간 측정
+npm run test:time
+
+# 테스트 안정성 검증 (10번 실행)
+npm run test:stability
+
+# 커버리지 트렌드 분석
+npm run test:coverage:trend
+```
+
+**정성적 지표:**
+- 더 나은 설계 (테스트 가능한 코드)
+- 낮은 결합도, 높은 응집도
+- 명확한 인터페이스
+- 빠른 피드백 루프
+- 안전한 리팩토링
+- 적은 디버깅 시간
+
+#### 2.3.5 TDD 일반적인 문제 해결
+
+**테스트가 너무 복잡할 때:**
+```typescript
+// 문제: 복잡한 테스트
+it('should handle complex user workflow', () => {
+  // 50줄의 복잡한 테스트...
+});
+
+// 해결: 작은 단위로 분리
+describe('user workflow', () => {
+  it('should validate user input', () => {
+    // 간단한 테스트
+  });
+  
+  it('should process valid input', () => {
+    // 간단한 테스트
+  });
+  
+  it('should save processed data', () => {
+    // 간단한 테스트
+  });
+});
+```
+
+**외부 의존성이 많을 때:**
+```typescript
+// 문제: 외부 의존성 때문에 테스트 어려움
+export class CaretService {
+  constructor(
+    private api: ApiClient,
+    private storage: Storage,
+    private logger: Logger
+  ) {}
+}
+
+// 해결: 의존성 주입과 모킹
+describe('CaretService', () => {
+  let mockApi: jest.Mocked<ApiClient>;
+  let mockStorage: jest.Mocked<Storage>;
+  let mockLogger: jest.Mocked<Logger>;
+  
+  beforeEach(() => {
+    mockApi = createMockApiClient();
+    mockStorage = createMockStorage();
+    mockLogger = createMockLogger();
+  });
+});
+```
+
+#### 2.3.6 팀 TDD 가이드라인
+
+**코드 리뷰 체크리스트:**
+- [ ] 테스트가 먼저 작성되었는가?
+- [ ] Red-Green-Refactor 사이클을 따랐는가?
+- [ ] 각 커밋이 작은 단위인가?
+- [ ] 테스트 이름이 명확한가?
+- [ ] 하나의 동작만 테스트하는가?
+- [ ] AAA 패턴을 따르는가?
+- [ ] 적절한 assertion을 사용하는가?
+
+**페어 프로그래밍 권장:**
+- **Driver**: 코드 작성
+- **Navigator**: TDD 프로세스 가이드
+- 역할 교체하며 학습
+
 ### 2.4 테스트 코드 아키텍처 원칙 🏗️ **필수**
 
 #### 2.4.1 테스트 전용 코드 분리 원칙
@@ -198,6 +407,327 @@ caret-src/
 │   └── CaretSystemPrompt.ts           // 운영 서비스 클래스
 └── __tests__/
     ├── helpers/
+        └── CaretSystemPromptTestHelper.ts // 테스트 헬퍼 클래스
+    └── CaretSystemPrompt.test.ts       // 테스트 파일
+```
+
+**TestHelper 클래스 명명 규칙:**
+- `{ServiceName}TestHelper.ts` 형식
+- `caret-src/__tests__/helpers/` 디렉토리에 위치
+- 테스트에서만 사용되는 메서드만 포함
+
+**예외적인 경우: forTestOnly_ 접두사**
+- TestHelper 패턴을 사용할 수 없는 경우에만 사용
+- 메서드명에 `forTestOnly_` 또는 `forTest_` 접두사 필수
+- 사용 이유를 주석으로 명시
+
+```typescript
+export class CaretSystemPrompt {
+  // 일반 운영 메서드
+  generateFromJsonSections() { ... }
+  
+  // 예외적인 경우: 내부 상태 접근을 위해 필요
+  forTestOnly_getInternalState() { 
+    // 테스트에서 내부 상태 검증을 위해 필요
+    return this.internalState;
+  }
+}
+```
+
+### 2.5 테스트 파일 구조 및 명명 표준
+
+#### 2.5.1 테스트 파일 위치 규칙
+
+**백엔드 테스트 (caret-src/)**
+```
+caret-src/
+├── core/
+│   ├── webview/
+│   │   ├── CaretProvider.ts
+│   │   └── __tests__/
+│   │       └── CaretProvider.test.ts
+│   └── utils/
+│       ├── caret-logger.ts
+│       └── caret-logger.test.ts  # 같은 디렉토리 허용
+```
+
+**프론트엔드 테스트 (webview-ui/src/caret/)**
+```
+webview-ui/src/caret/
+├── components/
+│   ├── CaretWelcome.tsx
+│   └── __tests__/
+│       └── CaretWelcome.test.tsx
+├── hooks/
+│   ├── useCaretState.ts
+│   └── useCaretState.test.ts
+└── utils/
+    ├── i18n.ts
+    └── __tests__/
+        └── i18n.test.ts
+```
+
+#### 2.5.2 테스트 파일 명명 규칙
+
+**기본 규칙:**
+- **단위 테스트**: `{FileName}.test.{ts|tsx}`
+- **통합 테스트**: `{FeatureName}.integration.test.{ts|tsx}`
+- **E2E 테스트**: `{WorkflowName}.e2e.test.{ts|tsx}`
+
+**특수 케이스:**
+- **유틸리티 함수**: `{utilityName}.test.ts`
+- **훅 테스트**: `{hookName}.test.ts`
+- **API 테스트**: `{apiName}.api.test.ts`
+
+### 2.6 테스트 코드 구조 표준
+
+#### 2.6.1 기본 테스트 템플릿
+
+**단위 테스트 템플릿:**
+```typescript
+// {FileName}.test.ts
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { {TargetClass} } from '../{FileName}';
+
+describe('{TargetClass}', () => {
+  let instance: {TargetClass};
+
+  beforeEach(() => {
+    // 각 테스트 전 초기화
+    instance = new {TargetClass}();
+  });
+
+  afterEach(() => {
+    // 각 테스트 후 정리
+    vi.clearAllMocks();
+  });
+
+  describe('constructor', () => {
+    it('should initialize with default values', () => {
+      // 생성자 테스트
+    });
+  });
+
+  describe('{methodName}', () => {
+    it('should {expected behavior} when {condition}', () => {
+      // 메서드별 테스트
+    });
+  });
+});
+```
+
+**React 컴포넌트 테스트 템플릿:**
+```typescript
+// {ComponentName}.test.tsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { {ComponentName} } from '../{ComponentName}';
+
+describe('{ComponentName}', () => {
+  const defaultProps = {
+    // 기본 props 정의
+  };
+
+  it('should render correctly', () => {
+    render(<{ComponentName} {...defaultProps} />);
+    expect(screen.getByRole('...')).toBeInTheDocument();
+  });
+
+  it('should handle user interaction', async () => {
+    const mockHandler = vi.fn();
+    render(<{ComponentName} {...defaultProps} onAction={mockHandler} />);
+    
+    fireEvent.click(screen.getByRole('button'));
+    
+    await waitFor(() => {
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
+  });
+});
+```
+
+#### 2.6.2 테스트 그룹화 (describe 블록)
+
+**클래스 테스트 그룹화:**
+```typescript
+describe('CaretLogger', () => {
+  describe('constructor', () => {
+    // 생성자 관련 테스트들
+  });
+
+  describe('info method', () => {
+    // info 메서드 관련 테스트들
+  });
+
+  describe('error method', () => {
+    // error 메서드 관련 테스트들
+  });
+
+  describe('private methods', () => {
+    // private 메서드 테스트 (필요시)
+  });
+});
+```
+
+**기능별 그룹화:**
+```typescript
+describe('i18n utility', () => {
+  describe('translation', () => {
+    // 번역 기능 테스트들
+  });
+
+  describe('language detection', () => {
+    // 언어 감지 기능 테스트들
+  });
+
+  describe('fallback handling', () => {
+    // 폴백 처리 테스트들
+  });
+});
+```
+
+### 2.7 테스트 케이스 작성 표준
+
+#### 2.7.1 테스트 이름 규칙
+
+**명명 패턴:**
+```typescript
+// 패턴: should {expected result} when {condition}
+it('should return user data when valid ID is provided', () => {});
+it('should throw error when invalid ID is provided', () => {});
+it('should render loading state when data is fetching', () => {});
+
+// 패턴: should {action} {object}
+it('should validate email format', () => {});
+it('should save user preferences', () => {});
+it('should clear cache on logout', () => {});
+```
+
+**좋은 테스트 이름 vs 나쁜 테스트 이름:**
+```typescript
+// ✅ 좋은 예
+it('should return error message when API key is missing', () => {});
+it('should render Korean text correctly in welcome component', () => {});
+it('should log info message with timestamp and context', () => {});
+
+// ❌ 나쁜 예
+it('should work', () => {});
+it('test API', () => {});
+it('check function', () => {});
+```
+
+#### 2.7.2 AAA 패턴 (Arrange-Act-Assert) **필수**
+
+**기본 구조:**
+```typescript
+it('should format log message with context', () => {
+  // Arrange (준비)
+  const logger = new CaretLogger('test-context');
+  const message = 'test message';
+  const level = 'INFO';
+
+  // Act (실행)
+  const result = logger.formatMessage(level, message);
+
+  // Assert (검증)
+  expect(result).toBe('[INFO][test-context] test message');
+});
+```
+
+**복잡한 케이스:**
+```typescript
+it('should handle API error and show user-friendly message', async () => {
+  // Arrange
+  const mockApiClient = {
+    fetchData: vi.fn().mockRejectedValue(new Error('Network error'))
+  };
+  const component = render(<DataComponent apiClient={mockApiClient} />);
+  const showErrorSpy = vi.spyOn(window, 'alert');
+
+  // Act
+  fireEvent.click(screen.getByRole('button', { name: 'Load Data' }));
+  await waitFor(() => {
+    expect(screen.getByText('로딩 중...')).not.toBeInTheDocument();
+  });
+
+  // Assert
+  expect(showErrorSpy).toHaveBeenCalledWith('데이터를 불러올 수 없습니다.');
+  expect(screen.getByText('오류가 발생했습니다')).toBeInTheDocument();
+});
+```
+
+### 2.8 필수 테스트 케이스 유형
+
+#### 2.8.1 정상 경로 (Happy Path)
+```typescript
+describe('normal operations', () => {
+  it('should process valid input successfully', () => {
+    // 정상적인 입력에 대한 정상적인 처리
+  });
+
+  it('should return expected output format', () => {
+    // 예상되는 출력 형식 검증
+  });
+});
+```
+
+#### 2.8.2 경계값 테스트 (Boundary Testing)
+```typescript
+describe('boundary conditions', () => {
+  it('should handle empty string input', () => {
+    expect(processText('')).toBe('');
+  });
+
+  it('should handle maximum length input', () => {
+    const maxInput = 'a'.repeat(1000);
+    expect(() => processText(maxInput)).not.toThrow();
+  });
+
+  it('should handle null and undefined inputs', () => {
+    expect(() => processText(null)).toThrow();
+    expect(() => processText(undefined)).toThrow();
+  });
+});
+```
+
+#### 2.8.3 예외 처리 테스트
+```typescript
+describe('error handling', () => {
+  it('should throw specific error for invalid input', () => {
+    expect(() => {
+      validateEmail('invalid-email');
+    }).toThrow('Invalid email format');
+  });
+
+  it('should handle network errors gracefully', async () => {
+    mockApi.get.mockRejectedValue(new Error('Network error'));
+    
+    const result = await fetchUserData('123');
+    
+    expect(result.error).toBe('Failed to fetch user data');
+  });
+});
+```
+
+#### 2.8.4 엣지 케이스 테스트
+```typescript
+describe('edge cases', () => {
+  it('should handle special characters in input', () => {
+    const specialInput = '!@#$%^&*()_+{}|:"<>?[]\\;\',./<';
+    expect(() => processText(specialInput)).not.toThrow();
+  });
+
+  it('should handle concurrent operations', async () => {
+    const promises = Array(10).fill(null).map(() => processAsync('test'));
+    const results = await Promise.all(promises);
+    
+    expect(results).toHaveLength(10);
+    results.forEach(result => {
+      expect(result).toBeDefined();
+    });
+  });
+});
+```
     │   └── CaretSystemPromptTestHelper.ts  // 테스트 전용 헬퍼
     └── caret-system-prompt-simple.test.ts
 ```
@@ -428,7 +958,74 @@ describe("CaretLogger", () => {
 })
 ```
 
-#### 4.2.2 VSCode API 모킹
+#### 4.2.2 Vitest 모킹 패턴 및 모범 사례 🚨 **필수 숙지**
+
+**이 섹션은 반복적인 테스트 실패를 방지하기 위한 핵심 가이드입니다.**
+
+##### 4.2.2.1 핵심 모킹 패턴 및 주의사항
+
+**🚨 주요 원칙:**
+- `vi.mock()` 블록 내에서 모든 모킹 정의 (호이스팅 문제 방지)
+- `vi.clearAllMocks()` 사용 (`vi.resetAllMocks()` 금지)
+- Node.js 내장 모듈 혼합 모킹 방식 금지
+
+**✅ 기본 모킹 템플릿:**
+
+```typescript
+// VSCode API 모킹 (필수)
+vi.mock("vscode", () => ({
+  ExtensionContext: vi.fn(),
+  Uri: {
+    file: vi.fn((path) => ({ fsPath: path, toString: () => path })),
+    parse: vi.fn((uri) => ({ fsPath: uri, toString: () => uri })),
+  },
+  ExtensionMode: { Development: 1, Production: 2, Test: 3 },
+  window: {
+    createOutputChannel: vi.fn((name) => ({
+      appendLine: vi.fn(), show: vi.fn(), dispose: vi.fn(), name
+    })),
+    showErrorMessage: vi.fn(),
+  },
+  env: { openExternal: vi.fn() },
+  workspace: { onDidChangeConfiguration: vi.fn() },
+}))
+
+// fs 모킹 (조건부 로직)
+vi.mock("fs", () => ({
+  existsSync: vi.fn(() => true),
+  promises: {
+    readFile: vi.fn((path) => {
+      if (path.includes(".env.dev")) return Promise.resolve("ENV=dev")
+      return Promise.resolve(Buffer.from("data", "base64"))
+    })
+  }
+}))
+
+// 테스트 격리
+beforeEach(() => vi.clearAllMocks())
+```
+
+##### 4.2.2.2 Node.js 내장 모듈 모킹 ⚠️ **특별 주의**
+
+**🚨 절대 금지: 모킹 방식 혼합 사용**
+
+```typescript
+// ❌ 금지: vi.mock + vi.spyOn 혼합
+vi.mock("fs", () => ({ existsSync: vi.fn() }))
+vi.spyOn(fs, "existsSync") // 🚨 Cannot redefine property 오류!
+
+// ✅ 올바른 방법: vi.mocked 사용
+vi.mock("fs", () => ({ existsSync: vi.fn() }))
+vi.mocked(fs.existsSync).mockReturnValue(true)
+```
+
+**🚨 필수 체크리스트:**
+- [ ] 모킹 방식 통일 (`vi.mock` 또는 `vi.mocked` 중 하나만)
+- [ ] 혼합 사용 금지 (`vi.mock` + `vi.spyOn` + `vi.importMock`)
+- [ ] `vi.clearAllMocks()` 사용 (`vi.resetAllMocks()` 금지)
+- [ ] Promise 모킹 시 `Promise.resolve()` 사용
+
+#### 4.2.3 VSCode API 모킹 (기존 내용 유지)
 
 ```typescript
 // caret-src/__tests__/setup.ts
@@ -967,47 +1564,355 @@ describe("timestamp functionality", () => {
 })
 ```
 
-## 9. 문제 해결
+## 9. 문제 해결 및 AI 개발자 가이드 🔍
 
-### 9.1 일반적인 문제
+### 9.1 테스트 실패 시 디버깅 전략
 
-#### 9.1.1 VSCode API 테스트 오류
+**🚨 오류 유형별 해결법:**
 
-```typescript
-// 해결책: 적절한 모킹 설정
-jest.mock("vscode", () => ({
-	// 필요한 API만 모킹
-}))
+```bash
+"Cannot read properties of undefined" → 모킹 누락
+"Cannot redefine property" → 모킹 방식 충돌 (vi.mock + vi.spyOn)
+"ReferenceError: before initialization" → 호이스팅 문제
+"AssertionError: expected X to equal Y" → 데이터 불일치
+"TypeError: X is not a function" → 함수 모킹 누락
 ```
 
-#### 9.1.2 비동기 테스트 오류
+**🔧 디버깅 코드:**
 
 ```typescript
-// 해결책: async/await 사용
-it("should handle async operation", async () => {
-	const result = await asyncFunction()
-	expect(result).toBeDefined()
+// 모킹 상태 확인
+console.log("Mock calls:", vi.mocked(fn).mock.calls)
+console.log("Is mocked:", vi.isMockFunction(fn))
+
+// 테스트 격리 문제 해결
+beforeEach(() => {
+  vi.clearAllMocks()
+  vi.mocked(fn).mockImplementation(() => expectedValue)
 })
 ```
 
-### 9.2 성능 최적화
+### 9.2 Mock 및 Stub 사용 표준
 
-#### 9.2.1 테스트 속도 개선
+#### 9.2.1 Mock 사용 원칙
 
--   불필요한 모킹 제거
--   테스트 데이터 최소화
--   병렬 실행 활용
+**외부 의존성 모킹:**
+```typescript
+// ✅ 좋은 모킹 - 구체적이고 명확
+vi.mock('../api/userApi', () => ({
+  fetchUser: vi.fn(),
+  updateUser: vi.fn(),
+  deleteUser: vi.fn()
+}));
 
-#### 9.2.2 메모리 사용량 최적화
+// ❌ 나쁜 모킹 - 너무 광범위
+vi.mock('../api', () => ({}));
+```
 
--   테스트 후 정리 작업
--   대용량 데이터 사용 시 주의
+**VSCode API 모킹:**
+```typescript
+// VSCode API 표준 모킹
+vi.mock('vscode', () => ({
+  window: {
+    createOutputChannel: vi.fn(() => ({
+      appendLine: vi.fn(),
+      show: vi.fn(),
+      dispose: vi.fn()
+    })),
+    showErrorMessage: vi.fn(),
+    showInformationMessage: vi.fn(),
+    showWarningMessage: vi.fn()
+  },
+  workspace: {
+    getConfiguration: vi.fn(() => ({
+      get: vi.fn(),
+      update: vi.fn()
+    }))
+  },
+  Uri: {
+    file: vi.fn(),
+    parse: vi.fn()
+  }
+}));
+```
+
+#### 9.2.2 Mock 데이터 관리
+
+**테스트 데이터 파일:**
+```typescript
+// __tests__/fixtures/userData.ts
+export const mockUserData = {
+  valid: {
+    id: '123',
+    name: 'Test User',
+    email: 'test@example.com'
+  },
+  invalid: {
+    id: '',
+    name: '',
+    email: 'invalid-email'
+  }
+};
+
+// 테스트에서 사용
+import { mockUserData } from './fixtures/userData';
+
+it('should validate user data', () => {
+  expect(validateUser(mockUserData.valid)).toBe(true);
+  expect(validateUser(mockUserData.invalid)).toBe(false);
+});
+```
+
+**Factory 함수 사용:**
+```typescript
+// __tests__/factories/userFactory.ts
+export const createMockUser = (overrides = {}) => ({
+  id: '123',
+  name: 'Test User',
+  email: 'test@example.com',
+  createdAt: new Date('2024-01-01'),
+  ...overrides
+});
+
+// 테스트에서 사용
+it('should handle different user types', () => {
+  const adminUser = createMockUser({ role: 'admin' });
+  const guestUser = createMockUser({ role: 'guest' });
+  
+  expect(hasPermission(adminUser, 'delete')).toBe(true);
+  expect(hasPermission(guestUser, 'delete')).toBe(false);
+});
+```
+
+### 9.3 테스트 성능 및 최적화
+
+#### 9.3.1 테스트 속도 최적화
+
+**빠른 테스트 작성:**
+```typescript
+// ✅ 좋은 예 - 빠른 테스트
+describe('utility functions', () => {
+  it('should format string quickly', () => {
+    const result = formatString('test');
+    expect(result).toBe('TEST');
+  });
+});
+
+// ❌ 나쁜 예 - 느린 테스트
+describe('heavy operations', () => {
+  it('should process large dataset', () => {
+    const largeData = Array(1000000).fill(0); // 너무 큰 데이터
+    const result = processData(largeData);
+    expect(result).toBeDefined();
+  });
+});
+```
+
+#### 9.3.2 테스트 격리
+
+**독립적인 테스트 보장:**
+```typescript
+describe('isolated tests', () => {
+  beforeEach(() => {
+    // 각 테스트마다 깨끗한 상태로 시작
+    localStorage.clear();
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // 테스트 후 정리
+    vi.restoreAllMocks();
+  });
+
+  it('should not affect other tests', () => {
+    localStorage.setItem('test', 'value');
+    expect(localStorage.getItem('test')).toBe('value');
+  });
+});
+```
+
+### 9.4 디버깅 팁
+
+#### 9.4.1 테스트 디버깅 도구
+
+**유용한 디버깅 도구들:**
+```typescript
+// 1. screen.debug() - 현재 DOM 상태 출력
+it('should render correctly', () => {
+  render(<Component />);
+  screen.debug(); // DOM 구조 확인
+});
+
+// 2. console.log로 값 확인
+it('should process data', () => {
+  const result = processData(input);
+  console.log('Result:', result); // 결과 값 확인
+  expect(result).toBeDefined();
+});
+
+// 3. 테스트 격리 확인
+describe.only('focused test', () => {
+  // 이 describe 블록만 실행
+});
+
+it.only('focused test', () => {
+  // 이 테스트만 실행
+});
+```
+
+#### 9.4.2 일반적인 오류 해결
+
+**VSCode API 관련 오류:**
+```typescript
+// 오류: Cannot find module 'vscode'
+// 해결: 적절한 모킹 추가
+vi.mock('vscode', () => ({
+  // 필요한 API만 모킹
+}));
+```
+
+**비동기 테스트 오류:**
+```typescript
+// 오류: Test timeout
+// 해결: async/await 올바른 사용
+it('should handle async operation', async () => {
+  await expect(asyncFunction()).resolves.toBeDefined();
+});
+```
+
+**React 테스트 오류:**
+```typescript
+// 오류: Unable to find an element
+// 해결: 올바른 쿼리 사용
+// ❌ 나쁜 예
+screen.getByText('정확하지 않은 텍스트');
+
+// ✅ 좋은 예
+screen.getByRole('button', { name: /시작하기/ });
+```
+
+### 9.5 AI 개발자 필수 체크리스트 🤖
+
+**📋 테스트 작성 전:**
+- [ ] TDD 순서 확인 (RED → GREEN → REFACTOR)
+- [ ] 테스트 목적 명확화
+- [ ] 테스트 파일 위치 결정 (caret-src vs src)
+- [ ] 기존 테스트 패턴 검토
+
+**📋 테스트 작성 완료 체크리스트:**
+- [ ] 모든 public 메서드에 대한 테스트 작성
+- [ ] 모든 private 메서드에 대한 테스트 작성 (필요시)
+- [ ] 모든 if/else 브랜치 테스트
+- [ ] 모든 예외 처리 테스트
+- [ ] 경계값 테스트 (빈 값, null, undefined 등)
+- [ ] 비동기 동작 테스트
+- [ ] Mock 및 Stub 적절히 사용
+- [ ] 테스트 이름이 명확하고 구체적
+- [ ] AAA 패턴 준수
+- [ ] 테스트 간 독립성 보장
+
+**📋 커버리지 달성 체크리스트:**
+- [ ] Statement Coverage: 100%
+- [ ] Branch Coverage: 100%
+- [ ] Function Coverage: 100%
+- [ ] Line Coverage: 100%
+- [ ] 커버리지 리포트에서 누락 부분 없음
+- [ ] `caret-scripts/caret-coverage-check.js` 통과
+
+**📋 코드 품질 체크리스트:**
+- [ ] 테스트 실행 시간이 합리적 (전체 < 30초)
+- [ ] 모든 테스트가 독립적으로 실행 가능
+- [ ] Mock 사용이 적절하고 과도하지 않음
+- [ ] 테스트 코드가 읽기 쉽고 이해하기 쉬움
+- [ ] 중복 코드 최소화
+- [ ] 테스트 데이터가 명확하고 의미 있음
+- [ ] TestHelper 패턴 사용 (서비스 코드에 테스트 메서드 금지)
+
+**📋 TDD 프로세스 체크리스트:**
+- [ ] 실패하는 테스트 먼저 작성 (Red)
+- [ ] 테스트 통과하는 최소 코드 작성 (Green)
+- [ ] 코드 개선 및 리팩토링 (Refactor)
+- [ ] 각 단계에서 모든 테스트 통과 확인
+- [ ] 작은 단위로 단계적 진행
+- [ ] 모킹 전략 결정
+
+## 10. 참고 자료
+
+### 10.1 관련 문서
+- [Caret 아키텍처 및 구현 가이드](./caret-architecture-and-implementation-guide.mdx)
+- [프론트엔드-백엔드 상호작용 패턴](./frontend-backend-interaction-patterns.mdx)
+- [컴포넌트 아키텍처 원칙](./component-architecture-principles.mdx)
+- [로깅 시스템 가이드](./logging.mdx)
+- [AI 작업 방법론 가이드](../guides/ai-work-method-guide.mdx)
+
+### 10.2 도구 및 라이브러리
+- [Vitest 공식 문서](https://vitest.dev/)
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+- [Jest 공식 문서](https://jestjs.io/) (참고용)
+- [Testing Best Practices](https://github.com/goldbergyoni/javascript-testing-best-practices)
+- [VSCode Extension Testing](https://code.visualstudio.com/api/working-with-extensions/testing-extension)
+
+### 10.3 테스트 프레임워크별 차이점
+
+**Vitest vs Jest 주요 차이점:**
+```typescript
+// Vitest (현재 사용)
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Jest (참고용)
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+```
+
+**모킹 문법 차이:**
+```typescript
+// Vitest
+vi.mock('./module')
+vi.spyOn(obj, 'method')
+
+// Jest
+jest.mock('./module')
+jest.spyOn(obj, 'method')
+```
+
+---
+
+**마지막 업데이트**: 2025년 1월 27일 - 테스트 가이드 통합 완료 (test-writing-standards.mdx, tdd-guide.mdx 내용 통합)
+**작성**: Alpha (AI 어시스턴트) 
+**검토**: Luke (개발자)
+**이전 업데이트**: 2025년 1월 21일 - 압축 및 구조 개선 (1860줄 → 799줄)
+
+**🔧 모킹 작성 시:**
+- [ ] 모킹 방식 통일 (`vi.mock` 또는 `vi.mocked` 중 하나)
+- [ ] Node.js 내장 모듈 혼합 모킹 방식 금지
+- [ ] VSCode API 필수 메서드 모킹 확인
+- [ ] Promise 모킹 시 `Promise.resolve()` 사용
+
+**✅ 테스트 실행 시:**
+- [ ] 개별 테스트 먼저 실행
+- [ ] 테스트 격리 확인
+- [ ] 모킹 호출 확인
+- [ ] 에러 처리 테스트 포함
+
+### 9.3 빠른 참조 템플릿 ⚡
+
+**기본 모킹 설정:**
+```typescript
+vi.mock("vscode", () => standardVSCodeMock)
+vi.mock("fs", () => standardFsMock)
+beforeEach(() => vi.clearAllMocks())
+```
+
+**AI 효율성 팁:**
+- 기존 테스트 패턴 재사용
+- 표준 모킹 템플릿 활용
+- 테스트 데이터 최소화
+- 즉시 검증 실행
 
 ## 10. 참고 자료
 
 ### 10.1 관련 문서
 
--   [테스트 코드 작성 표준](./test-writing-standards.mdx)
+-   [테스트 코드 작성 표준](./testing-guide.mdx) (통합됨)
 -   [문서화 가이드](./documentation-guide.mdx)
 -   [AI 작업 방법론 가이드](../guides/ai-work-method-guide.mdx)
 
@@ -1019,6 +1924,6 @@ it("should handle async operation", async () => {
 
 ---
 
-**마지막 업데이트**: 2025년 1월 21일 - 통합테스트 구현 변화 및 Vitest 통일 완료
+**마지막 업데이트**: 2025년 1월 21일 - AI 개발자 가이드 추가 및 디버깅 전략 강화
 **작성**: Alpha (AI 어시스턴트)
 **검토**: Luke (개발자)

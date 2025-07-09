@@ -1,6 +1,6 @@
 # 🛠️ Caret Developer Guide
 
-Detailed information related to the development of the Caret project, such as building, testing, and packaging.
+Detailed information related to the development of the Caret project, including build, test, and packaging.
 
 ## Build and Packaging 🛠️
 
@@ -8,7 +8,7 @@ Follow these steps to set up your local development environment and build the ex
 
 ### 1. Repository Setup
 
-Caret adopts a **Fork-based architecture** from the [Cline](https://github.com/cline/cline) project. It directly includes Cline's stable codebase in the `src/` directory, while developing Caret's unique extension features in `caret-src/`.
+Caret adopts a **Fork-based architecture** from the [Cline](https://github.com/cline/cline) project. It directly includes Cline's stable codebase in the `src/` directory, while developing Caret-specific extension features in `caret-src/`.
 
 1.  **Clone Caret Repository**:
     ```bash
@@ -19,30 +19,30 @@ Caret adopts a **Fork-based architecture** from the [Cline](https://github.com/c
 2.  **Understand Architecture Structure**:
     ```
     caret/
-    ├── src/                    # Cline Original Code (Preserved)
-    │   ├── extension.ts        # Cline Main Entry Point
-    │   └── core/              # Cline Core Logic
-    ├── caret-src/             # Caret Extension Features
-    │   ├── extension.ts       # Caret Entry Point (utilizes src/ modules)
-    │   └── core/webview/      # Caret Exclusive WebView Provider
-    ├── caret-assets/          # Caret Asset Management
-    │   ├── template_characters/ # AI Character Templates
-    │   ├── rules/             # Default Mode and Rule Definitions
-    │   └── icons/             # Project Icons
-    ├── caret-docs/            # Caret Exclusive Documentation
+    ├── src/                    # Cline original code (preserved)
+    │   ├── extension.ts        # Cline main entry point
+    │   └── core/              # Cline core logic
+    ├── caret-src/             # Caret extension features
+    │   ├── extension.ts       # Caret entry point (utilizes src/ modules)
+    │   └── core/webview/      # Caret-specific WebView Provider
+    ├── caret-assets/          # Caret asset management
+    │   ├── template_characters/ # AI character templates
+    │   ├── rules/             # Default mode and rule definitions
+    │   └── icons/             # Project icons
+    ├── caret-docs/            # Caret-specific documentation
     └── webview-ui/            # Frontend (utilizes Cline build system)
-        ├── src/components/    # Cline Original Components
-        └── src/caret/         # Caret Exclusive Components
+        ├── src/components/    # Cline original components
+        └── src/caret/         # Caret-specific components
     ```
     
-    This structure allows you to **leverage Cline's powerful features as is**, while **safely extending Caret's unique functionalities**.
+    This structure allows you to **leverage Cline's powerful features** while **safely extending Caret's unique functionalities**.
 
 ### 2. Install Dependencies
 
-How to install all dependencies for the Caret project.
+Instructions on how to install all dependencies for the Caret project.
 
 ```bash
-# Recommended for all platforms - installs root and webview-ui dependencies at once
+# Recommended for all platforms - installs dependencies for both root and webview-ui at once
 npm run install:all
 ```
 
@@ -50,18 +50,18 @@ This command performs the following tasks:
 - Installs root project dependencies (`npm install`)
 - Installs webview-ui directory dependencies (`cd webview-ui && npm install`)
 
-> **Note**: `npm run install:all` is a **dependency installation only** command. It is separate from building the VSIX file.
+> **Note**: `npm run install:all` is **for dependency installation only**. It is separate from VSIX file building.
 
-### 3. Manual Setup (If Issues Occur)
+### 3. Manual Setup (if issues occur)
 
-If the automatic setup script fails or you want to run specific steps manually, follow the manual procedure below.
+If the automatic setup script fails or you wish to execute specific steps manually, follow the procedures below.
 
 ```bash
 # 1. Install Dependencies
 npm install
 cd webview-ui && npm install && cd ..
 
-# 2. Compile Protocol Buffer
+# 2. Compile Protocol Buffers
 npm run protos
 
 # 3. Verify TypeScript Compilation
@@ -73,7 +73,7 @@ npm run compile
 Compiles the extension's TypeScript code:
 
 ```bash
-# Compile Protocol Buffer (if needed)
+# Compile Protocol Buffers (if needed)
 npm run protos
 
 # Compile TypeScript
@@ -82,20 +82,20 @@ npm run compile
 
 ### 5. Run in Development Environment
 
-Press `F5` in VS Code to start a debugging session, and you can test the extension in a new `[Extension Development Host]` window.
+Press `F5` in VS Code to start a debugging session, which allows you to test the extension in a new `[Extension Development Host]` window.
 
 **How to Run Caret:**
-- Once the extension is running, a **Caret icon** will be added to the **Primary Sidebar** in VS Code.
+- Once the extension runs, a **Caret icon** will be added to the VS Code **Primary Sidebar**.
 - Click this icon to open the Caret webview and start using it.
 
 **Development Mode Features:**
-- **Hot Reload**: Automatic compilation on code changes with `npm run watch`
+- **Hot Reload**: Automatic compilation on code changes with `npm run watch` command
 - **Debugging**: Backend code debugging support via VS Code debugger
-- **Integrated Logging**: Optimized log output with automatic dev/prod mode detection (Dev: DEBUG+console, Prod: INFO+VSCode only)
+- **Integrated Logging**: Optimized log output with automatic development/production mode detection (Development: DEBUG+console, Production: INFO+VSCode only)
 
 ### 6. VSIX Release Packaging 🎯
 
-Packages the developed extension into a `.vsix` file for local installation or distribution.
+Package the developed extension into a `.vsix` file for local installation or distribution.
 **All build artifacts are generated in the `output/` directory in the format `caret-{version}-{datetime}.vsix`.**
 
 #### 6-1. JavaScript Script Method (✅ Recommended - All Environments)
@@ -105,16 +105,16 @@ Packages the developed extension into a `.vsix` file for local installation or d
 npm run package:release
 ```
 
-**File generated by this command**: `output/caret-0.1.0-202501271545.vsix`
+**File created by this command**: `output/caret-0.1.0-202501271545.vsix`
 
 This command automatically performs the following tasks:
 - ✅ Reads version information from `package.json`
 - ✅ Generates timestamp (YYYYMMDDHHMM format)
 - ✅ Creates `output/` directory (if it doesn't exist)
-- ✅ Cleans up previous builds (`webview-ui/build/`, `dist/`)
-- ✅ Performs full clean build (`npm run protos`, `npm run compile`, `npm run build:webview`)
-- ✅ Packages VSIX (`vsce package --out output/caret-{version}-{timestamp}.vsix`)
-- ✅ Analyzes package size and warns (300MB/750MB thresholds)
+- ✅ Cleans previous builds (`webview-ui/build/`, `dist/`)
+- ✅ Full clean build (`npm run protos`, `npm run compile`, `npm run build:webview`)
+- ✅ VSIX packaging (`vsce package --out output/caret-{version}-{timestamp}.vsix`)
+- ✅ Package size analysis and warnings (300MB/750MB thresholds)
 
 
 #### 🚀 Verify Build Results
@@ -126,12 +126,12 @@ Both methods produce the same results:
 
 ## 🧪 Testing and Quality Management
 
-Caret adopts the **TDD (Test-Driven Development) methodology** to maintain high code quality.
+Caret adopts **TDD (Test-Driven Development) methodology** to maintain high code quality.
 
 ### 📊 Run All Tests + Coverage
 
 ```bash
-# 🌟 Recommended: Full test + coverage analysis (at once)
+# 🌟 Recommended: All tests + coverage analysis (at once)
 npm run test:all; npm run caret:coverage
 
 # Or including backend detailed coverage
@@ -143,10 +143,10 @@ npm run test:all; npm run test:backend:coverage; npm run caret:coverage
 **⚠️ Important: Correct Test Command Usage**
 
 **❌ Caution: Do NOT use `npm test`**
-- `npm test` runs full build + compile + lint + all tests, which is very slow
-- During development, it is recommended to use the **individual test commands** below
+- `npm test` runs full build + compile + lint + all tests (very slow)
+- During development, **individual test commands** below are recommended
 
-**✅ Recommended test commands during development:**
+**✅ Recommended Test Commands during development:**
 
 ```bash
 # Backend individual test (specific file)
@@ -161,17 +161,17 @@ npm run test:webview
 # Backend watch mode (auto-run during development)
 npm run test:backend:watch
 
-# Fast development test (excluding webview, stops immediately on failure)
+# Fast development test (excludes webview, stops immediately on failure)
 npm run dev:build-test:fast
 ```
 
-**📊 Full Test + Coverage (for CI/CD or final verification):**
+**📊 All tests + Coverage (for CI/CD or final verification):**
 
 ```bash
-# Full test + coverage analysis
+# All tests + coverage analysis
 npm run test:all && npm run caret:coverage
 
-# Integration test (VSCode Extension Environment)
+# Integration test (VSCode Extension environment)
 npm run test:integration
 ```
 
@@ -190,64 +190,61 @@ npm run test:coverage
 
 ### 🎯 Check Test Status
 
-Running the above commands allows you to check the current project's test pass rate and coverage in real-time.
+Running the above commands will allow you to check the current test pass rate and coverage of your project in real-time.
 
 ### 📋 TDD Principles and Coverage Goals
 
-The Caret project adheres to the following TDD principles:
+Caret project adheres to the following TDD principles:
 
-1. **🔴 RED**: Write failing tests first
-2. **🟢 GREEN**: Write minimal code that passes the tests
+1. **🔴 RED**: Write a failing test first
+2. **🟢 GREEN**: Write the minimum code to pass the test
 3. **🔄 REFACTOR**: Improve code quality
 
 #### 🎯 Coverage Goals and Reality
 
-- **🥕 Caret New Logic**: **100% coverage required** - all new features and business logic are test-first developed
-- **🔗 Existing Re-export**: Some files are simple re-exports of Cline modules and do not require separate testing
-- **📦 Type Definitions**: Files containing only interface definitions have no runtime logic and can be excluded from testing
+- **🥕 Caret New Logic**: **100% coverage required** - All new features and business logic must be developed test-first.
+- **🔗 Existing Re-export**: Some files are simple re-exports of Cline modules and do not require separate testing.
+- **📦 Type Definitions**: Files containing only interface definitions can be excluded from testing as they have no runtime logic.
 
-**When developing new features, you must write tests first!**
+**Always write tests first when developing new features!**
 
-For detailed testing guidelines, please refer to the **[Testing Guide](./caret-docs/development/testing-guide.mdx)**.
+For detailed test guidelines, please refer to the **[Testing Guide](./caret-docs/development/testing-guide.en.mdx)**.
 
-## 🔬 Patented Technology
+## 🔄 Development Workflow
 
-### Core Technology
-Caret's **modular system prompt architecture** is implemented based on CARETIVE INC's patent-pending technology ("Method and System for Optimizing Prompt Information").
+### 1. New Feature Development (Recommended Process)
 
-**Key Features:**
-- **Dual Representation**: Markdown-JSON structure optimized for both humans and AI
-- **Modular Structure**: Decomposes hardcoded prompts into JSON modules for management
-- **Token Optimization**: Reduces API costs by identifying redundant elements
-- **Automated Verification**: Safety system ensuring functionality preservation
+#### Backend Extension Pattern
+```typescript
+// caret-src/core/feature/NewFeature.ts
+import { WebviewProvider } from "../../../src/core/webview/WebviewProvider"
 
-### License
-- **Open Source**: Apache 2.0 license allows free use, modification, and distribution
-- **Patent Protection**: Intellectual property rights for core technology held by CARETIVE INC
-- **Commercial Use**: For patent-related inquiries, contact **support@caretive.ai**
+export class NewFeature extends WebviewProvider {
+	// Extends Cline functionality
+	override async handleRequest(request: any) {
+		// Caret-specific logic
+		const caretResult = await this.processCaretSpecific(request)
 
-## 📊 Telemetry (PostHog) Setup
+		// Combine with Cline's base handling
+		const baseResult = await super.handleRequest(request)
 
-Caret Community/Dev builds and Release builds have **telemetry activation** completely separated.
-
-| Build Type | Environment Variable | Result |
-|-----------|-----------|-------|
-| dev / community | _(Not set)_ | PostHog **disabled** (0 events) |
-| release (enterprise) | `POSTHOG_API_KEY`, `POSTHOG_HOST`, `POSTHOG_UIHOST` | PostHog **enabled** – sent to `posthog.caret.team` |
-
-Build Example:
-
-```bash
-# 🚧 Community/dev (VSCode F5)
-npm run watch            # No telemetry
-
-# 🚀 Release / CI
-export BUILD_FLAVOR=enterprise
-export POSTHOG_API_KEY=phc_xxx            # Issued from PostHog UI
-export POSTHOG_HOST="https://posthog.caret.team"
-export POSTHOG_UIHOST="https://posthog.caret.team"
-
-npm run package:release   # output/caret-<ver>-<ts>.vsix
+		return { ...baseResult, ...caretResult }
+	}
+}
 ```
 
-> If environment variables are not set, `PostHogClientProvider` automatically falls back to a dummy client.
+#### Frontend Extension Pattern
+```typescript
+// webview-ui/src/caret/components/NewComponent.tsx
+import React from 'react'
+import { useExtensionState } from '../../context/ExtensionStateContext'
+
+export const NewComponent: React.FC = () => {
+	const { state } = useExtensionState()
+	
+	// Caret-specific UI logic
+	return <div>New Feature</div>
+}
+```
+
+### 2. Verification by Development Stage

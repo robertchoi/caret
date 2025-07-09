@@ -391,6 +391,7 @@
 		"test:backend:watch": "vitest --config vitest.config.ts",
 		"test:backend:coverage": "vitest run --config vitest.config.ts --coverage",
 		"test:all": "node caret-scripts/test-report.js",
+		"test:caret-src": "vitest run caret-src/__tests__/caret-login.test.ts",
 		"publish:marketplace": "vsce publish && ovsx publish",
 		"publish:marketplace:prerelease": "vsce publish --pre-release && ovsx publish --pre-release",
 		"prepare": "husky",
@@ -460,6 +461,7 @@
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.37.0",
 		"@anthropic-ai/vertex-sdk": "^0.6.4",
+		"@auth0/auth0-spa-js": "^2.2.0",
 		"@aws-sdk/client-bedrock-runtime": "^3.826.0",
 		"@aws-sdk/credential-providers": "^3.826.0",
 		"@bufbuild/protobuf": "^2.2.5",

@@ -9,6 +9,7 @@ export default defineConfig({
 		setupFiles: ["./vitest.setup.ts"],
 		include: [
 			"caret-src/**/*.test.ts",
+			"caret-src/__tests__/**/*.test.ts", // CARET MODIFICATION: Add caret-src/__tests__ to include path
 		],
 		exclude: [
 			// 기본 제외 패턴

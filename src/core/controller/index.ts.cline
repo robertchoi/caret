@@ -87,7 +87,7 @@ export class Controller {
 			(msg) => this.postMessageToWebview(msg),
 			async () => {
 				const { apiConfiguration } = await this.getStateToPostToWebview()
-				return apiConfiguration?.clineApiKey
+				return apiConfiguration?.caretApiKey // CARET MODIFICATION: Return caretApiKey instead of apiKey
 			},
 		)
 
@@ -119,7 +119,7 @@ export class Controller {
 	// Auth methods
 	async handleSignOut() {
 		try {
-			await storeSecret(this.context, "clineApiKey", undefined)
+			await storeSecret(this.context, "caretApiKey", undefined)
 			await updateGlobalState(this.context, "userInfo", undefined)
 			await updateWorkspaceState(this.context, "apiProvider", "openrouter")
 			await this.postStateToWebview()
@@ -209,6 +209,14 @@ export class Controller {
 	 */
 	async handleWebviewMessage(message: WebviewMessage) {
 		switch (message.type) {
+			// CARET MODIFICATION: 웰컴 페이지 상태를 VSCode 컨텍스트에 설정
+			case "setWelcomeContext":
+				if (message.showWelcome !== undefined) {
+					await vscode.commands.executeCommand("setContext", "caret.showWelcome", message.showWelcome)
+					console.log(`[DEBUG] Set VSCode context: caret.showWelcome=${message.showWelcome}`)
+				}
+				break
+
 			case "authStateChanged":
 				await this.setUserInfo(message.user || undefined)
 				await this.postStateToWebview()
@@ -267,20 +275,39 @@ export class Controller {
 			// CARET MODIFICATION: Handle UPDATE_PERSONA_CUSTOM_INSTRUCTION to update the global custom instructions file.
 			case "UPDATE_PERSONA_CUSTOM_INSTRUCTION": {
 				if (message.payload?.personaInstruction) {
-					caretLogger.info("[Controller] Received UPDATE_PERSONA_CUSTOM_INSTRUCTION")
-					await updateRuleFileContent({
-						rulePath: "custom_instructions.md",
-						isGlobal: true,
-						content: JSON.stringify(message.payload.personaInstruction, null, 2),
-					})
+					caretLogger.info(
+						`[Controller] Received UPDATE_PERSONA_CUSTOM_INSTRUCTION - personaInstruction: ${JSON.stringify(
+							message.payload.personaInstruction,
+							null,
+							2,
+						)}`,
+					)
 
-					// Send confirmation back to webview
-					this.postMessageToWebview({
-						type: "PERSONA_UPDATED",
-						payload: { success: true },
-					})
+					try {
+						// CARET MODIFICATION: Use PersonaManager for updating persona
+						const { personaManager } = await import("../../../caret-src/utils/persona-manager")
+						
+						// 커스텀 인스트럭션 업데이트
+						await updateRuleFileContent({
+							rulePath: "custom_instructions.md",
+							isGlobal: true,
+							content: JSON.stringify(message.payload.personaInstruction, null, 2),
+						})
 
-					await this.postStateToWebview()
+						// 이미지 업데이트 (avatarUri와 thinkingAvatarUri가 있는 경우)
+						if (message.payload.personaInstruction.avatarUri || message.payload.personaInstruction.thinkingAvatarUri) {
+							// PersonaManager를 통해 이미지 업데이트 (내부에서 알림 처리됨)
+							await personaManager.updatePersonaImagesInGlobalStorage(message.payload.personaInstruction)
+						}
+						
+						// 성공 응답
+						this.postMessageToWebview({
+							type: "PERSONA_UPDATED",
+							payload: { success: true },
+						})
+					} catch (error) {
+						caretLogger.error(`[Controller] Error updating persona custom instruction: ${error}`)
+					}
 				}
 				break
 			}
@@ -294,47 +321,60 @@ export class Controller {
 					)
 
 					try {
-						// Create custom assets directory if it doesn't exist
-						const customAssetsDir = path.join(this.context.globalStorageUri.fsPath, "custom_personas")
-						if (!(await fileExistsAtPath(customAssetsDir))) {
-							await fs.mkdir(customAssetsDir, { recursive: true })
-						}
-
-						// Generate filename based on persona and image type
-						const filename = `${message.payload.personaCharacter}_${message.payload.imageType}.png`
-						const imagePath = path.join(customAssetsDir, filename)
-
-						// Convert base64 to buffer and save
-						const base64Data = message.payload.imageData.replace(/^data:image\/[a-z]+;base64,/, "")
-						const imageBuffer = Buffer.from(base64Data, "base64")
-						await fs.writeFile(imagePath, imageBuffer)
-
-						caretLogger.info(`[Controller] Custom persona image saved: ${imagePath}`)
-
-						// Send success response back to webview
-						this.postMessageToWebview({
-							type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
-							payload: {
-								success: true,
-								imagePath: `vscode-file://vscode-app${imagePath}`,
-								imageType: message.payload.imageType,
-								personaCharacter: message.payload.personaCharacter,
-							},
-						})
+						// CARET MODIFICATION: Use PersonaManager for persona image management
+						const { personaManager } = await import("../../../caret-src/utils/persona-manager")
+						await personaManager.saveCustomPersonaImage(
+							message.payload.imageType,
+							message.payload.imageData,
+							message.payload.personaCharacter
+						)
+						
+						caretLogger.info(
+							`[Controller] Custom persona image saved successfully - imageType: ${message.payload.imageType}`,
+							"PERSONA_UPLOAD",
+						)
 					} catch (error) {
-						caretLogger.error(`[Controller] Error saving custom persona image: ${error}`)
-
-						// Send error response back to webview
-						this.postMessageToWebview({
-							type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
-							payload: {
-								success: false,
-								error: error instanceof Error ? error.message : "Unknown error",
-								imageType: message.payload.imageType,
-								personaCharacter: message.payload.personaCharacter,
-							},
-						})
+						caretLogger.error(
+							`[Controller] Error saving custom persona image: ${error}`,
+							"PERSONA_UPLOAD",
+						)
 					}
+				}
+				break
+			}
+
+			// CARET MODIFICATION: Handle initializeDefaultPersona for welcome page completion
+			case "initializeDefaultPersona": {
+				if (message.language) {
+					caretLogger.info(`[Controller] Received initializeDefaultPersona for language: ${message.language}`)
+					try {
+						const { PersonaInitializer } = await import("../../../caret-src/utils/persona-initializer")
+						const personaInitializer = new PersonaInitializer(this.context)
+						await personaInitializer.initializeOnLanguageSet(message.language)
+						caretLogger.info(
+							`[Controller] Default persona initialized successfully for language: ${message.language}`,
+						)
+					} catch (error) {
+						caretLogger.warn(`[Controller] Failed to initialize default persona: ${error}`)
+					}
+				}
+				break
+			}
+
+			// CARET MODIFICATION: Handle REQUEST_PERSONA_IMAGES to provide current persona images to PersonaAvatar
+			case "REQUEST_PERSONA_IMAGES": {
+				caretLogger.info("[Controller] Received REQUEST_PERSONA_IMAGES")
+				try {
+					const { loadPersonaImagesFromStorage } = await import("../../../caret-src/utils/persona-storage")
+					const currentPersonaImages = await loadPersonaImagesFromStorage(this.context)
+
+					caretLogger.info("[Controller] Sending current persona images to PersonaAvatar")
+					this.postMessageToWebview({
+						type: "RESPONSE_PERSONA_IMAGES",
+						payload: currentPersonaImages,
+					})
+				} catch (error) {
+					caretLogger.error(`[Controller] Error loading current persona images: ${error}`)
 				}
 				break
 			}
@@ -352,16 +392,64 @@ export class Controller {
 					const templatesRaw = await fs.readFile(templatePath, "utf-8")
 					const templates = JSON.parse(templatesRaw)
 
-					// CARET MODIFICATION: Convert image URIs to base64 data URIs and load custom images
-					const customAssetsDir = path.join(this.context.globalStorageUri.fsPath, "custom_personas")
+					// CARET MODIFICATION: Load current persona images from globalStorage
+					const { loadPersonaImagesFromStorage } = await import("../../../caret-src/utils/persona-storage")
+					const currentPersonaImages = await loadPersonaImagesFromStorage(this.context)
 
 					const templatesWithBase64Images = await Promise.all(
-						templates.map(async (template: any) => {
+						templates.map(async (template: any, index: number) => {
+							// CARET MODIFICATION: Removed first template override - let all templates show their own images
 							const convertImageUri = async (uri: string): Promise<string> => {
 								if (!uri || !uri.startsWith("asset:/assets/")) {
 									return uri
 								}
 
+								// CARET MODIFICATION: Template characters use caret-assets, convert to base64
+								if (uri.startsWith("asset:/assets/template_characters/")) {
+									try {
+										// Load from caret-assets directory (same as other assets)
+										const imagePath = path.join(
+											this.context.extensionPath,
+											"caret-assets",
+											uri.replace("asset:/assets/", ""),
+										)
+										caretLogger.info(`[Controller] Loading template image: ${imagePath}`)
+
+										if (
+											await fs
+												.access(imagePath)
+												.then(() => true)
+												.catch(() => false)
+										) {
+											// CARET MODIFICATION: Convert to base64 like other assets for CSP compliance
+											const imageBuffer = await fs.readFile(imagePath)
+											const ext = path.extname(imagePath).toLowerCase()
+											const mimeType =
+												ext === ".png"
+													? "image/png"
+													: ext === ".jpg" || ext === ".jpeg"
+														? "image/jpeg"
+														: ext === ".webp"
+															? "image/webp"
+															: "image/png"
+											const base64 = `data:${mimeType};base64,${imageBuffer.toString("base64")}`
+											caretLogger.info(
+												`[Controller] Template image converted to base64: ${uri} -> data:${mimeType} (${imageBuffer.length} bytes)`,
+											)
+											return base64
+										} else {
+											caretLogger.warn(
+												`[Controller] Template image not found in caret-assets: ${imagePath}`,
+											)
+											return uri
+										}
+									} catch (error) {
+										caretLogger.error(`[Controller] Error converting template image URI ${uri}: ${error}`)
+										return uri
+									}
+								}
+
+								// For other asset URIs, load from caret-assets as before
 								try {
 									const imagePath = path.join(
 										this.context.extensionPath,
@@ -401,40 +489,40 @@ export class Controller {
 								}
 							}
 
-							// CARET MODIFICATION: Load custom persona images if they exist
-							const loadCustomImage = async (imageType: "normal" | "thinking"): Promise<string | undefined> => {
-								try {
-									const customImagePath = path.join(customAssetsDir, `${template.character}_${imageType}.png`)
-									if (
-										await fs
-											.access(customImagePath)
-											.then(() => true)
-											.catch(() => false)
-									) {
-										const imageBuffer = await fs.readFile(customImagePath)
-										const base64 = `data:image/png;base64,${imageBuffer.toString("base64")}`
-										caretLogger.info(`[Controller] Custom image loaded: ${customImagePath}`)
-										return base64
-									}
-								} catch (error) {
-									caretLogger.error(
-										`[Controller] Error loading custom image for ${template.character}: ${error}`,
-									)
-								}
-								return undefined
-							}
+							// CARET MODIFICATION: Removed loadCustomImage as all images now come from caret-assets
+							// const loadCustomImage = async (imageType: "normal" | "thinking"): Promise<string | undefined> => {
+							//     try {
+							//         const customImagePath = path.join(customAssetsDir, `${template.character}_${imageType}.png`)
+							//         if (
+							//             await fs
+							//                 .access(customImagePath)
+							//                 .then(() => true)
+							//                 .catch(() => false)
+							//         ) {
+							//             const imageBuffer = await fs.readFile(customImagePath)
+							//             const base64 = `data:image/png;base64,${imageBuffer.toString("base64")}`
+							//             caretLogger.info(`[Controller] Custom image loaded: ${customImagePath}`)
+							//             return base64
+							//         }
+							//     } catch (error) {
+							//         caretLogger.error(
+							//             `[Controller] Error loading custom image for ${template.character}: ${error}`,
+							//         )
+							//     }
+							//     return undefined
+							// }
 
-							const customAvatarUri = await loadCustomImage("normal")
-							const customThinkingAvatarUri = await loadCustomImage("thinking")
+							// const customAvatarUri = await loadCustomImage("normal")
+							// const customThinkingAvatarUri = await loadCustomImage("thinking")
 
 							return {
 								...template,
 								avatarUri: await convertImageUri(template.avatarUri),
 								thinkingAvatarUri: await convertImageUri(template.thinkingAvatarUri),
 								introIllustrationUri: await convertImageUri(template.introIllustrationUri),
-								// CARET MODIFICATION: Add custom image URIs if they exist
-								customAvatarUri,
-								customThinkingAvatarUri,
+								// CARET MODIFICATION: Removed custom image URIs as they are no longer needed
+								// customAvatarUri,
+								// customThinkingAvatarUri,
 							}
 						}),
 					)
@@ -571,7 +659,7 @@ export class Controller {
 					)
 					break
 				case "openrouter":
-				case "cline":
+				case "caret":
 					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.openRouterModelId)
 					await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.openRouterModelInfo)
 					break
@@ -648,7 +736,7 @@ export class Controller {
 						await updateWorkspaceState(this.context, "awsBedrockCustomModelBaseId", newAwsBedrockCustomModelBaseId)
 						break
 					case "openrouter":
-					case "cline":
+					case "caret":
 						await updateWorkspaceState(this.context, "openRouterModelId", newModelId)
 						await updateWorkspaceState(this.context, "openRouterModelInfo", newModelInfo)
 						break
@@ -769,20 +857,20 @@ export class Controller {
 	async handleAuthCallback(customToken: string, apiKey: string) {
 		try {
 			// Store API key for API calls
-			await storeSecret(this.context, "clineApiKey", apiKey)
+			await storeSecret(this.context, "caretApiKey", apiKey)
 
 			// Send custom token to webview for Firebase auth
 			await sendAuthCallbackEvent(customToken)
 
-			const clineProvider: ApiProvider = "cline"
-			await updateWorkspaceState(this.context, "apiProvider", clineProvider)
+			const caretProvider: ApiProvider = "caret"
+			await updateWorkspaceState(this.context, "apiProvider", caretProvider)
 
 			// Update API configuration with the new provider and API key
 			const { apiConfiguration } = await getAllExtensionState(this.context)
 			const updatedConfig = {
 				...apiConfiguration,
-				apiProvider: clineProvider,
-				clineApiKey: apiKey,
+				apiProvider: caretProvider,
+				caretApiKey: apiKey,
 			}
 
 			if (this.task) {
@@ -977,7 +1065,7 @@ export class Controller {
 	// 'Add to Cline' context menu in editor and code action
 	async addSelectedCodeToChat(code: string, filePath: string, languageId: string, diagnostics?: vscode.Diagnostic[]) {
 		// Ensure the sidebar view is visible
-		await vscode.commands.executeCommand("claude-dev.SidebarProvider.focus")
+		await vscode.commands.executeCommand("caret.SidebarProvider.focus")
 		await setTimeoutPromise(100)
 
 		// Post message to webview with the selected code
@@ -997,7 +1085,7 @@ export class Controller {
 	// 'Add to Cline' context menu in Terminal
 	async addSelectedTerminalOutputToChat(output: string, terminalName: string) {
 		// Ensure the sidebar view is visible
-		await vscode.commands.executeCommand("claude-dev.SidebarProvider.focus")
+		await vscode.commands.executeCommand("caret.SidebarProvider.focus")
 		await setTimeoutPromise(100)
 
 		// Post message to webview with the selected terminal output
@@ -1015,7 +1103,7 @@ export class Controller {
 	// 'Fix with Cline' in code actions
 	async fixWithCline(code: string, filePath: string, languageId: string, diagnostics: vscode.Diagnostic[]) {
 		// Ensure the sidebar view is visible
-		await vscode.commands.executeCommand("claude-dev.SidebarProvider.focus")
+		await vscode.commands.executeCommand("caret.SidebarProvider.focus")
 		await setTimeoutPromise(100)
 
 		const fileMention = this.getFileMentionFromPath(filePath)

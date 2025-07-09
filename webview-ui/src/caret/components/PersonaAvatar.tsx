@@ -27,6 +27,14 @@ interface PersonaAvatarProps {
 	 * Test persona data for testing purposes
 	 */
 	testPersona?: TemplateCharacter | null
+	/**
+	 * Directly passed avatar URI to override internal state
+	 */
+	avatarUri?: string | null
+	/**
+	 * Directly passed thinking avatar URI to override internal state
+	 */
+	thinkingUri?: string | null
 }
 
 // CARET MODIFICATION: Loading fallback persona to show during data loading
@@ -48,13 +56,15 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 	className = "",
 	style = {},
 	testPersona = null,
+	avatarUri: avatarUriProp,
+	thinkingUri: thinkingUriProp,
 }) => {
 	const extensionState = useExtensionState()
 	const { personaProfile, personaThinking } = extensionState // initial values from context
 	const currentLocale = extensionState?.chatSettings?.uiLanguage || "en"
-	
-	const [avatarUri, setAvatarUri] = useState<string>(personaProfile)
-	const [thinkingUri, setThinkingUri] = useState<string>(personaThinking)
+
+	const [avatarUri, setAvatarUri] = useState<string | null>(avatarUriProp || personaProfile)
+	const [thinkingUri, setThinkingUri] = useState<string | null>(thinkingUriProp || personaThinking)
 
 	// CARET MODIFICATION: maintain local avatar URIs that update via message events
 	const [imageError, setImageError] = useState<boolean>(false)
@@ -81,31 +91,31 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 		const handler = (event: MessageEvent) => {
 			const msg = event.data
 			if (msg?.type === "RESPONSE_PERSONA_IMAGES") {
-				if (msg.payload?.avatarUri) setAvatarUri(msg.payload.avatarUri)
-				if (msg.payload?.thinkingAvatarUri) setThinkingUri(msg.payload.thinkingAvatarUri)
+				// Only update state if not controlled by props
+				if (!avatarUriProp && msg.payload?.avatarUri) {
+					setAvatarUri(msg.payload.avatarUri)
+				}
+				if (!thinkingUriProp && msg.payload?.thinkingAvatarUri) {
+					setThinkingUri(msg.payload.thinkingAvatarUri)
+				}
 			}
 		}
 		window.addEventListener("message", handler)
 		return () => window.removeEventListener("message", handler)
-	}, [])
+	}, [avatarUriProp, thinkingUriProp])
 
-	// CARET MODIFICATION: if avatar URIs not yet available, proactively request from backend
+	// CARET MODIFICATION: Always request latest images on mount to ensure freshness, unless controlled by props
 	useEffect(() => {
-		// 첫 마운트 시 window 전역 값과 동기화 (Settings → Chat 새 줄 케이스)
-		const globalProfile = (window as any).personaProfile as string | undefined
-		const globalThinking = (window as any).personaThinking as string | undefined
-		if (globalProfile && globalProfile !== avatarUri) setAvatarUri(globalProfile)
-		if (globalThinking && globalThinking !== thinkingUri) setThinkingUri(globalThinking)
-
-		if (!avatarUri || !thinkingUri) {
+		if (avatarUriProp && thinkingUriProp) {
+			setAvatarUri(avatarUriProp)
+			setThinkingUri(thinkingUriProp)
+		} else {
 			vscode.postMessage({ type: "REQUEST_PERSONA_IMAGES" })
 		}
-		// run once on mount
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [avatarUriProp, thinkingUriProp])
 
 	// CARET MODIFICATION: 직접 주입된 이미지 사용 (테스트 모드가 아닐 때)
-	let imageUri: string
+	let imageUri: string | null = null
 	let personaName: string
 
 	if (testPersona !== null) {
@@ -115,8 +125,11 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 		personaName = localeDetails?.name || ""
 	} else {
 		// 프로덕션 모드: 직접 주입된 이미지 사용
-		if (avatarUri && thinkingUri) {
-			imageUri = isThinking ? thinkingUri : avatarUri
+		const finalAvatarUri = avatarUriProp || avatarUri
+		const finalThinkingUri = thinkingUriProp || thinkingUri
+
+		if (finalAvatarUri && finalThinkingUri) {
+			imageUri = isThinking ? finalThinkingUri : finalAvatarUri
 			personaName = "오사랑" // 기본 페르소나는 사랑이
 		} else {
 			// 페르소나 이미지가 없는 경우 로딩 이미지 사용
@@ -127,7 +140,7 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 	}
 
 	// 이미지 에러 시 loading persona의 이미지 사용
-	if (imageError) {
+	if (imageError || !imageUri) {
 		imageUri = isThinking ? LOADING_PERSONA.thinkingAvatarUri : LOADING_PERSONA.avatarUri
 		const localeDetails = (LOADING_PERSONA[currentLocale as keyof typeof LOADING_PERSONA] as any) || LOADING_PERSONA.en
 		personaName = localeDetails?.name || ""
@@ -137,7 +150,7 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 
 	// CARET MODIFICATION: Debug logging for image switching
 	useEffect(() => {
-		caretWebviewLogger.debug("PersonaAvatar: Direct injection mode", {
+		caretWebviewLogger.debug("PersonaAvatar: State update", {
 			personaName,
 			isThinking,
 			imageUri: imageUri ? imageUri.substring(0, 50) + "..." : "none",
@@ -145,8 +158,10 @@ export const PersonaAvatar: React.FC<PersonaAvatarProps> = ({
 			hasPersonaProfile: !!personaProfile,
 			hasPersonaThinking: !!personaThinking,
 			testMode: testPersona !== null,
+			avatarUriProp: !!avatarUriProp,
+			thinkingUriProp: !!thinkingUriProp,
 		})
-	}, [isThinking, personaName, imageUri, imageError, personaProfile, personaThinking, testPersona])
+	}, [isThinking, personaName, imageUri, imageError, personaProfile, personaThinking, testPersona, avatarUriProp, thinkingUriProp])
 
 	return (
 		<img

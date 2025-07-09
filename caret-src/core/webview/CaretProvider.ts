@@ -27,6 +27,9 @@ export class CaretProvider implements vscode.WebviewViewProvider {
 	private providerType: WebviewProviderType
 	private caretLogger: CaretLogger // Add caretLogger as a member
 	private auth0Client?: Auth0Client // CARET MODIFICATION: Add Auth0Client field
+	private _personaProfileDataUri: string = "" // CARET MODIFICATION: Add persona profile data URI
+	private _personaThinkingDataUri: string = "" // CARET MODIFICATION: Add persona thinking data URI
+	private static instance: CaretProvider | null = null // CARET MODIFICATION: Add singleton instance
 
 	constructor(
 		public readonly context: vscode.ExtensionContext,
@@ -45,10 +48,23 @@ export class CaretProvider implements vscode.WebviewViewProvider {
 		this.caretLogger.setOutputChannel(outputChannel)
 		this.caretLogger.extensionActivated()
 		this.caretLogger.welcomePageLoaded() // Use instance method instead of global function
+		
+		// CARET MODIFICATION: Set singleton instance
+		CaretProvider.instance = this
 	}
 
 	public getClientId(): string {
 		return this.clientId
+	}
+
+	// CARET MODIFICATION: Add getInstance static method
+	public static getInstance(): CaretProvider | null {
+		return CaretProvider.instance
+	}
+
+	// CARET MODIFICATION: Add getVisibleInstance static method for compatibility with extension.ts
+	public static getVisibleInstance(): CaretProvider | null {
+		return CaretProvider.instance && CaretProvider.instance.view?.visible ? CaretProvider.instance : null
 	}
 
 	public async resolveWebviewView(webviewView: vscode.WebviewView | vscode.WebviewPanel) {
@@ -556,14 +572,14 @@ export class CaretProvider implements vscode.WebviewViewProvider {
 				const profileBuffer = fs.readFileSync(profilePath)
 				personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
 				this._personaProfileDataUri = personaProfileDataUri
-				caretLogger.debug(`[CaretProvider] Persona profile updated, size: ${profileBuffer.length} bytes`)
+				this.caretLogger.debug(`[CaretProvider] Persona profile updated, size: ${profileBuffer.length} bytes`)
 			}
 
 			if (fs.existsSync(thinkingPath)) {
 				const thinkingBuffer = fs.readFileSync(thinkingPath)
 				personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
 				this._personaThinkingDataUri = personaThinkingDataUri
-				caretLogger.debug(`[CaretProvider] Persona thinking updated, size: ${thinkingBuffer.length} bytes`)
+				this.caretLogger.debug(`[CaretProvider] Persona thinking updated, size: ${thinkingBuffer.length} bytes`)
 			}
 
 			// 2. 웹뷰에 메시지 전송
@@ -576,12 +592,12 @@ export class CaretProvider implements vscode.WebviewViewProvider {
 					},
 				})
 
-				caretLogger.info("[CaretProvider] 페르소나 이미지 업데이트 알림 전송 완료")
+				this.caretLogger.info("[CaretProvider] 페르소나 이미지 업데이트 알림 전송 완료")
 			} else {
-				caretLogger.warn("[CaretProvider] 페르소나 이미지를 찾을 수 없어 업데이트 알림을 보내지 않았습니다.")
+				this.caretLogger.warn("[CaretProvider] 페르소나 이미지를 찾을 수 없어 업데이트 알림을 보내지 않았습니다.")
 			}
 		} catch (e) {
-			caretLogger.error(`[CaretProvider] 페르소나 이미지 업데이트 알림 실패: ${e}`)
+			this.caretLogger.error(`[CaretProvider] 페르소나 이미지 업데이트 알림 실패: ${e}`)
 		}
 	}
 }

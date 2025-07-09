@@ -15,13 +15,23 @@
 - Caret은 하드코딩을 지향하고 .env.dev와 .env.prod파일에서 환경설정을 읽어들여 구동함을 목표함
 webview-ui\.env.dev
 webview-ui\.env.prod
+ 에 위치하고 있음
+ ```
+ # Auth0 설정
+AUTH0_ISSUER_BASE_URL=https://dev-mhyfo64i58pmcx8a.us.auth0.com
+AUTH0_DOMAIN='dev-mhyfo64i58pmcx8a.us.auth0.com'
+AUTH0_CLIENT_ID='dJfQIAoLllarppDygmrcLyIPjuZpIcJP'
+AUTH0_CLIENT_SECRET='5NXKiI37SP6MSfQF7t1lcINV_dZ_leN_7g_dgQNivYjRYRi9TBMwsYjGCfHFlA3X'
+AUTH0_AUDIENCE=https://dev-api.caret.team
+AUTH0_CALLBACK_URL=https://dev-api.caret.team/api/auth/callback
+ ```
 - 모든 기능은 cline과 유사하게 하는 것이 1차 목표임. 따라서 코드 구조도 유사하게 진행하지만 다국어 처리, 테스트등의 캐럿의 기본 개발 가이드는 반드시 준수해야함
  * 반드시 Cline의 코드 및 캐럿의 개발 가이드, 아키텍처, 다국어 처리, 테스트 주도 개발 방법론을 먼저 읽고 할 것
  * CaretProvider는 ClineProvider와는 별도의 신규기능과 대체 서비스이므로 상속을 받지 말고 참고하여 신규로 개발 할 것. 혹시 상속된 Caret소스가 있다면 제거하고 독립성을 보장하게 할 것 
 - 기존의 코드는 구현이 안된 사항이 많으므로 반드시!!! 확인 필요
 - CORS처리에 주의하고, 문제 발생 시 Cline의 백업 소스를 참고해서 어떻게 해결했는지 확인할것
 
-## 📋 **현재 진행상황 (2025-01-25)**
+## 📋 **현재 진행상황 (2025-07-09)**
 
 ### **✅ 완료된 작업들**
 

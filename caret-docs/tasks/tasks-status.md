@@ -7,8 +7,7 @@
   [007-01-plan-service-homepage-integration.md](./007-01-plan-service-homepage-integration.md)
 
 ### justin (담당자)
-- **Task #016:** 페르소나 초기화 및 이미지 문제 해결 (담당자: luke)
-  [016-persona-initialization-fix.md](./016-persona-initialization-fix.md)
+
 
 ## 대기 중인 작업 (Pending)
 
@@ -32,6 +31,8 @@
 
 
 ## 완료된 작업번호:담당자 (Complete)
+- **Task #016:** 페르소나 초기화 및 이미지 문제 해결 (담당자: luke)
+  [016-persona-initialization-fix.md](./016-persona-initialization-fix.md)
 - **Task #019:** 캐럿티브 홈페이지 개발 (담당자: luke)
   [019-caretive-homepage-development.md](./019-caretive-homepage-development.md)
 - **Task #015:** 웹뷰 UI 개선 (웰컴뷰 및 메인 페이지) (담당자: luke)

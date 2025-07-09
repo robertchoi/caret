@@ -7,6 +7,7 @@ import type { PersonaInstruction, TemplateCharacter } from "../../../../src/shar
 import { ExtensionStateContext } from "../../context/ExtensionStateContext"
 import { vscode } from "@/utils/vscode"
 import { WebviewMessage } from "../../../../src/shared/WebviewMessage"
+import PersonaAvatar from "./PersonaAvatar"
 
 interface PersonaManagementProps {
 	className?: string
@@ -15,9 +16,6 @@ interface PersonaManagementProps {
 export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className }) => {
 	const [isSelectorOpen, setIsSelectorOpen] = useState(false)
 	const [selectedPersona, setSelectedPersona] = useState<TemplateCharacter | null>(null)
-	const [currentPersonaImages, setCurrentPersonaImages] = useState<{ avatarUri: string; thinkingAvatarUri: string } | null>(
-		null,
-	)
 	const [currentInstruction, setCurrentInstruction] = useState<string>("")
 	const [uploadMessage, setUploadMessage] = useState<string>("")
 	const [isUploading, setIsUploading] = useState<boolean>(false)
@@ -64,11 +62,6 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 	}
 
 	useEffect(() => {
-		// Request current persona images for display
-		vscode.postMessage({
-			type: "REQUEST_PERSONA_IMAGES",
-		})
-
 		vscode.postMessage({
 			type: "REQUEST_TEMPLATE_CHARACTERS",
 		})
@@ -82,19 +75,6 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
 			const message = event.data
-
-			// Handle current persona images response
-			if (message.type === "RESPONSE_PERSONA_IMAGES") {
-				const personaData = message.payload
-				caretWebviewLogger.debug("PersonaManagement: Received current persona images:", personaData)
-
-				if (personaData && personaData.avatarUri && personaData.thinkingAvatarUri) {
-					setCurrentPersonaImages({
-						avatarUri: personaData.avatarUri,
-						thinkingAvatarUri: personaData.thinkingAvatarUri,
-					})
-				}
-			}
 
 			if (message.type === "RESPONSE_TEMPLATE_CHARACTERS") {
 				const characters: TemplateCharacter[] = message.payload
@@ -138,11 +118,6 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 						caretWebviewLogger.info(`Custom persona image saved to: ${message.payload.savedPath}`)
 					}
 
-					// Refresh current persona images to show updated custom images
-					vscode.postMessage({
-						type: "REQUEST_PERSONA_IMAGES",
-					})
-
 					// Also refresh persona templates
 					vscode.postMessage({
 						type: "REQUEST_TEMPLATE_CHARACTERS",
@@ -155,11 +130,6 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 			}
 
 			if (message.type === "PERSONA_UPDATED") {
-				// Refresh current persona images
-				vscode.postMessage({
-					type: "REQUEST_PERSONA_IMAGES",
-				})
-
 				vscode.postMessage({
 					type: "REQUEST_TEMPLATE_CHARACTERS",
 				})
@@ -203,24 +173,12 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 
 		setIsSelectorOpen(false)
 
-		// CARET MODIFICATION: 즉시 웹뷰 내 컴포넌트들에게 이미지 변경 사항 브로드캐스트
-		window.postMessage(
-			{
-				type: "RESPONSE_PERSONA_IMAGES",
-				payload: {
-					avatarUri: character.avatarUri,
-					thinkingAvatarUri: character.thinkingAvatarUri,
-				},
-			},
-			"*",
-		)
-
-		// 로컬 상태도 즉시 갱신해 Settings 창 썸네일이 바로 바뀌도록 처리
-		setCurrentPersonaImages({ avatarUri: character.avatarUri, thinkingAvatarUri: character.thinkingAvatarUri })
-
 		// CARET MODIFICATION: 글로벌 변수 업데이트로 새로 마운트되는 컴포넌트가 최신 이미지를 즉시 사용
 		;(window as any).personaProfile = character.avatarUri
 		;(window as any).personaThinking = character.thinkingAvatarUri
+
+		// Let other components know that the persona has been updated
+		window.postMessage({ type: "PERSONA_UPDATED" }, "*")
 	}
 
 	const getPersonaName = () => {
@@ -233,72 +191,62 @@ export const PersonaManagement: React.FC<PersonaManagementProps> = ({ className 
 		<div className={className} data-testid="persona-management">
 			<div className="text-sm font-normal mb-2">{t("rules.section.personaManagement", "common")}</div>
 
-			{currentPersonaImages && (
-				<div className="mb-4 mt-2">
-					<div className="flex justify-center space-x-4 mb-2">
-						<div className="text-center">
-							<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1">
-								{t("normalState", "persona")}
-							</div>
-							<img
-								src={currentPersonaImages.avatarUri}
-								alt="Current persona normal"
-								className="w-20 h-20 rounded-full object-cover border-2 border-[var(--vscode-settings-headerBorder)]"
-							/>
-							<VSCodeButton
-								appearance="icon"
-								className="mt-2"
-								onClick={() => handleImageUpload("normal")}
-								disabled={isUploading}
-								title={t("upload.normal", "persona")}>
-								<span className="codicon codicon-cloud-upload"></span>
-							</VSCodeButton>
+			<div className="mb-4 mt-2">
+				<div className="flex justify-center space-x-4 mb-2">
+					<div className="text-center">
+						<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1">{t("normalState", "persona")}</div>
+						<PersonaAvatar isThinking={false} size={80} />
+						<VSCodeButton
+							appearance="icon"
+							className="mt-2"
+							onClick={() => handleImageUpload("normal")}
+							disabled={isUploading}
+							title={t("upload.normal", "persona")}>
+							<span className="codicon codicon-cloud-upload"></span>
+						</VSCodeButton>
+					</div>
+					<div className="text-center">
+						<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1">
+							{t("thinkingState", "persona")}
 						</div>
-						<div className="text-center">
-							<div className="text-xs text-[var(--vscode-descriptionForeground)] mb-1">
-								{t("thinkingState", "persona")}
-							</div>
-							<img
-								src={currentPersonaImages.thinkingAvatarUri}
-								alt="Current persona thinking"
-								className="w-20 h-20 rounded-full object-cover border-2 border-[var(--vscode-settings-headerBorder)]"
-							/>
-							<VSCodeButton
-								appearance="icon"
-								className="mt-2"
-								onClick={() => handleImageUpload("thinking")}
-								disabled={isUploading}
-								title={t("upload.thinking", "persona")}>
-								<span className="codicon codicon-cloud-upload"></span>
-							</VSCodeButton>
-						</div>
-					</div>					
-
-					{(uploadMessage || isUploading) && (
-						<div className="text-center mt-2">
-							{isUploading ? (
-								<span className="text-xs text-[var(--vscode-descriptionForeground)]">?�로??�?..</span>
-							) : uploadMessage ? (
-								<span
-									className={`text-xs ${uploadMessage.includes("success") || uploadMessage.includes("?�공") ? "text-[var(--vscode-charts-green)]" : "text-[var(--vscode-errorForeground)]"}`}>
-									{uploadMessage}
-								</span>
-							) : null}
-						</div>
-					)}
+						<PersonaAvatar isThinking={true} size={80} />
+						<VSCodeButton
+							appearance="icon"
+							className="mt-2"
+							onClick={() => handleImageUpload("thinking")}
+							disabled={isUploading}
+							title={t("upload.thinking", "persona")}>
+							<span className="codicon codicon-cloud-upload"></span>
+						</VSCodeButton>
+					</div>
 				</div>
-			)}
 
-			{currentPersonaImages && (
-				<div className="flex justify-center space-x-2 mb-4">
-					<VSCodeButton appearance="secondary" onClick={() => handleImageUpload("normal")} disabled={isUploading}>
-						{t("upload.normal", "persona")}
-					</VSCodeButton>
-					<VSCodeButton appearance="secondary" onClick={() => handleImageUpload("thinking")} disabled={isUploading}>
-						{t("upload.thinking", "persona")}
-					</VSCodeButton>
-				</div>
-			)}
+				{(uploadMessage || isUploading) && (
+					<div className="text-center mt-2">
+						{isUploading ? (
+							<span className="text-xs text-[var(--vscode-descriptionForeground)]">Uploading...</span>
+						) : uploadMessage ? (
+							<span
+								className={`text-xs ${
+									uploadMessage.includes("success") || uploadMessage.includes("성공")
+										? "text-[var(--vscode-charts-green)]"
+										: "text-[var(--vscode-errorForeground)]"
+								}`}>
+								{uploadMessage}
+							</span>
+						) : null}
+					</div>
+				)}
+			</div>
+
+			<div className="flex justify-center space-x-2 mb-4">
+				<VSCodeButton appearance="secondary" onClick={() => handleImageUpload("normal")} disabled={isUploading}>
+					{t("upload.normal", "persona")}
+				</VSCodeButton>
+				<VSCodeButton appearance="secondary" onClick={() => handleImageUpload("thinking")} disabled={isUploading}>
+					{t("upload.thinking", "persona")}
+				</VSCodeButton>
+			</div>
 
 			<div className="flex justify-end">
 				<VSCodeButton appearance="secondary" onClick={handleSelectPersonaTemplate}>

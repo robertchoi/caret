@@ -145,6 +145,56 @@ const CARET_THEME = {
 
 **원칙**: 모든 텍스트는 i18n 시스템을 통해 관리합니다.
 
+### **6. 단일 책임 아바타 컴포넌트 (Single-Responsibility Avatar Component)**
+
+**원칙**: 페르소나 아바타 표시에 대한 모든 로직을 `PersonaAvatar`라는 단일 컴포넌트에 캡슐화하여 재사용성과 유지보수성을 극대화합니다.
+
+**설명**: `PersonaAvatar` 컴포넌트는 페르소나의 일반 상태와 생각 중인 상태의 이미지를 표시하는 책임을 가집니다. 이미지 URI를 내부적으로 관리하고, `ExtensionStateContext`의 초기값과 백엔드로부터 받는 `RESPONSE_PERSONA_IMAGES` 메시지를 통해 동적으로 업데이트합니다. 또한, 이미지 로딩 중이거나 오류가 발생했을 때를 대비한 폴백(Fallback) 이미지를 내장하고 있어, 어떤 상황에서도 깨진 이미지가 노출되지 않도록 보장합니다.
+
+**주요 기능**:
+-   **상태 분기**: `isThinking` boolean prop을 통해 생각 중인 아바타와 일반 아바타를 손쉽게 전환합니다.
+-   **동적 업데이트**: 컴포넌트가 마운트될 때 `REQUEST_PERSONA_IMAGES` 메시지를 보내 항상 최신 이미지를 표시하도록 요청합니다.
+-   **유연한 스타일링**: `size` prop으로 크기를 조절하고 `className`과 `style` prop으로 추가적인 스타일링이 가능합니다.
+-   **견고한 에러 처리**: 이미지 로드 실패 시, 내장된 SVG 폴백 이미지를 표시하여 사용자 경험을 해치지 않습니다.
+
+```typescript
+// ✅ 올바른 PersonaAvatar 사용 예시
+
+// HomeHeader.tsx: 간단한 아바타 표시
+import PersonaAvatar from "@/caret/components/PersonaAvatar"
+
+const HomeHeader = () => (
+  <div className="flex flex-col items-center mb-5">
+    <div className="my-5">
+      <PersonaAvatar size={64} />
+    </div>
+    {/* ... */}
+  </div>
+)
+
+// ChatRow.tsx: 생각 중인 상태와 일반 상태 분기
+const ChatRowContent = ({ message }) => {
+  // ...
+  if (message.say === "text") {
+    return (
+      <div style={{ display: "flex", gap: "8px" }}>
+        <PersonaAvatar isThinking={false} size={64} />
+        {/* ... */}
+      </div>
+    )
+  }
+  if (message.say === "reasoning") {
+    return (
+      <div style={{ display: "flex", gap: "8px" }}>
+        <PersonaAvatar isThinking={true} size={64} />
+        {/* ... */}
+      </div>
+    )
+  }
+  // ...
+}
+```
+
 ```typescript
 // ✅ 올바른 i18n 사용
 const CaretWelcomeHeader = () => {

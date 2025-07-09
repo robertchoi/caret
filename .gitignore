@@ -93,3 +93,6 @@ build/Release
 
 # Temporary submodule reference (서브모듈로 임시 참조)
 caret-zero/
+
+# Auth0 설정 파일 (보안상 중요)
+src/core/controller/account/accountLoginClicked.ts

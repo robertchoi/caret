@@ -103,6 +103,8 @@ Caret 프로젝트 개발에 필요한 모든 정보를 체계적으로 정리�
 - **[개발자 가이드 (DEVELOPER_GUIDE.md)](./DEVELOPER_GUIDE.md)** - 빌드, 테스트, 패키징 기본 정보
 - **[개발 가이드 개요 (development/)](./caret-docs/development/index.mdx)** - 전체 개발 가이드 네비게이션
 - **[Caret 아키텍처 가이드](./caret-docs/development/caret-architecture-and-implementation-guide.mdx)** - Fork 구조, 확장 전략, 설계 원칙
+- **[확장 아키텍처 다이어그램](./caret-docs/development/extension-architecture.mmd)** - 전체 시스템 구조 시각화 (Mermaid)
+- **[신입 개발자 가이드](./caret-docs/development/new-developer-guide.mdx)** - 프로젝트 입문 및 개발 환경 구축
 
 #### 🧪 테스트 & 품질 관리
 - **[테스트 가이드](./caret-docs/development/testing-guide.mdx)** - TDD, 테스트 작성 표준, 커버리지 관리
@@ -111,20 +113,39 @@ Caret 프로젝트 개발에 필요한 모든 정보를 체계적으로 정리�
 #### 🔄 Frontend-Backend 통신
 - **[상호작용 패턴](./caret-docs/development/frontend-backend-interaction-patterns.mdx)** - 순환 메시지 방지, Optimistic Update
 - **[Webview 통신](./caret-docs/development/webview-extension-communication.mdx)** - 메시지 타입, 상태 관리, 통신 구조
+- **[UI-Storage 플로우](./caret-docs/development/ui-to-storage-flow.mdx)** - 데이터 흐름 및 상태 관리 패턴
+
+#### 🤖 AI 시스템 구현
+- **[AI 메시지 플로우 가이드](./caret-docs/development/ai-message-flow-guide.mdx)** - AI 메시지 송수신 전체 플로우
+- **[시스템 프롬프트 구현](./caret-docs/development/system-prompt-implementation.mdx)** - 시스템 프롬프트 설계 및 구현
+- **[메시지 처리 아키텍처](./caret-docs/development/message-processing-architecture.mdx)** - 메시지 처리 시스템 설계
 
 #### 🎨 UI/UX 개발
 - **[컴포넌트 아키텍처](./caret-docs/development/component-architecture-principles.mdx)** - React 컴포넌트 설계 원칙
-- **[i18n 시스템](./caret-docs/development/backend-i18n-system.mdx)** - 다국어 지원 구현
+- **[프론트엔드 i18n 시스템](./caret-docs/development/locale.mdx)** - 다국어 지원 구현 (UI)
+- **[백엔드 i18n 시스템](./caret-docs/development/backend-i18n-system.mdx)** - 다국어 지원 구현 (시스템 메시지)
+
+#### 🔧 개발 도구 & 유틸리티
+- **[유틸리티 가이드](./caret-docs/development/utilities.mdx)** - 개발 유틸리티 사용법
+- **[파일 저장 및 이미지 로딩](./caret-docs/development/file-storage-and-image-loading-guide.mdx)** - 파일 처리 시스템
+- **[링크 관리 가이드](./caret-docs/development/link-management-guide.mdx)** - 링크 관리 시스템
+- **[지원 모델 목록](./caret-docs/development/support-model-list.mdx)** - AI 모델 지원 현황
+
+#### 📖 문서화 & 규약
+- **[문서화 가이드](./caret-docs/development/documentation-guide.mdx)** - 문서 작성 표준 및 규약
+- **[JSON 주석 규약](./caret-docs/development/json-comment-conventions.mdx)** - JSON 파일 주석 작성 규칙
 
 #### 🤖 AI 작업 방법론
+- **[AI 작업 인덱스 가이드](./caret-docs/development/ai-work-index.mdx)** - **AI 필수 선행 독해** 📋
 - **[AI 작업 가이드](./caret-docs/guides/ai-work-method-guide.mdx)** - TDD, 아키텍처 검토, Phase 기반 작업
 
 ### 🎯 빠른 시작을 위한 워크플로우
 
 1. **환경 설정**: [개발자 가이드](./DEVELOPER_GUIDE.md) → [개발 가이드 개요](./caret-docs/development/index.mdx)
-2. **아키텍처 이해**: [Caret 아키텍처 가이드](./caret-docs/development/caret-architecture-and-implementation-guide.mdx)
-3. **개발 시작**: [AI 작업 가이드](./caret-docs/guides/ai-work-method-guide.mdx) → [테스트 가이드](./caret-docs/development/testing-guide.mdx)
-4. **고급 기능**: [상호작용 패턴](./caret-docs/development/frontend-backend-interaction-patterns.mdx) → [컴포넌트 아키텍처](./caret-docs/development/component-architecture-principles.mdx)
+2. **프로젝트 이해**: [신입 개발자 가이드](./caret-docs/development/new-developer-guide.mdx) → [Caret 아키텍처 가이드](./caret-docs/development/caret-architecture-and-implementation-guide.mdx)
+3. **AI 시스템 이해**: [AI 메시지 플로우 가이드](./caret-docs/development/ai-message-flow-guide.mdx) → [시스템 프롬프트 구현](./caret-docs/development/system-prompt-implementation.mdx)
+4. **개발 시작**: [AI 작업 가이드](./caret-docs/guides/ai-work-method-guide.mdx) → [테스트 가이드](./caret-docs/development/testing-guide.mdx)
+5. **고급 기능**: [상호작용 패턴](./caret-docs/development/frontend-backend-interaction-patterns.mdx) → [컴포넌트 아키텍처](./caret-docs/development/component-architecture-principles.mdx)
 
 ### 📖 추가 자료
 
@@ -133,3 +154,5 @@ Caret 프로젝트 개발에 필요한 모든 정보를 체계적으로 정리�
 - **[사용자 가이드](./caret-docs/user-guide/)** - 최종 사용자를 위한 사용법
 
 💡 **개발 시작 전 필독**: [AI 작업 방법론 가이드](./caret-docs/guides/ai-work-method-guide.mdx)에서 TDD 기반 개발 프로세스와 아키텍처 원칙을 먼저 숙지하시기 바랍니다.
+
+⚡ **AI 시스템을 이해하고 싶다면**: [AI 메시지 플로우 가이드](./caret-docs/development/ai-message-flow-guide.mdx)에서 사용자 메시지가 AI로 전송되고 응답받는 전체 과정을 확인하세요!

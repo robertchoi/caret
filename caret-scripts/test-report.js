@@ -215,7 +215,7 @@ console.log()
 console.log("🔍 Mission 1B-1 비교 테스트 실행 중...")
 const validatorStart = Date.now()
 const validatorResult = safeExec(
-	'npx vitest run "caret-src/__tests__/cline-caret-diff-comparison.test.ts"',
+	'npx vitest run "caret-src/__tests__/mission-1b-1-comparison.test.ts"',
 	"Mission 1B-1 비교 테스트",
 )
 results.validator.duration = Date.now() - validatorStart

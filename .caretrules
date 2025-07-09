@@ -83,13 +83,15 @@
   },
   "ai_task_protocol": {
     "task_start_protocol": [
-      "Phase 0 - MANDATORY Pre-Review & Architecture Decision: User identification, date confirmation, work log check",
-      "CRITICAL: Task Nature Analysis - Identify task type and check MANDATORY documents by category",
-      "CRITICAL: Architecture Decision Checklist - Caret vs Cline directory, backup requirements",
+      "Phase 0 - MANDATORY Pre-Review: Read AI Work Index Guide first",
+      "STEP 1: Read caret-docs/development/ai-work-index.en.mdx (AI Work Index Guide)",
+      "STEP 2: Task Nature Analysis - Extract keywords and identify task category",
+      "STEP 3: Selective Document Reading - Read only required documents for the task category", 
+      "STEP 4: Architecture Decision Checklist - Caret vs Cline directory, backup requirements",
       "Phase 1 - TDD RED: Test file location verification, failing test creation with immediate verification",
       "Phase 2 - TDD GREEN: Implementation with STOP POINTS for Cline original file modifications",
       "Phase 3 - TDD REFACTOR: Code quality improvement and full system verification",
-      "CRITICAL: NO coding without task-specific document review and architecture decision approval"
+      "CRITICAL: Follow AI Work Index Guide for efficient context management"
     ],
     "task_nature_mandatory_documents": {
       "frontend_backend_interaction": [
@@ -379,21 +381,17 @@
         "Step 3: Run 'node caret-scripts/sync-caretrules.js' to synchronize the changes from .caretrules to other rule files."
       ],
       "ai_mandatory_task": "AI must strictly follow the 3-step sync procedure without skipping or changing the order.",
-      "sync_targets": [".cursorrules", ".windsurfrules (JSON format)"]
+      "sync_targets": [".cursorrules", ".windsurfrules (JSON format)"],
+      "content_principles": {
+        "include_only": "Immutable project principles and core architectural decisions",
+        "exclude_always": ["Time-sensitive status", "Specific dates", "Current progress", "Detailed implementation", "Tool-specific configurations"],
+        "ai_error_prevention": "AI must halt work if attempting to add non-essential information to .caretrules"
+      }
     }
   },
   "key_reference_files": {
     "config_files": [".caretrules", "caret-docs/caretrules.ko.md", "caret-docs/development/index.mdx"],
     "entry_points": ["caret-src/extension.ts", "caret-src/core/webview/CaretProvider.ts", "src/extension.ts"],
     "frontend": ["webview-ui/src/App.tsx", "webview-ui/src/context/ExtensionStateContext.tsx", "webview-ui/src/caret/"]
-  },
-  "current_system_status": {
-    "documentation_system": "MDX format standardized, 100% code alignment verified, development guide optimization completed with 13% token reduction",
-    "test_framework": "Vitest-based TDD methodology enforced",
-    "logging_system": "Integrated Logger (backend with Cline API compatibility), WebviewLogger (frontend) active with automatic dev/prod mode detection",
-    "build_system": "Protocol Buffer compilation integrated",
-    "architecture_protection": "Cline original file modification rules with mandatory checklist",
-    "quality_standards": "TDD mandatory, immediate verification principle applied",
-    "documentation_optimization": "Completed 2025-01-21: unified test guides, enhanced README/DEVELOPER_GUIDE connectivity, 7% file reduction"
   }
 }

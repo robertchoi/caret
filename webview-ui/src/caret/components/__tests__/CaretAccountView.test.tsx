@@ -4,7 +4,7 @@ import { ClineAccountView } from "../CaretAccountView"
 import { useFirebaseAuth } from "@/context/FirebaseAuthContext"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { AccountServiceClient } from "@/services/grpc-client"
-import { t } from "@/caret/utils/i18n"
+import { t, getLink } from "@/caret/utils/i18n"
 import { getUrl } from "@/caret/constants/urls"
 
 // Mock dependencies
@@ -35,6 +35,22 @@ vi.mock("@/caret/utils/i18n", () => ({
 		}
 		return translations[key] || key
 	}),
+	getLink: vi.fn((key: string) => {
+		const links: Record<string, string> = {
+			CARETIVE_TERMS: "https://caretive.com/terms",
+			CARETIVE_PRIVACY: "https://caretive.com/privacy",
+			CARET_TERMS_OF_SERVICE: "https://caret.team/tos",
+			CARET_PRIVACY_POLICY: "https://caret.team/privacy",
+		}
+		return links[key] || key
+	}),
+	getGlobalLink: vi.fn((key: string) => {
+		const links: Record<string, string> = {
+			CARET_GITHUB: "https://github.com/aicoding-caret/caret",
+			CARETIVE_COMPANY: "https://caretive.com",
+		}
+		return links[key] || key
+	}),
 }))
 
 // Mock URLs
@@ -62,6 +78,7 @@ const mockUseExtensionState = vi.mocked(useExtensionState)
 const mockAccountServiceClient = vi.mocked(AccountServiceClient)
 const mockT = vi.mocked(t)
 const mockGetUrl = vi.mocked(getUrl)
+const mockGetLink = vi.mocked(getLink)
 
 describe("CaretAccountView - TDD Implementation", () => {
 	beforeEach(() => {
@@ -127,9 +144,9 @@ describe("CaretAccountView - TDD Implementation", () => {
 
 			render(<ClineAccountView />)
 
-			// Verify Caret URLs are used for terms and privacy
-			expect(mockGetUrl).toHaveBeenCalledWith("CARET_TERMS_OF_SERVICE")
-			expect(mockGetUrl).toHaveBeenCalledWith("CARET_PRIVACY_POLICY")
+			// Verify Caret URLs are used for terms and privacy - using getLink instead of getUrl
+			expect(mockGetLink).toHaveBeenCalledWith("CARETIVE_TERMS")
+			expect(mockGetLink).toHaveBeenCalledWith("CARETIVE_PRIVACY")
 		})
 
 		it("should display Dashboard and Add Credits buttons for logged in users", () => {

@@ -133,23 +133,31 @@ chore: 빌드/설정 변경
 
 **작업 시작 프로토콜 (CRITICAL)** - AI 어시스턴트는 다음 순서를 **반드시** 준수:
 
-**Phase 0: 필수 사전 검토 및 아키텍처 결정 (MANDATORY)**
-*   **목표:** 본격적인 개발에 앞서 작업의 방향을 설정하고, 프로젝트 규칙에 맞는 최적의 설계도를 그리는 단계입니다.
+**Phase 0: 필수 사전 검토 - AI 작업 인덱스 가이드 우선 독해 (MANDATORY)**
+*   **목표:** 효율적인 컨텍스트 관리를 통해 작업 성격에 맞는 문서만 선택적으로 독해하여 개발 효율성을 극대화하는 단계입니다.
 
-1.  **사용자 식별**: `git config user.name`으로 현재 사용자 확인
-2.  **날짜 확인**: OS별 명령어로 현재 날짜 확인  
-3.  **작업 로그 확인/생성**: `caret-docs/work-logs/{username}/{date}.md`
-4.  **관련 작업 문서 식별**: `caret-docs/tasks/task-status.md` 참조
+**STEP 1: AI 작업 인덱스 가이드 독해**
+- [ ] **필수 독해**: `caret-docs/development/ai-work-index.en.mdx` (AI 작업 인덱스 가이드) 완전 독해
+- [ ] **컨텍스트 효율성**: 모든 문서를 읽지 말고 작업에 필요한 문서만 선택적으로 독해
 
-**🚨 CRITICAL: 작업 성격 분석 및 필수 문서 확인**
-- [ ] 작업 유형 식별 후 해당 필수 문서 **완전히** 읽기:
-  - Frontend-Backend 상호작용 → `frontend-backend-interaction-patterns.mdx`
-  - Cline 원본 수정 → 파일 수정 체크리스트 + `caretrules.ko.md`
-  - 컴포넌트 개발 → `component-architecture-principles.mdx`
-  - 테스트 관련 → `testing-guide.mdx`
-  - 페르소나 → setPersona 패턴 문서
+**STEP 2: 작업 성격 분석**
+- [ ] **키워드 추출**: 사용자 요청에서 핵심 키워드 추출
+- [ ] **카테고리 식별**: 키워드 기반으로 작업 카테고리 분류
+  - 🏗️ 아키텍처 & 설계 관련
+  - 🤖 AI 시스템 개발
+  - 🔄 Frontend-Backend 통신
+  - 🎨 UI/UX 개발
+  - 🧪 테스트 & 품질 관리
+  - 🔧 개발 도구 & 유틸리티
+  - 📖 문서화 & 규약
+  - 🚨 Cline 원본 수정
 
-**🚨 CRITICAL: 아키텍처 결정 체크리스트**
+**STEP 3: 선택적 문서 독해**
+- [ ] **High Priority**: 직접 관련된 핵심 문서 (1-2개) 완전 독해
+- [ ] **Medium Priority**: 간접 관련 문서 (필요시만 부분 독해)
+- [ ] **Low Priority**: 참고용 문서 (링크만 확인)
+
+**STEP 4: 아키텍처 결정 체크리스트**
 - [ ] 이 기능은 Caret 전용인가? 
   - YES → `caret-src/` 또는 `webview-ui/src/caret/`
   - NO → Cline 원본 최소 수정 + 백업 필수
@@ -161,7 +169,7 @@ chore: 빌드/설정 변경
   - webview → `webview-ui/src/caret/**/*.test.tsx`
   - 백엔드 → `caret-src/__tests__/`
 
-5. **계획 수립 및 개발자 승인**: 아키텍처 결정 사항 명시 후 개발자 승인 요청
+**STEP 5: 계획 수립 및 개발자 승인**: 아키텍처 결정 사항 명시 후 개발자 승인 요청
 
 **핵심 개발 원칙**:
 - **품질 우선**: 속도보다 정확성과 품질 우선
@@ -625,6 +633,24 @@ node caret-scripts/test-report.js             # 테스트 리포트 생성
     3. `node caret-scripts/sync-caretrules.js` 스크립트를 실행하여, `.caretrules`의 변경사항을 다른 룰 파일(`.cursorrules` 등)에 동기화합니다.
 - **AI 필수 작업**: 위 3단계 절차를 **절대** 생략하거나 순서를 바꾸지 않습니다.
 - **동기화 대상**: `.cursorrules`, `.windsurfrules` (JSON 형식)
+
+**🚨 .caretrules 파일 내용 원칙 (CRITICAL)**:
+- **불변 원칙만 포함**: 시간이 지나도 변하지 않는 핵심 프로젝트 원칙만 포함
+- **시간 민감 정보 금지**: 
+  - 날짜가 포함된 상태 정보 (`"2025-01-21 완료"` 등)
+  - 현재 시스템 상태 (`"current_system_status"` 등)
+  - 구체적인 파일 버전 정보
+  - 일시적인 작업 진행 상황
+- **세부 구현 정보 금지**:
+  - 구체적인 파일 내용이나 코드 스니펫
+  - 특정 버전에만 해당하는 기술적 세부사항
+  - 개발 도구의 구체적인 설정값
+- **허용되는 내용**:
+  - 아키텍처 원칙과 설계 방향
+  - 개발 방법론 (TDD, 백업 규칙 등)
+  - 파일 구조와 네이밍 컨벤션
+  - 품질 표준과 테스트 원칙
+- **AI 실수 방지**: AI가 .caretrules 업데이트 시 위 원칙 위반 시 작업 중단 및 검토 요청
 
 ## 핵심 참조 파일
 

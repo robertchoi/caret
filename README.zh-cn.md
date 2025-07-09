@@ -95,4 +95,103 @@ Caret是一个与您的参与共同成长的开源项目。我们欢迎任何形
 
 ## 🛠️ 开发者指南
 
-有关Caret项目开发的详细信息，例如构建、测试和打包，请参阅**[开发者指南(DEVELOPER_GUIDE.md)](./DEVELOPER_GUIDE.en.md)**。
+### 🏗️ 项目架构
+
+Caret采用**叠加架构**，通过最小化修改保持Cline的稳定性，并在特定目录中添加Caret功能：
+
+- **`src/`** - Cline原始代码（保持完整性）
+- **`caret-src/`** - Caret扩展功能
+- **`webview-ui/`** - React前端（利用Cline构建系统）
+- **`caret-docs/`** - Caret文档系统
+
+### 🛠️ 开发环境设置
+
+```bash
+# 克隆项目
+git clone https://github.com/aicoding-caret/caret.git
+cd caret
+
+# 安装依赖
+npm install
+cd webview-ui && npm install && cd ..
+
+# 构建项目
+npm run protos
+npm run compile
+```
+
+### 🧪 测试
+
+```bash
+# 运行所有测试
+npm run test:all
+
+# 运行后端测试
+npm run test:backend
+
+# 运行前端测试
+npm run test:webview
+
+# 运行测试并查看覆盖率
+npm run caret:coverage
+```
+
+### 📦 构建和打包
+
+```bash
+# 开发构建
+npm run build:webview
+
+# 监视模式
+npm run watch
+
+# 生产打包
+npm run package:release
+```
+
+### 📚 开发资源
+
+#### 核心开发指南
+- **[开发指南](./caret-docs/development/index.mdx)** - 开发流程和方法论
+- **[架构指南](./caret-docs/development/caret-architecture-and-implementation-guide.mdx)** - 技术架构和实现
+- **[测试指南](./caret-docs/development/testing-guide.mdx)** - TDD方法论和测试标准
+
+#### AI系统开发
+- **[AI消息流指南](./caret-docs/development/ai-message-flow-guide.mdx)** - AI系统消息处理
+- **[系统提示实现](./caret-docs/development/system-prompt-implementation.mdx)** - 系统提示优化
+- **[多语言化后端](./caret-docs/development/backend-i18n-system.mdx)** - 国际化系统
+
+#### 前端开发
+- **[前后端交互模式](./caret-docs/development/frontend-backend-interaction-patterns.mdx)** - 通信模式
+- **[组件架构原则](./caret-docs/development/component-architecture-principles.mdx)** - UI组件设计
+- **[前端多语言化](./caret-docs/development/locale.mdx)** - 前端国际化
+
+#### 开发工具
+- **[日志系统](./caret-docs/development/logging.mdx)** - 开发和调试日志
+- **[构建脚本](./caret-docs/development/build-scripts.mdx)** - 构建和自动化
+- **[开发脚本](./caret-docs/development/development-scripts.mdx)** - 开发工具脚本
+
+### 🔍 问题解决
+
+#### 常见问题
+- **[故障排除](./caret-docs/development/troubleshooting.mdx)** - 常见问题解决
+- **[性能优化](./caret-docs/development/performance-optimization.mdx)** - 性能改进指南
+
+#### 工具和方法
+- **[调试技巧](./caret-docs/development/debugging-techniques.mdx)** - 调试方法
+- **[代码分析](./caret-docs/development/code-analysis-tools.mdx)** - 代码质量工具
+
+### 🎯 贡献指南
+
+1. **开发准备**: 参考[开发指南](./caret-docs/development/index.mdx)了解基本流程
+2. **架构理解**: 通过[架构指南](./caret-docs/development/caret-architecture-and-implementation-guide.mdx)了解系统设计
+3. **测试驱动**: 遵循[测试指南](./caret-docs/development/testing-guide.mdx)的TDD方法论
+4. **代码提交**: 参考[贡献指南](./CONTRIBUTING.en.md)了解详细流程
+
+### 🏢 企业支持
+
+需要企业级支持或自定义开发？请通过[支持页面](https://github.com/aicoding-caret/caret/discussions)联系我们。
+
+---
+
+**完整的开发者指南和详细文档**: [DEVELOPER_GUIDE.en.md](./DEVELOPER_GUIDE.en.md)

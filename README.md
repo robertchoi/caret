@@ -104,6 +104,8 @@ All information necessary for Caret project development is systematically organi
 - **[Developer Guide (DEVELOPER_GUIDE.md)](./DEVELOPER_GUIDE.en.md)** - Basic information on build, test, and packaging
 - **[Development Guide Overview (development/)](./caret-docs/development/index.en.mdx)** - Navigation for all development guides
 - **[Caret Architecture Guide](./caret-docs/development/caret-architecture-and-implementation-guide.en.mdx)** - Fork structure, extension strategy, design principles
+- **[Extension Architecture Diagram](./caret-docs/development/extension-architecture.mmd)** - Overall system structure visualization (Mermaid)
+- **[New Developer Guide](./caret-docs/development/new-developer-guide.en.mdx)** - Project onboarding and development environment setup
 
 #### 🧪 Testing & Quality Management
 - **[Testing Guide](./caret-docs/development/testing-guide.en.mdx)** - TDD, test writing standards, coverage management
@@ -112,20 +114,39 @@ All information necessary for Caret project development is systematically organi
 #### 🔄 Frontend-Backend Communication
 - **[Interaction Patterns](./caret-docs/development/frontend-backend-interaction-patterns.en.mdx)** - Preventing circular messages, Optimistic Update
 - **[Webview Communication](./caret-docs/development/webview-extension-communication.en.mdx)** - Message types, state management, communication structure
+- **[UI-Storage Flow](./caret-docs/development/ui-to-storage-flow.en.mdx)** - Data flow and state management patterns
+
+#### 🤖 AI System Implementation
+- **[AI Message Flow Guide](./caret-docs/development/ai-message-flow-guide.en.mdx)** - Complete AI message send/receive flow
+- **[System Prompt Implementation](./caret-docs/development/system-prompt-implementation.en.mdx)** - System prompt design and implementation
+- **[Message Processing Architecture](./caret-docs/development/message-processing-architecture.en.mdx)** - Message processing system design
 
 #### 🎨 UI/UX Development
 - **[Component Architecture](./caret-docs/development/component-architecture-principles.en.mdx)** - React component design principles
-- **[i18n System](./caret-docs/development/backend-i18n-system.en.mdx)** - Multilingual support implementation
+- **[Frontend i18n System](./caret-docs/development/locale.en.mdx)** - Multilingual support implementation (UI)
+- **[Backend i18n System](./caret-docs/development/backend-i18n-system.en.mdx)** - Multilingual support implementation (System Messages)
+
+#### 🔧 Development Tools & Utilities
+- **[Utilities Guide](./caret-docs/development/utilities.en.mdx)** - Development utilities usage
+- **[File Storage and Image Loading](./caret-docs/development/file-storage-and-image-loading-guide.en.mdx)** - File processing system
+- **[Link Management Guide](./caret-docs/development/link-management-guide.en.mdx)** - Link management system
+- **[Support Model List](./caret-docs/development/support-model-list.en.mdx)** - AI model support status
+
+#### 📖 Documentation & Conventions
+- **[Documentation Guide](./caret-docs/development/documentation-guide.en.mdx)** - Documentation standards and conventions
+- **[JSON Comment Conventions](./caret-docs/development/json-comment-conventions.en.mdx)** - JSON file comment writing rules
 
 #### 🤖 AI Work Methodology
+- **[AI Work Index Guide](./caret-docs/development/ai-work-index.en.mdx)** - **AI Essential Pre-Reading** 📋
 - **[AI Work Guide](./caret-docs/guides/ai-work-method-guide.en.mdx)** - TDD, architecture review, Phase-based work
 
 ### 🎯 Quick Start Workflow
 
 1. **Environment Setup**: [Developer Guide](./DEVELOPER_GUIDE.en.md) → [Development Guide Overview](./caret-docs/development/index.en.mdx)
-2. **Understand Architecture**: [Caret Architecture Guide](./caret-docs/development/caret-architecture-and-implementation-guide.en.mdx)
-3. **Start Development**: [AI Work Guide](./caret-docs/guides/ai-work-method-guide.en.mdx) → [Testing Guide](./caret-docs/development/testing-guide.en.mdx)
-4. **Advanced Features**: [Interaction Patterns](./caret-docs/development/frontend-backend-interaction-patterns.en.mdx) → [Component Architecture](./caret-docs/development/component-architecture-principles.en.mdx)
+2. **Project Understanding**: [New Developer Guide](./caret-docs/development/new-developer-guide.en.mdx) → [Caret Architecture Guide](./caret-docs/development/caret-architecture-and-implementation-guide.en.mdx)
+3. **AI System Understanding**: [AI Message Flow Guide](./caret-docs/development/ai-message-flow-guide.en.mdx) → [System Prompt Implementation](./caret-docs/development/system-prompt-implementation.en.mdx)
+4. **Start Development**: [AI Work Guide](./caret-docs/guides/ai-work-method-guide.en.mdx) → [Testing Guide](./caret-docs/development/testing-guide.en.mdx)
+5. **Advanced Features**: [Interaction Patterns](./caret-docs/development/frontend-backend-interaction-patterns.en.mdx) → [Component Architecture](./caret-docs/development/component-architecture-principles.en.mdx)
 
 ### 📖 Additional Resources
 
@@ -134,3 +155,5 @@ All information necessary for Caret project development is systematically organi
 - **[User Guide](./caret-docs/user-guide/)** - Usage instructions for end-users
 
 💡 **Mandatory read before starting development**: Please familiarize yourself with the TDD-based development process and architectural principles in the [AI Work Methodology Guide](./caret-docs/guides/ai-work-method-guide.en.mdx).
+
+⚡ **Want to understand AI system?**: Check the [AI Message Flow Guide](./caret-docs/development/ai-message-flow-guide.en.mdx) to see the complete process of how user messages are sent to AI and responses are received!

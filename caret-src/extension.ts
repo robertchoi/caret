@@ -216,6 +216,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	)
 	caretLogger.info("Caret extension activated and all commands registered.")
 
+	// CARET MODIFICATION: 페르소나 초기화 (custom_instructions.md가 없는 경우 기본값으로 설정)
+	try {
+		const { PersonaInitializer } = await import("./utils/persona-initializer")
+		const personaInitializer = new PersonaInitializer(context)
+		await personaInitializer.initialize()
+	} catch (error) {
+		caretLogger.error("Failed to initialize persona:", error)
+	}
+
 	// CARET MODIFICATION: Quick implementation of caret.focusChatInput to ensure webview visible
 	context.subscriptions.push(
 		vscode.commands.registerCommand("caret.focusChatInput", async () => {

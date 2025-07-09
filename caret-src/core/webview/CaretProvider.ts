@@ -536,4 +536,52 @@ export class CaretProvider implements vscode.WebviewViewProvider {
 		this.caretLogger.error(`Authentication error: ${error}`, "AUTH");
 		vscode.window.showErrorMessage(`Caret: Authentication failed. ${error?.message || error}`);
 	}
+
+	/**
+	 * CARET MODIFICATION: 페르소나 이미지 변경 알림 메서드
+	 * 페르소나 이미지가 변경될 때 웹뷰에 알리고 전역 변수를 업데이트합니다.
+	 * 이 메서드는 PersonaInitializer와 컨트롤러의 이미지 업로드 핸들러에서 호출됩니다.
+	 */
+	public notifyPersonaImagesChanged(): void {
+		try {
+			// 1. globalStorage에서 최신 이미지 로드
+			const personaDir = path.join(this.context.globalStorageUri.fsPath, "personas")
+			const profilePath = path.join(personaDir, "agent_profile.png")
+			const thinkingPath = path.join(personaDir, "agent_thinking.png")
+
+			let personaProfileDataUri = ""
+			let personaThinkingDataUri = ""
+
+			if (fs.existsSync(profilePath)) {
+				const profileBuffer = fs.readFileSync(profilePath)
+				personaProfileDataUri = `data:image/png;base64,${profileBuffer.toString("base64")}`
+				this._personaProfileDataUri = personaProfileDataUri
+				caretLogger.debug(`[CaretProvider] Persona profile updated, size: ${profileBuffer.length} bytes`)
+			}
+
+			if (fs.existsSync(thinkingPath)) {
+				const thinkingBuffer = fs.readFileSync(thinkingPath)
+				personaThinkingDataUri = `data:image/png;base64,${thinkingBuffer.toString("base64")}`
+				this._personaThinkingDataUri = personaThinkingDataUri
+				caretLogger.debug(`[CaretProvider] Persona thinking updated, size: ${thinkingBuffer.length} bytes`)
+			}
+
+			// 2. 웹뷰에 메시지 전송
+			if (personaProfileDataUri && personaThinkingDataUri) {
+				this.controller.postMessageToWebview({
+					type: "RESPONSE_PERSONA_IMAGES",
+					payload: {
+						avatarUri: personaProfileDataUri,
+						thinkingAvatarUri: personaThinkingDataUri,
+					},
+				})
+
+				caretLogger.info("[CaretProvider] 페르소나 이미지 업데이트 알림 전송 완료")
+			} else {
+				caretLogger.warn("[CaretProvider] 페르소나 이미지를 찾을 수 없어 업데이트 알림을 보내지 않았습니다.")
+			}
+		} catch (e) {
+			caretLogger.error(`[CaretProvider] 페르소나 이미지 업데이트 알림 실패: ${e}`)
+		}
+	}
 }

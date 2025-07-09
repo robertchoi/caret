@@ -760,11 +760,21 @@ export async function resetGlobalState(context: vscode.ExtensionContext) {
 
 	// CARET MODIFICATION: 페르소나 데이터도 초기화 (디버그 메뉴 완전 초기화)
 	try {
-		const { resetPersonaData } = await import("../../../caret-src/utils/persona-initialization")
+		const { resetPersonaData } = await import("../../../caret-src/utils/persona-initializer")
 		await resetPersonaData(context)
 	} catch (error) {
 		console.warn("Failed to reset persona data:", error)
 	}
+	
+	// CARET MODIFICATION: 초기화 후 기본 페르소나 설정
+	try {
+		const { PersonaInitializer } = await import("../../../caret-src/utils/persona-initializer")
+		const personaInitializer = new PersonaInitializer(context)
+		await personaInitializer.initialize()
+	} catch (error) {
+		console.warn("Failed to initialize persona after reset:", error)
+	}
+
 	const secretKeys: SecretKey[] = [
 		"apiKey",
 		"openRouterApiKey",

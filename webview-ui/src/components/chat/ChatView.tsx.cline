@@ -37,6 +37,7 @@ import AutoApproveBar from "./auto-approve-menu/AutoApproveBar"
 import { SuggestedTasks } from "../welcome/SuggestedTasks"
 import { BooleanRequest, EmptyRequest, StringRequest } from "@shared/proto/common"
 import { AskResponseRequest, NewTaskRequest } from "@shared/proto/task"
+import { t } from "@/caret/utils/i18n"
 
 interface ChatViewProps {
 	isHidden: boolean
@@ -281,6 +282,13 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							// setPrimaryButtonText(undefined)
 							// setSecondaryButtonText(undefined)
 							break
+						case "chatbot_mode_respond":
+							setSendingDisabled(isPartial)
+							setClineAsk("chatbot_mode_respond")
+							setEnableButtons(false)
+							// setPrimaryButtonText(undefined)
+							// setSecondaryButtonText(undefined)
+							break
 						case "tool":
 							setSendingDisabled(isPartial)
 							setClineAsk("tool")
@@ -475,6 +483,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 					switch (clineAsk) {
 						case "followup":
 						case "plan_mode_respond":
+						case "chatbot_mode_respond":
 						case "tool":
 						case "browser_action_launch":
 						case "command": // user can provide feedback to a tool or command use
@@ -1074,7 +1083,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 	useEvent("wheel", handleWheel, window, { passive: true }) // passive improves scrolling performance
 
 	const placeholderText = useMemo(() => {
-		const text = task ? "Type a message..." : "Type your task here..."
+		const text = task ? t("chat.typeMessage", "common") : t("chat.typeTaskHere", "common")
 		return text
 	}, [task])
 
@@ -1267,7 +1276,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 										marginLeft: isStreaming ? 0 : "6px",
 									}}
 									onClick={() => handleSecondaryButtonClick(inputValue, selectedImages, selectedFiles)}>
-									{isStreaming ? "Cancel" : secondaryButtonText}
+									{isStreaming ? t("chat.cancel", "common") : secondaryButtonText}
 								</VSCodeButton>
 							)}
 						</div>

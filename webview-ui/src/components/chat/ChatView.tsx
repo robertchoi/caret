@@ -385,8 +385,19 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 					// don't want to reset since there could be a "say" after an "ask" while ask is waiting for response
 					switch (lastMessage.say) {
 						case "api_req_started":
+							// CARET MODIFICATION: command_output 상태에서 api_req_started가 오더라도 입력창을 비활성화하지 않도록 수정
 							if (secondLastMessage?.ask === "command_output") {
-								// if the last ask is a command_output, and we receive an api_req_started, then that means the command has finished and we don't need input from the user anymore (in every other case, the user has to interact with input field or buttons to continue, which does the following automatically)
+								// If the previous state was command_output, and now an API request started,
+								// it means the command is running in the background.
+								// The input field should remain active for user interaction with the command.
+								setInputValue("") // Clear input after user sends command
+								setSendingDisabled(false) // Keep sending enabled for command input
+								setSelectedImages([])
+								setSelectedFiles([])
+								setClineAsk("command_output") // Keep the ask type as command_output
+								setEnableButtons(false) // No buttons needed for direct command input
+							} else {
+								// For other api_req_started cases, disable sending
 								setInputValue("")
 								setSendingDisabled(true)
 								setSelectedImages([])

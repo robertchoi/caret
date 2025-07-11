@@ -341,7 +341,7 @@ export const ChatRowContent = ({
 								marginBottom: "-1.5px",
 							}}></span>
 					),
-					<span style={{ color: normalColor, fontWeight: "bold" }}>Cline wants to execute this command:</span>,
+					<span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat.executeCommand", "common")}</span>,
 				]
 			case "use_mcp_server":
 				const mcpServerUse = JSON.parse(message.text || "{}") as ClineAskUseMcpServer
@@ -372,7 +372,9 @@ export const ChatRowContent = ({
 							color: successColor,
 							marginBottom: "-1.5px",
 						}}></span>,
-					<span style={{ color: successColor, fontWeight: "bold" }}>{t("systemMessages.taskCompleted", "common")}</span>,
+					<span style={{ color: successColor, fontWeight: "bold" }}>
+						{t("systemMessages.taskCompleted", "common")}
+					</span>,
 				]
 			case "api_req_started":
 				const getIconSpan = (iconName: string, color: string) => (
@@ -410,18 +412,28 @@ export const ChatRowContent = ({
 					(() => {
 						if (apiReqCancelReason != null) {
 							return apiReqCancelReason === "user_cancelled" ? (
-								<span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat.apiRequestCancelled", "common")}</span>
+								<span style={{ color: normalColor, fontWeight: "bold" }}>
+									{t("chat.apiRequestCancelled", "common")}
+								</span>
 							) : (
-								<span style={{ color: errorColor, fontWeight: "bold" }}>{t("chat.apiStreamingFailed", "common")}</span>
+								<span style={{ color: errorColor, fontWeight: "bold" }}>
+									{t("chat.apiStreamingFailed", "common")}
+								</span>
 							)
 						}
 
 						if (cost != null) {
-							return <span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat.apiRequest", "common")}</span>
+							return (
+								<span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat.apiRequest", "common")}</span>
+							)
 						}
 
 						if (apiRequestFailedMessage) {
-							return <span style={{ color: errorColor, fontWeight: "bold" }}>{t("chat.apiRequestFailed", "common")}</span>
+							return (
+								<span style={{ color: errorColor, fontWeight: "bold" }}>
+									{t("chat.apiRequestFailed", "common")}
+								</span>
+							)
 						}
 						// New: Check for retryStatus to modify the title
 						if (retryStatus && cost == null && !apiReqCancelReason) {
@@ -435,7 +447,11 @@ export const ChatRowContent = ({
 							)
 						}
 
-						return <span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat.apiRequestPending", "common")}</span>
+						return (
+							<span style={{ color: normalColor, fontWeight: "bold" }}>
+								{t("chat.apiRequestPending", "common")}
+							</span>
+						)
 					})(),
 				]
 			case "followup":

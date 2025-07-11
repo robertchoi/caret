@@ -318,7 +318,7 @@ MCP SERVERS
 
 SYSTEM INFORMATION
 
-Operating System: win32 v22.13.1
+Operating System: win32 v22.14.0
 Working Directory: /test/project
 
 

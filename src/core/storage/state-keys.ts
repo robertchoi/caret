@@ -83,6 +83,8 @@ export type GlobalStateKey =
 	| "lastApiProvider"
 	| "lastApiModelId"
 	| "uiLanguage"
+	| "plan" // CARET MODIFICATION: Add plan
+	| "isPayAsYouGo" // CARET MODIFICATION: Add isPayAsYouGo
 
 export type LocalStateKey =
 	| "localClineRulesToggles"

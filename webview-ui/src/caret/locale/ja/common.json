@@ -120,7 +120,12 @@
 		"signUpDescription": "アカウントを作成して、最新のモデルにアクセスし、使用量とクレジットを確認できる請求ダッシュボード、その他の今後の機能をご利用ください。",
 		"termsOfService": "利用規約",
 		"privacyPolicy": "プライバシーポリシー",
-		"byContining": "続行することで、以下に同意したことになります："
+		"byContining": "続行することで、以下に同意したことになります：",
+		"subscription": "サブスクリプションプラン",
+		"subscriptionFree": "無料",
+		"subscriptionBasic": "ベーシック",
+		"payAsYouGo": "従量課金",
+		"payAsYouGoDescription": "* サブスクリプションの使用量をすべて使い切った後、追加料金が発生します。"
 	},
 	"common": {
 		"and": "と"
@@ -138,7 +143,8 @@
 		"caretWantsToCreateNewFile": "キャレットが新しいファイルを作成しようとしています:",
 		"placeholderHint": "コンテキストには@、スラッシュコマンドとワークフローには/を入力し、Shiftキーを押しながらドラッグしてファイル/画像を追加",
 		"caretIsUsingBrowser": "キャレットがブラウザを使用しています:",
-		"caretWantsToUseBrowser": "キャレットがブラウザを使用しようとしています:"
+		"caretWantsToUseBrowser": "キャレットがブラウザを使用しようとしています:",
+		"executeCommand": "Caretはこのコマンドを実行しようとしています:"
 	},
 	"modelInfo": {
 		"supportsImages": "画像をサポート",

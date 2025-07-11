@@ -2,9 +2,8 @@
  * 진행 중, 대기중인 작업를 관리한다.
 
 ## 진행 중인 작업 (Working)
+
 ### luke (담당자)
-- **Task #007:** 서비스 및 회사 홈페이지 연동 (담당자: TBD)  
-  [007-01-plan-service-homepage-integration.md](./007-01-plan-service-homepage-integration.md)
 
 ### justin (담당자)
 
@@ -31,12 +30,14 @@
 
 
 ## 완료된 작업번호:담당자 (Complete)
+- **Task #007:** 서비스 및 회사 홈페이지 연동  (담당자: luke)
+  [007-01-plan-service-homepage-integration.md](./completed/007-01-plan-service-homepage-integration.md)
 - **Task #016:** 페르소나 초기화 및 이미지 문제 해결 (담당자: luke)
-  [016-persona-initialization-fix.md](./016-persona-initialization-fix.md)
+  [016-persona-initialization-fix.md](./completed/016-persona-initialization-fix.md)
 - **Task #019:** 캐럿티브 홈페이지 개발 (담당자: luke)
-  [019-caretive-homepage-development.md](./019-caretive-homepage-development.md)
+  [019-caretive-homepage-development.md](./completed/019-caretive-homepage-development.md)
 - **Task #015:** 웹뷰 UI 개선 (웰컴뷰 및 메인 페이지) (담당자: luke)
-  [015-webview-ui-improvements.md](./015-webview-ui-improvements.md)
+  [015-webview-ui-improvements.md](./completed/015-webview-ui-improvements.md)
 - **Task #001** 캐럿 아키텍처 초기화 및 설정 (코드 중심)  (담당자:luke)  
   [001-01-plan-caret-architect-initialize.md](./completed/001-01-plan-caret-architect-initialize.md) 
 - **Task #011** 디버그 호스트 UI 버튼 동작 불능 문제 해결  (담당자: luke)

@@ -17,7 +17,7 @@ const logger = new WebviewLogger("[CARET-UI-ACCOUNT-VIEW]")
 
 export const ClineAccountView = () => {
 	const { user: firebaseUser, handleSignOut } = useFirebaseAuth()
-	const { userInfo, apiConfiguration, personaProfile } = useExtensionState() as ExtensionStateContextType // CARET MODIFICATION: personaProfile 추가 및 타입 명시
+	const { userInfo, apiConfiguration, personaProfile, plan, isPayAsYouGo } = useExtensionState() as ExtensionStateContextType // CARET MODIFICATION: personaProfile 추가 및 타입 명시
 
 	let user = apiConfiguration?.clineApiKey ? firebaseUser || userInfo : undefined
 
@@ -104,6 +104,30 @@ export const ClineAccountView = () => {
 						</div>
 					</div>
 
+					{/* CARET MODIFICATION: Display account plan and pay-as-you-go option */}
+					{plan && (
+						<div className="flex items-center mt-4">
+							<span className="text-sm text-[var(--vscode-descriptionForeground)] mr-2">
+								{t("account.plan", "common")}:
+							</span>
+							<span className="text-sm text-[var(--vscode-foreground)] font-medium">
+								{t(`account.plan${plan}`, "common")}
+							</span>
+						</div>
+					)}
+
+					{typeof isPayAsYouGo === "boolean" && (
+						<div className="flex items-center mt-2">
+							<input type="checkbox" id="payAsYouGo" checked={isPayAsYouGo} readOnly className="mr-2" />
+							<label htmlFor="payAsYouGo" className="text-sm text-[var(--vscode-foreground)]">
+								{t("account.payAsYouGo", "common")}
+							</label>
+							<span className="text-xs text-[var(--vscode-descriptionForeground)] ml-2">
+								{t("account.payAsYouGoDescription", "common")}
+							</span>
+						</div>
+					)}
+
 					<div className="w-full flex gap-2 flex-col min-[225px]:flex-row">
 						<div className="w-full min-[225px]:w-1/2">
 							<VSCodeButtonLink href={getUrl("CARET_APP_CREDITS")} appearance="primary" className="w-full">
@@ -167,8 +191,7 @@ export const ClineAccountView = () => {
 					</VSCodeButton>
 
 					<p className="text-[var(--vscode-descriptionForeground)] text-xs text-center m-0">
-						{t("account.byContining", "common")}{" "}
-						{/* CARET MODIFICATION: 풋터와 동일한 약관 링크 사용 */}
+						{t("account.byContining", "common")} {/* CARET MODIFICATION: 풋터와 동일한 약관 링크 사용 */}
 						<VSCodeLink href={getLink("CARETIVE_TERMS")}>{t("account.termsOfService", "common")}</VSCodeLink>{" "}
 						{t("common.and", "common")}{" "}
 						<VSCodeLink href={getLink("CARETIVE_PRIVACY")}>{t("account.privacyPolicy", "common")}</VSCodeLink>.

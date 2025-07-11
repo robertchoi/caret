@@ -518,6 +518,7 @@ caret-docs/
 - **README**: `README.ko.md`(한), `README.md`(영), `README.ja.md`(일), `README.zh-cn.md`(중)으로 구성됩니다.
   - 각 README 파일 상단에는 다른 언어 버전으로의 링크가 포함되어야 합니다.
   - 일본어, 중국어 README의 내부 문서 링크(`CONTRIBUTING`, `DEVELOPER_GUIDE` 등)는 영어 버전(`.en.md`)을 가리켜야 합니다.
+- **i18n 로케일 폴더**: `webview-ui/src/caret/locale/` 내 중국어 로케일 폴더는 `zh`를 사용합니다. (예: `zh/common.json`)
 - **기타 문서**: `CONTRIBUTING.md`와 `DEVELOPER_GUIDE.md`는 각각 `CONTRIBUTING.en.md`, `DEVELOPER_GUIDE.en.md` 영어 버전을 가집니다.
 - **동기화 규칙**: 하나의 문서를 업데이트할 경우, 해당 문서의 다른 언어 번역본도 반드시 함께 업데이트하여 내용의 일관성을 유지해야 합니다.
 

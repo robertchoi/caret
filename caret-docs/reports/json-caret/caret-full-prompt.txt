@@ -556,7 +556,7 @@ RULES
 SYSTEM INFORMATION
 
 Operating System: Windows 11
-Default Shell: C:\WINDOWS\system32\cmd.exe
+Default Shell: C:\Windows\system32\cmd.exe
 Home Directory: C:/Users/luke
 Current Working Directory: /test/project
 

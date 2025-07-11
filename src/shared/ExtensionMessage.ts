@@ -116,6 +116,9 @@ export interface ExtensionState {
 	localWindsurfRulesToggles: ClineRulesToggles
 	mcpResponsesCollapsed?: boolean
 	uiLanguage: string
+	// CARET MODIFICATION: Add plan and isPayAsYouGo for account plan display
+	plan?: string
+	isPayAsYouGo?: boolean
 }
 
 export interface ClineMessage {
@@ -149,6 +152,8 @@ export type ClineAsk =
 	| "mistake_limit_reached"
 	| "auto_approval_max_req_reached"
 	| "browser_action_launch"
+	// CARET MODIFICATION: Add browser_action to ClineAsk type
+	| "browser_action"
 	| "use_mcp_server"
 	| "new_task"
 	| "condense"

@@ -120,7 +120,12 @@
 		"signUpDescription": "创建账户以访问最新模型、查看使用情况和积分的账单仪表板，以及更多即将推出的功能。",
 		"termsOfService": "服务条款",
 		"privacyPolicy": "隐私政策",
-		"byContining": "继续使用即表示您同意："
+		"byContining": "继续使用即表示您同意：",
+		"subscription": "订阅计划",
+		"subscriptionFree": "免费",
+		"subscriptionBasic": "基础",
+		"payAsYouGo": "按量付费",
+		"payAsYouGoDescription": "* 订阅使用量耗尽后将额外收费。"
 	},
 	"common": {
 		"and": "和"

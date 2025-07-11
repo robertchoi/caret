@@ -32,6 +32,12 @@ vi.mock("@/caret/utils/i18n", () => ({
 			"account.byContining": "By continuing, you agree to the",
 			"account.termsOfService": "Terms of Service",
 			"account.privacyPolicy": "Privacy Policy",
+			// CARET MODIFICATION: Add new i18n keys for account plan and pay-as-you-go
+			"account.plan": "플랜",
+			"account.planFree": "Free",
+			"account.planBasic": "Basic",
+			"account.payAsYouGo": "사용량만큼 지불",
+			"account.payAsYouGoDescription": "* 구독 사용량을 모두 소진 후 추가 과금 됩니다.",
 		}
 		return translations[key] || key
 	}),
@@ -226,6 +232,45 @@ describe("CaretAccountView - TDD Implementation", () => {
 			expect(screen.getByText("CURRENT BALANCE")).toBeInTheDocument()
 			// Verify there are multiple Loading... texts (balance section + history table)
 			expect(screen.getAllByText("Loading...")).toHaveLength(2)
+		})
+
+		// CARET MODIFICATION: Add new RED tests for account plan and pay-as-you-go features
+		it('should display "Free" plan when userInfo.plan is "Free"', () => {
+			mockUseExtensionState.mockReturnValue({
+				userInfo: { uid: "test-user" }, // userInfo는 그대로 두고
+				plan: "Free", // plan을 userInfo와 같은 레벨로 이동
+				apiConfiguration: { clineApiKey: "test-key" },
+			} as any)
+
+			render(<ClineAccountView />)
+			expect(screen.getByText("Free")).toBeInTheDocument() // Assuming "Free" text will be rendered
+		})
+
+		it('should display "Pay as you go" checkbox and description when userInfo.isPayAsYouGo is true', () => {
+			mockUseExtensionState.mockReturnValue({
+				userInfo: { uid: "test-user" }, // userInfo는 그대로 두고
+				isPayAsYouGo: true, // isPayAsYouGo를 userInfo와 같은 레벨로 이동
+				apiConfiguration: { clineApiKey: "test-key" },
+			} as any)
+
+			render(<ClineAccountView />)
+			expect(screen.getByLabelText("사용량만큼 지불")).toBeInTheDocument() // Assuming label text
+			expect(screen.getByText("* 구독 사용량을 모두 소진 후 추가 과금 됩니다.")).toBeInTheDocument() // Assuming description text
+		})
+
+		it("should use i18n translations for new plan and pay-as-you-go elements", () => {
+			mockUseExtensionState.mockReturnValue({
+				userInfo: { uid: "test-user" },
+				plan: "Free",
+				isPayAsYouGo: true,
+				apiConfiguration: { clineApiKey: "test-key" },
+			} as any)
+
+			render(<ClineAccountView />)
+
+			expect(mockT).toHaveBeenCalledWith("account.planFree", "common")
+			expect(mockT).toHaveBeenCalledWith("account.payAsYouGo", "common")
+			expect(mockT).toHaveBeenCalledWith("account.payAsYouGoDescription", "common")
 		})
 	})
 

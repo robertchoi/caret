@@ -3,7 +3,8 @@ import type { BalanceResponse, PaymentTransaction, UsageTransaction } from "@sha
 import { ExtensionMessage } from "@shared/ExtensionMessage"
 
 export class ClineAccountService {
-	private readonly baseUrl = "https://api.cline.bot/v1"
+	// CARET MODIFICATION: Change base URL to Caret development API
+	private readonly baseUrl = "https://dev-api.caret.team/api/auth"
 	private postMessageToWebview: (message: ExtensionMessage) => Promise<void>
 	private getClineApiKey: () => Promise<string | undefined>
 
@@ -104,6 +105,27 @@ export class ClineAccountService {
 			return data
 		} catch (error) {
 			console.error("Failed to fetch payment transactions:", error)
+			return undefined
+		}
+	}
+
+	/**
+	 * Fetches the user's account plan and pay-as-you-go status.
+	 * CARET MODIFICATION: This is a mock implementation. Replace with actual API call when available.
+	 */
+	async fetchAccountPlan(): Promise<{ plan: string; isPayAsYouGo: boolean } | undefined> {
+		try {
+			// Simulate API call delay
+			await new Promise((resolve) => setTimeout(resolve, 500))
+
+			const mockPlanData = {
+				plan: "Free", // Or "Basic"
+				isPayAsYouGo: false,
+			}
+
+			return mockPlanData
+		} catch (error) {
+			console.error("Failed to fetch account plan:", error)
 			return undefined
 		}
 	}

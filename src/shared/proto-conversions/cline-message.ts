@@ -22,6 +22,8 @@ function convertClineAskToProtoEnum(ask: AppClineAsk | undefined): ClineAsk | un
 		mistake_limit_reached: ClineAsk.MISTAKE_LIMIT_REACHED,
 		auto_approval_max_req_reached: ClineAsk.AUTO_APPROVAL_MAX_REQ_REACHED,
 		browser_action_launch: ClineAsk.BROWSER_ACTION_LAUNCH,
+		// CARET MODIFICATION: Renamed to avoid conflict with ClineSay.
+		browser_action: ClineAsk.ASK_BROWSER_ACTION,
 		use_mcp_server: ClineAsk.USE_MCP_SERVER,
 		new_task: ClineAsk.NEW_TASK,
 		condense: ClineAsk.CONDENSE,
@@ -56,6 +58,8 @@ function convertProtoEnumToClineAsk(ask: ClineAsk): AppClineAsk | undefined {
 		[ClineAsk.MISTAKE_LIMIT_REACHED]: "mistake_limit_reached",
 		[ClineAsk.AUTO_APPROVAL_MAX_REQ_REACHED]: "auto_approval_max_req_reached",
 		[ClineAsk.BROWSER_ACTION_LAUNCH]: "browser_action_launch",
+		// CARET MODIFICATION: Renamed to avoid conflict with ClineSay.
+		[ClineAsk.ASK_BROWSER_ACTION]: "browser_action",
 		[ClineAsk.USE_MCP_SERVER]: "use_mcp_server",
 		[ClineAsk.NEW_TASK]: "new_task",
 		[ClineAsk.CONDENSE]: "condense",

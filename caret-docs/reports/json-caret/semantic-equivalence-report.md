@@ -1,5 +1,5 @@
 # 의미론적 동등성 분석 보고서
-*생성 시간: 2025-07-09T15:02:17.541Z*
+*생성 시간: 2025-07-11T09:58:37.230Z*
 *미션: 1B-2 - Cline vs Caret 시스템 프롬프트 동등성 검증*
 
 ## 🎯 요약
@@ -75,4 +75,4 @@ Mission 1B-1(데이터 생성)과 Mission 1B-2(의미론적 분석) 모두 Caret
 
 *AI 의미론적 평가 엔진에 의한 분석 완료*
 *데이터 소스: cline-vs-caret-diff-report.json, detailed-difference-analysis.json*
-*총 분석 시간: 11ms*
+*총 분석 시간: 74ms*

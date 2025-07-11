@@ -120,7 +120,12 @@
 		"signUpDescription": "계정을 만들어 최신 모델에 액세스하고, 사용량과 크레딧을 확인할 수 있는 요금 대시보드, 그리고 더 많은 upcoming 기능을 이용하세요.",
 		"termsOfService": "서비스 약관",
 		"privacyPolicy": "개인정보 처리방침",
-		"byContining": "계속 진행하면 다음에 동의하는 것입니다:"
+		"byContining": "계속 진행하면 다음에 동의하는 것입니다:",
+		"subscription": "구독 플랜",
+		"subscriptionFree": "Free",
+		"subscriptionBasic": "Basic",
+		"payAsYouGo": "사용량만큼 지불",
+		"payAsYouGoDescription": "* 구독 사용량을 모두 소진 후 추가 과금 됩니다."
 	},
 	"common": {
 		"and": "및"
@@ -138,7 +143,8 @@
 		"caretWantsToCreateNewFile": "캐럿이 새 파일을 생성하려고 합니다:",
 		"placeholderHint": "@ 입력으로 컨텍스트, / 입력으로 슬래시 명령어 및 워크플로우, Shift 키를 누른 채 드래그하여 파일/이미지 추가",
 		"caretIsUsingBrowser": "캐럿이 브라우저를 사용하고 있습니다:",
-		"caretWantsToUseBrowser": "캐럿이 브라우저를 사용하려고 합니다:"
+		"caretWantsToUseBrowser": "캐럿이 브라우저를 사용하려고 합니다:",
+		"executeCommand": "Caret이 다음 명령을 실행하려고 합니다:"
 	},
 	"modelInfo": {
 		"supportsImages": "이미지 지원",
@@ -231,22 +237,22 @@
 		"getAnthropicApiKey": "여기에서 가입하여 Anthropic API 키를 얻을 수 있습니다.",
 		"getOpenAiApiKey": "여기에서 가입하여 OpenAI API 키를 얻을 수 있습니다.",
 		"getGeminiApiKey": "여기에서 가입하여 Gemini API 키를 얻을 수 있습니다.",
-			"comingSoon": "향후 추가 예정",
-	"providerComingSoon": "{{provider}} 지원이 향후 업데이트에서 추가될 예정입니다.",
-	"millionTokens": "백만 토큰",
-	"tokens": "토큰",
-	"systemMessages": {
-		"viewedTopLevelFiles": "Cline이 이 디렉토리의 최상위 파일들을 확인했습니다:",
-		"wantsToViewTopLevelFiles": "Cline이 이 디렉토리의 최상위 파일들을 확인하려고 합니다:",
-		"viewedFilesRecursively": "Cline이 이 디렉토리의 모든 파일들을 재귀적으로 확인했습니다:",
-		"wantsToViewFilesRecursively": "Cline이 이 디렉토리의 모든 파일들을 재귀적으로 확인하려고 합니다:",
-		"viewedCodeDefinitions": "Cline이 이 디렉토리에서 사용된 소스 코드 정의명들을 확인했습니다:",
-		"wantsToViewCodeDefinitions": "Cline이 이 디렉토리에서 사용된 소스 코드 정의명들을 확인하려고 합니다:",
-		"wantsToSearchDirectory": "Cline이 이 디렉토리에서 검색하려고 합니다:",
-		"fetchedContentFromUrl": "Cline이 이 URL에서 콘텐츠를 가져왔습니다:",
-		"wantsToFetchContentFromUrl": "Cline이 이 URL에서 콘텐츠를 가져오려고 합니다:",
-		"taskCompleted": "작업 완료"
-	},
+		"comingSoon": "향후 추가 예정",
+		"providerComingSoon": "{{provider}} 지원이 향후 업데이트에서 추가될 예정입니다.",
+		"millionTokens": "백만 토큰",
+		"tokens": "토큰",
+		"systemMessages": {
+			"viewedTopLevelFiles": "Cline이 이 디렉토리의 최상위 파일들을 확인했습니다:",
+			"wantsToViewTopLevelFiles": "Cline이 이 디렉토리의 최상위 파일들을 확인하려고 합니다:",
+			"viewedFilesRecursively": "Cline이 이 디렉토리의 모든 파일들을 재귀적으로 확인했습니다:",
+			"wantsToViewFilesRecursively": "Cline이 이 디렉토리의 모든 파일들을 재귀적으로 확인하려고 합니다:",
+			"viewedCodeDefinitions": "Cline이 이 디렉토리에서 사용된 소스 코드 정의명들을 확인했습니다:",
+			"wantsToViewCodeDefinitions": "Cline이 이 디렉토리에서 사용된 소스 코드 정의명들을 확인하려고 합니다:",
+			"wantsToSearchDirectory": "Cline이 이 디렉토리에서 검색하려고 합니다:",
+			"fetchedContentFromUrl": "Cline이 이 URL에서 콘텐츠를 가져왔습니다:",
+			"wantsToFetchContentFromUrl": "Cline이 이 URL에서 콘텐츠를 가져오려고 합니다:",
+			"taskCompleted": "작업 완료"
+		},
 		"geminiApiKey": "Gemini API 키",
 		"geminiModelStrong": "Gemini 2.5 Pro Preview 06-05 (강력함)",
 		"geminiModelCostEffective": "Gemini 2.5 Flash Preview 05-20 (가성비)",

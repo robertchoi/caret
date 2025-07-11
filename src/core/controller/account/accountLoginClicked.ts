@@ -25,7 +25,8 @@ export async function accountLoginClicked(controller: Controller, _: EmptyReques
 
 	// CARET MODIFICATION: Change authentication URL from Cline to Caret
 	const authUrl = vscode.Uri.parse(
-		`https://api.caret.team/api/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://caret-team.caret/auth`)}`,
+		// CARET MODIFICATION: Change API URL and callback URL for Caret development environment
+		`https://dev-api.caret.team/api/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://caretive.caret/auth`)}`,
 	)
 	console.log("authUrl", authUrl.toString())
 	await vscode.env.openExternal(authUrl)

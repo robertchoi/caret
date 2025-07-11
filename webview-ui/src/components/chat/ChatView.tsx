@@ -38,6 +38,9 @@ import { SuggestedTasks } from "../welcome/SuggestedTasks"
 import { BooleanRequest, EmptyRequest, StringRequest } from "@shared/proto/common"
 import { AskResponseRequest, NewTaskRequest } from "@shared/proto/task"
 import { t } from "@/caret/utils/i18n"
+import WebviewLogger from "@/caret/utils/webview-logger" // CARET MODIFICATION: Import logger
+
+const logger = new WebviewLogger("ChatView") // CARET MODIFICATION: Instantiate logger outside component
 
 interface ChatViewProps {
 	isHidden: boolean
@@ -239,15 +242,15 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 	const lastMessage = useMemo(() => messages.at(-1), [messages])
 	const secondLastMessage = useMemo(() => messages.at(-2), [messages])
 	useDeepCompareEffect(() => {
-		// if last message is an ask, show user ask UI
-		// if user finished a task, then start a new task with a new conversation history since in this moment that the extension is waiting for user response, the user could close the extension and the conversation history would be lost.
-		// basically as long as a task is active, the conversation history will be persisted
 		if (lastMessage) {
+			logger.info("useDeepCompareEffect triggered", { lastMessage })
 			switch (lastMessage.type) {
 				case "ask":
 					const isPartial = lastMessage.partial === true
+					logger.info(`Processing 'ask' message. Type: ${lastMessage.ask}, Partial: ${isPartial}`)
 					switch (lastMessage.ask) {
 						case "api_req_failed":
+							logger.info("State: api_req_failed. Disabling input.")
 							setSendingDisabled(true)
 							setClineAsk("api_req_failed")
 							setEnableButtons(true)
@@ -255,6 +258,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setSecondaryButtonText("Start New Task")
 							break
 						case "mistake_limit_reached":
+							logger.info("State: mistake_limit_reached. Enabling input.")
 							setSendingDisabled(false)
 							setClineAsk("mistake_limit_reached")
 							setEnableButtons(true)
@@ -262,6 +266,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setSecondaryButtonText("Start New Task")
 							break
 						case "auto_approval_max_req_reached":
+							logger.info("State: auto_approval_max_req_reached. Disabling input.")
 							setSendingDisabled(true)
 							setClineAsk("auto_approval_max_req_reached")
 							setEnableButtons(true)
@@ -269,27 +274,25 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setSecondaryButtonText("Start New Task")
 							break
 						case "followup":
+							logger.info(`State: followup. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("followup")
 							setEnableButtons(false)
-							// setPrimaryButtonText(undefined)
-							// setSecondaryButtonText(undefined)
 							break
 						case "plan_mode_respond":
+							logger.info(`State: plan_mode_respond. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("plan_mode_respond")
 							setEnableButtons(false)
-							// setPrimaryButtonText(undefined)
-							// setSecondaryButtonText(undefined)
 							break
 						case "chatbot_mode_respond":
+							logger.info(`State: chatbot_mode_respond. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("chatbot_mode_respond")
 							setEnableButtons(false)
-							// setPrimaryButtonText(undefined)
-							// setSecondaryButtonText(undefined)
 							break
 						case "tool":
+							logger.info(`State: tool. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("tool")
 							setEnableButtons(!isPartial)
@@ -307,6 +310,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							}
 							break
 						case "browser_action_launch":
+							logger.info(`State: browser_action_launch. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("browser_action_launch")
 							setEnableButtons(!isPartial)
@@ -314,6 +318,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setSecondaryButtonText("Reject")
 							break
 						case "command":
+							logger.info(`State: command. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("command")
 							setEnableButtons(!isPartial)
@@ -321,6 +326,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setSecondaryButtonText("Reject")
 							break
 						case "command_output":
+							logger.info("State: command_output. Enabling input.")
 							setSendingDisabled(false)
 							setClineAsk("command_output")
 							setEnableButtons(true)
@@ -328,6 +334,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setSecondaryButtonText(undefined)
 							break
 						case "use_mcp_server":
+							logger.info(`State: use_mcp_server. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("use_mcp_server")
 							setEnableButtons(!isPartial)
@@ -335,7 +342,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setSecondaryButtonText("Reject")
 							break
 						case "completion_result":
-							// extension waiting for feedback. but we can just present a new task button
+							logger.info(`State: completion_result. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("completion_result")
 							setEnableButtons(!isPartial)
@@ -343,14 +350,16 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setSecondaryButtonText(undefined)
 							break
 						case "resume_task":
+							logger.info("State: resume_task. Enabling input.")
 							setSendingDisabled(false)
 							setClineAsk("resume_task")
 							setEnableButtons(true)
 							setPrimaryButtonText("Resume Task")
 							setSecondaryButtonText(undefined)
-							setDidClickCancel(false) // special case where we reset the cancel button state
+							setDidClickCancel(false)
 							break
 						case "resume_completed_task":
+							logger.info("State: resume_completed_task. Enabling input.")
 							setSendingDisabled(false)
 							setClineAsk("resume_completed_task")
 							setEnableButtons(true)
@@ -359,6 +368,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setDidClickCancel(false)
 							break
 						case "new_task":
+							logger.info(`State: new_task. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("new_task")
 							setEnableButtons(!isPartial)
@@ -366,6 +376,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setSecondaryButtonText(undefined)
 							break
 						case "condense":
+							logger.info(`State: condense. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("condense")
 							setEnableButtons(!isPartial)
@@ -373,6 +384,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setSecondaryButtonText(undefined)
 							break
 						case "report_bug":
+							logger.info(`State: report_bug. Input disabled: ${isPartial}`)
 							setSendingDisabled(isPartial)
 							setClineAsk("report_bug")
 							setEnableButtons(!isPartial)
@@ -382,22 +394,19 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 					}
 					break
 				case "say":
-					// don't want to reset since there could be a "say" after an "ask" while ask is waiting for response
+					logger.info(`Processing 'say' message. Type: ${lastMessage.say}`)
 					switch (lastMessage.say) {
 						case "api_req_started":
-							// CARET MODIFICATION: command_output 상태에서 api_req_started가 오더라도 입력창을 비활성화하지 않도록 수정
 							if (secondLastMessage?.ask === "command_output") {
-								// If the previous state was command_output, and now an API request started,
-								// it means the command is running in the background.
-								// The input field should remain active for user interaction with the command.
-								setInputValue("") // Clear input after user sends command
-								setSendingDisabled(false) // Keep sending enabled for command input
+								logger.info("State: api_req_started after command_output. Keeping input enabled.")
+								setInputValue("")
+								setSendingDisabled(false)
 								setSelectedImages([])
 								setSelectedFiles([])
-								setClineAsk("command_output") // Keep the ask type as command_output
-								setEnableButtons(false) // No buttons needed for direct command input
+								setClineAsk("command_output")
+								setEnableButtons(false)
 							} else {
-								// For other api_req_started cases, disable sending
+								logger.info("State: api_req_started. Disabling input.")
 								setInputValue("")
 								setSendingDisabled(true)
 								setSelectedImages([])
@@ -406,26 +415,45 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 								setEnableButtons(false)
 							}
 							break
+						case "command":
+						case "browser_action":
+						case "browser_action_launch":
+						case "browser_action_result":
+						case "command_output":
+							logger.info(`State: Interactive 'say' (${lastMessage.say}). Enabling input.`)
+							setSendingDisabled(false)
+							if (lastMessage.say === "browser_action" || lastMessage.say === "browser_action_launch") {
+								setClineAsk("browser_action")
+							} else if (lastMessage.say === "command" || lastMessage.say === "command_output") {
+								setClineAsk("command_output")
+							}
+							break
 						case "task":
 						case "error":
 						case "api_req_finished":
 						case "text":
-						case "browser_action":
-						case "browser_action_result":
-						case "browser_action_launch":
-						case "command":
 						case "use_mcp_server":
-						case "command_output":
 						case "mcp_server_request_started":
 						case "mcp_server_response":
 						case "completion_result":
 						case "tool":
 						case "load_mcp_documentation":
+							if (!clineAsk) {
+								logger.info(
+									`State: Non-interactive 'say' (${lastMessage.say}). Disabling input as no 'ask' is active.`,
+								)
+								setSendingDisabled(true)
+							} else {
+								logger.info(
+									`State: Non-interactive 'say' (${lastMessage.say}). Input remains in state determined by active 'ask': ${clineAsk}`,
+								)
+							}
 							break
 					}
 					break
 			}
 		} else {
+			logger.info("No last message, ensuring input is enabled.")
 			// this would get called after sending the first message, so we have to watch messages.length instead
 			// No messages, so user has to submit a task
 			// setTextAreaDisabled(false)
@@ -433,7 +461,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 			// setPrimaryButtonText(undefined)
 			// setSecondaryButtonText(undefined)
 		}
-	}, [lastMessage, secondLastMessage])
+	}, [lastMessage, secondLastMessage, logger])
 
 	useEffect(() => {
 		if (messages.length === 0) {
@@ -487,47 +515,51 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 			}
 
 			if (hasContent) {
-				console.log("[ChatView] handleSendMessage - Sending message:", messageToSend)
+				logger.info(`[ChatView] handleSendMessage - Sending message: "${messageToSend}" with ask type: ${clineAsk}`)
+				// Optimistically update the UI with the user's message
+				// This will be replaced by the actual state update from the backend
+				const optimisticMessage: ClineMessage = {
+					type: "say",
+					say: "user_feedback",
+					text: messageToSend,
+					ts: Date.now(),
+				}
+				// This is a trick to update the messages array in the UI
+				// without waiting for the backend response.
+				const currentState = vscode.getState() as any
+				vscode.setState({
+					...currentState,
+					clineMessages: [...(currentState?.clineMessages || []), optimisticMessage],
+				})
+
 				if (messages.length === 0) {
 					await TaskServiceClient.newTask(NewTaskRequest.create({ text: messageToSend, images, files }))
 				} else if (clineAsk) {
-					switch (clineAsk) {
-						case "followup":
-						case "plan_mode_respond":
-						case "chatbot_mode_respond":
-						case "tool":
-						case "browser_action_launch":
-						case "command": // user can provide feedback to a tool or command use
-						case "command_output": // user can send input to command stdin
-						case "use_mcp_server":
-						case "completion_result": // if this happens then the user has feedback for the completion result
-						case "resume_task":
-						case "resume_completed_task":
-						case "mistake_limit_reached":
-						case "new_task": // user can provide feedback or reject the new task suggestion
-						case "condense":
-						case "report_bug":
-							await TaskServiceClient.askResponse(
-								AskResponseRequest.create({
-									responseType: "messageResponse",
-									text: messageToSend,
-									images,
-									files,
-								}),
-							)
-							break
-						// there is no other case that a textfield should be enabled
-					}
+					await TaskServiceClient.askResponse(
+						AskResponseRequest.create({
+							responseType: "messageResponse",
+							text: messageToSend,
+							images,
+							files,
+						}),
+					)
 				}
+
 				setInputValue("")
-				setActiveQuote(null) // Clear quote when sending message
-				setSendingDisabled(true)
+				setActiveQuote(null)
 				setSelectedImages([])
 				setSelectedFiles([])
-				setClineAsk(undefined)
-				setEnableButtons(false)
-				// setPrimaryButtonText(undefined)
-				// setSecondaryButtonText(undefined)
+
+				// Do not disable input if we are in an interactive tool mode
+				if (clineAsk !== "browser_action" && clineAsk !== "command_output") {
+					logger.info("handleSendMessage: Not an interactive tool, disabling input.")
+					setSendingDisabled(true)
+					setClineAsk(undefined)
+					setEnableButtons(false)
+				} else {
+					logger.info("handleSendMessage: Interactive tool, keeping input enabled.")
+				}
+
 				disableAutoScrollRef.current = false
 			}
 		},

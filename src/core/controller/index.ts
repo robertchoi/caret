@@ -16,7 +16,7 @@ import WorkspaceTracker from "@integrations/workspace/WorkspaceTracker"
 import { ClineAccountService } from "@services/account/ClineAccountService"
 import { McpHub } from "@services/mcp/McpHub"
 import { telemetryService } from "@/services/posthog/telemetry/TelemetryService"
-import { ApiProvider, ModelInfo } from "@shared/api"
+import { ApiProvider, ModelInfo, ApiConfiguration } from "@shared/api" // ApiConfiguration import 추가
 import { ChatContent } from "@shared/ChatContent"
 import { ChatSettings } from "@shared/ChatSettings"
 import { ExtensionMessage, ExtensionState, Platform } from "@shared/ExtensionMessage"
@@ -671,7 +671,7 @@ export class Controller {
 
 		// Get previous model info that we will revert to after saving current mode api info
 		const {
-			apiConfiguration,
+			apiConfiguration, // apiConfiguration을 여기서 가져옵니다.
 			previousModeApiProvider: newApiProvider,
 			previousModeModelId: newModelId,
 			previousModeModelInfo: newModelInfo,
@@ -689,14 +689,20 @@ export class Controller {
 			planActSeparateModelsSetting,
 		} = await getAllExtensionState(this.context)
 
+		const currentApiConfiguration = apiConfiguration as ApiConfiguration // apiConfiguration을 명시적으로 캐스팅
+
 		const shouldSwitchModel = planActSeparateModelsSetting === true
 
 		if (shouldSwitchModel) {
 			// Save the last model used in this mode
-			await updateWorkspaceState(this.context, "previousModeApiProvider", apiConfiguration.apiProvider)
-			await updateWorkspaceState(this.context, "previousModeThinkingBudgetTokens", apiConfiguration.thinkingBudgetTokens)
-			await updateWorkspaceState(this.context, "previousModeReasoningEffort", apiConfiguration.reasoningEffort)
-			switch (apiConfiguration.apiProvider) {
+			await updateWorkspaceState(this.context, "previousModeApiProvider", currentApiConfiguration.apiProvider)
+			await updateWorkspaceState(
+				this.context,
+				"previousModeThinkingBudgetTokens",
+				currentApiConfiguration.thinkingBudgetTokens,
+			)
+			await updateWorkspaceState(this.context, "previousModeReasoningEffort", currentApiConfiguration.reasoningEffort)
+			switch (currentApiConfiguration.apiProvider) {
 				case "anthropic":
 				case "vertex":
 				case "gemini":
@@ -705,68 +711,84 @@ export class Controller {
 				case "qwen":
 				case "deepseek":
 				case "xai":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.apiModelId)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.apiModelId)
 					break
 				case "bedrock":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.apiModelId)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.apiModelId)
 					await updateWorkspaceState(
 						this.context,
 						"previousModeAwsBedrockCustomSelected",
-						apiConfiguration.awsBedrockCustomSelected,
+						currentApiConfiguration.awsBedrockCustomSelected,
 					)
 					await updateWorkspaceState(
 						this.context,
 						"previousModeAwsBedrockCustomModelBaseId",
-						apiConfiguration.awsBedrockCustomModelBaseId,
+						currentApiConfiguration.awsBedrockCustomModelBaseId,
 					)
 					break
 				case "openrouter":
 				case "caret":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.openRouterModelId)
-					await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.openRouterModelInfo)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.openRouterModelId)
+					await updateWorkspaceState(this.context, "previousModeModelInfo", currentApiConfiguration.openRouterModelInfo)
 					break
 				case "vscode-lm":
 					// Important we don't set modelId to this, as it's an object not string (webview expects model id to be a string)
 					await updateWorkspaceState(
 						this.context,
 						"previousModeVsCodeLmModelSelector",
-						apiConfiguration.vsCodeLmModelSelector,
+						currentApiConfiguration.vsCodeLmModelSelector,
 					)
 					break
 				case "openai":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.openAiModelId)
-					await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.openAiModelInfo)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.openAiModelId)
+					await updateWorkspaceState(this.context, "previousModeModelInfo", currentApiConfiguration.openAiModelInfo)
 					break
 				case "ollama":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.ollamaModelId)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.ollamaModelId)
 					break
 				case "lmstudio":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.lmStudioModelId)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.lmStudioModelId) // lmStudioModelId 변수 직접 사용
 					break
 				case "litellm":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.liteLlmModelId)
-					await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.liteLlmModelInfo)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.liteLlmModelId)
+					await updateWorkspaceState(this.context, "previousModeModelInfo", currentApiConfiguration.liteLlmModelInfo)
 					break
 				case "requesty":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.requestyModelId)
-					await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.requestyModelInfo)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.requestyModelId)
+					await updateWorkspaceState(this.context, "previousModeModelInfo", currentApiConfiguration.requestyModelInfo)
 					break
 				case "sapaicore":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.apiModelId)
-					await updateWorkspaceState(this.context, "previousModeSapAiCoreClientId", apiConfiguration.sapAiCoreClientId)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.apiModelId)
+					await updateWorkspaceState(
+						this.context,
+						"previousModeSapAiCoreClientId",
+						currentApiConfiguration.sapAiCoreClientId,
+					)
 					await updateWorkspaceState(
 						this.context,
 						"previousModeSapAiCoreClientSecret",
-						apiConfiguration.sapAiCoreClientSecret,
+						currentApiConfiguration.sapAiCoreClientSecret,
 					)
-					await updateWorkspaceState(this.context, "previousModeSapAiCoreBaseUrl", apiConfiguration.sapAiCoreBaseUrl)
-					await updateWorkspaceState(this.context, "previousModeSapAiCoreTokenUrl", apiConfiguration.sapAiCoreTokenUrl)
+					await updateWorkspaceState(
+						this.context,
+						"previousModeSapAiCoreBaseUrl",
+						currentApiConfiguration.sapAiCoreBaseUrl,
+					)
+					await updateWorkspaceState(
+						this.context,
+						"previousModeSapAiCoreTokenUrl",
+						currentApiConfiguration.sapAiCoreTokenUrl,
+					)
 					await updateWorkspaceState(
 						this.context,
 						"previousModeSapAiCoreResourceGroup",
-						apiConfiguration.sapAiResourceGroup,
+						currentApiConfiguration.sapAiResourceGroup,
 					)
-					await updateWorkspaceState(this.context, "previousModeSapAiCoreModelId", apiConfiguration.sapAiCoreModelId)
+					await updateWorkspaceState(
+						this.context,
+						"previousModeSapAiCoreModelId",
+						currentApiConfiguration.sapAiCoreModelId,
+					)
 					break
 			}
 
@@ -816,8 +838,12 @@ export class Controller {
 						await updateWorkspaceState(this.context, "lmStudioModelId", newModelId)
 						break
 					case "litellm":
-						await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.liteLlmModelId)
-						await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.liteLlmModelInfo)
+						await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.liteLlmModelId)
+						await updateWorkspaceState(
+							this.context,
+							"previousModeModelInfo",
+							currentApiConfiguration.liteLlmModelInfo,
+						)
 						break
 					case "requesty":
 						await updateWorkspaceState(this.context, "requestyModelId", newModelId)
@@ -895,11 +921,24 @@ export class Controller {
 
 	async fetchUserCreditsData() {
 		try {
-			await Promise.all([
+			const [_, __, ___, accountPlanData] = await Promise.all([
 				this.accountService?.fetchBalance(),
 				this.accountService?.fetchUsageTransactions(),
 				this.accountService?.fetchPaymentTransactions(),
+				this.accountService?.fetchAccountPlan(), // CARET MODIFICATION: Fetch account plan
 			])
+
+			// CARET MODIFICATION: Merge plan and isPayAsYouGo into userInfo
+			if (accountPlanData) {
+				const { userInfo } = await getAllExtensionState(this.context)
+				const updatedUserInfo = {
+					...userInfo,
+					plan: accountPlanData.plan,
+					isPayAsYouGo: accountPlanData.isPayAsYouGo,
+				}
+				await updateGlobalState(this.context, "userInfo", updatedUserInfo)
+				await this.postStateToWebview() // Update webview with new userInfo
+			}
 		} catch (error) {
 			console.error("Failed to fetch user credits data:", error)
 		}
@@ -953,7 +992,8 @@ export class Controller {
 
 	private async fetchMcpMarketplaceFromApi(silent: boolean = false): Promise<McpMarketplaceCatalog | undefined> {
 		try {
-			const response = await axios.get("https://api.cline.bot/v1/mcp/marketplace", {
+			// CARET MODIFICATION: Change MCP marketplace API URL to Caret development API
+			const response = await axios.get("https://dev-api.caret.team/api/auth/mcp/marketplace", {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -987,7 +1027,8 @@ export class Controller {
 
 	private async fetchMcpMarketplaceFromApiRPC(silent: boolean = false): Promise<McpMarketplaceCatalog | undefined> {
 		try {
-			const response = await axios.get("https://api.cline.bot/v1/mcp/marketplace", {
+			// CARET MODIFICATION: Change MCP marketplace API URL to Caret development API
+			const response = await axios.get("https://dev-api.caret.team/api/auth/mcp/marketplace", {
 				headers: {
 					"Content-Type": "application/json",
 					"User-Agent": "cline-vscode-extension",
@@ -1353,7 +1394,7 @@ export class Controller {
 
 	async deleteTaskFromState(id: string) {
 		// Remove the task from history
-		const taskHistory = ((await getGlobalState(this.context, "taskHistory")) as HistoryItem[] | undefined) || []
+		const taskHistory = ((await getGlobalState(this.context, "taskHistory")) as HistoryItem[]) || []
 		const updatedTaskHistory = taskHistory.filter((task) => task.id !== id)
 		await updateGlobalState(this.context, "taskHistory", updatedTaskHistory)
 
@@ -1395,6 +1436,8 @@ export class Controller {
 			isNewUser,
 			mcpResponsesCollapsed,
 			terminalOutputLineLimit,
+			plan, // CARET MODIFICATION: Add plan to destructuring
+			isPayAsYouGo, // CARET MODIFICATION: Add isPayAsYouGo to destructuring
 		} = await getAllExtensionState(this.context)
 
 		// CARET MODIFICATION: Get UI Language setting separately (app-wide)
@@ -1451,6 +1494,8 @@ export class Controller {
 			mcpResponsesCollapsed,
 			terminalOutputLineLimit,
 			uiLanguage, // CARET MODIFICATION: UI Language setting (app-wide)
+			plan, // CARET MODIFICATION: Include plan in returned state
+			isPayAsYouGo, // CARET MODIFICATION: Include isPayAsYouGo in returned state
 		}
 	}
 

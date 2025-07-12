@@ -88,7 +88,7 @@ runCommand("npm run compile", "Backend TypeScript Compilation")
 runCommand("npm run build:webview", "Webview UI Production Build")
 
 // 6. Package with vsce
-const vsceCmd = `npx vsce package --out "${outputPath}" --allow-missing-repository --allow-package-secrets sendgrid`
+const vsceCmd = `npx vsce package --out "${outputPath}" --allow-missing-repository`
 runCommand(vsceCmd, "VSIX Packaging with VSCE")
 
 // 7. Check package size

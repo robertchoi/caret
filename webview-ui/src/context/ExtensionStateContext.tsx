@@ -616,7 +616,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		accountButtonClickedSubscriptionRef.current = UiServiceClient.subscribeToAccountButtonClicked(EmptyRequest.create(), {
 			onResponse: () => {
 				// When account button is clicked, navigate to account view
-				console.log("[DEBUG] Received account button clicked event from gRPC stream")
+				console.log("[AUTH] Received account button clicked event from gRPC stream. Navigating to account view.")
 				// CARET MODIFICATION: 웰컴 페이지에서는 상단 메뉴 비활성화
 				if (!showWelcome) {
 					navigateToAccount()

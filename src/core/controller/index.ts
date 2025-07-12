@@ -957,14 +957,19 @@ export class Controller {
 
 	async handleAuthCallback(customToken: string, apiKey: string) {
 		try {
+			caretLogger.info("[AUTH] handleAuthCallback started.")
+
 			// Store API key for API calls
 			await storeSecret(this.context, "caretApiKey", apiKey)
+			caretLogger.info("[AUTH] API key stored successfully.")
 
 			// Send custom token to webview for Firebase auth
 			await sendAuthCallbackEvent(customToken)
+			caretLogger.info("[AUTH] Custom token sent to webview.")
 
 			const caretProvider: ApiProvider = "caret"
 			await updateWorkspaceState(this.context, "apiProvider", caretProvider)
+			caretLogger.info(`[AUTH] Workspace API provider set to: ${caretProvider}`)
 
 			// Update API configuration with the new provider and API key
 			const { apiConfiguration } = await getAllExtensionState(this.context)
@@ -976,12 +981,19 @@ export class Controller {
 
 			if (this.task) {
 				this.task.api = buildApiHandler(updatedConfig)
+				caretLogger.info("[AUTH] Task API handler updated.")
 			}
 
 			await this.postStateToWebview()
+			caretLogger.info("[AUTH] State posted to webview.")
+
+			// CARET MODIFICATION: Navigate to account view after successful login
+			caretLogger.info(`[AUTH] Login successful. Attempting to navigate to account view for controller: ${this.id}`)
+			const { sendAccountButtonClickedEvent } = await import("./ui/subscribeToAccountButtonClicked")
+			sendAccountButtonClickedEvent(this.id)
 			// vscode.window.showInformationMessage("Successfully logged in to Cline")
 		} catch (error) {
-			console.error("Failed to handle auth callback:", error)
+			caretLogger.error(`[AUTH] Failed to handle auth callback: ${error}`)
 			vscode.window.showErrorMessage("Failed to log in to Cline")
 			// Even on login failure, we preserve any existing tokens
 			// Only clear tokens on explicit logout
@@ -993,7 +1005,7 @@ export class Controller {
 	private async fetchMcpMarketplaceFromApi(silent: boolean = false): Promise<McpMarketplaceCatalog | undefined> {
 		try {
 			// CARET MODIFICATION: Change MCP marketplace API URL to Caret development API
-			const response = await axios.get("https://dev-api.caret.team/api/auth/mcp/marketplace", {
+			const response = await axios.get(`${process.env.AUTH0_AUDIENCE}/api/auth/mcp/marketplace`, {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -1028,7 +1040,7 @@ export class Controller {
 	private async fetchMcpMarketplaceFromApiRPC(silent: boolean = false): Promise<McpMarketplaceCatalog | undefined> {
 		try {
 			// CARET MODIFICATION: Change MCP marketplace API URL to Caret development API
-			const response = await axios.get("https://dev-api.caret.team/api/auth/mcp/marketplace", {
+			const response = await axios.get(`${process.env.AUTH0_AUDIENCE}/api/auth/mcp/marketplace`, {
 				headers: {
 					"Content-Type": "application/json",
 					"User-Agent": "cline-vscode-extension",

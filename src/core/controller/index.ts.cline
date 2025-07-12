@@ -16,7 +16,7 @@ import WorkspaceTracker from "@integrations/workspace/WorkspaceTracker"
 import { ClineAccountService } from "@services/account/ClineAccountService"
 import { McpHub } from "@services/mcp/McpHub"
 import { telemetryService } from "@/services/posthog/telemetry/TelemetryService"
-import { ApiProvider, ModelInfo } from "@shared/api"
+import { ApiProvider, ModelInfo, ApiConfiguration } from "@shared/api" // ApiConfiguration import 추가
 import { ChatContent } from "@shared/ChatContent"
 import { ChatSettings } from "@shared/ChatSettings"
 import { ExtensionMessage, ExtensionState, Platform } from "@shared/ExtensionMessage"
@@ -69,11 +69,16 @@ export class Controller {
 
 	constructor(
 		readonly context: vscode.ExtensionContext,
-		private readonly outputChannel: vscode.OutputChannel,
+		private outputChannel: vscode.OutputChannel, // CARET MODIFICATION: Removed 'readonly' to resolve type inference issues with OutputChannel.
 		postMessage: (message: ExtensionMessage) => Thenable<boolean> | undefined,
 	) {
 		caretLogger.info(`Controller constructor called. ID: ${this.id}`)
-		this.outputChannel.appendLine("ClineProvider instantiated")
+		// CARET MODIFICATION: Ensure outputChannel is defined before using appendLine.
+		if (this.outputChannel) {
+			this.outputChannel.appendLine("ClineProvider instantiated")
+		} else {
+			console.warn("Controller: outputChannel is undefined during instantiation.")
+		}
 		this.postMessage = postMessage
 
 		this.workspaceTracker = new WorkspaceTracker()
@@ -283,31 +288,50 @@ export class Controller {
 						)}`,
 					)
 
-					try {
-						// CARET MODIFICATION: Use PersonaManager for updating persona
-						const { personaManager } = await import("../../../caret-src/utils/persona-manager")
-						
-						// 커스텀 인스트럭션 업데이트
-						await updateRuleFileContent({
-							rulePath: "custom_instructions.md",
-							isGlobal: true,
-							content: JSON.stringify(message.payload.personaInstruction, null, 2),
-						})
+					await updateRuleFileContent({
+						rulePath: "custom_instructions.md",
+						isGlobal: true,
+						content: JSON.stringify(message.payload.personaInstruction, null, 2),
+					})
 
-						// 이미지 업데이트 (avatarUri와 thinkingAvatarUri가 있는 경우)
-						if (message.payload.personaInstruction.avatarUri || message.payload.personaInstruction.thinkingAvatarUri) {
-							// PersonaManager를 통해 이미지 업데이트 (내부에서 알림 처리됨)
-							await personaManager.updatePersonaImagesInGlobalStorage(message.payload.personaInstruction)
+					// CARET MODIFICATION: Update agent_profile.png and agent_thinking.png with selected template images
+					// Check if avatarUri and thinkingAvatarUri exist in the payload
+					if (message.payload?.avatarUri && message.payload?.thinkingAvatarUri) {
+						// Use the same persona-storage system as file uploads
+						const { saveCustomPersonaImage } = await import("../../../caret-src/utils/persona-storage")
+						try {
+							// Save template images to globalStorage (same as file upload)
+							await saveCustomPersonaImage(this.context, "normal", message.payload.avatarUri)
+							await saveCustomPersonaImage(this.context, "thinking", message.payload.thinkingAvatarUri)
+							caretLogger.info("[Controller] Persona images updated successfully from template selection.")
+
+							// CARET MODIFICATION: 템플릿 선택 후 CaretProvider의 notifyPersonaImagesChanged 호출
+							try {
+								const { CaretProvider } = await import("../../../caret-src/core/webview/CaretProvider")
+								const provider = CaretProvider.getInstance()
+								if (provider) {
+									provider.notifyPersonaImagesChanged()
+									caretLogger.info("[Controller] 페르소나 템플릿 선택 후 알림 전송 완료")
+								} else {
+									caretLogger.warn(
+										"[Controller] CaretProvider 인스턴스를 찾을 수 없어 알림을 보내지 못했습니다",
+									)
+								}
+							} catch (error) {
+								caretLogger.error(`[Controller] 페르소나 템플릿 선택 후 알림 전송 실패: ${error}`)
+							}
+						} catch (error) {
+							caretLogger.error(`[Controller] Failed to replace persona images from template: ${error}`)
 						}
-						
-						// 성공 응답
-						this.postMessageToWebview({
-							type: "PERSONA_UPDATED",
-							payload: { success: true },
-						})
-					} catch (error) {
-						caretLogger.error(`[Controller] Error updating persona custom instruction: ${error}`)
 					}
+
+					// Send confirmation back to webview
+					this.postMessageToWebview({
+						type: "PERSONA_UPDATED",
+						payload: { success: true },
+					})
+
+					await this.postStateToWebview()
 				}
 				break
 			}
@@ -321,23 +345,61 @@ export class Controller {
 					)
 
 					try {
-						// CARET MODIFICATION: Use PersonaManager for persona image management
-						const { personaManager } = await import("../../../caret-src/utils/persona-manager")
-						await personaManager.saveCustomPersonaImage(
+						// CARET MODIFICATION: Use new globalStorage-based persona-storage.ts system
+						const { saveCustomPersonaImage } = await import("../../../caret-src/utils/persona-storage")
+						const savedImageUri = await saveCustomPersonaImage(
+							this.context,
 							message.payload.imageType,
 							message.payload.imageData,
-							message.payload.personaCharacter
 						)
-						
+
 						caretLogger.info(
-							`[Controller] Custom persona image saved successfully - imageType: ${message.payload.imageType}`,
-							"PERSONA_UPLOAD",
+							`[Controller] Custom persona image saved successfully to globalStorage: ${savedImageUri}`,
 						)
+
+						// Send success response back to webview
+						this.postMessageToWebview({
+							type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
+							payload: {
+								success: true,
+								savedPath: savedImageUri, // CARET MODIFICATION: Include actual saved URI
+								imageType: message.payload.imageType,
+								personaCharacter: message.payload.personaCharacter,
+							},
+						})
+
+						// CARET MODIFICATION: 이미지 업로드 후 CaretProvider의 notifyPersonaImagesChanged 호출
+						try {
+							const { CaretProvider } = await import("../../../caret-src/core/webview/CaretProvider")
+							const provider = CaretProvider.getInstance()
+							if (provider) {
+								provider.notifyPersonaImagesChanged()
+								caretLogger.info("[Controller] 페르소나 이미지 업로드 후 알림 전송 완료")
+							} else {
+								caretLogger.warn("[Controller] CaretProvider 인스턴스를 찾을 수 없어 알림을 보내지 못했습니다")
+							}
+						} catch (error) {
+							caretLogger.error(`[Controller] 페르소나 이미지 업로드 후 알림 전송 실패: ${error}`)
+						}
+
+						// CARET MODIFICATION: 이미지 업로드 후 상태를 새로고침하여 웹뷰에 반영
+						this.postMessageToWebview({
+							type: "PERSONA_UPDATED",
+							payload: { success: true },
+						})
 					} catch (error) {
-						caretLogger.error(
-							`[Controller] Error saving custom persona image: ${error}`,
-							"PERSONA_UPLOAD",
-						)
+						caretLogger.error(`[Controller] Error saving custom persona image: ${error}`)
+
+						// Send error response back to webview
+						this.postMessageToWebview({
+							type: "UPLOAD_CUSTOM_PERSONA_IMAGE_RESPONSE",
+							payload: {
+								success: false,
+								error: error instanceof Error ? error.message : "Unknown error",
+								imageType: message.payload.imageType,
+								personaCharacter: message.payload.personaCharacter,
+							},
+						})
 					}
 				}
 				break
@@ -609,7 +671,7 @@ export class Controller {
 
 		// Get previous model info that we will revert to after saving current mode api info
 		const {
-			apiConfiguration,
+			apiConfiguration, // apiConfiguration을 여기서 가져옵니다.
 			previousModeApiProvider: newApiProvider,
 			previousModeModelId: newModelId,
 			previousModeModelInfo: newModelInfo,
@@ -627,14 +689,20 @@ export class Controller {
 			planActSeparateModelsSetting,
 		} = await getAllExtensionState(this.context)
 
+		const currentApiConfiguration = apiConfiguration as ApiConfiguration // apiConfiguration을 명시적으로 캐스팅
+
 		const shouldSwitchModel = planActSeparateModelsSetting === true
 
 		if (shouldSwitchModel) {
 			// Save the last model used in this mode
-			await updateWorkspaceState(this.context, "previousModeApiProvider", apiConfiguration.apiProvider)
-			await updateWorkspaceState(this.context, "previousModeThinkingBudgetTokens", apiConfiguration.thinkingBudgetTokens)
-			await updateWorkspaceState(this.context, "previousModeReasoningEffort", apiConfiguration.reasoningEffort)
-			switch (apiConfiguration.apiProvider) {
+			await updateWorkspaceState(this.context, "previousModeApiProvider", currentApiConfiguration.apiProvider)
+			await updateWorkspaceState(
+				this.context,
+				"previousModeThinkingBudgetTokens",
+				currentApiConfiguration.thinkingBudgetTokens,
+			)
+			await updateWorkspaceState(this.context, "previousModeReasoningEffort", currentApiConfiguration.reasoningEffort)
+			switch (currentApiConfiguration.apiProvider) {
 				case "anthropic":
 				case "vertex":
 				case "gemini":
@@ -643,68 +711,84 @@ export class Controller {
 				case "qwen":
 				case "deepseek":
 				case "xai":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.apiModelId)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.apiModelId)
 					break
 				case "bedrock":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.apiModelId)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.apiModelId)
 					await updateWorkspaceState(
 						this.context,
 						"previousModeAwsBedrockCustomSelected",
-						apiConfiguration.awsBedrockCustomSelected,
+						currentApiConfiguration.awsBedrockCustomSelected,
 					)
 					await updateWorkspaceState(
 						this.context,
 						"previousModeAwsBedrockCustomModelBaseId",
-						apiConfiguration.awsBedrockCustomModelBaseId,
+						currentApiConfiguration.awsBedrockCustomModelBaseId,
 					)
 					break
 				case "openrouter":
 				case "caret":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.openRouterModelId)
-					await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.openRouterModelInfo)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.openRouterModelId)
+					await updateWorkspaceState(this.context, "previousModeModelInfo", currentApiConfiguration.openRouterModelInfo)
 					break
 				case "vscode-lm":
 					// Important we don't set modelId to this, as it's an object not string (webview expects model id to be a string)
 					await updateWorkspaceState(
 						this.context,
 						"previousModeVsCodeLmModelSelector",
-						apiConfiguration.vsCodeLmModelSelector,
+						currentApiConfiguration.vsCodeLmModelSelector,
 					)
 					break
 				case "openai":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.openAiModelId)
-					await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.openAiModelInfo)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.openAiModelId)
+					await updateWorkspaceState(this.context, "previousModeModelInfo", currentApiConfiguration.openAiModelInfo)
 					break
 				case "ollama":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.ollamaModelId)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.ollamaModelId)
 					break
 				case "lmstudio":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.lmStudioModelId)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.lmStudioModelId) // lmStudioModelId 변수 직접 사용
 					break
 				case "litellm":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.liteLlmModelId)
-					await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.liteLlmModelInfo)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.liteLlmModelId)
+					await updateWorkspaceState(this.context, "previousModeModelInfo", currentApiConfiguration.liteLlmModelInfo)
 					break
 				case "requesty":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.requestyModelId)
-					await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.requestyModelInfo)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.requestyModelId)
+					await updateWorkspaceState(this.context, "previousModeModelInfo", currentApiConfiguration.requestyModelInfo)
 					break
 				case "sapaicore":
-					await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.apiModelId)
-					await updateWorkspaceState(this.context, "previousModeSapAiCoreClientId", apiConfiguration.sapAiCoreClientId)
+					await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.apiModelId)
+					await updateWorkspaceState(
+						this.context,
+						"previousModeSapAiCoreClientId",
+						currentApiConfiguration.sapAiCoreClientId,
+					)
 					await updateWorkspaceState(
 						this.context,
 						"previousModeSapAiCoreClientSecret",
-						apiConfiguration.sapAiCoreClientSecret,
+						currentApiConfiguration.sapAiCoreClientSecret,
 					)
-					await updateWorkspaceState(this.context, "previousModeSapAiCoreBaseUrl", apiConfiguration.sapAiCoreBaseUrl)
-					await updateWorkspaceState(this.context, "previousModeSapAiCoreTokenUrl", apiConfiguration.sapAiCoreTokenUrl)
+					await updateWorkspaceState(
+						this.context,
+						"previousModeSapAiCoreBaseUrl",
+						currentApiConfiguration.sapAiCoreBaseUrl,
+					)
+					await updateWorkspaceState(
+						this.context,
+						"previousModeSapAiCoreTokenUrl",
+						currentApiConfiguration.sapAiCoreTokenUrl,
+					)
 					await updateWorkspaceState(
 						this.context,
 						"previousModeSapAiCoreResourceGroup",
-						apiConfiguration.sapAiResourceGroup,
+						currentApiConfiguration.sapAiResourceGroup,
 					)
-					await updateWorkspaceState(this.context, "previousModeSapAiCoreModelId", apiConfiguration.sapAiCoreModelId)
+					await updateWorkspaceState(
+						this.context,
+						"previousModeSapAiCoreModelId",
+						currentApiConfiguration.sapAiCoreModelId,
+					)
 					break
 			}
 
@@ -754,8 +838,12 @@ export class Controller {
 						await updateWorkspaceState(this.context, "lmStudioModelId", newModelId)
 						break
 					case "litellm":
-						await updateWorkspaceState(this.context, "previousModeModelId", apiConfiguration.liteLlmModelId)
-						await updateWorkspaceState(this.context, "previousModeModelInfo", apiConfiguration.liteLlmModelInfo)
+						await updateWorkspaceState(this.context, "previousModeModelId", currentApiConfiguration.liteLlmModelId)
+						await updateWorkspaceState(
+							this.context,
+							"previousModeModelInfo",
+							currentApiConfiguration.liteLlmModelInfo,
+						)
 						break
 					case "requesty":
 						await updateWorkspaceState(this.context, "requestyModelId", newModelId)
@@ -833,11 +921,24 @@ export class Controller {
 
 	async fetchUserCreditsData() {
 		try {
-			await Promise.all([
+			const [_, __, ___, accountPlanData] = await Promise.all([
 				this.accountService?.fetchBalance(),
 				this.accountService?.fetchUsageTransactions(),
 				this.accountService?.fetchPaymentTransactions(),
+				this.accountService?.fetchAccountPlan(), // CARET MODIFICATION: Fetch account plan
 			])
+
+			// CARET MODIFICATION: Merge plan and isPayAsYouGo into userInfo
+			if (accountPlanData) {
+				const { userInfo } = await getAllExtensionState(this.context)
+				const updatedUserInfo = {
+					...userInfo,
+					plan: accountPlanData.plan,
+					isPayAsYouGo: accountPlanData.isPayAsYouGo,
+				}
+				await updateGlobalState(this.context, "userInfo", updatedUserInfo)
+				await this.postStateToWebview() // Update webview with new userInfo
+			}
 		} catch (error) {
 			console.error("Failed to fetch user credits data:", error)
 		}
@@ -891,7 +992,8 @@ export class Controller {
 
 	private async fetchMcpMarketplaceFromApi(silent: boolean = false): Promise<McpMarketplaceCatalog | undefined> {
 		try {
-			const response = await axios.get("https://api.cline.bot/v1/mcp/marketplace", {
+			// CARET MODIFICATION: Change MCP marketplace API URL to Caret development API
+			const response = await axios.get("https://dev-api.caret.team/api/auth/mcp/marketplace", {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -925,7 +1027,8 @@ export class Controller {
 
 	private async fetchMcpMarketplaceFromApiRPC(silent: boolean = false): Promise<McpMarketplaceCatalog | undefined> {
 		try {
-			const response = await axios.get("https://api.cline.bot/v1/mcp/marketplace", {
+			// CARET MODIFICATION: Change MCP marketplace API URL to Caret development API
+			const response = await axios.get("https://dev-api.caret.team/api/auth/mcp/marketplace", {
 				headers: {
 					"Content-Type": "application/json",
 					"User-Agent": "cline-vscode-extension",
@@ -1291,7 +1394,7 @@ export class Controller {
 
 	async deleteTaskFromState(id: string) {
 		// Remove the task from history
-		const taskHistory = ((await getGlobalState(this.context, "taskHistory")) as HistoryItem[] | undefined) || []
+		const taskHistory = ((await getGlobalState(this.context, "taskHistory")) as HistoryItem[]) || []
 		const updatedTaskHistory = taskHistory.filter((task) => task.id !== id)
 		await updateGlobalState(this.context, "taskHistory", updatedTaskHistory)
 
@@ -1333,6 +1436,8 @@ export class Controller {
 			isNewUser,
 			mcpResponsesCollapsed,
 			terminalOutputLineLimit,
+			plan, // CARET MODIFICATION: Add plan to destructuring
+			isPayAsYouGo, // CARET MODIFICATION: Add isPayAsYouGo to destructuring
 		} = await getAllExtensionState(this.context)
 
 		// CARET MODIFICATION: Get UI Language setting separately (app-wide)
@@ -1389,6 +1494,8 @@ export class Controller {
 			mcpResponsesCollapsed,
 			terminalOutputLineLimit,
 			uiLanguage, // CARET MODIFICATION: UI Language setting (app-wide)
+			plan, // CARET MODIFICATION: Include plan in returned state
+			isPayAsYouGo, // CARET MODIFICATION: Include isPayAsYouGo in returned state
 		}
 	}
 

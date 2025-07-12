@@ -1,6 +1,10 @@
 const esbuild = require("esbuild")
 const fs = require("fs")
 const path = require("path")
+const dotenv = require("dotenv")
+
+// Load .env file
+const env = dotenv.config({ path: path.resolve(__dirname, ".env") }).parsed || {}
 
 const production = process.argv.includes("--production")
 const watch = process.argv.includes("--watch")
@@ -156,6 +160,9 @@ const baseConfig = {
 	logLevel: "silent",
 	define: {
 		"process.env.IS_DEV": JSON.stringify(!production),
+		"process.env.AUTH0_DOMAIN": JSON.stringify(env.AUTH0_DOMAIN),
+		"process.env.AUTH0_CLIENT_ID": JSON.stringify(env.AUTH0_CLIENT_ID),
+		"process.env.AUTH0_AUDIENCE": JSON.stringify(env.AUTH0_AUDIENCE),
 	},
 	tsconfig: path.resolve(__dirname, "tsconfig.json"),
 	plugins: [

@@ -4,7 +4,7 @@ import { ExtensionMessage } from "@shared/ExtensionMessage"
 
 export class ClineAccountService {
 	// CARET MODIFICATION: Change base URL to Caret development API
-	private readonly baseUrl = "https://dev-api.caret.team/api/auth"
+	private readonly baseUrl = `${process.env.AUTH0_AUDIENCE}/api/auth`
 	private postMessageToWebview: (message: ExtensionMessage) => Promise<void>
 	private getClineApiKey: () => Promise<string | undefined>
 

@@ -22,12 +22,23 @@ export async function accountLoginClicked(controller: Controller, _: EmptyReques
 	console.log("Opening auth page with state param")
 
 	const uriScheme = vscode.env.uriScheme
+	const audience = process.env.AUTH0_AUDIENCE
 
-	// CARET MODIFICATION: Change authentication URL from Cline to Caret
+	if (!audience) {
+		const errorMsg =
+			"Auth0 Audience is not defined. Please check your .env file and ensure esbuild.js is injecting environment variables correctly."
+		console.error(errorMsg, { audience })
+		vscode.window.showErrorMessage(errorMsg)
+		throw new Error(errorMsg)
+	}
+
+	const vsCodeCallbackUrl = `${uriScheme || "vscode"}://caretive.caret/auth`
+
+	// CARET MODIFICATION: Use environment variables to construct the auth URL, pointing to our backend
 	const authUrl = vscode.Uri.parse(
-		// CARET MODIFICATION: Change API URL and callback URL for Caret development environment
-		`https://dev-api.caret.team/api/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://caretive.caret/auth`)}`,
+		`${audience}/api/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(vsCodeCallbackUrl)}`,
 	)
+
 	console.log("authUrl", authUrl.toString())
 	await vscode.env.openExternal(authUrl)
 	return String.create({

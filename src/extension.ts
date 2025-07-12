@@ -268,6 +268,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// URI Handler
 	const handleUri = async (uri: vscode.Uri) => {
+		vscode.window.showInformationMessage(`Caret URI Handler triggered: ${uri.toString()}`)
 		console.log("URI Handler called with:", {
 			path: uri.path,
 			query: uri.query,
@@ -278,6 +279,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		const query = new URLSearchParams(uri.query.replace(/\+/g, "%2B"))
 		const visibleWebview = WebviewProvider.getVisibleInstance()
 		if (!visibleWebview) {
+			vscode.window.showInformationMessage(`Caret URI Handler: No visible webview found.`)
 			return
 		}
 		switch (path) {
@@ -289,6 +291,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				break
 			}
 			case "/auth": {
+				vscode.window.showInformationMessage(`Caret URI Handler: /auth path detected.`)
 				const token = query.get("token")
 				const state = query.get("state")
 				const apiKey = query.get("apiKey")
@@ -311,6 +314,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				break
 			}
 			default:
+				vscode.window.showInformationMessage(`Caret URI Handler: Unknown path: ${path}`)
 				break
 		}
 	}

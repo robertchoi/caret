@@ -56,6 +56,9 @@ function parseLogFiles(taskDir) {
 		let totalTokensOut = 0
 		let totalCost = 0
 		let apiCallCount = 0
+		// CARET MODIFICATION: 시스템 프롬프트 검증을 위한 변수 추가
+		let systemPromptInfo = null
+		let modeCheckLogs = []
 
 		uiMessages.forEach((msg) => {
 			if (msg.type === "say" && msg.say === "api_req_started") {
@@ -65,8 +68,31 @@ function parseLogFiles(taskDir) {
 					totalTokensOut += apiData.tokensOut || 0
 					totalCost += apiData.cost || 0
 					apiCallCount++
+					
+					// CARET MODIFICATION: 첫 번째 API 호출에서 시스템 프롬프트 정보 추출
+					if (!systemPromptInfo && apiData.request && apiData.request.messages) {
+						const systemMessage = apiData.request.messages.find(m => m.role === 'system')
+						if (systemMessage && systemMessage.content) {
+							const content = systemMessage.content
+							systemPromptInfo = {
+								isCaretJson: content.includes('BASE_PROMPT_INTRO') || content.includes('COLLABORATIVE_PRINCIPLES'),
+								isTrueCline: content.includes('# Cline') && content.includes('a highly skilled software engineer'),
+								length: content.length,
+								wordCount: content.split(/\s+/).length,
+								approxTokens: Math.ceil(content.split(/\s+/).length * 1.33),
+								preview: content.substring(0, 200) + '...'
+							}
+						}
+					}
 				} catch (e) {
 					// text에 JSON이 아닌 다른 내용이 있을 수 있으므로 오류는 무시
+				}
+			}
+			
+			// CARET MODIFICATION: 모드 체크 로그 추출
+			if (msg.type === "say" && msg.say === "completion_result") {
+				if (msg.text.includes('[MODE-CHECK-')) {
+					modeCheckLogs.push(msg.text)
 				}
 			}
 		})
@@ -89,6 +115,9 @@ function parseLogFiles(taskDir) {
 			startTime,
 			endTime,
 			totalLatency,
+			// CARET MODIFICATION: 시스템 프롬프트 정보 추가
+			systemPromptInfo,
+			modeCheckLogs
 		}
 	} catch (error) {
 		console.error(`로그 파일 파싱 중 오류 발생: ${taskDir}`, error)
@@ -109,6 +138,30 @@ function createMarkdownReport(experimentName, agentName, data) {
 			? `${new Date(data.startTime).toLocaleString("ko-KR")} ~ ${new Date(data.endTime).toLocaleString("ko-KR")}`
 			: "N/A"
 
+	// CARET MODIFICATION: 시스템 프롬프트 정보 분석
+	const systemPromptAnalysis = data.systemPromptInfo ? `
+## 🔍 시스템 프롬프트 검증
+
+| 항목 | 결과 |
+|---|---|
+| **Caret JSON 시스템 사용** | ${data.systemPromptInfo.isCaretJson ? '✅ 예' : '❌ 아니오'} |
+| **TRUE_CLINE_SYSTEM 사용** | ${data.systemPromptInfo.isTrueCline ? '✅ 예' : '❌ 아니오'} |
+| **프롬프트 길이** | ${data.systemPromptInfo.length.toLocaleString()} 문자 |
+| **단어 수** | ${data.systemPromptInfo.wordCount.toLocaleString()} 개 |
+| **예상 토큰 수** | ${data.systemPromptInfo.approxTokens.toLocaleString()} 개 |
+
+### 시스템 프롬프트 미리보기
+\`\`\`
+${data.systemPromptInfo.preview}
+\`\`\`
+` : '⚠️ 시스템 프롬프트 정보를 찾을 수 없습니다.'
+
+	const modeCheckAnalysis = data.modeCheckLogs && data.modeCheckLogs.length > 0 ? `
+## 🔧 모드 체크 로그
+
+${data.modeCheckLogs.map(log => `- ${log}`).join('\n')}
+` : ''
+
 	return `
 # [${experimentName}] ${agentName} 성능 테스트 보고서
 
@@ -122,6 +175,10 @@ function createMarkdownReport(experimentName, agentName, data) {
 | **API 호출 횟수** | ${data.apiCallCount}회 |
 | **총 실행 시간** | ${Math.round(data.totalLatency / 1000)}초 (${data.totalLatency}ms) |
 | **실행 기간** | ${executionPeriod} |
+
+${systemPromptAnalysis}
+
+${modeCheckAnalysis}
 
 ## 세부 정보
 

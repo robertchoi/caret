@@ -140,6 +140,8 @@ class CheckpointTracker {
 	 * Key behaviors:
 	 * - Creates commit with checkpoint files in shadow git repo
 	 * - Caches the created commit hash
+	 * - CARET MODIFICATION: Added defensive error handling to prevent system crash
+	 * - CARET MODIFICATION: Added automatic recovery for corrupted checkpoint directories
 	 *
 	 * Commit structure:
 	 * - Commit message: "checkpoint-{cwdHash}-{taskId}"
@@ -154,10 +156,7 @@ class CheckpointTracker {
 	 * - Shadow git access fails
 	 * - Staging files fails
 	 * - Commit creation fails
-	 * @throws Error if unable to:
-	 * - Access shadow git path
-	 * - Initialize simple-git
-	 * - Stage or commit files
+	 * - CARET MODIFICATION: Checkpoint system fails (returns undefined instead of throwing)
 	 */
 	public async commit(): Promise<string | undefined> {
 		try {
@@ -189,11 +188,48 @@ class CheckpointTracker {
 
 			return commitHash
 		} catch (error) {
+			// CARET MODIFICATION: Enhanced error handling with automatic recovery
+			const errorMessage = error instanceof Error ? error.message : String(error)
 			console.error("Failed to create checkpoint:", {
 				taskId: this.taskId,
-				error,
+				error: errorMessage,
 			})
-			throw new Error(`Failed to create checkpoint: ${error instanceof Error ? error.message : String(error)}`)
+			
+			// CARET MODIFICATION: Automatic recovery for broken Git references
+			if (errorMessage.includes("cannot lock ref 'HEAD'") || 
+				errorMessage.includes("unable to resolve reference") ||
+				errorMessage.includes("reference broken")) {
+				console.warn("Detected corrupted checkpoint Git repository, attempting auto-recovery...")
+				await this.attemptCheckpointRecovery()
+			}
+
+			// CARET MODIFICATION: Return undefined instead of throwing to prevent system crash
+			// This allows Caret to continue working even if checkpoints fail
+			return undefined
+		}
+	}
+
+	// CARET MODIFICATION: Added automatic recovery method for corrupted checkpoint directories
+	private async attemptCheckpointRecovery(): Promise<void> {
+		try {
+			const gitPath = await getShadowGitPath(this.globalStoragePath, this.taskId, this.cwdHash)
+			const checkpointDir = path.dirname(gitPath)
+			
+			console.info(`Attempting to recover corrupted checkpoint directory: ${checkpointDir}`)
+			
+			// Remove the corrupted checkpoint directory
+			const fs = await import("fs/promises")
+			await fs.rm(checkpointDir, { recursive: true, force: true })
+			
+			console.info("Corrupted checkpoint directory removed successfully")
+			
+			// Recreate the checkpoint tracker
+			await this.gitOperations.initShadowGit(gitPath, this.cwd, this.taskId)
+			
+			console.info("Checkpoint system recovered successfully")
+		} catch (recoveryError) {
+			console.error("Failed to recover checkpoint system:", recoveryError)
+			// If recovery fails, we continue without checkpoints
 		}
 	}
 

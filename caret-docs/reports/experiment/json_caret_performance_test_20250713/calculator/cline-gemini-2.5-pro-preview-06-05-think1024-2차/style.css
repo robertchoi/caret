@@ -1,88 +1,79 @@
-html {
-	font-size: 62.5%;
-	box-sizing: border-box;
-}
-
-*,
-*::before,
-*::after {
-	margin: 0;
-	padding: 0;
-	box-sizing: inherit;
-}
-
 body {
-	font-family: Arial, sans-serif;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 100vh;
-	background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    font-family: 'Arial', sans-serif;
 }
 
 .calculator {
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	width: 320px;
-	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 320px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    background-color: #fff;
 }
 
-.calculator-display {
-	background-color: #222;
-	color: #fff;
-	font-size: 4rem;
-	padding: 2rem;
-	text-align: right;
-	border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
-	word-wrap: break-word;
-	word-break: break-all;
+.display {
+    background-color: #222;
+    color: #fff;
+    font-size: 2.5em;
+    padding: 20px;
+    text-align: right;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    overflow-x: auto;
 }
 
-.calculator-keys {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	grid-gap: 1px;
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 1px;
 }
 
 button {
-	height: 60px;
-	font-size: 2rem;
-	border: 1px solid #ccc;
-	background-color: #fff;
-	cursor: pointer;
-	transition: background-color 0.2s;
+    border: none;
+    padding: 20px;
+    font-size: 1.5em;
+    cursor: pointer;
+    background-color: #e0e0e0;
+    transition: background-color 0.2s;
 }
 
 button:hover {
-	background-color: #eaeaea;
+    background-color: #d0d0d0;
 }
 
-.key--operator {
-	background-color: #f9a825;
-	color: white;
+.btn-operator {
+    background-color: #f5923d;
+    color: white;
 }
 
-.key--operator:hover {
-	background-color: #fbc02d;
+.btn-operator:hover {
+    background-color: #e5822d;
 }
 
-.all-clear {
-	background-color: #e53935;
-	color: white;
+.btn-misc {
+    background-color: #d6d6d6;
 }
 
-.all-clear:hover {
-	background-color: #ef5350;
+.btn-misc:hover {
+    background-color: #c6c6c6;
 }
 
-.equal-sign {
-	background-color: #43a047;
-	color: white;
-	grid-column: -2 / -1;
-	grid-row: 5 / 6;
+.btn-equal {
+    background-color: #f5923d;
+    color: white;
+    grid-column: 4 / 5;
+    grid-row: 4 / 6;
 }
 
-.equal-sign:hover {
-	background-color: #66bb6a;
+.btn-equal:hover {
+    background-color: #e5822d;
+}
+
+.zero {
+    grid-column: 1 / 3;
 }

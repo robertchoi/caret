@@ -1,86 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>웹 계산기</title>
-		<link rel="stylesheet" href="style.css" />
-	</head>
-	<body>
-		<div class="calculator">
-			<div class="calculator-display">0</div>
-			<div class="calculator-keys">
-				<button class="key--operator" value="+">+</button>
-				<button class="key--operator" value="-">-</button>
-				<button class="key--operator" value="*">&times;</button>
-				<button class="key--operator" value="/">&divide;</button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹 계산기</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="calculator">
+        <div id="display" class="display">0</div>
+        <div class="buttons">
+            <button value="clear" class="btn-misc">AC</button>
+            <button value="/" class="btn-operator">/</button>
+            <button value="*" class="btn-operator">*</button>
+            <button value="-" class="btn-operator">-</button>
 
-				<button value="7">7</button>
-				<button value="8">8</button>
-				<button value="9">9</button>
+            <button value="7" class="btn-num">7</button>
+            <button value="8" class="btn-num">8</button>
+            <button value="9" class="btn-num">9</button>
+            <button value="+" class="btn-operator">+</button>
 
-				<button value="4">4</button>
-				<button value="5">5</button>
-				<button value="6">6</button>
-
-				<button value="1">1</button>
-				<button value="2">2</button>
-				<button value="3">3</button>
-
-				<button value="0">0</button>
-				<button class="decimal" value=".">.</button>
-				<button class="all-clear" value="all-clear">AC</button>
-
-				<button class="equal-sign key--operator" value="=">=</button>
-			</div>
-		</div>
-
-		<script src="script.js"></script>
-		<script>
-			// --- DOM Elements and Event Listeners ---
-			const display = document.querySelector(".calculator-display")
-			const keys = document.querySelector(".calculator-keys")
-
-			keys.addEventListener("click", (event) => {
-				const { target } = event
-				if (!target.matches("button")) {
-					return
-				}
-
-				if (target.classList.contains("operator")) {
-					handleOperator(target.value)
-					updateDisplay()
-					return
-				}
-
-				if (target.classList.contains("decimal")) {
-					handleDecimal(target.value)
-					updateDisplay()
-					return
-				}
-
-				if (target.classList.contains("all-clear")) {
-					handleClear()
-					updateDisplay()
-					return
-				}
-
-				if (target.classList.contains("equal-sign")) {
-					handleEqual()
-					updateDisplay()
-					return
-				}
-
-				handleNumber(target.value)
-				updateDisplay()
-			})
-
-			function updateDisplay() {
-				display.textContent = getDisplayValue()
-			}
-
-			// Initial display update
-			updateDisplay()
-		</script>
-	</body>
+            <button value="4" class="btn-num">4</button>
+            <button value="5" class="btn-num">5</button>
+            <button value="6" class="btn-num">6</button>
+            
+            <button value="1" class="btn-num">1</button>
+            <button value="2" class="btn-num">2</button>
+            <button value="3" class="btn-num">3</button>
+            
+            <button value="0" class="btn-num zero">0</button>
+            <button value="." class="btn-num">.</button>
+            <button value="=" class="btn-equal">=</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
 </html>

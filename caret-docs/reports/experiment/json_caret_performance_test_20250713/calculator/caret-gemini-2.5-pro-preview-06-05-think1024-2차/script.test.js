@@ -1,66 +1,42 @@
-// script.test.js
+// calculator.js의 함수들을 가져옵니다.
+// 이 테스트 파일은 브라우저 환경이 아닌 Node.js 환경에서 실행될 것을 가정합니다.
+// 따라서 실제 프로덕션 코드(script.js)와 테스트 대상(calculator)을 분리해야 합니다.
+// 우선 script.js에 calculator 객체를 정의하고, module.exports를 통해 내보내는 구조로 만들겠습니다.
 
-// Jest와 같은 테스트 러너가 없으므로, 간단한 assert 함수를 만들어 테스트합니다.
-function assert(condition, message) {
-	if (!condition) {
-		throw new Error(message || "Assertion failed")
-	}
-}
+const calculator = require('./script.js');
 
-// 테스트를 그룹화하기 위한 간단한 describe/it 구조
-const tests = []
-function describe(description, fn) {
-	console.log(description)
-	fn()
-}
-
-function it(description, fn) {
-	tests.push({ description, fn })
-}
-
+// 테스트 케이스 정의
 function runTests() {
-	tests.forEach((test) => {
-		try {
-			test.fn()
-			console.log(`  ✓ ${test.description}`)
-		} catch (e) {
-			console.error(`  ✗ ${test.description}`)
-			console.error(e)
-		}
-	})
+    console.log('계산기 로직 테스트 시작...');
+
+    // 덧셈 테스트
+    console.assert(calculator.add(1, 2) === 3, '덧셈 테스트 실패: 1 + 2 !== 3');
+    console.assert(calculator.add(-1, -1) === -2, '덧셈 테스트 실패: -1 + -1 !== -2');
+    console.assert(calculator.add(1.5, 2.5) === 4, '덧셈 테스트 실패: 1.5 + 2.5 !== 4');
+
+    // 뺄셈 테스트
+    console.assert(calculator.subtract(5, 2) === 3, '뺄셈 테스트 실패: 5 - 2 !== 3');
+    console.assert(calculator.subtract(2, 5) === -3, '뺄셈 테스트 실패: 2 - 5 !== -3');
+    console.assert(calculator.subtract(5.5, 1.5) === 4, '뺄셈 테스트 실패: 5.5 - 1.5 !== 4');
+
+    // 곱셈 테스트
+    console.assert(calculator.multiply(3, 4) === 12, '곱셈 테스트 실패: 3 * 4 !== 12');
+    console.assert(calculator.multiply(-3, 4) === -12, '곱셈 테스트 실패: -3 * 4 !== -12');
+    console.assert(calculator.multiply(1.5, 2) === 3, '곱셈 테스트 실패: 1.5 * 2 !== 3');
+
+    // 나눗셈 테스트
+    console.assert(calculator.divide(10, 2) === 5, '나눗셈 테스트 실패: 10 / 2 !== 5');
+    console.assert(calculator.divide(5, 2) === 2.5, '나눗셈 테스트 실패: 5 / 2 !== 2.5');
+
+    // 0으로 나누기 테스트
+    try {
+        calculator.divide(5, 0);
+    } catch (e) {
+        console.assert(e.message === '0으로 나눌 수 없습니다.', '0으로 나누기 오류 메시지 테스트 실패');
+    }
+
+    console.log('계산기 로직 테스트 완료.');
 }
 
-// script.js에서 calculator 객체를 가져옵니다.
-const calculator = require("./script.js")
-
-describe("Calculator Logic", () => {
-	it("should correctly add two numbers", () => {
-		assert(calculator.add(5, 3) === 8, "5 + 3 should be 8")
-		assert(calculator.add(-1, 1) === 0, "-1 + 1 should be 0")
-		assert(calculator.add(0.1, 0.2) === 0.30000000000000004, "0.1 + 0.2 should be ~0.3") // 부동소수점 문제 참고
-	})
-
-	it("should correctly subtract two numbers", () => {
-		assert(calculator.subtract(10, 4) === 6, "10 - 4 should be 6")
-		assert(calculator.subtract(5, 10) === -5, "5 - 10 should be -5")
-	})
-
-	it("should correctly multiply two numbers", () => {
-		assert(calculator.multiply(3, 7) === 21, "3 * 7 should be 21")
-		assert(calculator.multiply(2.5, 2) === 5, "2.5 * 2 should be 5")
-	})
-
-	it("should correctly divide two numbers", () => {
-		assert(calculator.divide(10, 2) === 5, "10 / 2 should be 5")
-		assert(calculator.divide(5, 2) === 2.5, "5 / 2 should be 2.5")
-	})
-
-	it("should handle division by zero", () => {
-		assert(calculator.divide(10, 0) === "Error", 'Division by zero should return "Error"')
-	})
-})
-
-// 모든 테스트를 실행합니다.
-runTests()
-
-// 이 파일은 Node.js 환경에서 `node script.test.js`로 실행하여 테스트할 수 있습니다.
+// 테스트 실행
+runTests();

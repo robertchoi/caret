@@ -1,39 +1,40 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>간단한 웹 계산기</title>
-		<link rel="stylesheet" href="style.css" />
-	</head>
-	<body>
-		<div class="calculator">
-			<div id="display" class="display">0</div>
-			<div class="buttons">
-				<button class="operator" value="+">+</button>
-				<button class="operator" value="-">-</button>
-				<button class="operator" value="*">&times;</button>
-				<button class="operator" value="/">&divide;</button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹 계산기</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="calculator">
+        <input type="text" class="calculator-screen" value="0" disabled />
+        <div class="calculator-keys">
+            <button type="button" class="all-clear" data-action="clear">AC</button>
+            <button type="button">&nbsp;</button> 
+            <button type="button">&nbsp;</button>
+            <button type="button" class="operator" data-action="divide">&divide;</button>
 
-				<button value="7">7</button>
-				<button value="8">8</button>
-				<button value="9">9</button>
+            <button type="button">7</button>
+            <button type="button">8</button>
+            <button type="button">9</button>
+            <button type="button" class="operator" data-action="multiply">&times;</button>
 
-				<button value="4">4</button>
-				<button value="5">5</button>
-				<button value="6">6</button>
+            <button type="button">4</button>
+            <button type="button">5</button>
+            <button type="button">6</button>
+            <button type="button" class="operator" data-action="subtract">-</button>
 
-				<button value="1">1</button>
-				<button value="2">2</button>
-				<button value="3">3</button>
+            <button type="button">1</button>
+            <button type="button">2</button>
+            <button type="button">3</button>
+            <button type="button" class="operator" data-action="add">+</button>
 
-				<button value="0">0</button>
-				<button class="decimal" value=".">.</button>
-				<button class="clear" value="C">C</button>
-
-				<button class="operator" id="equals" value="=">=</button>
-			</div>
-		</div>
-		<script src="script.js"></script>
-	</body>
+            <button type="button" class="zero">0</button>
+            <button type="button" class="decimal" data-action="decimal">.</button>
+            <button type="button" class="equal-sign" data-action="calculate">=</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
 </html>

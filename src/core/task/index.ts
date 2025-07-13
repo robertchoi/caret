@@ -1308,15 +1308,46 @@ export class Task {
 			}
 
 			if (this.checkpointTracker) {
-				const commitHash = await this.checkpointTracker.commit()
+				// CARET MODIFICATION: Added defensive error handling for attempt completion checkpoint
+				try {
+					const commitHash = await this.checkpointTracker.commit()
 
-				// For attempt_completion, find the last completion_result message and set its checkpoint hash. This will be used to present the 'see new changes' button
-				const lastCompletionResultMessage = findLast(
-					this.clineMessages,
-					(m) => m.say === "completion_result" || m.ask === "completion_result",
-				)
-				if (lastCompletionResultMessage) {
-					lastCompletionResultMessage.lastCheckpointHash = commitHash
+					// For attempt_completion, find the last completion_result message and set its checkpoint hash. This will be used to present the 'see new changes' button
+					const lastCompletionResultMessage = findLast(
+						this.clineMessages,
+						(m) => m.say === "completion_result" || m.ask === "completion_result",
+					)
+					if (lastCompletionResultMessage && commitHash) {
+						lastCompletionResultMessage.lastCheckpointHash = commitHash
+						await saveClineMessagesAndUpdateHistory(
+							this.getContext(),
+							this.taskId,
+							this.clineMessages,
+							this.taskIsFavorited ?? false,
+							this.conversationHistoryDeletedRange,
+							this.checkpointTracker,
+							this.updateTaskHistory,
+						)
+					} else if (lastCompletionResultMessage && !commitHash) {
+						// CARET MODIFICATION: Handle case where commit failed but returned undefined
+						console.warn("Checkpoint commit failed for attempt completion but task will continue")
+						// Still save the messages without checkpoint hash
+						await saveClineMessagesAndUpdateHistory(
+							this.getContext(),
+							this.taskId,
+							this.clineMessages,
+							this.taskIsFavorited ?? false,
+							this.conversationHistoryDeletedRange,
+							this.checkpointTracker,
+							this.updateTaskHistory,
+						)
+					}
+				} catch (error) {
+					// CARET MODIFICATION: Catch any remaining errors from checkpoint commit
+					const errorMessage = error instanceof Error ? error.message : "Unknown error"
+					console.error("Checkpoint commit failed unexpectedly for attempt completion:", errorMessage)
+					this.checkpointTrackerErrorMessage = "Checkpoint system temporarily unavailable. Your work will continue normally."
+					// Still save the messages without checkpoint hash
 					await saveClineMessagesAndUpdateHistory(
 						this.getContext(),
 						this.taskId,
@@ -4619,13 +4650,27 @@ export class Task {
 		// then say "checkpoint_created" and perform the commit.
 		if (isFirstRequest && this.enableCheckpoints && this.checkpointTracker) {
 			await this.say("checkpoint_created") // Now this is conditional
-			const commitHash = await this.checkpointTracker.commit() // Actual commit
-			const lastCheckpointMessage = findLast(this.clineMessages, (m) => m.say === "checkpoint_created")
-			if (lastCheckpointMessage) {
-				lastCheckpointMessage.lastCheckpointHash = commitHash
-				// saveClineMessagesAndUpdateHistory will be called later after API response,
-				// so no need to call it here unless this is the only modification to this message.
-				// For now, assuming it's handled later.
+			// CARET MODIFICATION: Added defensive error handling for checkpoint commit
+			try {
+				const commitHash = await this.checkpointTracker.commit() // Actual commit
+				const lastCheckpointMessage = findLast(this.clineMessages, (m) => m.say === "checkpoint_created")
+				if (lastCheckpointMessage && commitHash) {
+					lastCheckpointMessage.lastCheckpointHash = commitHash
+					// saveClineMessagesAndUpdateHistory will be called later after API response,
+					// so no need to call it here unless this is the only modification to this message.
+					// For now, assuming it's handled later.
+				} else if (lastCheckpointMessage && !commitHash) {
+					// CARET MODIFICATION: Handle case where commit failed but returned undefined
+					console.warn("Checkpoint commit failed but task will continue without checkpoints")
+					// Set error message to inform user that checkpoints are not available
+					this.checkpointTrackerErrorMessage = "Checkpoint system temporarily unavailable due to Git issues. Your work will continue normally."
+				}
+			} catch (error) {
+				// CARET MODIFICATION: Catch any remaining errors from checkpoint commit
+				const errorMessage = error instanceof Error ? error.message : "Unknown error"
+				console.error("Checkpoint commit failed unexpectedly:", errorMessage)
+				this.checkpointTrackerErrorMessage = "Checkpoint system temporarily unavailable. Your work will continue normally."
+				// Don't rethrow the error - let the task continue
 			}
 		} else if (isFirstRequest && this.enableCheckpoints && !this.checkpointTracker && this.checkpointTrackerErrorMessage) {
 			// Checkpoints are enabled, but tracker failed to initialize.

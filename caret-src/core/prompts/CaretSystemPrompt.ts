@@ -64,6 +64,13 @@ export class CaretSystemPrompt {
 		return CaretSystemPrompt.instance !== undefined
 	}
 
+	/**
+	 * CARET MODIFICATION: Reset singleton instance for tests
+	 */
+	static resetInstance(): void {
+		CaretSystemPrompt.instance = undefined as any
+	}
+
 	// ❌ REMOVED: generateSystemPrompt() moved to CaretSystemPromptTestHelper
 	// This method was only used in tests and caused confusion in production code
 

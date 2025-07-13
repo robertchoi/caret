@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>간단한 웹 계산기</title>
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+		<div class="calculator">
+			<div class="display" id="display">0</div>
+			<div class="buttons">
+				<button class="clear" data-action="clear">C</button>
+				<button class="operator" data-action="divide">/</button>
+				<button class="operator" data-action="multiply">*</button>
+				<button class="operator" data-action="subtract">-</button>
+
+				<button data-action="number">7</button>
+				<button data-action="number">8</button>
+				<button data-action="number">9</button>
+				<button class="operator" data-action="add">+</button>
+
+				<button data-action="number">4</button>
+				<button data-action="number">5</button>
+				<button data-action="number">6</button>
+				<button class="equals" data-action="equals">=</button>
+
+				<button data-action="number">1</button>
+				<button data-action="number">2</button>
+				<button data-action="number">3</button>
+				<button class="decimal" data-action="decimal">.</button>
+
+				<button class="zero" data-action="number">0</button>
+			</div>
+		</div>
+		<script src="script.js"></script>
+		<script>
+			// CARET MODIFICATION: UI interaction logic for the calculator
+			// This part connects the HTML buttons to the calculator logic in script.js
+			const display = document.getElementById("display")
+			const buttons = document.querySelector(".buttons")
+			const { calculator } = require("./script") // Access the calculator object
+
+			// Update display function
+			function updateDisplay() {
+				display.textContent = calculator.currentValue
+			}
+
+			// Initial display update
+			updateDisplay()
+
+			buttons.addEventListener("click", (event) => {
+				const { target } = event
+				const action = target.dataset.action
+
+				if (!target.matches("button")) {
+					return
+				}
+
+				if (action === "number") {
+					calculator.inputDigit(target.textContent)
+					updateDisplay()
+					return
+				}
+
+				if (action === "decimal") {
+					calculator.inputDecimal(".")
+					updateDisplay()
+					return
+				}
+
+				if (action === "clear") {
+					calculator.clear()
+					updateDisplay()
+					return
+				}
+
+				if (action === "equals") {
+					calculator.performCalculation()
+					updateDisplay()
+					return
+				}
+
+				if (target.classList.contains("operator")) {
+					calculator.handleOperator(target.textContent)
+					updateDisplay()
+					return
+				}
+			})
+		</script>
+	</body>
+</html>

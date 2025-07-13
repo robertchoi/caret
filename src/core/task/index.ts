@@ -958,7 +958,7 @@ export class Task {
 		const errorMessage = backendT("task.retryWithoutParam", this.chatSettings, {
 			toolName,
 			pathInfo,
-			paramName
+			paramName,
 		})
 		await this.say("error", errorMessage)
 		return formatResponse.toolError(formatResponse.missingToolParameterError(paramName))
@@ -1706,25 +1706,25 @@ export class Task {
 		// CARET MODIFICATION: Plan/Act 모드 지원 - modeSystem에 따른 프롬프트 생성
 		let systemPrompt: string
 		if (this.chatSettings.modeSystem === "cline") {
-			// Cline Plan/Act 모드: Cline 원본 SYSTEM_PROMPT 사용
-			// Plan/Act 로직은 Cline 원본 프롬프트에 최적화되어 있음
-			// 모드 정보는 환경 세부사항에서 제공됨 (원래 Cline 방식)
-			// CARET MODIFICATION: Cline 모드에서는 extensionPath를 전달하지 않아서 ORIGINAL_CLINE_SYSTEM_PROMPT 강제 사용
+			// CARET MODIFICATION: 진짜 Cline 원본 시스템 프롬프트 사용
+			// TRUE_CLINE_SYSTEM_PROMPT를 사용하여 정확한 Cline 원본 프롬프트 제공
+			// Plan/Act 모드 파라미터를 전달하여 environment_details에서 처리되도록 함
 
 			// CARET MODIFICATION: 현재 모드 확인 로그 추가
 			const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
-			caretLogger.warn(
-				`🔍 [MODE-CHECK-CLINE] Cline 모드 - SYSTEM_PROMPT 호출: chatSettings.mode=${this.chatSettings.mode}, modeSystem=${this.chatSettings.modeSystem}, mode 파라미터 미전달 (기본값 'agent' 사용됨!)`,
+			caretLogger.info(
+				`🔍 [MODE-CHECK-CLINE] Cline 모드 - TRUE_CLINE_SYSTEM_PROMPT 호출: chatSettings.mode=${this.chatSettings.mode}, modeSystem=${this.chatSettings.modeSystem}`,
 				"MODE_CHECK",
 			)
 
-			systemPrompt = await SYSTEM_PROMPT(
+			const { TRUE_CLINE_SYSTEM_PROMPT } = await import("../prompts/true-cline-system")
+			systemPrompt = await TRUE_CLINE_SYSTEM_PROMPT(
 				cwd,
 				supportsBrowserUse,
 				this.mcpHub,
 				this.browserSettings,
 				isClaude4Model,
-				undefined,
+				this.chatSettings.mode as "plan" | "act",
 			)
 		} else {
 			// Caret 모드: JSON 기반 개선된 프롬프트 사용 (mode 파라미터 포함)

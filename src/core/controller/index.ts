@@ -169,6 +169,7 @@ export class Controller {
 			}
 			await updateGlobalState(this.context, "autoApprovalSettings", updatedAutoApprovalSettings)
 		}
+
 		this.task = new Task(
 			this.context,
 			this.mcpHub,

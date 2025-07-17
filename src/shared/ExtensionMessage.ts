@@ -274,6 +274,9 @@ export interface ClineApiReqInfo {
 		mode?: string // CARET MODIFICATION: 현재 모드 (caret/cline)
 	}
 	conversationLength?: number
+	// CARET MODIFICATION: 실제 세션 정보 추가 (generate-report.js가 읽는 정보)
+	sessionMode?: string // 세션 모드 (caret/cline)
+	sessionType?: string // 세션 타입 (new/continuing)
 }
 
 export type ClineApiReqCancelReason = "streaming_failed" | "user_cancelled" | "retries_exhausted"

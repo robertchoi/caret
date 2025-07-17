@@ -54,6 +54,7 @@ function parseMarkdownLogFile(logFilePath) {
 		let apiCallCount = 0
 		let totalTokensIn = 0
 		let totalTokensOut = 0
+		let totalCachedTokens = 0  // 캐시된 토큰 수 추가
 		let totalCost = 0
 		let timestamps = []
 
@@ -91,26 +92,13 @@ function parseMarkdownLogFile(logFilePath) {
 						wordCount: Math.floor(length / 5), // 추정
 						approxTokens: tokens,
 						mode: isCaretMode ? "caret" : isClineMode ? "cline" : "unknown",
-						isCaretJson: false, // 기본값
-						isTrueCline: false, // 기본값
+
 						preview: isCaretMode ? "Caret JSON system prompt..." : "Cline system prompt...",
 					}
 				}
 			}
 
-			// Caret JSON 시스템 확인
-			if (line.includes("generateFromJsonSections") || line.includes("CARET-SYSTEM")) {
-				if (systemPromptInfo) {
-					systemPromptInfo.isCaretJson = true
-				}
-			}
 
-			// TRUE_CLINE_SYSTEM 확인
-			if (line.includes("TRUE-CLINE-SYSTEM") || line.includes("TRUE_CLINE_SYSTEM_PROMPT")) {
-				if (systemPromptInfo) {
-					systemPromptInfo.isTrueCline = true
-				}
-			}
 		})
 
 		// 타임스탬프에서 실행 시간 계산
@@ -123,33 +111,65 @@ function parseMarkdownLogFile(logFilePath) {
 			totalLatency = endTime - startTime
 		}
 
-		// API 호출 추정 (PROMPT_USAGE 로그 개수로 추정)
-		apiCallCount = (logContent.match(/PROMPT-USAGE/g) || []).length
+		// 실제 API 호출 및 토큰 데이터 추출
+		lines.forEach((line) => {
+			// 실제 API 응답에서 토큰 정보 추출
+			if (line.includes("[API_RESPONSE]")) {
+				const tokenInMatch = line.match(/inputTokens?:\s*(\d+)/)
+				const tokenOutMatch = line.match(/outputTokens?:\s*(\d+)/)
+				// CARET MODIFICATION: 실제 캐시 필드명으로 수정
+				const cacheWritesMatch = line.match(/cacheWrites:\s*(\d+)/)
+				const cacheReadsMatch = line.match(/cacheReads:\s*(\d+)/)
+				const costMatch = line.match(/cost:\s*\$?([\d.]+)/)
 
-		// 토큰과 비용은 실제 데이터가 없으므로 추정
-		if (systemPromptInfo && apiCallCount > 0) {
-			// 시스템 프롬프트 토큰을 기반으로 추정
-			const estimatedInputPerCall = systemPromptInfo.approxTokens + 200 // 시스템 + 메시지
-			const estimatedOutputPerCall = 800 // 평균 응답 길이
+				if (tokenInMatch) totalTokensIn += parseInt(tokenInMatch[1])
+				if (tokenOutMatch) totalTokensOut += parseInt(tokenOutMatch[1])
+				if (cacheWritesMatch) totalCachedTokens += parseInt(cacheWritesMatch[1])
+				if (cacheReadsMatch) totalCachedTokens += parseInt(cacheReadsMatch[1])
+				if (costMatch) totalCost += parseFloat(costMatch[1])
+				
+				apiCallCount++
+			}
+		})
 
-			totalTokensIn = estimatedInputPerCall * apiCallCount
-			totalTokensOut = estimatedOutputPerCall * apiCallCount
+			// 실제 세션 모드 확인
+	let actualMode = "unknown"
+	let actualSessionType = "unknown"
+	if (systemPromptInfo) {
+		actualMode = systemPromptInfo.mode
+	} else {
+		// 로그에서 모드 정보 추출
+		const caretModeMatch = logContent.match(/\[SESSION_START\].*mode:\s*"?caret"?/i)
+		const clineModeMatch = logContent.match(/\[SESSION_START\].*mode:\s*"?cline"?/i)
+		if (caretModeMatch) actualMode = "caret"
+		else if (clineModeMatch) actualMode = "cline"
+		
+		// 로그에서 세션 타입 정보 추출
+		const newSessionMatch = logContent.match(/\[SESSION_START\].*type:\s*"?new"?/i)
+		const restoreSessionMatch = logContent.match(/\[SESSION_START\].*type:\s*"?restore"?/i)
+		if (newSessionMatch) actualSessionType = "new"
+		else if (restoreSessionMatch) actualSessionType = "restore"
+	}
 
-			// Gemini 2.5 Pro 가격 기준 ($0.001 per 1K input, $0.005 per 1K output)
-			totalCost = (totalTokensIn / 1000) * 0.001 + (totalTokensOut / 1000) * 0.005
+		// 시스템 프롬프트 정보에 실제 모드 반영
+		if (systemPromptInfo) {
+			systemPromptInfo.mode = actualMode
 		}
 
 		return {
 			totalTokensIn,
 			totalTokensOut,
+			totalCachedTokens,  // 캐시된 토큰 수 추가
 			totalCost,
 			apiCallCount,
 			startTime,
 			endTime,
 			totalLatency,
-			systemPromptInfo,
-			modeCheckLogs,
-		}
+					systemPromptInfo,
+		modeCheckLogs,
+		actualMode,  // 실제 세션 모드 추가
+		actualSessionType,  // 실제 세션 타입 추가
+	}
 	} catch (error) {
 		console.error(`로그 파일 파싱 중 오류 발생: ${logFilePath}`, error)
 		return null
@@ -176,28 +196,42 @@ function parseLogFiles(taskDir) {
 
 		let totalTokensIn = 0
 		let totalTokensOut = 0
+		let totalCachedTokens = 0  // 캐시된 토큰 수 추가
 		let totalCost = 0
 		let apiCallCount = 0
 		// CARET MODIFICATION: 시스템 프롬프트 검증을 위한 변수 추가
 		let systemPromptInfo = null
 		let modeCheckLogs = []
+			let actualMode = "unknown"  // 실제 세션 모드
+	let actualSessionType = "unknown"  // 실제 세션 타입
 
-		uiMessages.forEach((msg) => {
+	uiMessages.forEach((msg) => {
 			if (msg.type === "say" && msg.say === "api_req_started") {
 				try {
 					const apiData = JSON.parse(msg.text)
 					totalTokensIn += apiData.tokensIn || 0
 					totalTokensOut += apiData.tokensOut || 0
+					// CARET MODIFICATION: 실제 캐시 필드명 수정 (cacheWrites + cacheReads)
+					totalCachedTokens += (apiData.cacheWrites || 0) + (apiData.cacheReads || 0)
 					totalCost += apiData.cost || 0
 					apiCallCount++
+
+							// 세션 모드 정보 추출 (첫 번째 API 호출에서)
+		if (actualMode === "unknown" && apiData.sessionMode) {
+			actualMode = apiData.sessionMode
+		}
+		
+		// 세션 타입 정보 추출 (첫 번째 API 호출에서)
+		if (actualSessionType === "unknown" && apiData.sessionType) {
+			actualSessionType = apiData.sessionType
+		}
 
 					// CARET MODIFICATION: 향상된 시스템 프롬프트 정보 추출
 					if (!systemPromptInfo) {
 						// 새로운 로그 구조에서 시스템 프롬프트 정보 추출 (우선순위 1)
 						if (apiData.systemPromptInfo) {
 							systemPromptInfo = {
-								isCaretJson: apiData.systemPromptInfo.isCaretJson,
-								isTrueCline: apiData.systemPromptInfo.isTrueCline,
+								
 								length: apiData.systemPromptInfo.length,
 								wordCount: apiData.systemPromptInfo.wordCount,
 								approxTokens:
@@ -213,9 +247,6 @@ function parseLogFiles(taskDir) {
 							if (systemMessage && systemMessage.content) {
 								const content = systemMessage.content
 								systemPromptInfo = {
-									isCaretJson:
-										content.includes("BASE_PROMPT_INTRO") || content.includes("COLLABORATIVE_PRINCIPLES"),
-									isTrueCline: content.includes("You are Cline, a highly skilled software engineer"),
 									length: content.length,
 									wordCount: content.split(/\s+/).length,
 									approxTokens: Math.ceil(content.split(/\s+/).length * 1.33),
@@ -230,9 +261,6 @@ function parseLogFiles(taskDir) {
 							if (systemMessage && systemMessage.content) {
 								const content = systemMessage.content
 								systemPromptInfo = {
-									isCaretJson:
-										content.includes("BASE_PROMPT_INTRO") || content.includes("COLLABORATIVE_PRINCIPLES"),
-									isTrueCline: content.includes("You are Cline, a highly skilled software engineer"),
 									length: content.length,
 									wordCount: content.split(/\s+/).length,
 									approxTokens: Math.ceil(content.split(/\s+/).length * 1.33),
@@ -265,17 +293,25 @@ function parseLogFiles(taskDir) {
 			totalLatency = endTime - startTime
 		}
 
+		// 시스템 프롬프트 정보에 실제 모드 반영
+		if (systemPromptInfo && actualMode !== "unknown") {
+			systemPromptInfo.mode = actualMode
+		}
+
 		return {
 			totalTokensIn,
 			totalTokensOut,
+			totalCachedTokens,  // 캐시된 토큰 수 추가
 			totalCost,
 			apiCallCount,
 			startTime,
 			endTime,
 			totalLatency,
-			// CARET MODIFICATION: 시스템 프롬프트 정보 추가
-			systemPromptInfo,
-			modeCheckLogs,
+					// CARET MODIFICATION: 시스템 프롬프트 정보 추가
+		systemPromptInfo,
+		modeCheckLogs,
+		actualMode,  // 실제 세션 모드 추가
+		actualSessionType,  // 실제 세션 타입 추가
 		}
 	} catch (error) {
 		console.error(`로그 파일 파싱 중 오류 발생: ${taskDir}`, error)
@@ -292,39 +328,10 @@ function generateDynamicAnalysis(data, agentName) {
 	}
 
 	const info = data.systemPromptInfo
-	let analysis = ""
-
-	// 실제 측정된 데이터 기반 분석
-	if (info.mode === "caret" && info.isCaretJson) {
-		analysis = `**실제 측정 결과:**
-- ✅ Caret JSON 시스템 정상 사용
-- 프롬프트 길이: ${info.length.toLocaleString()} chars
-- 추정 토큰: ~${info.approxTokens.toLocaleString()}개
-- 시스템: JSON 템플릿 기반 생성
-
-**토큰 효율성:**
-- 기존 Cline 대비 약 50% 토큰 절약 달성
-- JSON 기반 모듈화로 유지보수성 향상`
-	} else if (info.mode === "cline" && info.isTrueCline) {
-		analysis = `**실제 측정 결과:**
-- ✅ TRUE_CLINE_SYSTEM_PROMPT 정상 사용
-- 프롬프트 길이: ${info.length.toLocaleString()} chars  
-- 추정 토큰: ~${info.approxTokens.toLocaleString()}개
-- 시스템: Cline 원본 시스템 프롬프트
-
-**참조 데이터:**
-- Caret JSON 시스템: ~5,963 토큰 (50% 절약)
-- 현재 Cline 원본: ~${info.approxTokens.toLocaleString()} 토큰`
-	} else {
-		analysis = `**측정 결과:**
-- 모드: ${info.mode}
-- Caret JSON: ${info.isCaretJson ? "✅" : "❌"}
-- TRUE_CLINE: ${info.isTrueCline ? "✅" : "❌"}
-- 프롬프트 길이: ${info.length.toLocaleString()} chars
-- 추정 토큰: ~${info.approxTokens.toLocaleString()}개`
-	}
-
-	return analysis
+	
+	return `**토큰 효율성:**
+- 문자당 토큰 비율: ${(info.approxTokens / info.length).toFixed(3)}
+- 단어당 토큰 비율: ${(info.approxTokens / info.wordCount).toFixed(3)}`
 }
 
 /**
@@ -352,19 +359,10 @@ function createMarkdownReport(experimentName, agentName, data) {
 
 | 항목 | 결과 |
 |---|---|
-| **실행 모드** | \`${data.systemPromptInfo.mode}\` |
-| **Caret JSON 시스템 사용** | ${data.systemPromptInfo.isCaretJson ? "✅ 예 (Agent 모드)" : "❌ 아니오"} |
-| **TRUE_CLINE_SYSTEM 사용** | ${data.systemPromptInfo.isTrueCline ? "✅ 예" : "❌ 아니오"} |
-| **시스템 프롬프트 경로** | ${data.systemPromptInfo.isCaretJson ? "\`caret-src/core/prompts/system.ts\`" : "\`src/core/prompts/true-cline-system.ts\`"} |
+| **실행 모드** | \`${data.actualMode || data.systemPromptInfo.mode || "unknown"}\` |
 | **프롬프트 길이** | ${data.systemPromptInfo.length.toLocaleString()} 문자 |
 | **단어 수** | ${data.systemPromptInfo.wordCount.toLocaleString()} 개 |
 | **측정된 토큰 수** | ${data.systemPromptInfo.approxTokens.toLocaleString()} 개 |
-
-### 📊 시스템 프롬프트 사용량 분석
-
-**토큰 효율성:**
-- 문자당 토큰 비율: ${(data.systemPromptInfo.approxTokens / data.systemPromptInfo.length).toFixed(3)}
-- 단어당 토큰 비율: ${(data.systemPromptInfo.approxTokens / data.systemPromptInfo.wordCount).toFixed(3)}
 
 ${generateDynamicAnalysis(data, agentName)}
 
@@ -396,12 +394,15 @@ ${data.modeCheckLogs.length > 5 ? `\n... 및 ${data.modeCheckLogs.length - 5}개
 |---|---|
 | **총 입력 토큰** | ${data.totalTokensIn.toLocaleString()} |
 | **총 출력 토큰** | ${data.totalTokensOut.toLocaleString()} |
+| **캐시된 토큰** | ${data.totalCachedTokens?.toLocaleString() || 0} |
 | **총 API 비용** | $${data.totalCost.toFixed(6)} |
 | **API 호출 횟수** | ${data.apiCallCount}회 |
 | **평균 토큰/호출** | ${avgTokensPerCall.toLocaleString()} 토큰/호출 |
 | **평균 비용/호출** | $${avgCostPerCall.toFixed(6)}/호출 |
 | **총 실행 시간** | ${Math.round(data.totalLatency / 1000)}초 (${data.totalLatency}ms) |
 | **실행 기간** | ${executionPeriod} |
+| **실제 세션 모드** | ${data.actualMode || "unknown"} |
+| **실제 세션 타입** | ${data.actualSessionType || "unknown"} |
 
 ${systemPromptAnalysis}
 
@@ -427,24 +428,25 @@ function main() {
 	const [experimentName, agentName] = args
 	console.log(`'${experimentName}' 실험에 대한 '${agentName}' 에이전트의 보고서를 생성합니다...`)
 
-	// 먼저 로컬 마크다운 로그 파일이 있는지 확인
-	const localLogPath = path.join(REPORT_PATH, experimentName, `${agentName.split("-")[0]}.log.md`)
-
 	let data = null
 
-	if (fs.existsSync(localLogPath)) {
-		console.log(`로컬 로그 파일 사용: ${localLogPath}`)
-		data = parseMarkdownLogFile(localLogPath)
-	} else {
-		// 가장 최근 태스크 폴더를 가져와서 분석
-		const latestTaskDir = getLatestTaskDir(path.join(REPORT_PATH, experimentName, agentName))
-		if (!latestTaskDir) {
-			console.error("분석할 태스크 폴더를 찾을 수 없습니다.")
+	// 우선적으로 실제 세션 로그 (JSON) 사용
+	const latestTaskDir = getLatestTaskDir(path.join(REPORT_PATH, experimentName, agentName))
+	if (latestTaskDir) {
+		console.log(`실제 세션 로그 분석: ${latestTaskDir}`)
+		data = parseLogFiles(latestTaskDir)
+	}
+
+	// 세션 로그가 없으면 로컬 마크다운 로그를 폴백으로 사용
+	if (!data) {
+		const localLogPath = path.join(REPORT_PATH, experimentName, `${agentName.split("-")[0]}.log.md`)
+		if (fs.existsSync(localLogPath)) {
+			console.warn(`⚠️ 실제 세션 로그를 찾을 수 없어 추정값 기반 로그를 사용: ${localLogPath}`)
+			data = parseMarkdownLogFile(localLogPath)
+		} else {
+			console.error("실제 세션 로그와 로컬 로그 모두 찾을 수 없습니다.")
 			process.exit(1)
 		}
-
-		console.log(`태스크 폴더에서 로그 분석: ${latestTaskDir}`)
-		data = parseLogFiles(latestTaskDir)
 	}
 
 	if (!data) {

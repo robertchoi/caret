@@ -4761,8 +4761,15 @@ export class Task {
 
 		// since we sent off a placeholder api_req_started message to update the webview while waiting to actually start the API request (to load potential details for example), we need to update the text of that message
 		const lastApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
+		
+		// CARET MODIFICATION: 세션 모드 정보를 실제 세션로그에 기록
+		const sessionMode = this.chatSettings.modeSystem || "unknown"
+		const sessionType = this.clineMessages.filter((m) => m.say === "api_req_started").length === 1 ? "new" : "continuing"
+		
 		this.clineMessages[lastApiReqIndex].text = JSON.stringify({
 			request: userContent.map((block) => formatContentBlockToMarkdown(block)).join("\n\n"),
+			sessionMode: sessionMode,
+			sessionType: sessionType,
 		} satisfies ClineApiReqInfo)
 		await saveClineMessagesAndUpdateHistory(
 			this.getContext(),

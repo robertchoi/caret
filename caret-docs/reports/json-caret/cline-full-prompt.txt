@@ -308,14 +308,6 @@ Usage:
 
 ====
 
-MCP SERVERS
-
-(No MCP servers currently connected)
-
-
-
-====
-
 SYSTEM INFORMATION
 
 Operating System: win32 v22.14.0
@@ -371,8 +363,8 @@ Usage:
   "title": "OBJECTIVE",
   "description": "Accomplish tasks iteratively: break down, set goals, work methodically.",
   "steps": [
-    "Analyze task, set clear/achievable goals, prioritize logically.",
-    "Work through goals sequentially, one tool at a time. Each goal = one step. Stay informed on progress.",
+    "Analyze the user's request and break it into a sequence of goals. **Do not add goals beyond the user's explicit request.**",
+    "Execute goals sequentially, one tool per step. Stay informed on progress.",
     "Use tools properly. Before tool use: analyze in <thinking> tags (use file structure, choose best tool, check required params - infer if possible from context). If required param missing, use ask_followup_question, DO NOT call tool. Don't ask for optional params if not provided.",
     "On task completion, use attempt_completion tool to present result (optionally w/ demo command like `open index.html`).",
     "Use user feedback for improvements. Avoid pointless back-and-forth (no ending questions/offers)."

@@ -10,7 +10,8 @@ export default defineConfig({
 		include: [
 			"caret-src/**/*.test.ts",
 			"caret-src/__tests__/**/*.test.ts", // CARET MODIFICATION: Add caret-src/__tests__ to include path
-			"caret-docs/reports/experiment/**/*.test.js", // CARET MODIFICATION: Add include path for calculator tests
+			// CARET MODIFICATION: caret-docs 테스트는 별도 실행 (test:all에서 제외)
+			// "caret-docs/reports/experiment/**/*.test.js",
 		],
 		exclude: [
 			// 기본 제외 패턴

@@ -121,6 +121,73 @@ function collectAllReports() {
   return allReports
 }
 
+// --- 통계 헬퍼 함수 ---
+
+/**
+ * 숫자 배열의 중앙값을 계산합니다.
+ * @param {number[]} arr - 숫자 배열
+ * @returns {number} 중앙값
+ */
+function median(arr) {
+  if (arr.length === 0) return 0
+  const sorted = [...arr].sort((a, b) => a - b)
+  const mid = Math.floor(sorted.length / 2)
+  return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
+}
+
+/**
+ * 숫자 배열의 표준편차를 계산합니다.
+ * @param {number[]} arr - 숫자 배열
+ * @returns {number} 표준편차
+ */
+function standardDeviation(arr) {
+  if (arr.length < 2) return 0
+  const mean = arr.reduce((acc, val) => acc + val, 0) / arr.length
+  return Math.sqrt(arr.reduce((acc, val) => acc.concat((val - mean) ** 2), []).reduce((acc, val) => acc + val, 0) / (arr.length - 1))
+}
+
+/**
+ * 주어진 리포트 배열과 키에 대한 통계 정보를 계산합니다.
+ * @param {object[]} reports - 리포트 객체 배열
+ * @param {string} key - 통계를 계산할 데이터의 키
+ * @returns {object} 평균, 중앙값, 표준편차를 포함하는 객체
+ */
+function getStats(reports, key, perKey = null) {
+  const values = reports.map(r => {
+    const value = r[key] || 0
+    if (perKey) {
+      const perValue = r[perKey] || 1 // 0으로 나누는 것을 방지
+      return perValue === 0 ? 0 : value / perValue
+    }
+    return value
+  })
+  
+  const total = values.reduce((sum, v) => sum + v, 0)
+  const avg = reports.length > 0 ? total / reports.length : 0
+
+  return {
+    avg: avg,
+    median: median(values),
+    stdDev: standardDeviation(values),
+    values: values
+  }
+}
+
+/**
+ * 배열을 주어진 키로 그룹화합니다.
+ * @param {object[]} array - 그룹화할 객체 배열
+ * @param {string[]} keys - 그룹화 기준이 될 키 배열
+ * @returns {object} 그룹화된 객체
+ */
+function groupBy(array, keys) {
+  return array.reduce((result, currentValue) => {
+    const groupKey = keys.map(key => currentValue[key]).join(" | ")
+    ;(result[groupKey] = result[groupKey] || []).push(currentValue)
+    return result
+  }, {})
+}
+
+
 // --- 분석 함수들 ---
 
 /**
@@ -135,15 +202,11 @@ function generateAgentSummary(reports) {
 
     summary[agent] = {
       totalExperiments: agentReports.length,
-      totalTokensIn: agentReports.reduce((sum, r) => sum + (r.totalTokensIn || 0), 0),
-      totalTokensOut: agentReports.reduce((sum, r) => sum + (r.totalTokensOut || 0), 0),
-      totalCachedTokens: agentReports.reduce((sum, r) => sum + (r.totalCachedTokens || 0), 0),
-      totalCost: agentReports.reduce((sum, r) => sum + (r.totalCost || 0), 0),
       totalApiCalls: agentReports.reduce((sum, r) => sum + (r.apiCallCount || 0), 0),
-      totalLatency: agentReports.reduce((sum, r) => sum + (r.totalLatency || 0), 0),
-      avgTokensPerCall: agentReports.reduce((sum, r) => sum + (r.avgTokensPerCall || 0), 0) / agentReports.length,
-      avgCostPerCall: agentReports.reduce((sum, r) => sum + (r.avgCostPerCall || 0), 0) / agentReports.length,
-      avgLatencyPerExperiment: agentReports.reduce((sum, r) => sum + (r.totalLatency || 0), 0) / agentReports.length,
+      costPerCallStats: getStats(agentReports, "totalCost", "apiCallCount"),
+      latencyPerCallStats: getStats(agentReports, "totalLatency", "apiCallCount"),
+      tokensInPerCallStats: getStats(agentReports, "totalTokensIn", "apiCallCount"),
+      tokensOutPerCallStats: getStats(agentReports, "totalTokensOut", "apiCallCount"),
     }
   }
 
@@ -162,15 +225,11 @@ function generateModelSummary(reports) {
 
     summary[model] = {
       totalExperiments: modelReports.length,
-      totalTokensIn: modelReports.reduce((sum, r) => sum + (r.totalTokensIn || 0), 0),
-      totalTokensOut: modelReports.reduce((sum, r) => sum + (r.totalTokensOut || 0), 0),
-      totalCachedTokens: modelReports.reduce((sum, r) => sum + (r.totalCachedTokens || 0), 0),
-      totalCost: modelReports.reduce((sum, r) => sum + (r.totalCost || 0), 0),
       totalApiCalls: modelReports.reduce((sum, r) => sum + (r.apiCallCount || 0), 0),
-      totalLatency: modelReports.reduce((sum, r) => sum + (r.totalLatency || 0), 0),
-      avgTokensPerCall: modelReports.reduce((sum, r) => sum + (r.avgTokensPerCall || 0), 0) / modelReports.length,
-      avgCostPerCall: modelReports.reduce((sum, r) => sum + (r.avgCostPerCall || 0), 0) / modelReports.length,
-      avgLatencyPerExperiment: modelReports.reduce((sum, r) => sum + (r.totalLatency || 0), 0) / modelReports.length,
+      costPerCallStats: getStats(modelReports, "totalCost", "apiCallCount"),
+      latencyPerCallStats: getStats(modelReports, "totalLatency", "apiCallCount"),
+      tokensInPerCallStats: getStats(modelReports, "totalTokensIn", "apiCallCount"),
+      tokensOutPerCallStats: getStats(modelReports, "totalTokensOut", "apiCallCount"),
     }
   }
 
@@ -217,11 +276,11 @@ function generateDetailedComparison(reports) {
       if (filtered.length > 0) {
         comparison.byTaskAndAgent[task][agent] = {
           experiments: filtered.length,
-          avgCost: filtered.reduce((sum, r) => sum + (r.totalCost || 0), 0) / filtered.length,
-          avgLatency: filtered.reduce((sum, r) => sum + (r.totalLatency || 0), 0) / filtered.length,
-          avgTokensIn: filtered.reduce((sum, r) => sum + (r.totalTokensIn || 0), 0) / filtered.length,
-          avgTokensOut: filtered.reduce((sum, r) => sum + (r.totalTokensOut || 0), 0) / filtered.length,
-          avgApiCalls: filtered.reduce((sum, r) => sum + (r.apiCallCount || 0), 0) / filtered.length,
+          costStats: getStats(filtered, "totalCost"),
+          latencyStats: getStats(filtered, "totalLatency"),
+          apiCallStats: getStats(filtered, "apiCallCount"),
+          tokensInStats: getStats(filtered, "totalTokensIn"),
+          tokensOutStats: getStats(filtered, "totalTokensOut"),
         }
       }
     }
@@ -248,12 +307,79 @@ function generateDetailedComparison(reports) {
   return comparison
 }
 
+/**
+ * 데이터셋에서 이상치를 찾습니다.
+ * @param {object[]} reports - 전체 리포트 배열
+ * @param {string} key - 분석할 데이터 키
+ * @param {string} label - 지표 라벨
+ * @returns {string} 이상치에 대한 마크다운 텍스트
+ */
+function findOutliers(reports, groupByKeys, key, label) {
+  const grouped = groupBy(reports, groupByKeys)
+  let allOutliers = []
+
+  for (const groupName in grouped) {
+    const groupReports = grouped[groupName]
+    if (groupReports.length < 3) continue // 최소 3개 이상 데이터가 있어야 통계적 의미가 있음
+
+    const stats = getStats(groupReports, key)
+    const threshold = stats.avg + 1.5 * stats.stdDev
+    const outliers = groupReports.filter(r => r[key] > threshold)
+    
+    allOutliers = allOutliers.concat(outliers.map(o => ({ ...o, groupAvg: stats.avg })))
+  }
+
+  if (allOutliers.length === 0) {
+    return `- ${label}: 특이한 이상치 없음.\n`
+  }
+
+  let outlierText = `- **${label} 이상치 발견:**\n`
+  for (const outlier of allOutliers) {
+    const val = outlier[key]
+    const percentage = ((val - outlier.groupAvg) / outlier.groupAvg * 100).toFixed(1)
+    outlierText += `  - **${outlier.task} / ${outlier.agent} / ${outlier.modelInfo}**: ${val.toLocaleString()} (그룹 평균 대비 ${percentage}% 높음)\n`
+  }
+  return outlierText
+}
+
+/**
+ * 데이터셋에서 이상치를 제거합니다.
+ * @param {object[]} reports - 전체 리포트 배열
+ * @param {string[]} groupByKeys - 그룹화 기준 키
+ * @param {string} key - 분석할 데이터 키
+ * @returns {object[]} 이상치가 제거된 리포트 배열
+ */
+function removeOutliers(reports, groupByKeys, key) {
+  const grouped = groupBy(reports, groupByKeys)
+  let cleanReports = []
+
+  for (const groupName in grouped) {
+    const groupReports = grouped[groupName]
+    if (groupReports.length < 3) {
+      cleanReports = cleanReports.concat(groupReports)
+      continue
+    }
+    const stats = getStats(groupReports, key)
+    const threshold = stats.avg + 1.5 * stats.stdDev
+    const inliers = groupReports.filter(r => r[key] <= threshold)
+    cleanReports = cleanReports.concat(inliers)
+  }
+  return cleanReports
+}
+
 // --- 보고서 생성 함수들 ---
 
 /**
  * 종합 마크다운 보고서 생성
  */
 function createComprehensiveReport(reports, agentSummary, modelSummary, taskSummary, comparison) {
+  const formatStats = (stats, prefix = "", suffix = "", decimals = 2) => {
+    if (!stats || stats.values.length === 0) return "N/A"
+    const avg = stats.avg.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    const med = stats.median.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    const std = stats.stdDev.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    return `${prefix}${avg}${suffix} (중앙값: ${med}, σ: ${std})`
+  }
   const totalExperiments = reports.length
   const completedTasks = Object.keys(taskSummary).length
   const incompleteTasks = TASKS.filter(task => !taskSummary[task])
@@ -297,51 +423,74 @@ function createComprehensiveReport(reports, agentSummary, modelSummary, taskSumm
   const clineData = agentSummary["cline"] || {}
 
   const metrics = [
-    { key: "totalExperiments", label: "총 실험 수", suffix: "회", isInt: true },
-    { key: "totalCost", label: "총 비용", prefix: "$", decimal: 6 },
-    { key: "avgCostPerCall", label: "평균 호출당 비용", prefix: "$", decimal: 6 },
-    { key: "avgLatencyPerExperiment", label: "평균 실험 시간", suffix: "초", isInt: true },
-    { key: "avgTokensPerCall", label: "평균 호출당 토큰", suffix: " 토큰", isInt: true },
-    { key: "totalApiCalls", label: "총 API 호출", suffix: "회", isInt: true }
+    { key: "totalExperiments", label: "총 실험 수", formatter: (val) => `${val.toLocaleString()}회` },
+    { key: "totalApiCalls", label: "총 API 호출", formatter: (val) => `${val.toLocaleString()}회` },
+    { key: "costPerCallStats", label: "평균 비용/호출", formatter: (stats) => formatStats(stats, "$", "", 6) },
+    { key: "latencyPerCallStats", label: "평균 시간/호출", formatter: (stats) => formatStats(stats, "", "초", 0) },
+    { key: "tokensInPerCallStats", label: "평균 입력 토큰/호출", formatter: (stats) => formatStats(stats, "", " 토큰", 0) },
+    { key: "tokensOutPerCallStats", label: "평균 출력 토큰/호출", formatter: (stats) => formatStats(stats, "", " 토큰", 0) },
   ]
 
   for (const metric of metrics) {
-    const caretVal = caretData[metric.key] || 0
-    const clineVal = clineData[metric.key] || 0
-    const diff = caretVal - clineVal
-    
-    let caretStr, clineStr, diffStr, effStr
-    
-    if (metric.isInt) {
-      caretStr = Math.round(caretVal).toLocaleString()
-      clineStr = Math.round(clineVal).toLocaleString()
-      diffStr = Math.round(diff).toLocaleString()
-    } else {
-      caretStr = caretVal.toFixed(metric.decimal || 2)
-      clineStr = clineVal.toFixed(metric.decimal || 2)
-      diffStr = diff.toFixed(metric.decimal || 2)
+    if (metric.key === "totalExperiments") {
+      const caretVal = caretData.totalExperiments || 0
+      const clineVal = clineData.totalExperiments || 0
+      const diff = caretVal - clineVal
+      report += `| ${metric.label} | ${metric.formatter(caretVal)} | ${metric.formatter(clineVal)} | ${diff}회 | 🟡 동등 |\n`
+      continue
     }
 
-    if (metric.prefix) {
-      caretStr = metric.prefix + caretStr
-      clineStr = metric.prefix + clineStr
-      diffStr = (diff >= 0 ? "+" : "") + metric.prefix + Math.abs(diff).toFixed(metric.decimal || 2)
-    }
-    if (metric.suffix) {
-      caretStr += metric.suffix
-      clineStr += metric.suffix
-      diffStr += metric.suffix
-    }
+    const caretStat = caretData[metric.key]
+    const clineStat = clineData[metric.key]
 
-    // 효율성 계산 (낮은 값이 좋은 지표들)
-    if (metric.key.includes("Cost") || metric.key.includes("Latency") || metric.key.includes("Calls")) {
-      effStr = diff < 0 ? "🟢 Caret 우수" : diff > 0 ? "🔴 Cline 우수" : "🟡 동등"
-    } else {
-      effStr = diff > 0 ? "🟢 Caret 우수" : diff < 0 ? "🔴 Cline 우수" : "🟡 동등"
-    }
+    const caretStr = metric.formatter(caretStat)
+    const clineStr = metric.formatter(clineStat)
+    
+    const diff = (caretStat ? caretStat.avg : 0) - (clineStat ? clineStat.avg : 0)
+    const diffPercentage = (clineStat && clineStat.avg !== 0) ? (diff / clineStat.avg * 100).toFixed(1) : "N/A"
+    
+    const diffStr = `${diff > 0 ? "+" : ""}${diff.toLocaleString(undefined, {maximumFractionDigits: 2})} (${diffPercentage}%)`
+    
+    const effStr = diff < 0 ? "🟢 Caret 우수" : diff > 0 ? "🔴 Cline 우수" : "🟡 동등"
 
     report += `| ${metric.label} | ${caretStr} | ${clineStr} | ${diffStr} | ${effStr} |\n`
   }
+
+  // 에이전트 비교 (Pro 모델 한정)
+  report += `\n### Pro 모델 한정 성능 요약\n`
+  report += `| 지표 | Caret | Cline | 차이 (Caret - Cline) | 효율성 |\n`
+  report += `|---|---|---|---|---|\n`
+
+  const proReports = reports.filter(r => r.model === "gemini-2.5-pro-preview-06-05")
+  const proAgentSummary = generateAgentSummary(proReports)
+  const caretProData = proAgentSummary["caret"] || {}
+  const clineProData = proAgentSummary["cline"] || {}
+
+  for (const metric of metrics) {
+    if (metric.key === "totalExperiments") {
+      const caretVal = caretProData.totalExperiments || 0
+      const clineVal = clineProData.totalExperiments || 0
+      const diff = caretVal - clineVal
+      report += `| ${metric.label} | ${metric.formatter(caretVal)} | ${metric.formatter(clineVal)} | ${diff}회 | 🟡 동등 |\n`
+      continue
+    }
+
+    const caretStat = caretProData[metric.key]
+    const clineStat = clineProData[metric.key]
+
+    const caretStr = metric.formatter(caretStat)
+    const clineStr = metric.formatter(clineStat)
+    
+    const diff = (caretStat ? caretStat.avg : 0) - (clineStat ? clineStat.avg : 0)
+    const diffPercentage = (clineStat && clineStat.avg !== 0) ? (diff / clineStat.avg * 100).toFixed(1) : "N/A"
+    
+    const diffStr = `${diff > 0 ? "+" : ""}${diff.toLocaleString(undefined, {maximumFractionDigits: 2})} (${diffPercentage}%)`
+    
+    const effStr = diff < 0 ? "🟢 Caret 우수" : diff > 0 ? "🔴 Cline 우수" : "🟡 동등"
+
+    report += `| ${metric.label} | ${caretStr} | ${clineStr} | ${diffStr} | ${effStr} |\n`
+  }
+
 
   // 모델 비교
   report += `\n## ⚡ 모델 성능 비교 (Pro vs Flash)
@@ -355,39 +504,26 @@ function createComprehensiveReport(reports, agentSummary, modelSummary, taskSumm
   const flashData = modelSummary["gemini-2.5-flash-preview-05-20"] || {}
 
   for (const metric of metrics) {
-    const proVal = proData[metric.key] || 0
-    const flashVal = flashData[metric.key] || 0
-    const diff = proVal - flashVal
-    
-    let proStr, flashStr, diffStr, effStr
-    
-    if (metric.isInt) {
-      proStr = Math.round(proVal).toLocaleString()
-      flashStr = Math.round(flashVal).toLocaleString()
-      diffStr = Math.round(diff).toLocaleString()
-    } else {
-      proStr = proVal.toFixed(metric.decimal || 2)
-      flashStr = flashVal.toFixed(metric.decimal || 2)
-      diffStr = diff.toFixed(metric.decimal || 2)
+    if (metric.key === "totalExperiments") {
+      const proVal = proData.totalExperiments || 0
+      const flashVal = flashData.totalExperiments || 0
+      const diff = proVal - flashVal
+      report += `| ${metric.label} | ${metric.formatter(proVal)} | ${metric.formatter(flashVal)} | ${diff}회 | ${diff > 0 ? "🟢 Pro 우수" : "🔴 Flash 우수"} |\n`
+      continue
     }
 
-    if (metric.prefix) {
-      proStr = metric.prefix + proStr
-      flashStr = metric.prefix + flashStr
-      diffStr = (diff >= 0 ? "+" : "") + metric.prefix + Math.abs(diff).toFixed(metric.decimal || 2)
-    }
-    if (metric.suffix) {
-      proStr += metric.suffix
-      flashStr += metric.suffix
-      diffStr += metric.suffix
-    }
+    const proStat = proData[metric.key]
+    const flashStat = flashData[metric.key]
 
-    // 효율성 계산
-    if (metric.key.includes("Cost") || metric.key.includes("Latency") || metric.key.includes("Calls")) {
-      effStr = diff < 0 ? "🟢 Pro 우수" : diff > 0 ? "🔴 Flash 우수" : "🟡 동등"
-    } else {
-      effStr = diff > 0 ? "🟢 Pro 우수" : diff < 0 ? "🔴 Flash 우수" : "🟡 동등"
-    }
+    const proStr = metric.formatter(proStat)
+    const flashStr = metric.formatter(flashStat)
+    
+    const diff = (proStat ? proStat.avg : 0) - (flashStat ? flashStat.avg : 0)
+    const diffPercentage = (flashStat && flashStat.avg !== 0) ? (diff / flashStat.avg * 100).toFixed(1) : "N/A"
+    
+    const diffStr = `${diff > 0 ? "+" : ""}${diff.toLocaleString(undefined, {maximumFractionDigits: 2})} (${diffPercentage}%)`
+    
+    const effStr = diff < 0 ? "🟢 Pro 우수" : diff > 0 ? "🔴 Flash 우수" : "🟡 동등"
 
     report += `| ${metric.label} | ${proStr} | ${flashStr} | ${diffStr} | ${effStr} |\n`
   }
@@ -409,46 +545,26 @@ function createComprehensiveReport(reports, agentSummary, modelSummary, taskSumm
       report += `|---|---|---|---|---|\n`
       
       const taskMetrics = [
-        { key: "avgCost", label: "평균 비용", prefix: "$", decimal: 6 },
-        { key: "avgLatency", label: "평균 시간", suffix: "초", isInt: true },
-        { key: "avgApiCalls", label: "평균 API 호출", suffix: "회", decimal: 1 },
-        { key: "avgTokensIn", label: "평균 입력 토큰", suffix: " 토큰", isInt: true },
-        { key: "avgTokensOut", label: "평균 출력 토큰", suffix: " 토큰", isInt: true }
+        { key: "costStats", label: "비용", formatter: (stats) => formatStats(stats, "$", "", 6) },
+        { key: "latencyStats", label: "시간", formatter: (stats) => formatStats(stats, "", "초", 0) },
+        { key: "apiCallStats", label: "API 호출", formatter: (stats) => formatStats(stats, "", "회", 1) },
+        { key: "tokensInStats", label: "입력 토큰", formatter: (stats) => formatStats(stats, "", " 토큰", 0) },
+        { key: "tokensOutStats", label: "출력 토큰", formatter: (stats) => formatStats(stats, "", " 토큰", 0) }
       ]
 
       for (const metric of taskMetrics) {
-        const caretVal = caretTaskData[metric.key] || 0
-        const clineVal = clineTaskData[metric.key] || 0
-        const diff = caretVal - clineVal
-        
-        let caretStr, clineStr, diffStr, betterAgent
-        
-        if (metric.isInt) {
-          caretStr = Math.round(caretVal).toLocaleString()
-          clineStr = Math.round(clineVal).toLocaleString()
-          diffStr = (diff >= 0 ? "+" : "") + Math.round(diff).toLocaleString()
-        } else {
-          caretStr = caretVal.toFixed(metric.decimal || 2)
-          clineStr = clineVal.toFixed(metric.decimal || 2)
-          diffStr = (diff >= 0 ? "+" : "") + diff.toFixed(metric.decimal || 2)
-        }
+        const caretStat = caretTaskData[metric.key]
+        const clineStat = clineTaskData[metric.key]
 
-        if (metric.prefix) {
-          caretStr = metric.prefix + caretStr
-          clineStr = metric.prefix + clineStr
-        }
-        if (metric.suffix) {
-          caretStr += metric.suffix
-          clineStr += metric.suffix
-          diffStr += metric.suffix
-        }
-
-        // 어느 에이전트가 더 좋은지 판단
-        if (metric.key.includes("Cost") || metric.key.includes("Latency") || metric.key.includes("Calls")) {
-          betterAgent = diff < 0 ? "🟢 Caret" : diff > 0 ? "🔴 Cline" : "🟡 동등"
-        } else {
-          betterAgent = diff > 0 ? "🟢 Caret" : diff < 0 ? "🔴 Cline" : "🟡 동등"
-        }
+        const caretStr = metric.formatter(caretStat)
+        const clineStr = metric.formatter(clineStat)
+        
+        const diff = (caretStat ? caretStat.avg : 0) - (clineStat ? clineStat.avg : 0)
+        const diffPercentage = (clineStat && clineStat.avg !== 0) ? (diff / clineStat.avg * 100).toFixed(1) : "N/A"
+        
+        const diffStr = `${diff > 0 ? "+" : ""}${diff.toLocaleString(undefined, {maximumFractionDigits: 2})} (${diffPercentage}%)`
+        
+        const betterAgent = diff < 0 ? "🟢 Caret" : diff > 0 ? "🔴 Cline" : "🟡 동등"
 
         report += `| ${metric.label} | ${caretStr} | ${clineStr} | ${diffStr} | ${betterAgent} |\n`
       }
@@ -461,6 +577,99 @@ function createComprehensiveReport(reports, agentSummary, modelSummary, taskSumm
     }
   }
 
+  // 과업별 상세 분석 (Pro 모델 한정)
+  report += `\n## 📋 과업별 상세 성능 분석 (Pro 모델 한정)\n`
+  
+  const proComparison = generateDetailedComparison(proReports)
+
+  for (const task of TASKS) {
+    if (!taskSummary[task]) continue
+
+    const proTaskAgentComparison = proComparison.byTaskAndAgent[task] || {}
+    if (Object.keys(proTaskAgentComparison).length < 2) continue
+
+    report += `\n### ${task.charAt(0).toUpperCase() + task.slice(1)} 과업 (Pro 모델)\n\n`
+    
+    const caretTaskData = proTaskAgentComparison["caret"]
+    const clineTaskData = proTaskAgentComparison["cline"]
+
+    if (caretTaskData && clineTaskData) {
+      report += `| 지표 | Caret | Cline | 차이 | 우수 에이전트 |\n`
+      report += `|---|---|---|---|---|\n`
+      
+      const taskMetrics = [
+        { key: "costStats", label: "비용", formatter: (stats) => formatStats(stats, "$", "", 6) },
+        { key: "latencyStats", label: "시간", formatter: (stats) => formatStats(stats, "", "초", 0) },
+        { key: "apiCallStats", label: "API 호출", formatter: (stats) => formatStats(stats, "", "회", 1) },
+        { key: "tokensInStats", label: "입력 토큰", formatter: (stats) => formatStats(stats, "", " 토큰", 0) },
+        { key: "tokensOutStats", label: "출력 토큰", formatter: (stats) => formatStats(stats, "", " 토큰", 0) }
+      ]
+
+      for (const metric of taskMetrics) {
+        const caretStat = caretTaskData[metric.key]
+        const clineStat = clineTaskData[metric.key]
+
+        const caretStr = metric.formatter(caretStat)
+        const clineStr = metric.formatter(clineStat)
+        
+        const diff = (caretStat ? caretStat.avg : 0) - (clineStat ? clineStat.avg : 0)
+        const diffPercentage = (clineStat && clineStat.avg !== 0) ? (diff / clineStat.avg * 100).toFixed(1) : "N/A"
+        
+        const diffStr = `${diff > 0 ? "+" : ""}${diff.toLocaleString(undefined, {maximumFractionDigits: 2})} (${diffPercentage}%)`
+        
+        const betterAgent = diff < 0 ? "🟢 Caret" : diff > 0 ? "🔴 Cline" : "🟡 동등"
+
+        report += `| ${metric.label} | ${caretStr} | ${clineStr} | ${diffStr} | ${betterAgent} |\n`
+      }
+    }
+  }
+
+
+  // 이상치 분석
+  report += `\n## 🔬 주요 이상치 분석 (그룹 평균 + 1.5 * σ 초과)\n`
+  report += findOutliers(reports, ['task', 'agent', 'model'], "totalCost", "비용")
+  report += findOutliers(reports, ['task', 'agent', 'model'], "totalLatency", "시간")
+  report += findOutliers(reports, ['task', 'agent', 'model'], "totalTokensIn", "입력 토큰")
+
+  // 이상치 제외 분석
+  report += `\n## 📊 이상치 제외 성능 분석\n`
+
+  // Caret vs Cline (Pro 모델, 이상치 제외)
+  report += `\n### Caret vs Cline 비교 (Pro 모델, 이상치 제외)\n`
+  report += `| 지표 | Caret | Cline | 차이 (Caret - Cline) | 효율성 |\n`
+  report += `|---|---|---|---|---|\n`
+  
+  let cleanProCaret = proReports.filter(r => r.agent === 'caret')
+  let cleanProCline = proReports.filter(r => r.agent === 'cline')
+  
+  const proMetricKeys = ['totalCost', 'totalLatency', 'apiCallCount', 'totalTokensIn', 'totalTokensOut']
+  
+  for(const key of proMetricKeys) {
+      cleanProCaret = removeOutliers(cleanProCaret, ['task', 'model'], key)
+      cleanProCline = removeOutliers(cleanProCline, ['task', 'model'], key)
+  }
+
+  const cleanProAgentSummary = generateAgentSummary(cleanProCaret.concat(cleanProCline))
+  const cleanCaretProData = cleanProAgentSummary["caret"] || {}
+  const cleanClineProData = cleanProAgentSummary["cline"] || {}
+
+  for (const metric of metrics) {
+    if (metric.key === "totalExperiments") {
+      report += `| 이상치 제외 실험 수 | ${cleanCaretProData.totalExperiments || 0}회 | ${cleanClineProData.totalExperiments || 0}회 | - | 🟡 동등 |\n`
+      continue
+    }
+    const caretStat = cleanCaretProData[metric.key]
+    const clineStat = cleanClineProData[metric.key]
+    const caretStr = metric.formatter(caretStat)
+    const clineStr = metric.formatter(clineStat)
+    const diff = (caretStat ? caretStat.avg : 0) - (clineStat ? clineStat.avg : 0)
+    const diffPercentage = (clineStat && clineStat.avg !== 0) ? (diff / clineStat.avg * 100).toFixed(1) : "N/A"
+    const diffStr = `${diff > 0 ? "+" : ""}${diff.toLocaleString(undefined, {maximumFractionDigits: 2})} (${diffPercentage}%)`
+    const effStr = diff < 0 ? "🟢 Caret 우수" : diff > 0 ? "🔴 Cline 우수" : "🟡 동등"
+    report += `| ${metric.label} | ${caretStr} | ${clineStr} | ${diffStr} | ${effStr} |\n`
+  }
+
+
   // 주요 인사이트
   report += `\n## 🎯 주요 인사이트
 
@@ -468,19 +677,19 @@ function createComprehensiveReport(reports, agentSummary, modelSummary, taskSumm
 `
 
   if (caretData.totalExperiments && clineData.totalExperiments) {
-    const costDiff = ((caretData.totalCost / caretData.totalExperiments) - (clineData.totalCost / clineData.totalExperiments))
-    const timeDiff = ((caretData.totalLatency / caretData.totalExperiments) - (clineData.totalLatency / clineData.totalExperiments))
+    const costDiff = caretData.costPerCallStats.avg - clineData.costPerCallStats.avg
+    const timeDiff = caretData.latencyPerCallStats.avg - clineData.latencyPerCallStats.avg
     
     if (costDiff < 0) {
-      report += `- 💰 **비용 효율성**: Caret이 실험당 평균 $${Math.abs(costDiff).toFixed(6)} 더 저렴\n`
+      report += `- 💰 **비용 효율성**: Caret이 API 호출당 평균 $${Math.abs(costDiff).toFixed(6)} 더 저렴합니다.\n`
     } else {
-      report += `- 💰 **비용 효율성**: Cline이 실험당 평균 $${Math.abs(costDiff).toFixed(6)} 더 저렴\n`
+      report += `- 💰 **비용 효율성**: Cline이 API 호출당 평균 $${Math.abs(costDiff).toFixed(6)} 더 저렴합니다.\n`
     }
     
     if (timeDiff < 0) {
-      report += `- ⏱️ **실행 속도**: Caret이 실험당 평균 ${Math.abs(Math.round(timeDiff))}초 더 빠름\n`
+      report += `- ⏱️ **실행 속도**: Caret이 API 호출당 평균 ${Math.abs(timeDiff).toFixed(2)}초 더 빠릅니다.\n`
     } else {
-      report += `- ⏱️ **실행 속도**: Cline이 실험당 평균 ${Math.abs(Math.round(timeDiff))}초 더 빠름\n`
+      report += `- ⏱️ **실행 속도**: Cline이 API 호출당 평균 ${Math.abs(timeDiff).toFixed(2)}초 더 빠릅니다.\n`
     }
   }
 
@@ -489,19 +698,19 @@ function createComprehensiveReport(reports, agentSummary, modelSummary, taskSumm
 `
 
   if (proData.totalExperiments && flashData.totalExperiments) {
-    const modelCostDiff = ((proData.totalCost / proData.totalExperiments) - (flashData.totalCost / flashData.totalExperiments))
-    const modelTimeDiff = ((proData.totalLatency / proData.totalExperiments) - (flashData.totalLatency / flashData.totalExperiments))
+    const modelCostDiff = proData.costPerCallStats.avg - flashData.costPerCallStats.avg
+    const modelTimeDiff = proData.latencyPerCallStats.avg - flashData.latencyPerCallStats.avg
     
     if (modelCostDiff < 0) {
-      report += `- 💰 **비용 효율성**: Pro 모델이 실험당 평균 $${Math.abs(modelCostDiff).toFixed(6)} 더 저렴\n`
+      report += `- 💰 **비용 효율성**: Pro 모델이 API 호출당 평균 $${Math.abs(modelCostDiff).toFixed(6)} 더 저렴합니다.\n`
     } else {
-      report += `- 💰 **비용 효율성**: Flash 모델이 실험당 평균 $${Math.abs(modelCostDiff).toFixed(6)} 더 저렴\n`
+      report += `- 💰 **비용 효율성**: Flash 모델이 API 호출당 평균 $${Math.abs(modelCostDiff).toFixed(6)} 더 저렴합니다.\n`
     }
     
     if (modelTimeDiff < 0) {
-      report += `- ⏱️ **실행 속도**: Pro 모델이 실험당 평균 ${Math.abs(Math.round(modelTimeDiff))}초 더 빠름\n`
+      report += `- ⏱️ **실행 속도**: Pro 모델이 API 호출당 평균 ${Math.abs(modelTimeDiff).toFixed(2)}초 더 빠릅니다.\n`
     } else {
-      report += `- ⏱️ **실행 속도**: Flash 모델이 실험당 평균 ${Math.abs(Math.round(modelTimeDiff))}초 더 빠름\n`
+      report += `- ⏱️ **실행 속도**: Flash 모델이 API 호출당 평균 ${Math.abs(modelTimeDiff).toFixed(2)}초 더 빠릅니다.\n`
     }
   }
 
@@ -576,4 +785,4 @@ if (require.main === module) {
   main()
 }
 
-module.exports = { main, collectAllReports, parseReportFile } 
+module.exports = { main, collectAllReports, parseReportFile }

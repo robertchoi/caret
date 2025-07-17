@@ -967,21 +967,30 @@ export class Controller {
 			await sendAuthCallbackEvent(customToken)
 			caretLogger.info("[AUTH] Custom token sent to webview.")
 
-			const caretProvider: ApiProvider = "caret"
-			await updateWorkspaceState(this.context, "apiProvider", caretProvider)
-			caretLogger.info(`[AUTH] Workspace API provider set to: ${caretProvider}`)
+			// CARET MODIFICATION: Keep user's selected API provider, don't force "caret"
+			// Only store caretApiKey for authentication, preserve selected provider (gemini, anthropic, etc.)
+			const { apiConfiguration, chatSettings } = await getAllExtensionState(this.context)
+			const selectedProvider = apiConfiguration?.apiProvider || "gemini" // fallback to gemini
+			caretLogger.info(`[AUTH] Preserving user's selected provider: ${selectedProvider}`)
 
-			// Update API configuration with the new provider and API key
-			const { apiConfiguration } = await getAllExtensionState(this.context)
+			// Update chat settings to use Caret system (JSON-based) while keeping selected provider
+			const updatedChatSettings = {
+				...chatSettings,
+				modeSystem: "caret" as const, // Use Caret JSON system
+			}
+			await updateWorkspaceState(this.context, "chatSettings", updatedChatSettings)
+			caretLogger.info("[AUTH] Chat settings updated to use Caret system")
+
+			// Update API configuration with caretApiKey but preserve provider choice
 			const updatedConfig = {
 				...apiConfiguration,
-				apiProvider: caretProvider,
+				apiProvider: selectedProvider, // Keep user's choice!
 				caretApiKey: apiKey,
 			}
 
 			if (this.task) {
 				this.task.api = buildApiHandler(updatedConfig)
-				caretLogger.info("[AUTH] Task API handler updated.")
+				caretLogger.info(`[AUTH] Task API handler updated for provider: ${selectedProvider}`)
 			}
 
 			await this.postStateToWebview()

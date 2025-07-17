@@ -262,6 +262,18 @@ export interface ClineApiReqInfo {
 		delaySec: number
 		errorSnippet?: string
 	}
+	// CARET MODIFICATION: 시스템 프롬프트 검증을 위한 추가 필드들
+	messages?: Array<{ role: string; content: any }>
+	systemPromptInfo?: {
+		length: number
+		wordCount: number
+		preview: string
+		isCaretJson: boolean
+		isTrueCline: boolean
+		estimatedTokens?: number // CARET MODIFICATION: 토큰 추정값
+		mode?: string // CARET MODIFICATION: 현재 모드 (caret/cline)
+	}
+	conversationLength?: number
 }
 
 export type ClineApiReqCancelReason = "streaming_failed" | "user_cancelled" | "retries_exhausted"

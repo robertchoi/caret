@@ -22,26 +22,31 @@ export const SYSTEM_PROMPT = async (
 	extensionPath?: string, // CARET MODIFICATION: Added extensionPath parameter
 	mode: "chatbot" | "agent" = "agent", // CARET MODIFICATION: Added mode parameter
 ): Promise<string> => {
-	// CARET MODIFICATION: System selection based on extensionPath
+	const { caretLogger } = await import("../../utils/caret-logger")
+
+	// CARET MODIFICATION: 항상 extensionPath 제공되어야 함 (아키텍처 수정 완료)
 	if (!extensionPath) {
-		// No extensionPath = Use Cline original system
-		console.warn("[MODE_CHECK] ⚠️ [MODE-CHECK-SYSTEM] Cline 원본 프롬프트 사용: mode=" + mode + " (mode 파라미터 무시됨!)")
-		const { SYSTEM_PROMPT: originalSystemPrompt } = await import("../../../src/core/prompts/system")
-		return await originalSystemPrompt(cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily)
+		caretLogger.error("❌ [CARET-SYSTEM] extensionPath not provided! Architecture is broken.", "SYSTEM")
+		throw new Error("extensionPath is required for Caret system")
 	}
 
 	try {
-		// extensionPath provided = Use Caret JSON system
-		console.log("[CARET] Generated prompt via Caret JSON system (mode: " + mode + ")")
+		caretLogger.info(`🎯 [CARET-SYSTEM] ✅ caret-src/core/prompts/system.ts 호출됨! mode=${mode}`, "SYSTEM")
+
+		// CARET MODIFICATION: 동적 도구 로딩 시스템 구현 예정 위치
+		// TODO: Phase 2에서 컨텍스트별 도구 필터링 구현
+		caretLogger.info(`🔧 [CARET-SYSTEM] 동적 로딩 시스템 초기화 중... (Phase 1: 기본 MCP 제거)`, "SYSTEM")
 
 		// Initialize CaretSystemPrompt with extensionPath
 		if (!CaretSystemPrompt.isInitialized()) {
 			CaretSystemPrompt.initialize(extensionPath)
+			caretLogger.success("✅ [CARET-SYSTEM] CaretSystemPrompt 초기화 완료", "SYSTEM")
 		}
 
 		const caretSystemPrompt = CaretSystemPrompt.getInstance()
 
 		// Generate prompt using JSON sections with mode support
+		caretLogger.info(`🚀 [CARET-SYSTEM] generateFromJsonSections 호출 시작 - mode=${mode}`, "SYSTEM")
 		const prompt = await caretSystemPrompt.generateFromJsonSections(
 			cwd,
 			supportsBrowserUse,
@@ -51,12 +56,16 @@ export const SYSTEM_PROMPT = async (
 			mode, // CARET MODIFICATION: Pass mode parameter
 		)
 
+		const promptLength = prompt.length
+		const estimatedTokens = Math.ceil(promptLength / 4)
+		caretLogger.success(
+			`✅ [CARET-SYSTEM] 시스템 프롬프트 생성 완료! mode=${mode}, length=${promptLength}, ~${estimatedTokens} tokens`,
+			"SYSTEM",
+		)
+
 		return prompt
 	} catch (error) {
-		// Fallback to original Cline system prompt if JSON generation fails
-		console.error("[CaretSystemPrompt] JSON generation failed, falling back to Cline original:", error)
-
-		const { SYSTEM_PROMPT: originalSystemPrompt } = await import("../../../src/core/prompts/system")
-		return await originalSystemPrompt(cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily)
+		caretLogger.error(`❌ [CARET-SYSTEM] JSON generation failed: ${error}`, "SYSTEM")
+		throw error // extensionPath가 있으면 fallback하지 않고 에러 전파
 	}
 }

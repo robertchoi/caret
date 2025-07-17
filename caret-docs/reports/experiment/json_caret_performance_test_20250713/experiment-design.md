@@ -8,11 +8,12 @@
 
 ## 2. 실험 대상 및 변수
 
-### 2.1. 실험 과제 (3종)
+### 2.1. 실험 과제 (4종)
 
-1.  **Calculator**: 간단한 웹 계산기 애플리케이션 개발
-2.  **Markdown**: 마크다운 뷰어 애플리케이션 개발
-3.  **Todolist**: Todo 리스트 애플리케이션 개발
+1.  **Calculator**: 간단한 웹 계산기 애플리케이션 개발 (브라우저 기반)
+2.  **Markdown**: 마크다운 뷰어 애플리케이션 개발 (브라우저 기반)
+3.  **Todolist**: Todo 리스트 애플리케이션 개발 (브라우저 기반)
+4.  **JSON-Processor**: JSON 데이터 처리 시스템 개발 (Node.js CLI 기반, 복잡한 로직 위주)
 
 ### 2.2. 비교 대상 AI 에이전트
 
@@ -21,17 +22,22 @@
     *   **사용 모델**:
         *   `gemini-2.5-pro-preview-06-05 extended thinking`
         *   `gemini-2.5-flash-preview-05-20 extended thinking`
-    *   **비교 조합**: 3개 과제 x 2개 모델 x 2개 AI 에이전트 = **총 12회 실험**
+    *   **비교 조합**: 4개 과제 x 2개 모델 x 2개 AI 에이전트 = **총 16회 실험**
     *   **아래는 세션의 명령 예시**
 ```
 @/caret-docs\reports\experiment\json_caret_performance_test_20250713\calcualtor-comparison-instructions.md  에 따라 실험 진행해줘.
 AI에이전트명은 caret-gemini-2.5-pro-preview-06-05-think1024
 ```
 
+```
+@/caret-docs\reports\experiment\json_caret_performance_test_20250713\json-processor-comparison-instructions.md  에 따라 실험 진행해줘.
+AI에이전트명은 caret-gemini-2.5-flash-preview-05-20-think1024
+```
+
 *   **Caret vs. Cursor (부가 비교)**
     *   **AI 에이전트**: `caret`, `cursor`
     *   **사용 모델**: `claude-3.7-sonet`
-    *   **비교 조합**: 3개 과제 x 1개 모델 x 2개 AI 에이전트 = **총 6회 실험**
+    *   **비교 조합**: 4개 과제 x 1개 모델 x 2개 AI 에이전트 = **총 8회 실험**
     *   **특이사항**: 공정한 비교를 위해, 이 실험에서는 Caret 에이전트도 외부 API 설정을 통해 `claude-3.7-sonet` 모델을 사용하도록 구성합니다. 이를 통해 동일한 모델 조건 하에서 각 에이전트의 순수 성능(처리 속도, API 호출 효율성 등)을 측정합니다.
 
 ## 3. 실험 수행 방법

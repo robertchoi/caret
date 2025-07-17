@@ -1346,7 +1346,8 @@ export class Task {
 					// CARET MODIFICATION: Catch any remaining errors from checkpoint commit
 					const errorMessage = error instanceof Error ? error.message : "Unknown error"
 					console.error("Checkpoint commit failed unexpectedly for attempt completion:", errorMessage)
-					this.checkpointTrackerErrorMessage = "Checkpoint system temporarily unavailable. Your work will continue normally."
+					this.checkpointTrackerErrorMessage =
+						"Checkpoint system temporarily unavailable. Your work will continue normally."
 					// Still save the messages without checkpoint hash
 					await saveClineMessagesAndUpdateHistory(
 						this.getContext(),
@@ -1857,6 +1858,47 @@ export class Task {
 				this.checkpointTracker,
 				this.updateTaskHistory,
 			) // saves task history item which we use to keep track of conversation history deleted range
+		}
+
+		// CARET MODIFICATION: API 호출 직전에 전체 메시지 배열 로깅 (시스템 프롬프트 검증용)
+		const fullMessageArray = [
+			{ role: "system", content: systemPrompt },
+			...contextManagementMetadata.truncatedConversationHistory,
+		]
+
+		// CARET MODIFICATION: 시스템 프롬프트 사용량 추적
+		const { SystemPromptUsageTracker } = await import("../../../caret-src/core/prompts/SystemPromptUsageTracker")
+		const usageTracker = new SystemPromptUsageTracker()
+		const currentMode = this.chatSettings.modeSystem === "cline" ? "cline" : "caret"
+		const estimatedTokens = Math.ceil(systemPrompt.length / 4)
+
+		// 시스템 프롬프트 사용량 로깅
+		const { caretLogger } = await import("../../../caret-src/utils/caret-logger")
+		caretLogger.info(
+			`📊 [PROMPT-USAGE] ${currentMode.toUpperCase()} 모드 - 길이: ${systemPrompt.length} chars, 토큰: ~${estimatedTokens}, 모델: ${this.api.getModel().id}`,
+			"PROMPT_USAGE",
+		)
+
+		// API 요청 로그 업데이트 - 시스템 프롬프트 정보 포함
+		const lastApiReqIndex = findLastIndex(this.clineMessages, (m) => m.say === "api_req_started")
+		if (lastApiReqIndex !== -1) {
+			const currentApiReqInfo: ClineApiReqInfo = JSON.parse(this.clineMessages[lastApiReqIndex].text || "{}")
+
+			this.clineMessages[lastApiReqIndex].text = JSON.stringify({
+				...currentApiReqInfo,
+				// CARET MODIFICATION: 시스템 프롬프트 검증을 위한 전체 메시지 배열 추가
+				messages: fullMessageArray,
+				systemPromptInfo: {
+					length: systemPrompt.length,
+					wordCount: systemPrompt.split(/\s+/).length,
+					preview: systemPrompt.substring(0, 200) + "...",
+					isCaretJson: systemPrompt.includes("BASE_PROMPT_INTRO") || systemPrompt.includes("COLLABORATIVE_PRINCIPLES"),
+					isTrueCline: systemPrompt.includes("# Cline") && systemPrompt.includes("a highly skilled software engineer"),
+					estimatedTokens, // CARET MODIFICATION: 토큰 추정값 추가
+					mode: currentMode, // CARET MODIFICATION: 현재 모드 추가
+				},
+				conversationLength: contextManagementMetadata.truncatedConversationHistory.length,
+			} satisfies ClineApiReqInfo)
 		}
 
 		let stream = this.api.createMessage(systemPrompt, contextManagementMetadata.truncatedConversationHistory)
@@ -4663,13 +4705,15 @@ export class Task {
 					// CARET MODIFICATION: Handle case where commit failed but returned undefined
 					console.warn("Checkpoint commit failed but task will continue without checkpoints")
 					// Set error message to inform user that checkpoints are not available
-					this.checkpointTrackerErrorMessage = "Checkpoint system temporarily unavailable due to Git issues. Your work will continue normally."
+					this.checkpointTrackerErrorMessage =
+						"Checkpoint system temporarily unavailable due to Git issues. Your work will continue normally."
 				}
 			} catch (error) {
 				// CARET MODIFICATION: Catch any remaining errors from checkpoint commit
 				const errorMessage = error instanceof Error ? error.message : "Unknown error"
 				console.error("Checkpoint commit failed unexpectedly:", errorMessage)
-				this.checkpointTrackerErrorMessage = "Checkpoint system temporarily unavailable. Your work will continue normally."
+				this.checkpointTrackerErrorMessage =
+					"Checkpoint system temporarily unavailable. Your work will continue normally."
 				// Don't rethrow the error - let the task continue
 			}
 		} else if (isFirstRequest && this.enableCheckpoints && !this.checkpointTracker && this.checkpointTrackerErrorMessage) {

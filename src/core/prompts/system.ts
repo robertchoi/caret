@@ -17,44 +17,33 @@ export const SYSTEM_PROMPT = async (
 	mode: 'chatbot' | 'agent' = 'agent' // CARET MODIFICATION: Chatbot/Agent 모드 지원
 ) => {
 	// CARET MODIFICATION: SYSTEM_PROMPT 호출 시 모드 확인 로그 추가
-	const { caretLogger } = await import('../../../caret-src/utils/caret-logger')
-	caretLogger.info(
-		`🔍 [MODE-CHECK-SYSTEM] SYSTEM_PROMPT 호출됨: mode=${mode}, extensionPath=${extensionPath ? 'Caret JSON 시스템' : 'Cline 원본 시스템'}, isClaude4=${isClaude4ModelFamily}`,
-		"MODE_CHECK"
-	)
-
-	// CARET MODIFICATION: extensionPath가 있으면 Caret JSON 시스템 사용
+	// CARET MODIFICATION: extensionPath가 있으면 Caret 전용 system.ts 사용
 	if (extensionPath) {
+		const { caretLogger } = await import('../../../caret-src/utils/caret-logger')
 		try {
-			const { CaretSystemPrompt } = await import('../../../caret-src/core/prompts/CaretSystemPrompt')
-
-				// Caret JSON 시스템 사용
-				const caretPrompt = CaretSystemPrompt.getInstance(extensionPath)
-				const result = await caretPrompt.generateFromJsonSections(
-					cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily, mode
-				)
-				
-			caretLogger.success(`✅ [MODE-CHECK-SYSTEM] Caret JSON 시스템으로 프롬프트 생성 완료: mode=${mode}`, "MODE_CHECK")
-				return result
+			caretLogger.info(`🎯 [CARET-ROUTING] Routing to caret-src/core/prompts/system.ts - mode=${mode}`, "SYSTEM")
+			
+			const { SYSTEM_PROMPT: CARET_SYSTEM_PROMPT } = await import('../../../caret-src/core/prompts/system')
+			const result = await CARET_SYSTEM_PROMPT(cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily, extensionPath, mode)
+			
+			caretLogger.success(`✅ [CARET-ROUTING] Caret system completed - mode=${mode}`, "SYSTEM")
+			return result
 
 		} catch (error) {
-			caretLogger.error(`❌ [MODE-CHECK-SYSTEM] Caret 시스템 실패, Cline 원본으로 fallback: ${error}`, "MODE_CHECK")
+			caretLogger.error(`❌ [CARET-ROUTING] Caret system failed, fallback to Cline: ${error}`, "SYSTEM")
 			// 에러시 안전한 fallback
 		}
 	}
 
 	if (isClaude4ModelFamily && USE_EXPERIMENTAL_CLAUDE4_FEATURES) {
-		caretLogger.info(`✅ [MODE-CHECK-SYSTEM] Claude4 Experimental 프롬프트 사용: mode=${mode}`, "MODE_CHECK")
 		return SYSTEM_PROMPT_CLAUDE4_EXPERIMENTAL(cwd, supportsBrowserUse, mcpHub, browserSettings)
 	}
 
   if (isClaude4ModelFamily) {
-    caretLogger.info(`✅ [MODE-CHECK-SYSTEM] Claude4 프롬프트 사용: mode=${mode}`, "MODE_CHECK")
     return SYSTEM_PROMPT_CLAUDE4(cwd, supportsBrowserUse, mcpHub, browserSettings)
   }
 
 	// CARET MODIFICATION: Cline 원본 프롬프트 보존 함수로 분리
-	caretLogger.warn(`⚠️ [MODE-CHECK-SYSTEM] Cline 원본 프롬프트 사용: mode=${mode} (mode 파라미터 무시됨!)`, "MODE_CHECK")
 	return ORIGINAL_CLINE_SYSTEM_PROMPT(cwd, supportsBrowserUse, mcpHub, browserSettings, isClaude4ModelFamily)
 }
 

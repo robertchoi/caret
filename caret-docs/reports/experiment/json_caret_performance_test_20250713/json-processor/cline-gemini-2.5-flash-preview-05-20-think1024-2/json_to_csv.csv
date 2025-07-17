@@ -1,6 +1,0 @@
-id,name,age,department,location,contact,skills
-1,Alice,25,HR,Seoul,"{""email"":""alice@example.com"",""phone"":""111-222-3333""}","[""Python"",""Excel""]"
-2,Bob,30,IT,Busan,"{""email"":""bob@example.com"",""phone"":""444-555-6666""}","[""JavaScript"",""Node.js"",""React""]"
-3,Charlie,35,HR,Seoul,"{""email"":""charlie@example.com"",""phone"":""777-888-9999""}","[""Recruitment"",""Interviews""]"
-4,David,28,IT,Seoul,"{""email"":""david@example.com"",""phone"":""000-111-2222""}","[""Java"",""Spring"",""SQL""]"
-5,Alice,25,HR,Seoul,"{""email"":""alice@example.com"",""phone"":""111-222-3333""}","[""Python"",""Excel""]"

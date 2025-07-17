@@ -21,7 +21,7 @@
 
 ## 4. 프로젝트 구조
 ```
-/calculator/caret-gemini2.5-pro-preview-06-05-tink1024-1/
+/calculator/caret-gemini2.5-pro-preview-06-05-think1024-1/
 ├── index.html          # 메인 페이지 (UI)
 ├── style.css           # 스타일 시트
 ├── script.js           # 계산기 핵심 로직

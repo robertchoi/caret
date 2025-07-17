@@ -1,0 +1,88 @@
+/* style.css */
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+}
+
+.calculator {
+    background-color: #333;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    width: 320px; /* 계산기 전체 너비 */
+}
+
+.display {
+    background-color: #222;
+    color: #0f0; /* 녹색 LED 스타일 */
+    font-size: 2.5em;
+    padding: 10px;
+    text-align: right;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    overflow: hidden; /* 숫자가 넘칠 경우 숨김 */
+    white-space: nowrap; /* 줄바꿈 방지 */
+    text-overflow: ellipsis; /* 넘칠 경우 ... 표시 */
+    height: 1.5em; /* 디스플레이 높이 고정 */
+    line-height: 1.5em; /* 텍스트 세로 중앙 정렬 */
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+button {
+    background-color: #555;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 20px;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #777;
+}
+
+button:active {
+    background-color: #999;
+}
+
+.operator {
+    background-color: #f90; /* 주황색 */
+}
+
+.operator:hover {
+    background-color: #ffb03a;
+}
+
+.equals {
+    background-color: #0a0; /* 녹색 */
+    grid-column: span 1; /* 1칸 차지 */
+}
+
+.equals:hover {
+    background-color: #0c0;
+}
+
+.clear-all, .clear-entry {
+    background-color: #c00; /* 빨간색 */
+}
+
+.clear-all:hover, .clear-entry:hover {
+    background-color: #e00;
+}
+
+.zero {
+    grid-column: span 2; /* 0 버튼은 두 칸 차지 */
+}

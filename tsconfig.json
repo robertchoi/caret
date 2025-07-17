@@ -13,6 +13,7 @@
 		"noUnusedLocals": false,
 		"resolveJsonModule": true,
 		"rootDir": ".",
+		"outDir": "./dist-temp",
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,

@@ -6,7 +6,7 @@ import {
 	UiServiceClient,
 	FileServiceClient,
 	McpServiceClient,
-} from "../services/grpc-client.js"
+} from "../services/grpc-client"
 import { EmptyRequest, StringRequest } from "@shared/proto/common"
 import { UpdateSettingsRequest } from "@shared/proto/state"
 import { WebviewProviderType as WebviewProviderTypeEnum, WebviewProviderTypeRequest } from "@shared/proto/ui"

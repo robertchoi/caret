@@ -1,0 +1,85 @@
+/* calculator/caret-gemini-2.5-flash-preview-05-20-think1024-1/style.css */
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+.calculator {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    background-color: #333;
+    padding: 20px;
+}
+
+.calculator-display {
+    background-color: #222;
+    color: #0f0;
+    font-size: 2.5em;
+    padding: 10px;
+    text-align: right;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    min-height: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    overflow: hidden;
+}
+
+.calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.calculator-buttons button {
+    background-color: #555;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 15px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calculator-buttons button:hover {
+    background-color: #777;
+}
+
+.calculator-buttons .operator {
+    background-color: #f90;
+}
+
+.calculator-buttons .operator:hover {
+    background-color: #ffaa00;
+}
+
+.calculator-buttons .clear {
+    background-color: #d00;
+}
+
+.calculator-buttons .clear:hover {
+    background-color: #ff3333;
+}
+
+.calculator-buttons .equals {
+    background-color: #09f;
+    grid-column: span 2; /* = 버튼은 두 칸 차지 */
+}
+
+.calculator-buttons .equals:hover {
+    background-color: #33bbff;
+}
+
+.calculator-buttons .zero {
+    grid-column: span 2; /* 0 버튼은 두 칸 차지 */
+}

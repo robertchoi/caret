@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹 계산기</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="calculator">
+        <input type="text" class="calculator-screen" value="0" disabled />
+        <div class="calculator-keys">
+            <button type="button" class="operator" value="+">+</button>
+            <button type="button" class="operator" value="-">-</button>
+            <button type="button" class="operator" value="*">&times;</button>
+            <button type="button" class="operator" value="/">&divide;</button>
+
+            <button type="button" value="7">7</button>
+            <button type="button" value="8">8</button>
+            <button type="button" value="9">9</button>
+
+            <button type="button" value="4">4</button>
+            <button type="button" value="5">5</button>
+            <button type="button" value="6">6</button>
+
+            <button type="button" value="1">1</button>
+            <button type="button" value="2">2</button>
+            <button type="button" value="3">3</button>
+
+            <button type="button" value="0">0</button>
+            <button type="button" class="decimal" value=".">.</button>
+            <button type="button" class="all-clear" value="all-clear">AC</button>
+
+            <button type="button" class="equal-sign operator" value="=">=</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="script.test.js"></script>
+    <script>
+        // 테스트를 위해 script.js의 calculate 함수를 전역 스코프에 노출
+        // 실제 프로덕션에서는 필요하지 않음
+        window.calculate = calculate;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDisplay();
+            const keys = document.querySelector('.calculator-keys');
+            keys.addEventListener('click', (event) => {
+                const { target } = event;
+                if (!target.matches('button')) {
+                    return;
+                }
+
+                if (target.classList.contains('operator')) {
+                    if(target.value === '='){
+                        // 등호 버튼 클릭 시 handleOperator 호출 후 결과 표시
+                        const { firstOperand, displayValue, operator } = calculator;
+                        const inputValue = parseFloat(displayValue);
+                         if (firstOperand != null && operator) {
+                            const result = calculate(firstOperand, operator, inputValue);
+                            const roundedResult = Math.round(result * 10000000000) / 10000000000;
+                            calculator.displayValue = String(roundedResult);
+                            calculator.firstOperand = roundedResult; // 연속 계산을 위해 결과 저장
+                            calculator.waitingForSecondOperand = true; // 새로운 계산 시작 준비
+                            calculator.operator = null;
+                        }
+                    } else {
+                        handleOperator(target.value);
+                    }
+                    updateDisplay();
+                    return;
+                }
+
+                if (target.classList.contains('decimal')) {
+                    inputDecimal(target.value);
+                    updateDisplay();
+                    return;
+                }
+
+                if (target.classList.contains('all-clear')) {
+                    resetCalculator();
+                    updateDisplay();
+                    return;
+                }
+                
+                inputDigit(target.value);
+                updateDisplay();
+            });
+        });
+    </script>
+</body>
+</html>

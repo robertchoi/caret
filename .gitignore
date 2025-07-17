@@ -1,6 +1,7 @@
 out
 dist
 dist-standalone
+dist-temp
 node_modules
 tmp
 .vscode-test/
@@ -43,6 +44,10 @@ src/hosts/vscode/host-grpc-service-config.ts
 !caret-src/core/prompts/**/*.json
 !caret-src/core/prompts/**/**/**/*.json
 !webview-ui/src/caret/locale/**/*.json
+
+# Ignore compiled files in caret-src (should go to dist-temp instead)
+caret-src/**/*.js
+caret-src/**/*.js.map
 
 
 

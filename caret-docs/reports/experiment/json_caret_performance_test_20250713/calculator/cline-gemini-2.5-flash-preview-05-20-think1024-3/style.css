@@ -1,0 +1,99 @@
+/* style.css - 계산기 스타일 */
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+.calculator {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.calculator-display {
+    background-color: #222;
+    color: #fff;
+    font-size: 2.5em;
+    padding: 20px;
+    text-align: right;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background-color: #ccc; /* 버튼 사이의 구분선 역할 */
+}
+
+.calculator-buttons button {
+    background-color: #e0e0e0;
+    border: none;
+    padding: 20px;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calculator-buttons button:hover {
+    background-color: #d0d0d0;
+}
+
+.calculator-buttons button:active {
+    background-color: #c0c0c0;
+}
+
+.operator {
+    background-color: #f5923e;
+    color: #fff;
+}
+
+.operator:hover {
+    background-color: #e4812d;
+}
+
+.operator:active {
+    background-color: #d3701c;
+}
+
+.clear {
+    background-color: #f05050;
+    color: #fff;
+}
+
+.clear:hover {
+    background-color: #e04040;
+}
+
+.clear:active {
+    background-color: #d03030;
+}
+
+.equal-sign {
+    grid-column: span 2; /* 등호 버튼은 두 칸 차지 */
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.equal-sign:hover {
+    background-color: #45a049;
+}
+
+.equal-sign:active {
+    background-color: #3e8e41;
+}
+
+.zero-button {
+    grid-column: span 2; /* 0 버튼은 두 칸 차지 */
+}
